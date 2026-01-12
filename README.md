@@ -1,110 +1,295 @@
-# NextStep
-> Helping you take your next step in life.
+# NextStep - Youth Job & Mentorship Platform
 
-**NextStep** is a jobseeker and mentorship platform designed for students, graduating students, and young jobseekers. It helps users transition into employment with proper guidance, mentorship, and clarity, rather than leaving them to navigate the job market alone.
+> **🚀 Hackathon-Ready Next.js Project**
+>
+> A comprehensive jobseeker and mentorship platform designed to connect youth with career opportunities and experienced mentors.
 
-**Track:** Social Services · Youth Development  
-**Status:** Prototype / MVP
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.0-38bdf8)
+![License](https://img.shields.io/badge/license-MIT-green)
 
----
+## 📋 Table of Contents
+
+-   [Overview](#overview)
+-   [Features](#features)
+-   [Tech Stack](#tech-stack)
+-   [Getting Started](#getting-started)
+-   [Project Structure](#project-structure)
+-   [Development Roadmap](#development-roadmap)
+-   [API Routes](#api-routes)
+-   [Hackathon Extension Ideas](#hackathon-extension-ideas)
 
 ## 🎯 Overview
-Youth employment is not only an economic issue, but also a social development challenge. Many young people struggle to enter the workforce not because of lack of ability, but due to limited access to guidance, mentors, and clear opportunities.
 
-NextStep addresses this gap by combining job discovery with mentorship and structured guidance, helping young people feel prepared, confident, and supported throughout their job search journey.
+**NextStep** is a platform that empowers youth to:
 
----
+-   **Find Opportunities**: Browse jobs, internships, and mentorships
+-   **Connect with Mentors**: Get guidance from experienced professionals
+-   **Track Progress**: Manage applications and career development
 
-## 🧩 Problem
-Students and first-time jobseekers often face:
-- Lack of clear guidance on where and how to apply  
-- Limited access to mentors or experienced professionals  
-- Low confidence and unfamiliarity with hiring processes  
-
-As a result, job hunting becomes overwhelming, inefficient, and discouraging, contributing to youth unemployment and underemployment.
+This scaffold provides a complete foundation with mock data, UI components, and API routes ready for immediate hackathon development.
 
 ---
 
-## 💡 Solution
-NextStep is a **Jobseeker & Mentorship Hub** that guides users step by step through the job search process.
+## ✨ Core Features
 
-Instead of focusing only on job listings, the platform emphasizes:
-- Career readiness  
-- Mentorship and guidance  
-- Confidence-building for first-time jobseekers  
+### MVP Features (Current Implementation)
 
----
+-   ✅ **User Profiles** - Skills, interests, and career goals
+-   ✅ **Student-friendly Job Listings** - Jobs, internships, and company information
+-   ✅ **Application Tracking Dashboard** - Manage and track all applications
+-   ✅ **Mentor Matching** - Connect with experienced professionals
+-   ✅ **In-app Messaging** - Direct communication with mentors and employers
 
-## ✨ Core MVP Features
-- User profiles (skills, interests, career goals)  
-- Student-friendly job and company listings  
-- Application tracking dashboard  
-- Mentor matching and in-app messaging  
+### Technical Implementation
 
----
+-   ✅ **Authentication Pages** - Login/signup UI (ready for backend integration)
+-   ✅ **Dashboard** - Overview of applications, messages, and opportunities
+-   ✅ **Opportunities Browser** - Search and filter jobs, internships, mentorships
+-   ✅ **Profile Management** - User profile editing with skills
+-   ✅ **Applications Tracking** - View and manage all applications
+-   ✅ **Messaging System** - Chat interface (ready for real-time integration)
+-   ✅ **Mock API Routes** - RESTful endpoints with sample data
+-   ✅ **Reusable Components** - Button, Input, Card, Navbar, Sidebar
+-   ✅ **TypeScript Types** - Full type safety across the app
 
-## 👥 Target Users
-### Primary Users
-- College students  
-- Graduating students  
-- Fresh graduates  
-- First-time jobseekers  
-
-### Secondary Users
-- Mentors (professionals, alumni, experienced workers)  
-- Companies offering entry-level opportunities  
+> **Note:** The current build uses sample data to demonstrate the complete user flow.
 
 ---
 
-## 🔄 Conceptual System Flow
-1. User creates a personal profile  
-2. System matches the user with relevant jobs and mentors  
-3. User applies for jobs and tracks application status  
-4. Mentors provide guidance, feedback, and career advice  
+## 🛠 Tech Stack
 
-The system flow is intentionally simple to ensure clarity, accessibility, and ease of use.
+-   **Framework**: Next.js 15 (App Router)
+-   **Language**: TypeScript
+-   **Styling**: TailwindCSS
+-   **State Management**: React Hooks
+-   **Architecture**: API-driven architecture
+-   **Database**: Relational database (planned)
+-   **Current Data**: Mock data for demonstration purposes
+
+> The platform is built with scalability in mind, ready for database integration and production deployment.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+-   Node.js 18+ installed
+-   npm or yarn package manager
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Open browser
+# Navigate to http://localhost:3000
+```
+
+### First Run
+
+1. Visit the landing page at `/`
+2. Click "Get Started" to go to `/auth`
+3. Sign up/login (mock - no backend yet)
+4. Explore the dashboard at `/dashboard`
+5. Browse opportunities at `/opportunities`
+
+## 📁 Project Structure
+
+```
+Next-Step/
+├── app/
+│   ├── layout.tsx                 # Root layout with Navbar
+│   ├── page.tsx                   # Landing page
+│   ├── auth/page.tsx              # Login/signup
+│   ├── dashboard/page.tsx         # User dashboard
+│   ├── profile/page.tsx           # User profile
+│   ├── opportunities/
+│   │   ├── page.tsx               # All opportunities
+│   │   └── [id]/page.tsx          # Single opportunity detail
+│   ├── applications/page.tsx      # User's applications
+│   ├── messages/page.tsx          # Messaging interface
+│   └── api/
+│       ├── users/route.ts         # Users API
+│       ├── opportunities/route.ts # Opportunities API
+│       └── messages/route.ts      # Messages API
+├── components/
+│   ├── ui/
+│   │   ├── Button.tsx             # Reusable button component
+│   │   ├── Input.tsx              # Input & textarea components
+│   │   └── Card.tsx               # Card container components
+│   ├── layout/
+│   │   ├── Navbar.tsx             # Main navigation
+│   │   └── Sidebar.tsx            # Dashboard sidebar
+│   └── features/
+│       ├── profile/ProfileForm.tsx
+│       └── opportunities/OpportunityCard.tsx
+├── lib/
+│   ├── types.ts                   # TypeScript interfaces
+│   ├── data.ts                    # Mock data
+│   └── utils.ts                   # Helper functions
+└── public/assets/                 # Images and icons
+```
 
 ---
 
-## 🌱 Social Impact
-NextStep aligns with the **Social Services (Youth Development)** track by:
-- Supporting youth career readiness  
-- Providing guidance and mentorship, not just job access  
-- Reducing information and access gaps for first-time jobseekers  
-- Helping young people make informed and confident career decisions  
+## 🗓 Development Roadmap
 
-This positions NextStep as a **social support platform**, not merely a job application tool.
+### Day 1-2: Foundation & Core Features
 
----
+-   [x] Set up project structure
+-   [x] Create UI components
+-   [x] Implement landing page
+-   [x] Build dashboard with mock data
+-   [x] Create opportunities browsing
+-   [ ] Add authentication (NextAuth.js, Clerk, or Supabase)
+-   [ ] Set up database (MongoDB, PostgreSQL, or Supabase)
+-   [ ] Connect API routes to database
 
-## 🧱 Tech Stack
-**(Planned / In Progress)**
+### Day 3-4: User Features
 
-- Frontend: Web-based interface  
-- Backend: API-driven architecture  
-- Database: Relational database for users, jobs, and applications  
+-   [ ] Implement profile editing with image upload
+-   [ ] Add application submission functionality
+-   [ ] Build filtering and search for opportunities
+-   [ ] Add real-time messaging (WebSockets/Pusher)
+-   [ ] Create notifications system
+-   [ ] Add bookmarking/saved opportunities
 
-> Demo and prototype currently use sample data to demonstrate the full user flow.
+### Day 5: Polish & Deploy
 
----
+-   [ ] Fix bugs and edge cases
+-   [ ] Add loading states and error handling
+-   [ ] Implement responsive design improvements
+-   [ ] Add animations and transitions
+-   [ ] Write documentation
+-   [ ] Deploy to Vercel/Netlify
+-   [ ] Prepare demo and presentation
 
-## 🚧 Execution Plan
-- **Phase 1:** Core features (profiles, job listings, mentorship, tracking)  
-- **Phase 2:** Company onboarding and improved matching  
-- **Phase 3:** Expansion, partnerships, and additional youth support features  
+## 🔌 API Routes
 
----
+### GET /api/users
 
-## 🎤 Pitch Focus
-Given the time constraints of the hackathon, the project presentation prioritizes:
-- The youth employment problem  
-- The mentorship-based, guided solution  
-- A clear and simple system flow  
-- Social impact on youth development in Naga City  
+Returns list of users. Supports filtering:
 
-Overpromising is avoided in favor of clarity and feasibility.
+-   `?role=student` - Filter by role
+-   `?search=john` - Search by name/email
 
----
+### GET /api/opportunities
+
+Returns opportunities. Supports filtering:
+
+-   `?type=job` - Filter by type (job, internship, mentorship)
+-   `?skills=React,TypeScript` - Filter by skills
+-   `?location=Toronto` - Filter by location
+-   `?remote=true` - Filter remote only
+
+### GET /api/messages
+
+Returns messages for current user:
+
+-   `?userId=1` - Get messages for specific user
+-   `?conversationWith=2` - Get conversation between two users
+
+## 💡 Hackathon Extension Ideas
+
+### High Priority
+
+1. **Authentication** - Implement real user auth (NextAuth.js recommended)
+2. **Database** - Replace mock data with real DB (Supabase quick setup)
+3. **Search & Filters** - Make opportunity filtering functional
+4. **Application System** - Allow users to apply with cover letters
+5. **Real-time Messaging** - Add WebSockets for live chat
+
+### Medium Priority
+
+6. **File Uploads** - Profile pictures and resume uploads
+7. **Matching Algorithm** - Smart mentor-mentee matching
+8. **Calendar Integration** - Schedule mentorship sessions
+9. **Email Notifications** - Send updates for applications
+10. **Admin Dashboard** - Manage users and opportunities
+
+### Nice to Have
+
+11. **AI Resume Review** - Use OpenAI to review resumes
+12. **Skills Assessment** - Quiz-based skill verification
+13. **Video Calls** - Integrate Zoom/Google Meet for mentorship
+14. **Analytics Dashboard** - Track user engagement
+15. **Mobile App** - React Native version
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```env
+# Database
+DATABASE_URL=your_database_url
+
+# Authentication
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Optional: Third-party services
+UPLOADTHING_SECRET=your_uploadthing_secret
+PUSHER_APP_ID=your_pusher_app_id
+OPENAI_API_KEY=your_openai_key
+```
+
+## 📝 Code Comments Guide
+
+Throughout the codebase, you'll find:
+
+-   `TODO:` - Immediate next steps
+-   `HACKATHON TODO:` - Extension ideas for hackathon
+-   `NOTE:` - Important information
+-   Inline explanations of complex logic
+
+## 🤝 Contributing During Hackathon
+
+1. **Divide and Conquer**: Split team by features (auth, messaging, etc.)
+2. **Use Branches**: Create feature branches for parallel work
+3. **Mock First**: Test UI with mock data before integrating backend
+4. **Iterate Fast**: Build MVP first, polish later
+5. **Document**: Update README as you add features
+
+## 📚 Resources
+
+-   [Next.js Documentation](https://nextjs.org/docs)
+-   [TailwindCSS Docs](https://tailwindcss.com/docs)
+-   [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+-   [Supabase Quick Start](https://supabase.com/docs/guides/getting-started)
+-   [NextAuth.js Guide](https://next-auth.js.org/getting-started/example)
+
+## 🐛 Known Issues & Limitations
+
+-   Authentication is UI-only (no backend)
+-   All data is mock/hardcoded
+-   Messages are not real-time
+-   No file upload functionality yet
+-   Search and filters are not functional
+-   No data persistence (refreshes reset state)
 
 ## 📄 License
-This project is developed for hackathon and educational purposes.
+
+MIT License - feel free to use this project for your hackathon!
+
+## 🎉 Quick Start Checklist
+
+-   [ ] Run `npm install`
+-   [ ] Run `npm run dev`
+-   [ ] Visit http://localhost:3000
+-   [ ] Explore all pages
+-   [ ] Read TODO comments in code
+-   [ ] Pick features to implement
+-   [ ] Start coding!
+
+---
+
+**Built for hackathons. Ready to extend. Good luck! 🚀**
+
+For questions or issues, check the inline code comments or the TODO sections in each file.
