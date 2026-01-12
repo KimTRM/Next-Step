@@ -1,10 +1,21 @@
 /**
- * Profile Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Profile Page
+ * ============================================================================
  * 
- * User profile view and edit
+ * User profile view and edit.
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Get current user from authentication session
+ * 2. Replace data import with API call to fetch user profile
+ * 3. Add profile update API integration
+ * 4. Implement image upload for avatar
+ * 5. Add profile visibility settings (public/private)
  */
 
-import { users } from '@/lib/data';
+// BACKEND DATA: Import from server-side mock data
+import { users } from '@/server/data/users';
+// FRONTEND COMPONENTS
 import ProfileForm from '@/components/features/profile/ProfileForm';
 import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
 

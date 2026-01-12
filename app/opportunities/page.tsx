@@ -1,10 +1,25 @@
 /**
- * Opportunities Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Opportunities Page
+ * ============================================================================
  * 
- * Browse all jobs, internships, and mentorships
+ * Browse all jobs, internships, and mentorships.
+ * 
+ * ARCHITECTURE:
+ * - This is a server component that fetches data on the server side
+ * - Imports mock data from /server/data for now
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Replace with client component and use API calls (fetch('/api/opportunities'))
+ * 2. Implement real search and filtering functionality
+ * 3. Add pagination or infinite scroll
+ * 4. Add bookmarking/saving opportunities
+ * 5. Implement personalized recommendations
  */
 
-import { opportunities } from '@/lib/data';
+// BACKEND DATA: Import from server-side mock data
+import { opportunities } from '@/server/data/opportunities';
+// FRONTEND COMPONENTS
 import { OpportunityList } from '@/components/features/opportunities/OpportunityCard';
 import Card, { CardBody } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';

@@ -1,13 +1,32 @@
 /**
- * Dashboard Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Dashboard Page
+ * ============================================================================
  * 
- * Main dashboard showing overview of user activity
+ * Main dashboard showing overview of user activity.
+ * 
+ * ARCHITECTURE:
+ * - This is a server component that fetches data on the server side
+ * - Imports mock data from /server/data for now
+ * - In production: Replace with API calls or database queries
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Replace direct data imports with API calls (fetch('/api/...'))
+ * 2. Implement user authentication to get current user
+ * 3. Add loading states and error handling
+ * 4. Implement data caching with React Query or SWR
+ * 5. Add real-time updates for messages and applications
  */
 
 import Link from 'next/link';
 import Card, { CardBody, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { opportunities, applications, messages, users } from '@/lib/data';
+// BACKEND DATA: These imports pull from server-side mock data
+// In production: Replace with API calls or database queries
+import { opportunities } from '@/server/data/opportunities';
+import { applications } from '@/server/data/applications';
+import { messages } from '@/server/data/messages';
+import { users } from '@/server/data/users';
 
 export default async function DashboardPage() {
     // Mock current user (student with ID 1)

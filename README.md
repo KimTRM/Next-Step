@@ -100,40 +100,98 @@ npm run dev
 
 ## 📁 Project Structure
 
+> **📖 For detailed documentation, see the [docs/](docs/) folder**
+>
+> **Quick Links:**
+>
+> -   **[Quick Start Guide](docs/QUICK-START.md)** - Get started in 5 minutes
+> -   **[Architecture Guide](docs/ARCHITECTURE.md)** - Detailed architecture documentation
+> -   **[Migration Guide](docs/MIGRATION-GUIDE.md)** - How to work with the codebase
+> -   **[TODO List](docs/TODO.md)** - Feature roadmap
+
+The project follows a clean separation of concerns with distinct frontend and backend layers:
+
 ```
 Next-Step/
-├── app/
+├── app/                           # 🎨 FRONTEND - Next.js pages & UI
 │   ├── layout.tsx                 # Root layout with Navbar
 │   ├── page.tsx                   # Landing page
 │   ├── auth/page.tsx              # Login/signup
 │   ├── dashboard/page.tsx         # User dashboard
 │   ├── profile/page.tsx           # User profile
-│   ├── opportunities/
-│   │   ├── page.tsx               # All opportunities
+│   ├── opportunities/             # Opportunities pages
+│   │   ├── page.tsx               # Browse all opportunities
 │   │   └── [id]/page.tsx          # Single opportunity detail
-│   ├── applications/page.tsx      # User's applications
+│   ├── applications/page.tsx      # Application tracking
 │   ├── messages/page.tsx          # Messaging interface
-│   └── api/
-│       ├── users/route.ts         # Users API
-│       ├── opportunities/route.ts # Opportunities API
-│       └── messages/route.ts      # Messages API
-├── components/
-│   ├── ui/
-│   │   ├── Button.tsx             # Reusable button component
-│   │   ├── Input.tsx              # Input & textarea components
-│   │   └── Card.tsx               # Card container components
-│   ├── layout/
+│   └── api/                       # 🔌 HTTP API route handlers
+│       ├── users/route.ts         # Users API endpoint
+│       ├── opportunities/route.ts # Opportunities API endpoint
+│       └── messages/route.ts      # Messages API endpoint
+│
+├── components/                    # 🧩 FRONTEND - Reusable UI components
+│   ├── ui/                        # Base UI components
+│   │   ├── Button.tsx             # Button component
+│   │   ├── Input.tsx              # Input & textarea
+│   │   └── Card.tsx               # Card container
+│   ├── layout/                    # Layout components
 │   │   ├── Navbar.tsx             # Main navigation
 │   │   └── Sidebar.tsx            # Dashboard sidebar
-│   └── features/
+│   └── features/                  # Feature-specific components
 │       ├── profile/ProfileForm.tsx
 │       └── opportunities/OpportunityCard.tsx
-├── lib/
+│
+├── server/                        # 🗄️ BACKEND - Business logic & data
+│   ├── api/                       # Business logic layer
+│   │   ├── users.ts               # User operations & filtering
+│   │   ├── opportunities.ts       # Opportunity operations
+│   │   └── messages.ts            # Message operations
+│   └── data/                      # Data access layer (mock data)
+│       ├── users.ts               # User data & queries
+│       ├── opportunities.ts       # Opportunity data & queries
+│       ├── messages.ts            # Message data & queries
+│       └── applications.ts        # Application data & queries
+│
+├── lib/                           # 🔧 SHARED - Used by frontend & backend
 │   ├── types.ts                   # TypeScript interfaces
-│   ├── data.ts                    # Mock data
-│   └── utils.ts                   # Helper functions
-└── public/assets/                 # Images and icons
+│   ├── utils.ts                   # Utility functions
+│   └── data.ts                    # (DEPRECATED) Re-exports
+│
+├── docs/                          # 📚 PROJECT DOCUMENTATION
+│   ├── README.md                  # Documentation index
+│   ├── QUICK-START.md             # Quick start guide (5 min)
+│   ├── ARCHITECTURE.md            # Detailed architecture (20 min)
+│   ├── MIGRATION-GUIDE.md         # Feature development guide (15 min)
+│   ├── REFACTORING-SUMMARY.md     # Project history (10 min)
+│   └── TODO.md                    # Feature roadmap (5 min)
+│
+├── public/assets/                 # 📁 Static assets
+└── README.md                      # This file
 ```
+
+### Architecture Highlights
+
+**Layered Architecture**:
+
+-   **Frontend Layer** (`/app`, `/components`): User interface
+-   **HTTP Layer** (`/app/api`): Request/response handling
+-   **Business Logic Layer** (`/server/api`): Core application logic
+-   **Data Layer** (`/server/data`): Data access and mock storage
+
+**Benefits**:
+
+-   ✅ Clear separation between frontend and backend
+-   ✅ Easy to replace mock data with real database
+-   ✅ Business logic is reusable and testable
+-   ✅ API routes are thin and focused on HTTP concerns
+-   ✅ Well-documented with inline comments
+
+**Migration Path**:
+
+1. Replace `/server/data` arrays with database queries
+2. Add authentication middleware to `/app/api` routes
+3. Implement real-time features with WebSockets
+4. Add caching and optimization
 
 ---
 
@@ -259,6 +317,7 @@ Throughout the codebase, you'll find:
 
 ## 📚 Resources
 
+-   **[Full Documentation](docs/)** - All project documentation
 -   [Next.js Documentation](https://nextjs.org/docs)
 -   [TailwindCSS Docs](https://tailwindcss.com/docs)
 -   [TypeScript Handbook](https://www.typescriptlang.org/docs/)
@@ -284,7 +343,8 @@ MIT License - feel free to use this project for your hackathon!
 -   [ ] Run `npm run dev`
 -   [ ] Visit http://localhost:3000
 -   [ ] Explore all pages
--   [ ] Read TODO comments in code
+-   [ ] **Read [docs/QUICK-START.md](docs/QUICK-START.md)** for a 5-minute intro
+-   [ ] Check [docs/TODO.md](docs/TODO.md) for feature ideas
 -   [ ] Pick features to implement
 -   [ ] Start coding!
 
@@ -292,4 +352,4 @@ MIT License - feel free to use this project for your hackathon!
 
 **Built for hackathons. Ready to extend. Good luck! 🚀**
 
-For questions or issues, check the inline code comments or the TODO sections in each file.
+For detailed documentation, see the **[docs/](docs/)** folder. For questions, check the inline code comments.

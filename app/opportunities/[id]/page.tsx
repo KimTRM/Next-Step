@@ -1,14 +1,27 @@
 /**
- * Opportunity Detail Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Opportunity Detail Page
+ * ============================================================================
  * 
- * Detailed view of a single opportunity
+ * Detailed view of a single opportunity.
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Fetch opportunity from API instead of direct import
+ * 2. Add apply button with application form
+ * 3. Add bookmark/save functionality
+ * 4. Show related opportunities
+ * 5. Add application status if user has already applied
  */
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { opportunities, users } from '@/lib/data';
+// BACKEND DATA: Import from server-side mock data
+import { opportunities } from '@/server/data/opportunities';
+import { users } from '@/server/data/users';
+// FRONTEND COMPONENTS
 import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+// SHARED UTILITIES
 import { formatDate, daysUntilDeadline } from '@/lib/utils';
 
 interface OpportunityDetailPageProps {

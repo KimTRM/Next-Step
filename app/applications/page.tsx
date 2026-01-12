@@ -1,13 +1,31 @@
 /**
- * Applications Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Applications Page
+ * ============================================================================
  * 
- * View all user's job/internship/mentorship applications
+ * View all user's job/internship/mentorship applications.
+ * 
+ * ARCHITECTURE:
+ * - This is a server component that fetches data on the server side
+ * - Imports mock data from /server/data for now
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Replace direct data imports with API calls
+ * 2. Add filtering and sorting UI
+ * 3. Implement pagination for large application lists
+ * 4. Add application status updates
+ * 5. Add ability to withdraw applications
  */
 
 import Link from 'next/link';
-import { applications, opportunities, users } from '@/lib/data';
+// BACKEND DATA: These imports pull from server-side mock data
+import { applications } from '@/server/data/applications';
+import { opportunities } from '@/server/data/opportunities';
+import { users } from '@/server/data/users';
+// FRONTEND COMPONENTS
 import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+// SHARED UTILITIES
 import { formatDate, getStatusColor } from '@/lib/utils';
 
 export default function ApplicationsPage() {

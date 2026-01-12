@@ -1,16 +1,36 @@
 /**
- * Messages Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Messages Page
+ * ============================================================================
  * 
- * Chat/messaging interface for users
+ * Chat/messaging interface for users.
+ * 
+ * ARCHITECTURE:
+ * - This is a client component (uses React hooks and state)
+ * - Currently uses direct data imports (for development only)
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Replace data imports with API calls (fetch('/api/messages'))
+ * 2. Implement real-time messaging with WebSockets
+ * 3. Add message sending functionality with POST /api/messages
+ * 4. Add file attachment support
+ * 5. Implement typing indicators and read receipts
+ * 6. Add pagination for message history
+ * 7. Add message search functionality
  */
 
 'use client';
 
 import { useState } from 'react';
-import { messages, users } from '@/lib/data';
+// BACKEND DATA: Import from server-side mock data
+// WARNING: Direct imports only work in development. Replace with API calls.
+import { messages } from '@/server/data/messages';
+import { users } from '@/server/data/users';
+// FRONTEND COMPONENTS
 import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+// SHARED UTILITIES
 import { timeAgo } from '@/lib/utils';
 
 export default function MessagesPage() {
