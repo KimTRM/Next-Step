@@ -2,14 +2,6 @@
  * Opportunities Page - NextStep Platform
  * 
  * Browse all jobs, internships, and mentorships
- * 
- * HACKATHON TODO:
- * - Add search functionality
- * - Add filters (type, location, remote, skills)
- * - Add sorting options
- * - Add pagination
- * - Add bookmarking/saving opportunities
- * - Fetch data from API instead of importing directly
  */
 
 import { opportunities } from '@/lib/data';
@@ -33,7 +25,6 @@ export default function OpportunitiesPage() {
                 </p>
             </div>
 
-            {/* Search and Filters - TODO: Make functional */}
             <Card className="mb-8">
                 <CardBody>
                     <div className="flex flex-col md:flex-row gap-4">
@@ -59,7 +50,6 @@ export default function OpportunitiesPage() {
                 </CardBody>
             </Card>
 
-            {/* Tabs for filtering - TODO: Make functional */}
             <div className="flex space-x-4 mb-6 border-b border-gray-200">
                 <button className="px-4 py-2 text-sm font-medium text-green-700 border-b-2 border-green-700">
                     All ({opportunities.length})

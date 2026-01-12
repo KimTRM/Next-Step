@@ -1,10 +1,5 @@
 /**
  * Mock Data for NextStep Platform
- * 
- * HACKATHON TODO:
- * - Replace with real database (MongoDB, PostgreSQL, Supabase)
- * - Add more diverse sample data
- * - Create seed scripts for database population
  */
 
 import { User, Opportunity, Message, Application, MentorshipSession } from './types';
@@ -270,9 +265,3 @@ export const getUserApplications = (userId: string): Application[] => {
 export const getUserMessages = (userId: string): Message[] => {
   return messages.filter(msg => msg.senderId === userId || msg.receiverId === userId);
 };
-
-// TODO FOR HACKATHON:
-// - Add search function for opportunities by skills
-// - Add filtering by location, remote options
-// - Add sorting by date, relevance
-// - Add pagination helpers

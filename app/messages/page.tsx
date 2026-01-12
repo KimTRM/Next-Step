@@ -2,16 +2,6 @@
  * Messages Page - NextStep Platform
  * 
  * Chat/messaging interface for users
- * 
- * HACKATHON TODO:
- * - Fetch data from API route
- * - Add real-time messaging (WebSockets/Pusher/Socket.io)
- * - Add conversation list/sidebar
- * - Add message input and send functionality
- * - Add file attachments
- * - Add read receipts
- * - Add typing indicators
- * - Add search conversations
  */
 
 'use client';
@@ -71,7 +61,6 @@ export default function MessagesPage() {
         e.preventDefault();
         if (!newMessage.trim() || !selectedUserId) return;
 
-        // TODO: Send message to API
         console.log('Sending message:', newMessage, 'to:', selectedUserId);
         alert('Message sent! (Mock - implement API integration)');
         setNewMessage('');
@@ -157,8 +146,8 @@ export default function MessagesPage() {
                                             >
                                                 <div
                                                     className={`max-w-[70%] rounded-lg px-4 py-2 ${isCurrentUser
-                                                            ? 'bg-blue-600 text-white'
-                                                            : 'bg-gray-100 text-gray-900'
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-gray-100 text-gray-900'
                                                         }`}
                                                 >
                                                     <p className="text-sm">{msg.content}</p>

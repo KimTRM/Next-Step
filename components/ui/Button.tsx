@@ -2,12 +2,6 @@
  * Button Component - NextStep Platform
  * 
  * Reusable button with different variants and sizes
- * 
- * HACKATHON TODO:
- * - Add loading state with spinner
- * - Add icon support (left/right icons)
- * - Add disabled state styling
- * - Consider using a UI library like shadcn/ui or Material-UI
  */
 
 import React from 'react';

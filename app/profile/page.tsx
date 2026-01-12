@@ -2,15 +2,6 @@
  * Profile Page - NextStep Platform
  * 
  * User profile view and edit
- * 
- * HACKATHON TODO:
- * - Add view/edit mode toggle
- * - Add portfolio section (projects, links)
- * - Add resume upload
- * - Add education history
- * - Add work experience section
- * - Add achievements/certifications
- * - Make profile public/private
  */
 
 import { users } from '@/lib/data';
@@ -104,7 +95,6 @@ export default function ProfilePage() {
                         </CardBody>
                     </Card>
 
-                    {/* Additional Sections - TODO: Implement */}
                     <Card className="mt-6">
                         <CardHeader>
                             <CardTitle>Bio</CardTitle>

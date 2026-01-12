@@ -3,14 +3,6 @@
  * 
  * GET /api/users - Returns list of all users
  * GET /api/users?role=student - Filter by role
- * 
- * HACKATHON TODO:
- * - Add POST endpoint for user registration
- * - Add PUT endpoint for updating user profile
- * - Add GET /api/users/[id] for single user
- * - Add authentication and authorization
- * - Connect to real database (MongoDB, PostgreSQL, Supabase)
- * - Add input validation and error handling
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -52,11 +44,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// TODO: Add POST endpoint for creating users
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   // Validate input
-//   // Save to database
-//   // Return created user
-// }

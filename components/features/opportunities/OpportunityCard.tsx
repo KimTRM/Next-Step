@@ -2,13 +2,6 @@
  * OpportunityCard Component - NextStep Platform
  * 
  * Card component to display job/internship/mentorship opportunities
- * 
- * HACKATHON TODO:
- * - Add bookmark/save functionality
- * - Add share functionality
- * - Add apply button with modal
- * - Add tags for skills with colors
- * - Add company logo display
  */
 
 'use client';
@@ -44,10 +37,10 @@ export default function OpportunityCard({ opportunity, onApply }: OpportunityCar
                 <div className="flex items-center justify-between mb-3">
                     <span
                         className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${typeColor === 'blue'
-                                ? 'bg-blue-100 text-blue-800'
-                                : typeColor === 'green'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-purple-100 text-purple-800'
+                            ? 'bg-blue-100 text-blue-800'
+                            : typeColor === 'green'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-purple-100 text-purple-800'
                             }`}
                     >
                         {opportunity.type.toUpperCase()}

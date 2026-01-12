@@ -1,11 +1,5 @@
 /**
  * Utility Functions for NextStep Platform
- * 
- * HACKATHON TODO:
- * - Add date formatting helpers
- * - Add validation functions
- * - Add string manipulation utilities
- * - Add localStorage helpers for client-side state
  */
 
 /**
@@ -122,7 +116,6 @@ export function isValidEmail(email: string): boolean {
 
 /**
  * Generate a random ID (for mock purposes)
- * TODO: Replace with UUID library or database-generated IDs
  */
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);

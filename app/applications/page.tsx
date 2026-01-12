@@ -2,14 +2,6 @@
  * Applications Page - NextStep Platform
  * 
  * View all user's job/internship/mentorship applications
- * 
- * HACKATHON TODO:
- * - Fetch data from API route
- * - Add filtering by status (pending, accepted, rejected)
- * - Add sorting options
- * - Add withdraw application functionality
- * - Show application timeline/history
- * - Add notes/comments on applications
  */
 
 import Link from 'next/link';
@@ -78,7 +70,6 @@ export default function ApplicationsPage() {
                 </Card>
             </div>
 
-            {/* Filter Tabs - TODO: Make functional */}
             <div className="flex space-x-4 mb-6 border-b border-gray-200">
                 <button className="px-4 py-2 text-sm font-medium text-green-700 border-b-2 border-green-700">
                     All

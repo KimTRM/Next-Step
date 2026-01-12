@@ -2,14 +2,6 @@
  * Dashboard Page - NextStep Platform
  * 
  * Main dashboard showing overview of user activity
- * 
- * HACKATHON TODO:
- * - Add charts/graphs for activity stats
- * - Add quick actions (apply to job, message mentor)
- * - Add recent activity feed
- * - Customize dashboard based on user role
- * - Add notifications panel
- * - Add upcoming mentorship sessions calendar
  */
 
 import Link from 'next/link';

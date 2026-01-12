@@ -2,12 +2,6 @@
  * Card Component - NextStep Platform
  * 
  * Reusable card container for content grouping
- * 
- * HACKATHON TODO:
- * - Add card variants (elevated, outlined, filled)
- * - Add hover effects for interactive cards
- * - Add card actions (buttons in footer)
- * - Add card media support (images, videos)
  */
 
 import React from 'react';

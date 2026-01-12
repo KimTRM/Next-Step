@@ -1,15 +1,6 @@
 /**
  * Auth Page - NextStep Platform
  * Login and Sign Up
- * 
- * HACKATHON TODO:
- * - Implement actual authentication (NextAuth.js, Clerk, Supabase Auth)
- * - Add OAuth providers (Google, GitHub, LinkedIn)
- * - Add password validation
- * - Add "Forgot Password" functionality
- * - Add email verification
- * - Add role selection during signup
- * - Redirect to dashboard after successful login
  */
 
 'use client';
@@ -37,7 +28,6 @@ export default function AuthPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // TODO: Implement actual authentication
         console.log(isLogin ? 'Logging in...' : 'Signing up...', formData);
 
         // Mock successful auth
@@ -121,7 +111,6 @@ export default function AuthPage() {
                             </Button>
                         </form>
 
-                        {/* OAuth Buttons - TODO: Implement */}
                         <div className="mt-6">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">

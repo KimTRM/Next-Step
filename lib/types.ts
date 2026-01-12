@@ -1,10 +1,5 @@
 /**
  * TypeScript Type Definitions for NextStep Platform
- * 
- * HACKATHON TODO:
- * - Add more fields as your features grow (e.g., ratings, reviews)
- * - Create validation schemas using Zod
- * - Add enums for status types (PENDING, ACCEPTED, etc.)
  */
 
 export type UserRole = 'student' | 'mentor' | 'employer';

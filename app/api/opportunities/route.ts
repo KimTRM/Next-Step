@@ -4,15 +4,6 @@
  * GET /api/opportunities - Returns all opportunities
  * GET /api/opportunities?type=job - Filter by type
  * GET /api/opportunities?skills=React,TypeScript - Filter by skills
- * 
- * HACKATHON TODO:
- * - Add POST endpoint for creating opportunities (employers/mentors)
- * - Add PUT/PATCH endpoint for updating opportunities
- * - Add DELETE endpoint for removing opportunities
- * - Add pagination support
- * - Add sorting (by date, relevance, etc.)
- * - Add advanced search and filtering
- * - Connect to real database
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -75,12 +66,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// TODO: Add POST endpoint for creating opportunities
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   // Validate input (check required fields)
-//   // Verify user is employer or mentor
-//   // Save to database
-//   // Return created opportunity
-// }

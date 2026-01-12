@@ -2,14 +2,6 @@
  * Landing Page - NextStep Platform
  * 
  * Main landing page with hero section, features, and CTA
- * 
- * HACKATHON TODO:
- * - Add hero section with compelling copy
- * - Add features section
- * - Add testimonials
- * - Add statistics/impact numbers
- * - Add footer with links
- * - Make it responsive and visually appealing
  */
 
 import Link from 'next/link';

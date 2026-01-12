@@ -2,13 +2,6 @@
  * ProfileForm Component - NextStep Platform
  * 
  * Form for editing user profile information
- * 
- * HACKATHON TODO:
- * - Add image upload for avatar
- * - Add skills tags input (multi-select)
- * - Add form validation with error handling
- * - Add save/cancel functionality with API integration
- * - Add success/error toast notifications
  */
 
 'use client';
@@ -52,7 +45,6 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
 
         console.log('Saving profile:', updatedData);
 
-        // TODO: Call API to save profile
         if (onSave) {
             onSave(updatedData);
         }
@@ -62,7 +54,6 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar Upload Section - TODO: Implement */}
             <div className="flex items-center space-x-6">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-3xl">
                     {user?.avatarUrl ? (
@@ -140,7 +131,6 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
                 />
             </div>
 
-            {/* Role-specific fields - TODO: Add based on user role */}
             {user?.role === 'student' && (
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900">Student Info</h3>

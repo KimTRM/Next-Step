@@ -2,12 +2,6 @@
  * Input Component - NextStep Platform
  * 
  * Reusable input field with label and error support
- * 
- * HACKATHON TODO:
- * - Add input types (email, password, number, textarea)
- * - Add character counter for text areas
- * - Add input validation and error messages
- * - Add prefix/suffix support (icons, text)
  */
 
 import React from 'react';

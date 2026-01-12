@@ -2,15 +2,6 @@
  * Opportunity Detail Page - NextStep Platform
  * 
  * Detailed view of a single opportunity
- * 
- * HACKATHON TODO:
- * - Fetch data from API route
- * - Add "Apply" button with modal/form
- * - Add "Save" bookmark functionality
- * - Add "Share" functionality
- * - Show related opportunities
- * - Display company/mentor profile
- * - Add application deadline countdown
  */
 
 import { notFound } from 'next/navigation';
@@ -98,7 +89,6 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                     </div>
                                 </div>
 
-                                {/* TODO: Add more sections */}
                                 <div>
                                     <h3 className="font-semibold text-gray-900 mb-2">What You'll Do</h3>
                                     <ul className="list-disc list-inside space-y-1 text-gray-700">
@@ -111,7 +101,6 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                         </CardBody>
                     </Card>
 
-                    {/* About Company/Mentor - TODO: Expand */}
                     <Card>
                         <CardHeader>
                             <CardTitle>

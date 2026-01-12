@@ -3,15 +3,6 @@
  * 
  * GET /api/messages - Returns messages for current user
  * GET /api/messages?userId=1 - Get messages for specific user
- * 
- * HACKATHON TODO:
- * - Add POST endpoint for sending messages
- * - Add PUT endpoint for marking messages as read
- * - Add DELETE endpoint for deleting messages
- * - Add real-time messaging with WebSockets or Pusher
- * - Add message threading/conversations
- * - Add file attachment support
- * - Implement authentication to get current user
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -70,19 +61,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// TODO: Add POST endpoint for sending messages
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   const { receiverId, content } = body;
-//   
-//   // Validate input
-//   // Get current user from session/token
-//   // Create message in database
-//   // Send real-time notification to receiver
-//   // Return created message
-// }
-
-// TODO: Get list of conversations (unique users)
-// GET /api/messages/conversations
-// Returns list of users the current user has conversations with
