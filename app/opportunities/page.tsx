@@ -21,8 +21,8 @@
 import { opportunities } from '@/server/data/opportunities';
 // FRONTEND COMPONENTS
 import { OpportunityList } from '@/components/features/opportunities/OpportunityCard';
-import Card, { CardBody } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function OpportunitiesPage() {
     // Group opportunities by type
@@ -41,7 +41,7 @@ export default function OpportunitiesPage() {
             </div>
 
             <Card className="mb-8">
-                <CardBody>
+                <CardContent>
                     <div className="flex flex-col md:flex-row gap-4">
                         <input
                             type="text"
@@ -60,9 +60,9 @@ export default function OpportunitiesPage() {
                             <option value="toronto">Toronto</option>
                             <option value="vancouver">Vancouver</option>
                         </select>
-                        <Button variant="primary">Search</Button>
+                        <Button variant="default">Search</Button>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
             <div className="flex space-x-4 mb-6 border-b border-gray-200">
@@ -85,3 +85,5 @@ export default function OpportunitiesPage() {
         </div>
     );
 }
+
+

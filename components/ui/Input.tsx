@@ -1,106 +1,21 @@
-/**
- * Input Component - NextStep Platform
- * 
- * Reusable input field with label and error support
- */
+import * as React from "react";
 
-import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "./utils";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    label?: string;
-    error?: string;
-    helperText?: string;
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  return (
+    <input
+      type={type}
+      data-slot="input"
+      className={cn(
+        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
-export default function Input({
-    label,
-    error,
-    helperText,
-    className,
-    id,
-    ...props
-}: InputProps) {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
-
-    return (
-        <div className="w-full">
-            {label && (
-                <label
-                    htmlFor={inputId}
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                    {label}
-                </label>
-            )}
-            <input
-                id={inputId}
-                className={cn(
-                    'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors',
-                    error
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300',
-                    className
-                )}
-                {...props}
-            />
-            {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-            )}
-            {helperText && !error && (
-                <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-            )}
-        </div>
-    );
-}
-
-/**
- * Textarea Component
- */
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    label?: string;
-    error?: string;
-    helperText?: string;
-}
-
-export function Textarea({
-    label,
-    error,
-    helperText,
-    className,
-    id,
-    ...props
-}: TextareaProps) {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
-
-    return (
-        <div className="w-full">
-            {label && (
-                <label
-                    htmlFor={textareaId}
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                    {label}
-                </label>
-            )}
-            <textarea
-                id={textareaId}
-                className={cn(
-                    'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors resize-none',
-                    error
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300',
-                    className
-                )}
-                rows={4}
-                {...props}
-            />
-            {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-            )}
-            {helperText && !error && (
-                <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-            )}
-        </div>
-    );
-}
+export { Input };

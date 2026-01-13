@@ -7,8 +7,8 @@
 'use client';
 
 import Link from 'next/link';
-import Card, { CardBody, CardFooter } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Opportunity } from '@/lib/types';
 import { formatDate, daysUntilDeadline, truncateText, getOpportunityColor } from '@/lib/utils';
 
@@ -31,8 +31,8 @@ export default function OpportunityCard({ opportunity, onApply }: OpportunityCar
     };
 
     return (
-        <Card hoverable className="h-full flex flex-col">
-            <CardBody className="flex-1">
+        <Card className="h-full flex flex-col">
+            <CardContent className="flex-1">
                 {/* Type Badge */}
                 <div className="flex items-center justify-between mb-3">
                     <span
@@ -94,7 +94,7 @@ export default function OpportunityCard({ opportunity, onApply }: OpportunityCar
                         💰 {opportunity.salary}
                     </p>
                 )}
-            </CardBody>
+            </CardContent>
 
             <CardFooter className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">
@@ -107,7 +107,7 @@ export default function OpportunityCard({ opportunity, onApply }: OpportunityCar
                         </Button>
                     </Link>
                     <Button
-                        variant="primary"
+                        variant="default"
                         size="sm"
                         onClick={handleApply}
                     >
@@ -149,3 +149,4 @@ export function OpportunityList({ opportunities, onApply }: OpportunityListProps
         </div>
     );
 }
+

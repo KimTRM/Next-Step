@@ -7,8 +7,9 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '@/components/ui/Button';
-import Input, { Textarea } from '@/components/ui/Input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { User } from '@/lib/types';
 
 interface ProfileFormProps {
@@ -151,10 +152,11 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
                 <Button type="button" variant="ghost">
                     Cancel
                 </Button>
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="default">
                     Save Changes
                 </Button>
             </div>
         </form>
     );
 }
+

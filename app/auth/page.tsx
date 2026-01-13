@@ -7,9 +7,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AuthPage() {
     const router = useRouter();
@@ -36,7 +37,7 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <Card>
                     <CardHeader className="text-center">
@@ -54,38 +55,47 @@ export default function AuthPage() {
                         </p>
                     </CardHeader>
 
-                    <CardBody>
+                    <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {!isLogin && (
-                                <Input
-                                    label="Full Name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    placeholder="John Doe"
-                                    required
-                                />
+                                <div>
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        placeholder="John Doe"
+                                        required
+                                    />
+                                </div>
                             )}
 
-                            <Input
-                                label="Email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="your.email@example.com"
-                                required
-                            />
+                            <div>
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="your.email@example.com"
+                                    required
+                                />
+                            </div>
 
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                required
-                            />
+                            <div>
+                                <Label htmlFor="password">Password</Label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
 
                             {!isLogin && (
                                 <div className="w-full">
@@ -106,7 +116,7 @@ export default function AuthPage() {
                                 </div>
                             )}
 
-                            <Button type="submit" variant="primary" className="w-full">
+                            <Button type="submit" variant="default" className="w-full">
                                 {isLogin ? 'Log In' : 'Sign Up'}
                             </Button>
                         </form>
@@ -154,9 +164,11 @@ export default function AuthPage() {
                                 </button>
                             </div>
                         )}
-                    </CardBody>
+                    </CardContent>
                 </Card>
             </div>
         </div>
     );
 }
+
+

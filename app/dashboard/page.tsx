@@ -19,8 +19,8 @@
  */
 
 import Link from 'next/link';
-import Card, { CardBody, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 // BACKEND DATA: These imports pull from server-side mock data
 // In production: Replace with API calls or database queries
 import { opportunities } from '@/server/data/opportunities';
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Applications</p>
@@ -74,11 +74,11 @@ export default async function DashboardPage() {
                         <Link href="/applications" className="text-sm text-green-700 hover:underline mt-2 block">
                             View all →
                         </Link>
-                    </CardBody>
+                    </CardContent>
                 </Card>
 
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Unread Messages</p>
@@ -93,11 +93,11 @@ export default async function DashboardPage() {
                         <Link href="/messages" className="text-sm text-green-700 hover:underline mt-2 block">
                             Read messages →
                         </Link>
-                    </CardBody>
+                    </CardContent>
                 </Card>
 
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">New Opportunities</p>
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
                         <Link href="/opportunities" className="text-sm text-green-700 hover:underline mt-2 block">
                             Explore →
                         </Link>
-                    </CardBody>
+                    </CardContent>
                 </Card>
             </div>
 
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                         <CardTitle>Recent Opportunities</CardTitle>
                         <CardDescription>Latest jobs, internships, and mentorships</CardDescription>
                     </CardHeader>
-                    <CardBody>
+                    <CardContent>
                         <div className="space-y-4">
                             {recentOpportunities.map((opp) => (
                                 <div key={opp.id} className="border-b border-gray-200 pb-4 last:border-b-0">
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
                                 View All Opportunities
                             </Button>
                         </Link>
-                    </CardBody>
+                    </CardContent>
                 </Card>
 
                 {/* Quick Actions & Application Status */}
@@ -158,10 +158,10 @@ export default async function DashboardPage() {
                         <CardHeader>
                             <CardTitle>Quick Actions</CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <div className="space-y-3">
                                 <Link href="/opportunities">
-                                    <Button variant="primary" className="w-full">
+                                    <Button variant="default" className="w-full">
                                         🔍 Browse Opportunities
                                     </Button>
                                 </Link>
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
                                     </Button>
                                 </Link>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
                     {/* Application Status */}
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
                         <CardHeader>
                             <CardTitle>Application Status</CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Pending</span>
@@ -205,10 +205,12 @@ export default async function DashboardPage() {
                                     </span>
                                 </div>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
         </div>
     );
 }
+
+

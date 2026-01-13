@@ -23,8 +23,8 @@ import { applications } from '@/server/data/applications';
 import { opportunities } from '@/server/data/opportunities';
 import { users } from '@/server/data/users';
 // FRONTEND COMPONENTS
-import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 // SHARED UTILITIES
 import { formatDate, getStatusColor } from '@/lib/utils';
 
@@ -61,30 +61,30 @@ export default function ApplicationsPage() {
             {/* Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <p className="text-sm text-gray-600">Total</p>
                         <p className="text-2xl font-bold text-gray-900">
                             {userApplications.length}
                         </p>
-                    </CardBody>
+                    </CardContent>
                 </Card>
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <p className="text-sm text-gray-600">Pending</p>
                         <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
-                    </CardBody>
+                    </CardContent>
                 </Card>
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <p className="text-sm text-gray-600">Accepted</p>
                         <p className="text-2xl font-bold text-green-600">{acceptedCount}</p>
-                    </CardBody>
+                    </CardContent>
                 </Card>
                 <Card>
-                    <CardBody>
+                    <CardContent>
                         <p className="text-sm text-gray-600">Rejected</p>
                         <p className="text-2xl font-bold text-red-600">{rejectedCount}</p>
-                    </CardBody>
+                    </CardContent>
                 </Card>
             </div>
 
@@ -106,23 +106,23 @@ export default function ApplicationsPage() {
             {/* Applications List */}
             {userApplications.length === 0 ? (
                 <Card>
-                    <CardBody className="text-center py-12">
+                    <CardContent className="text-center py-12">
                         <p className="text-gray-500 text-lg">No applications yet</p>
                         <p className="text-gray-400 text-sm mt-2">
                             Start applying to opportunities to see them here
                         </p>
                         <Link href="/opportunities">
-                            <Button variant="primary" className="mt-4">
+                            <Button variant="default" className="mt-4">
                                 Browse Opportunities
                             </Button>
                         </Link>
-                    </CardBody>
+                    </CardContent>
                 </Card>
             ) : (
                 <div className="space-y-4">
                     {userApplications.map((app) => (
-                        <Card key={app.id} hoverable>
-                            <CardBody>
+                        <Card key={app.id}>
+                            <CardContent>
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <div className="flex items-center space-x-3 mb-2">
@@ -174,7 +174,7 @@ export default function ApplicationsPage() {
                                         )}
                                     </div>
                                 </div>
-                            </CardBody>
+                            </CardContent>
                         </Card>
                     ))}
                 </div>
@@ -182,3 +182,5 @@ export default function ApplicationsPage() {
         </div>
     );
 }
+
+

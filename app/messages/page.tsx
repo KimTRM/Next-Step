@@ -27,9 +27,9 @@ import { useState } from 'react';
 import { messages } from '@/server/data/messages';
 import { users } from '@/server/data/users';
 // FRONTEND COMPONENTS
-import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 // SHARED UTILITIES
 import { timeAgo } from '@/lib/utils';
 
@@ -99,7 +99,7 @@ export default function MessagesPage() {
                     <CardHeader>
                         <CardTitle>Conversations</CardTitle>
                     </CardHeader>
-                    <CardBody className="p-0 overflow-y-auto">
+                    <CardContent className="p-0 overflow-y-auto">
                         {conversationPartners.length === 0 ? (
                             <div className="p-6 text-center text-gray-500">
                                 No conversations yet
@@ -134,7 +134,7 @@ export default function MessagesPage() {
                                 </button>
                             ))
                         )}
-                    </CardBody>
+                    </CardContent>
                 </Card>
 
                 {/* Chat Window */}
@@ -155,7 +155,7 @@ export default function MessagesPage() {
                             </CardHeader>
 
                             {/* Messages */}
-                            <CardBody className="flex-1 overflow-y-auto">
+                            <CardContent className="flex-1 overflow-y-auto">
                                 <div className="space-y-4">
                                     {conversationMessages.map((msg) => {
                                         const isCurrentUser = msg.senderId === currentUserId;
@@ -182,7 +182,7 @@ export default function MessagesPage() {
                                         );
                                     })}
                                 </div>
-                            </CardBody>
+                            </CardContent>
 
                             {/* Message Input */}
                             <div className="border-t p-4">
@@ -193,21 +193,23 @@ export default function MessagesPage() {
                                         placeholder="Type a message..."
                                         className="flex-1"
                                     />
-                                    <Button type="submit" variant="primary">
+                                    <Button type="submit" variant="default">
                                         Send
                                     </Button>
                                 </form>
                             </div>
                         </>
                     ) : (
-                        <CardBody className="flex items-center justify-center h-full">
+                        <CardContent className="flex items-center justify-center h-full">
                             <div className="text-center text-gray-500">
                                 <p className="text-lg">Select a conversation to start chatting</p>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     )}
                 </Card>
             </div>
         </div>
     );
 }
+
+

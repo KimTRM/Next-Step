@@ -17,7 +17,7 @@
 import { users } from '@/server/data/users';
 // FRONTEND COMPONENTS
 import ProfileForm from '@/components/features/profile/ProfileForm';
-import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ProfilePage() {
     // Mock current user (student with ID 1)
@@ -41,7 +41,7 @@ export default function ProfilePage() {
                 {/* Profile Overview - Sidebar */}
                 <div className="lg:col-span-1">
                     <Card>
-                        <CardBody className="text-center">
+                        <CardContent className="text-center">
                             <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full flex items-center justify-center text-4xl mb-4">
                                 {currentUser.avatarUrl ? (
                                     <img
@@ -68,7 +68,7 @@ export default function ProfilePage() {
                                     📅 Member since {new Date(currentUser.createdAt).getFullYear()}
                                 </p>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
                     {/* Skills Card */}
@@ -76,7 +76,7 @@ export default function ProfilePage() {
                         <CardHeader>
                             <CardTitle>Skills</CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <div className="flex flex-wrap gap-2">
                                 {currentUser.skills && currentUser.skills.length > 0 ? (
                                     currentUser.skills.map((skill) => (
@@ -91,7 +91,7 @@ export default function ProfilePage() {
                                     <p className="text-sm text-gray-500">No skills added yet</p>
                                 )}
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
                 </div>
 
@@ -101,23 +101,24 @@ export default function ProfilePage() {
                         <CardHeader>
                             <CardTitle>Edit Profile</CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <ProfileForm user={currentUser} />
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
                     <Card className="mt-6">
                         <CardHeader>
                             <CardTitle>Bio</CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <p className="text-gray-700">
                                 {currentUser.bio || 'No bio added yet. Tell others about yourself!'}
                             </p>
-                        </CardBody>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
         </div>
     );
 }
+
