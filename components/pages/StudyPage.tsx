@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { User, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, FileText, Plus, Edit3, Save, Calendar } from 'lucide-react';
 

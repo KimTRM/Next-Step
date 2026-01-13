@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Building2, MapPin, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Eye, Plus, Filter } from 'lucide-react';
 
@@ -16,59 +18,59 @@ interface Application {
 export function CalendarPage() {
   const [selectedStatus, setSelectedStatus] = useState<'all' | Application['status']>('all');
   const [applications, setApplications] = useState<Application[]>([
-    { 
-      id: 1, 
-      jobTitle: 'Junior Software Developer', 
-      company: 'TechStart Solutions', 
+    {
+      id: 1,
+      jobTitle: 'Junior Software Developer',
+      company: 'TechStart Solutions',
       location: 'Naga City',
-      appliedDate: new Date(2026, 0, 2), 
+      appliedDate: new Date(2026, 0, 2),
       status: 'interview',
       nextStep: 'Technical interview scheduled',
       interviewDate: new Date(2026, 0, 10),
       notes: 'Prepare for coding challenge'
     },
-    { 
-      id: 2, 
-      jobTitle: 'Marketing Assistant', 
-      company: 'Creative Minds Agency', 
+    {
+      id: 2,
+      jobTitle: 'Marketing Assistant',
+      company: 'Creative Minds Agency',
       location: 'Naga City',
-      appliedDate: new Date(2025, 11, 28), 
+      appliedDate: new Date(2025, 11, 28),
       status: 'reviewing',
       nextStep: 'Application under review',
       notes: 'Follow up on Jan 15'
     },
-    { 
-      id: 3, 
-      jobTitle: 'Customer Support Intern', 
-      company: 'BPO Connect', 
+    {
+      id: 3,
+      jobTitle: 'Customer Support Intern',
+      company: 'BPO Connect',
       location: 'Naga City',
-      appliedDate: new Date(2026, 0, 4), 
+      appliedDate: new Date(2026, 0, 4),
       status: 'accepted',
       nextStep: 'Orientation on Jan 20',
       notes: 'Prepare requirements for onboarding'
     },
-    { 
-      id: 4, 
-      jobTitle: 'Junior Business Analyst', 
-      company: 'DataDrive Corp', 
+    {
+      id: 4,
+      jobTitle: 'Junior Business Analyst',
+      company: 'DataDrive Corp',
       location: 'Naga City',
-      appliedDate: new Date(2025, 11, 30), 
+      appliedDate: new Date(2025, 11, 30),
       status: 'pending',
       notes: 'Awaiting response'
     },
-    { 
-      id: 5, 
-      jobTitle: 'Web Design Intern', 
-      company: 'Design Studio Pro', 
+    {
+      id: 5,
+      jobTitle: 'Web Design Intern',
+      company: 'Design Studio Pro',
       location: 'Naga City',
-      appliedDate: new Date(2025, 11, 20), 
+      appliedDate: new Date(2025, 11, 20),
       status: 'rejected',
       notes: 'Position filled internally'
     },
   ]);
 
-  const filteredApplications = selectedStatus === 'all' 
-    ? applications 
+  const filteredApplications = selectedStatus === 'all'
+    ? applications
     : applications.filter(app => app.status === selectedStatus);
 
   const getStatusColor = (status: Application['status']) => {
@@ -161,11 +163,10 @@ export function CalendarPage() {
         <div className="mb-6 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedStatus('all')}
-            className={`px-4 py-2 rounded-lg transition-all ${
-              selectedStatus === 'all'
+            className={`px-4 py-2 rounded-lg transition-all ${selectedStatus === 'all'
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-white text-foreground border border-border hover:border-primary'
-            }`}
+              }`}
           >
             All Applications
           </button>
@@ -173,11 +174,10 @@ export function CalendarPage() {
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
-              className={`px-4 py-2 rounded-lg transition-all capitalize ${
-                selectedStatus === status
+              className={`px-4 py-2 rounded-lg transition-all capitalize ${selectedStatus === status
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-white text-foreground border border-border hover:border-primary'
-              }`}
+                }`}
             >
               {status}
             </button>
@@ -271,7 +271,7 @@ export function CalendarPage() {
             <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="mb-2">No applications found</h3>
             <p className="text-muted-foreground mb-6">
-              {selectedStatus === 'all' 
+              {selectedStatus === 'all'
                 ? "Start tracking your job applications by adding your first one!"
                 : `No applications with status "${selectedStatus}".`}
             </p>

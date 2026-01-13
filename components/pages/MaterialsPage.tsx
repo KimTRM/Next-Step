@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Briefcase, Building2, MapPin, DollarSign, Clock, Search, TrendingUp, Eye, BookmarkPlus } from 'lucide-react';
 
@@ -122,8 +124,8 @@ export function MaterialsPage() {
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.location.toLowerCase().includes(searchTerm.toLowerCase());
+      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedType === 'all' || job.type === selectedType;
     const matchesCategory = selectedCategory === 'all' || job.category === selectedCategory;
     return matchesSearch && matchesType && matchesCategory;
@@ -147,7 +149,7 @@ export function MaterialsPage() {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -187,11 +189,10 @@ export function MaterialsPage() {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type)}
-                    className={`px-4 py-2 rounded-lg transition-all ${ 
-                      selectedType === type
+                    className={`px-4 py-2 rounded-lg transition-all ${selectedType === type
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-white text-foreground border border-border hover:border-primary'
-                    }`}
+                      }`}
                   >
                     {type === 'all' ? 'All' : type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                   </button>

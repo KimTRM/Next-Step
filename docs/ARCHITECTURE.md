@@ -6,30 +6,48 @@ This document explains the refactored folder structure that separates frontend a
 
 ```
 nextstep/
-├── app/                          # 🎨 FRONTEND - Next.js App Router Pages
-│   ├── layout.tsx                # Root layout with Navbar
-│   ├── page.tsx                  # Landing page
-│   ├── auth/page.tsx             # Login/signup
-│   ├── dashboard/page.tsx        # User dashboard
-│   ├── profile/page.tsx          # User profile
-│   ├── opportunities/            # Opportunities pages
+├── app/                          # 🎨 FRONTEND - Next.js App Router
+│   ├── layout.tsx                # Root layout (Header + Footer)
+│   ├── page.tsx                  # Landing page (/)
+│   ├── globals.css               # Global styles & CSS variables
+│   ├── jobs/page.tsx             # Job listings (/jobs)
+│   ├── mentors/page.tsx          # Find mentors (/mentors)
+│   ├── applications/page.tsx     # Track applications (/applications)
+│   ├── profile/page.tsx          # User profile (/profile)
+│   ├── auth/page.tsx             # Login/signup (/auth)
+│   ├── dashboard/page.tsx        # User dashboard (/dashboard)
+│   ├── messages/page.tsx         # Messaging (/messages)
+│   ├── opportunities/            # Job opportunities
 │   │   ├── page.tsx              # List all opportunities
 │   │   └── [id]/page.tsx         # Opportunity details
-│   ├── applications/page.tsx     # Application tracking
-│   ├── messages/page.tsx         # Messaging interface
-│   └── api/                      # 🔌 API Route Handlers (HTTP layer)
+│   └── api/                      # 🔌 REST API Endpoints (HTTP layer)
 │       ├── users/route.ts        # User endpoints
 │       ├── opportunities/route.ts # Opportunity endpoints
 │       └── messages/route.ts     # Message endpoints
 │
 ├── components/                   # 🧩 FRONTEND - Reusable UI Components
-│   ├── ui/                       # Base UI components
-│   │   ├── Button.tsx
-│   │   ├── Input.tsx
-│   │   └── Card.tsx
+│   ├── ui/                       # Base UI components (shadcn/ui - 48 components)
+│   │   ├── button.tsx            # Button component
+│   │   ├── input.tsx             # Input component
+│   │   ├── card.tsx              # Card component
+│   │   └── ...                   # 45+ other UI components
 │   ├── layout/                   # Layout components
-│   │   ├── Navbar.tsx
-│   │   └── Sidebar.tsx
+│   │   ├── Header.tsx            # Main navigation header with logo
+│   │   └── Sidebar.tsx           # Sidebar navigation
+│   ├── landing/                  # Landing page sections
+│   │   ├── Hero.tsx              # Hero section
+│   │   ├── Features.tsx          # Features section
+│   │   ├── AIFeatures.tsx        # AI features showcase
+│   │   ├── UserRoles.tsx         # User roles section
+│   │   ├── Courses.tsx           # Courses section
+│   │   ├── Community.tsx         # Community section
+│   │   └── Footer.tsx            # Footer
+│   ├── pages/                    # Full page components (for SPA)
+│   │   ├── HomePage.tsx          # Composite landing page
+│   │   ├── StudyPage.tsx         # Profile/study page
+│   │   ├── CalendarPage.tsx      # Applications calendar
+│   │   ├── ConnectPage.tsx       # Mentors/networking
+│   │   └── MaterialsPage.tsx     # Job listings
 │   └── features/                 # Feature-specific components
 │       ├── profile/ProfileForm.tsx
 │       └── opportunities/OpportunityCard.tsx
@@ -62,21 +80,46 @@ nextstep/
 
 ## 🏗️ Architecture Layers
 
+### Next.js App Router Architecture
+
+**Current Implementation**: The app uses **Next.js App Router** with file-based routing:
+
+**Routes**:
+
+```
+/                    → app/page.tsx (Landing page)
+/jobs                → app/jobs/page.tsx (Job listings)
+/mentors             → app/mentors/page.tsx (Find mentors)
+/applications        → app/applications/page.tsx (Track applications)
+/profile             → app/profile/page.tsx (User profile)
+/auth                → app/auth/page.tsx (Authentication)
+```
+
+**Benefits**:
+
+-   ✅ SEO-friendly URLs
+-   ✅ Shareable direct links
+-   ✅ Browser history works properly
+-   ✅ Automatic code splitting
+-   ✅ Next.js Link prefetching
+
 ### 1. Frontend Layer (`/app` & `/components`)
 
 **Purpose**: User interface and user experience
 
 **Components**:
 
--   **Pages** (`/app`): Next.js pages using App Router
--   **UI Components** (`/components`): Reusable React components
+-   **Main App** (`app/page.tsx`): Client component with routing logic
+-   **Page Components** (`components/pages/`): Full page views
+-   **Landing Sections** (`components/landing/`): Reusable landing page sections
+-   **UI Components** (`components/ui/`): 48 shadcn/ui components
 -   **Client Components**: Interactive components with state (marked with `'use client'`)
--   **Server Components**: Server-side rendered pages (default in App Router)
 
 **Key Principles**:
 
--   Import data from `/server/data` for server components
--   Use API calls (`fetch('/api/...')`) for client components
+-   Client-side navigation for smooth transitions
+-   Reusable landing sections compose the HomePage
+-   Import data from `/server/data` when needed
 -   Keep UI logic separate from business logic
 -   Use TypeScript types from `/lib/types.ts`
 

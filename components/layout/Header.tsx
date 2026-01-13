@@ -3,26 +3,24 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-interface HeaderProps {
-    currentPage: string;
-    onNavigate: (page: string) => void;
-}
-
-export function Header({ currentPage, onNavigate }: HeaderProps) {
+export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const pathname = usePathname();
 
     const navItems = [
-        { id: 'home', label: 'Home' },
-        { id: 'jobs', label: 'Jobs' },
-        { id: 'applications', label: 'Applications' },
-        { id: 'mentors', label: 'Mentors' },
-        { id: 'profile', label: 'Profile' }
+        { href: '/', label: 'Home' },
+        { href: '/jobs', label: 'Jobs' },
+        { href: '/applications', label: 'Applications' },
+        { href: '/mentors', label: 'Mentors' },
+        { href: '/profile', label: 'Profile' }
     ];
 
-    const handleNavigate = (page: string) => {
-        onNavigate(page);
-        setMobileMenuOpen(false);
+    const isActive = (href: string) => {
+        if (href === '/') return pathname === '/';
+        return pathname.startsWith(href);
     };
 
     return (
@@ -30,40 +28,41 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <button onClick={() => handleNavigate('home')} className="flex items-center hover:opacity-80 transition-opacity">
+                    <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
                         <Image src="/assets/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
-                    </button>
+                    </Link>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
                         {navItems.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => handleNavigate(item.id)}
-                                className={`transition-colors ${currentPage === item.id
-                                        ? 'text-primary'
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`transition-colors ${isActive(item.href)
+                                        ? 'text-primary font-semibold'
                                         : 'text-foreground hover:text-primary'
                                     }`}
                             >
                                 {item.label}
-                            </button>
+                            </Link>
                         ))}
                     </div>
 
                     {/* Desktop Actions */}
                     <div className="hidden md:flex items-center gap-4">
-                        <button className="px-4 py-2 text-primary hover:text-primary/80 transition-colors">
+                        <Link href="/auth" className="px-4 py-2 text-primary hover:text-primary/80 transition-colors">
                             Log In
-                        </button>
-                        <button className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors">
+                        </Link>
+                        <Link href="/auth" className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors">
                             Sign Up
-                        </button>
+                        </Link>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <button
                         className="md:hidden p-2"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        aria-label="Toggle menu"
                     >
                         {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </button>
@@ -74,24 +73,33 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
                     <div className="md:hidden py-4 border-t border-border">
                         <div className="flex flex-col gap-4">
                             {navItems.map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => handleNavigate(item.id)}
-                                    className={`transition-colors py-2 text-left ${currentPage === item.id
-                                            ? 'text-primary'
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`transition-colors py-2 text-left ${isActive(item.href)
+                                            ? 'text-primary font-semibold'
                                             : 'text-foreground hover:text-primary'
                                         }`}
                                 >
                                     {item.label}
-                                </button>
+                                </Link>
                             ))}
                             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                                <button className="py-2 text-primary hover:text-primary/80 transition-colors text-left">
+                                <Link
+                                    href="/auth"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="py-2 text-primary hover:text-primary/80 transition-colors text-left"
+                                >
                                     Log In
-                                </button>
-                                <button className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center">
+                                </Link>
+                                <Link
+                                    href="/auth"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center"
+                                >
                                     Sign Up
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

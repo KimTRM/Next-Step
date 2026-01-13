@@ -1,28 +1,46 @@
-# 🚀 Quick Start Guide - NextStep Refactored
+# 🚀 Quick Start Guide - NextStep
 
-Welcome to the refactored NextStep platform! This guide will help you get up and running quickly.
+Welcome to the NextStep platform! This guide will help you get up and running quickly.
 
 ## 📋 What You Need to Know
 
-### The project now has 3 clear layers:
+### The app follows a clean REST API architecture:
 
-1. **Frontend** (`/app`, `/components`) - User interface
-2. **Business Logic** (`/server/api`) - Core application logic
-3. **Data Access** (`/server/data`) - Mock data (will become database queries)
+1. **Frontend** (`app/`) - Next.js pages with proper routing
+2. **REST API** (`app/api/`) - HTTP endpoints
+3. **Business Logic** (`server/api/`) - Pure functions
+4. **Data Layer** (`server/data/`) - Mock data (future: database)
+5. **UI Components** (`components/ui/`) - 48 shadcn/ui components
 
 ## 🏃 Getting Started in 5 Minutes
 
 ### 1. Understand the Structure (2 min)
 
 ```
-app/              → Pages you see in the browser
-components/       → Reusable UI components
-server/api/       → Business logic (filtering, validation)
-server/data/      → Mock data (will become database)
-lib/              → Shared code (types, utilities)
+app/              → Pages & API routes
+  ├─ page.tsx     → Landing page (/)
+  ├─ jobs/        → Jobs page (/jobs)
+  ├─ api/         → REST API endpoints
+components/       → UI components
+server/api/       → Business logic
+server/data/      → Mock data
 ```
 
-### 2. Find What You Need (1 min)
+### 2. How Navigation Works (1 min)
+
+Next.js **file-based routing**:
+
+```
+app/jobs/page.tsx     → URL: /jobs
+app/profile/page.tsx  → URL: /profile
+```
+
+Navigation:
+
+```tsx
+import Link from "next/link";
+<Link href="/jobs">View Jobs</Link>;
+```
 
 | I want to...     | Go to...                  |
 | ---------------- | ------------------------- |

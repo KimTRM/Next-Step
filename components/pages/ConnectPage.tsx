@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { MessageSquare, Briefcase, MapPin, Star, Search, UserCheck, Calendar, Award, Send } from 'lucide-react';
 
@@ -24,10 +26,10 @@ export function ConnectPage() {
   const expertiseAreas = ['all', 'technology', 'business', 'marketing', 'finance', 'healthcare', 'education', 'design'];
 
   const mentors: Mentor[] = [
-    { 
-      id: 1, 
-      name: 'Sarah Chen', 
-      role: 'Senior Software Engineer', 
+    {
+      id: 1,
+      name: 'Sarah Chen',
+      role: 'Senior Software Engineer',
       company: 'TechCorp Philippines',
       location: 'Manila',
       expertise: ['technology', 'programming', 'career-development'],
@@ -38,10 +40,10 @@ export function ConnectPage() {
       availability: 'Weekends',
       isVerified: true
     },
-    { 
-      id: 2, 
-      name: 'Miguel Rodriguez', 
-      role: 'Marketing Director', 
+    {
+      id: 2,
+      name: 'Miguel Rodriguez',
+      role: 'Marketing Director',
       company: 'Creative Solutions Inc.',
       location: 'Cebu City',
       expertise: ['marketing', 'branding', 'digital-marketing'],
@@ -52,10 +54,10 @@ export function ConnectPage() {
       availability: 'Tuesday & Thursday evenings',
       isVerified: true
     },
-    { 
-      id: 3, 
-      name: 'Amanda Reyes', 
-      role: 'Senior Business Analyst', 
+    {
+      id: 3,
+      name: 'Amanda Reyes',
+      role: 'Senior Business Analyst',
       company: 'DataVision Corp',
       location: 'Makati',
       expertise: ['business', 'data-analysis', 'consulting'],
@@ -66,10 +68,10 @@ export function ConnectPage() {
       availability: 'Flexible',
       isVerified: true
     },
-    { 
-      id: 4, 
-      name: 'Carlos Santos', 
-      role: 'Financial Advisor', 
+    {
+      id: 4,
+      name: 'Carlos Santos',
+      role: 'Financial Advisor',
       company: 'WealthPro Consulting',
       location: 'BGC, Taguig',
       expertise: ['finance', 'accounting', 'investment'],
@@ -80,10 +82,10 @@ export function ConnectPage() {
       availability: 'Monday & Wednesday',
       isVerified: true
     },
-    { 
-      id: 5, 
-      name: 'Dr. Elena Martinez', 
-      role: 'Healthcare Administrator', 
+    {
+      id: 5,
+      name: 'Dr. Elena Martinez',
+      role: 'Healthcare Administrator',
       company: 'MediCare Hospital',
       location: 'Quezon City',
       expertise: ['healthcare', 'medical', 'administration'],
@@ -94,10 +96,10 @@ export function ConnectPage() {
       availability: 'Weekends only',
       isVerified: true
     },
-    { 
-      id: 6, 
-      name: 'James Lee', 
-      role: 'UX/UI Designer', 
+    {
+      id: 6,
+      name: 'James Lee',
+      role: 'UX/UI Designer',
       company: 'DesignStudio Pro',
       location: 'Pasig',
       expertise: ['design', 'technology', 'creative'],
@@ -108,10 +110,10 @@ export function ConnectPage() {
       availability: 'Friday afternoons',
       isVerified: false
     },
-    { 
-      id: 7, 
-      name: 'Professor Anna Cruz', 
-      role: 'University Professor', 
+    {
+      id: 7,
+      name: 'Professor Anna Cruz',
+      role: 'University Professor',
       company: 'State University',
       location: 'Naga City',
       expertise: ['education', 'teaching', 'research'],
@@ -122,10 +124,10 @@ export function ConnectPage() {
       availability: 'Thursdays',
       isVerified: true
     },
-    { 
-      id: 8, 
-      name: 'Ryan Gonzales', 
-      role: 'Startup Founder', 
+    {
+      id: 8,
+      name: 'Ryan Gonzales',
+      role: 'Startup Founder',
       company: 'InnovatePH',
       location: 'Davao City',
       expertise: ['business', 'entrepreneurship', 'technology'],
@@ -140,8 +142,8 @@ export function ConnectPage() {
 
   const filteredMentors = mentors.filter(mentor => {
     const matchesSearch = mentor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         mentor.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         mentor.company.toLowerCase().includes(searchTerm.toLowerCase());
+      mentor.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mentor.company.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesExpertise = selectedExpertise === 'all' || mentor.expertise.includes(selectedExpertise);
     return matchesSearch && matchesExpertise;
   });
@@ -179,11 +181,10 @@ export function ConnectPage() {
               <button
                 key={area}
                 onClick={() => setSelectedExpertise(area)}
-                className={`px-4 py-2 rounded-lg transition-all capitalize ${
-                  selectedExpertise === area
+                className={`px-4 py-2 rounded-lg transition-all capitalize ${selectedExpertise === area
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-white text-foreground border border-border hover:border-primary'
-                }`}
+                  }`}
               >
                 {area}
               </button>
@@ -327,7 +328,7 @@ export function ConnectPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => handleConnectMentor(mentor)}
                   className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
                 >
@@ -366,7 +367,7 @@ export function ConnectPage() {
                 className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-4 h-32 resize-none"
               />
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => setSelectedMentor(null)}
                   className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
                 >

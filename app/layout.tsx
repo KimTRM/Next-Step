@@ -2,11 +2,14 @@
  * Root Layout - NextStep Platform
  * 
  * Main layout wrapper for the entire application
+ * Includes global Header and Footer
  */
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/landing/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +31,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Placard+Condensed:wght@700&display=swap" rel="stylesheet" />
       </head>
       <body className={inter.className}>
-        {children}
+        <Header />
+        <main className="min-h-screen bg-background">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

@@ -1,47 +1,25 @@
-'use client';
-
 /**
- * Main App - NextStep Platform
+ * Landing Page - NextStep Platform
  * 
- * Single-page application with client-side routing
+ * Public homepage with hero, features, and call-to-action sections
  */
 
-import { useState } from 'react';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/landing/Footer';
-import { HomePage } from '@/components/pages/HomePage';
-import { StudyPage } from '@/components/pages/StudyPage';
-import { CalendarPage } from '@/components/pages/CalendarPage';
-import { ConnectPage } from '@/components/pages/ConnectPage';
-import { MaterialsPage } from '@/components/pages/MaterialsPage';
+import { Hero } from '@/components/landing/Hero';
+import { Features } from '@/components/landing/Features';
+import { AIFeatures } from '@/components/landing/AIFeatures';
+import { UserRoles } from '@/components/landing/UserRoles';
+import { Courses } from '@/components/landing/Courses';
+import { Community } from '@/components/landing/Community';
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState('home');
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return <HomePage />;
-      case 'profile':
-        return <StudyPage />;
-      case 'applications':
-        return <CalendarPage />;
-      case 'mentors':
-        return <ConnectPage />;
-      case 'jobs':
-        return <MaterialsPage />;
-      default:
-        return <HomePage />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <Header currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main>
-        {renderPage()}
-      </main>
-      <Footer />
-    </div>
+    <>
+      <Hero />
+      <Features />
+      <AIFeatures />
+      <UserRoles />
+      <Courses />
+      <Community />
+    </>
   );
 }
