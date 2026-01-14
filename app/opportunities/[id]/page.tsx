@@ -1,23 +1,27 @@
 /**
- * Opportunity Detail Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Opportunity Detail Page
+ * ============================================================================
  * 
- * Detailed view of a single opportunity
+ * Detailed view of a single opportunity.
  * 
- * HACKATHON TODO:
- * - Fetch data from API route
- * - Add "Apply" button with modal/form
- * - Add "Save" bookmark functionality
- * - Add "Share" functionality
- * - Show related opportunities
- * - Display company/mentor profile
- * - Add application deadline countdown
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Fetch opportunity from API instead of direct import
+ * 2. Add apply button with application form
+ * 3. Add bookmark/save functionality
+ * 4. Show related opportunities
+ * 5. Add application status if user has already applied
  */
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { opportunities, users } from '@/lib/data';
-import Card, { CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+// BACKEND DATA: Import from server-side mock data
+import { opportunities } from '@/server/data/opportunities';
+import { users } from '@/server/data/users';
+// FRONTEND COMPONENTS
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+// SHARED UTILITIES
 import { formatDate, daysUntilDeadline } from '@/lib/utils';
 
 interface OpportunityDetailPageProps {
@@ -75,7 +79,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                 </p>
                             )}
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <div className="space-y-6">
                                 <div>
                                     <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
@@ -98,9 +102,8 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                     </div>
                                 </div>
 
-                                {/* TODO: Add more sections */}
                                 <div>
-                                    <h3 className="font-semibold text-gray-900 mb-2">What You'll Do</h3>
+                                    <h3 className="font-semibold text-gray-900 mb-2">What You&apos;ll Do</h3>
                                     <ul className="list-disc list-inside space-y-1 text-gray-700">
                                         <li>Work on exciting projects</li>
                                         <li>Collaborate with experienced team members</li>
@@ -108,21 +111,20 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                     </ul>
                                 </div>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
-                    {/* About Company/Mentor - TODO: Expand */}
                     <Card>
                         <CardHeader>
                             <CardTitle>
                                 About {opportunity.company || opportunity.mentor}
                             </CardTitle>
                         </CardHeader>
-                        <CardBody>
+                        <CardContent>
                             <p className="text-gray-700">
                                 {poster?.bio || 'No additional information available.'}
                             </p>
-                        </CardBody>
+                        </CardContent>
                     </Card>
                 </div>
 
@@ -130,8 +132,8 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                 <div className="lg:col-span-1 space-y-6">
                     {/* Apply Card */}
                     <Card>
-                        <CardBody>
-                            <Button variant="primary" className="w-full mb-3">
+                        <CardContent>
+                            <Button variant="default" className="w-full mb-3">
                                 Apply Now
                             </Button>
                             <Button variant="outline" className="w-full mb-3">
@@ -140,7 +142,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                             <Button variant="ghost" className="w-full">
                                 🔗 Share
                             </Button>
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
                     {/* Details Card */}
@@ -148,7 +150,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                         <CardHeader>
                             <CardTitle>Details</CardTitle>
                         </CardHeader>
-                        <CardBody className="space-y-3">
+                        <CardContent className="space-y-3">
                             <div>
                                 <p className="text-sm text-gray-600">Posted</p>
                                 <p className="font-medium">{formatDate(opportunity.postedDate)}</p>
@@ -169,7 +171,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                     {opportunity.isRemote ? 'Remote' : 'On-site'}
                                 </p>
                             </div>
-                        </CardBody>
+                        </CardContent>
                     </Card>
 
                     {/* Contact Card */}
@@ -178,7 +180,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                             <CardHeader>
                                 <CardTitle>Contact</CardTitle>
                             </CardHeader>
-                            <CardBody>
+                            <CardContent>
                                 <div className="flex items-center space-x-3 mb-3">
                                     <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                                         👤
@@ -191,7 +193,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                 <Button variant="outline" className="w-full">
                                     Send Message
                                 </Button>
-                            </CardBody>
+                            </CardContent>
                         </Card>
                     )}
                 </div>

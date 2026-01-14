@@ -1,88 +1,69 @@
 /**
- * Messages API Route - NextStep Platform
+ * ============================================================================
+ * API ROUTE - Messages Endpoint
+ * ============================================================================
  * 
- * GET /api/messages - Returns messages for current user
- * GET /api/messages?userId=1 - Get messages for specific user
+ * This is the Next.js API route handler for /api/messages
+ * It handles HTTP requests and calls the business logic in /server/api/messages.ts
  * 
- * HACKATHON TODO:
- * - Add POST endpoint for sending messages
- * - Add PUT endpoint for marking messages as read
- * - Add DELETE endpoint for deleting messages
- * - Add real-time messaging with WebSockets or Pusher
- * - Add message threading/conversations
- * - Add file attachment support
- * - Implement authentication to get current user
+ * ARCHITECTURE:
+ * - This file: HTTP layer (request parsing, response formatting, error handling)
+ * - /server/api/messages.ts: Business logic layer
+ * - /server/data/messages.ts: Data access layer
+ * 
+ * ENDPOINTS:
+ * - GET /api/messages - Returns messages for current user
+ * - GET /api/messages?userId=1 - Get messages for specific user (mock auth)
+ * - GET /api/messages?conversationWith=2 - Get conversation between users
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Implement real authentication (get userId from JWT token)
+ * 2. Add POST endpoint for sending messages
+ * 3. Add PUT endpoint for marking messages as read
+ * 4. Add DELETE endpoint for deleting messages
+ * 5. Implement real-time messaging with WebSockets
+ * 6. Add pagination for message history
+ * 7. Implement message search
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { messages, users } from '@/lib/data';
+import { getMessages, getConversations } from '@/server/api/messages';
 
+/**
+ * GET handler for /api/messages
+ * Returns messages for a user with optional conversation filtering
+ */
 export async function GET(request: NextRequest) {
   try {
+    // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
-    const userId = searchParams.get('userId') || '1'; // Mock current user as ID 1
-    const conversationWith = searchParams.get('conversationWith');
+    
+    // Mock authentication: Get userId from query param
+    // In production: Get from JWT token or session
+    const userId = searchParams.get('userId') || '1';
+    const conversationWith = searchParams.get('conversationWith') || undefined;
 
-    let filteredMessages = messages.filter(
-      msg => msg.senderId === userId || msg.receiverId === userId
-    );
+    // Call business logic layer
+    const result = await getMessages(userId, conversationWith);
 
-    // If conversationWith is provided, filter for conversation between two users
-    if (conversationWith) {
-      filteredMessages = filteredMessages.filter(
-        msg =>
-          (msg.senderId === userId && msg.receiverId === conversationWith) ||
-          (msg.senderId === conversationWith && msg.receiverId === userId)
-      );
-    }
-
-    // Enhance messages with sender/receiver info
-    const enhancedMessages = filteredMessages.map(msg => {
-      const sender = users.find(u => u.id === msg.senderId);
-      const receiver = users.find(u => u.id === msg.receiverId);
-      
-      return {
-        ...msg,
-        sender: sender
-          ? { id: sender.id, name: sender.name, avatarUrl: sender.avatarUrl }
-          : null,
-        receiver: receiver
-          ? { id: receiver.id, name: receiver.name, avatarUrl: receiver.avatarUrl }
-          : null,
-      };
-    });
-
-    // Sort by timestamp (newest first)
-    enhancedMessages.sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-
+    // Return successful response
     return NextResponse.json({
       success: true,
-      data: enhancedMessages,
-      count: enhancedMessages.length,
+      data: result.messages,
+      count: result.count,
     });
   } catch (error) {
+    // Log error in production (use proper logging service)
+    console.error('Error in GET /api/messages:', error);
+
+    // Return error response
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch messages' },
+      { 
+        success: false, 
+        error: 'Failed to fetch messages',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
 }
-
-// TODO: Add POST endpoint for sending messages
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   const { receiverId, content } = body;
-//   
-//   // Validate input
-//   // Get current user from session/token
-//   // Create message in database
-//   // Send real-time notification to receiver
-//   // Return created message
-// }
-
-// TODO: Get list of conversations (unique users)
-// GET /api/messages/conversations
-// Returns list of users the current user has conversations with

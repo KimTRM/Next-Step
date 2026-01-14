@@ -2,13 +2,6 @@
  * Sidebar Component - NextStep Platform
  * 
  * Sidebar navigation for dashboard pages
- * 
- * HACKATHON TODO:
- * - Add collapsible sidebar for mobile
- * - Add icons for each menu item
- * - Add nested menu items (e.g., Settings submenu)
- * - Add badge indicators (e.g., unread messages count)
- * - Add user info section at top/bottom
  */
 
 'use client';

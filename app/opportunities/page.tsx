@@ -1,21 +1,28 @@
 /**
- * Opportunities Page - NextStep Platform
+ * ============================================================================
+ * FRONTEND - Opportunities Page
+ * ============================================================================
  * 
- * Browse all jobs, internships, and mentorships
+ * Browse all jobs, internships, and mentorships.
  * 
- * HACKATHON TODO:
- * - Add search functionality
- * - Add filters (type, location, remote, skills)
- * - Add sorting options
- * - Add pagination
- * - Add bookmarking/saving opportunities
- * - Fetch data from API instead of importing directly
+ * ARCHITECTURE:
+ * - This is a server component that fetches data on the server side
+ * - Imports mock data from /server/data for now
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Replace with client component and use API calls (fetch('/api/opportunities'))
+ * 2. Implement real search and filtering functionality
+ * 3. Add pagination or infinite scroll
+ * 4. Add bookmarking/saving opportunities
+ * 5. Implement personalized recommendations
  */
 
-import { opportunities } from '@/lib/data';
+// BACKEND DATA: Import from server-side mock data
+import { opportunities } from '@/server/data/opportunities';
+// FRONTEND COMPONENTS
 import { OpportunityList } from '@/components/features/opportunities/OpportunityCard';
-import Card, { CardBody } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function OpportunitiesPage() {
     // Group opportunities by type
@@ -33,9 +40,8 @@ export default function OpportunitiesPage() {
                 </p>
             </div>
 
-            {/* Search and Filters - TODO: Make functional */}
             <Card className="mb-8">
-                <CardBody>
+                <CardContent>
                     <div className="flex flex-col md:flex-row gap-4">
                         <input
                             type="text"
@@ -54,12 +60,11 @@ export default function OpportunitiesPage() {
                             <option value="toronto">Toronto</option>
                             <option value="vancouver">Vancouver</option>
                         </select>
-                        <Button variant="primary">Search</Button>
+                        <Button variant="default">Search</Button>
                     </div>
-                </CardBody>
+                </CardContent>
             </Card>
 
-            {/* Tabs for filtering - TODO: Make functional */}
             <div className="flex space-x-4 mb-6 border-b border-gray-200">
                 <button className="px-4 py-2 text-sm font-medium text-green-700 border-b-2 border-green-700">
                     All ({opportunities.length})
@@ -80,3 +85,5 @@ export default function OpportunitiesPage() {
         </div>
     );
 }
+
+

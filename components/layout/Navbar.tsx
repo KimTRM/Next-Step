@@ -2,13 +2,6 @@
  * Navbar Component - NextStep Platform
  * 
  * Main navigation bar for the application
- * 
- * HACKATHON TODO:
- * - Add mobile responsive menu (hamburger)
- * - Add notifications dropdown
- * - Add user profile dropdown with logout
- * - Add search functionality in navbar
- * - Highlight active page
  */
 
 'use client';
@@ -46,49 +39,47 @@ export default function Navbar() {
 
                     {/* Navigation Links */}
                     <div className="hidden md:flex items-center space-x-8">
-                                {navLinks.map((link) => (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        className={cn(
-                                            'text-sm font-medium transition-colors',
-                                            isActive(link.href)
-                                                ? 'text-blue-600 border-b-2 border-blue-600'
-                                                : 'text-gray-700 hover:text-blue-600'
-                                        )}
-                                    >
-                                        {link.label}
-                                    </Link>
-                                ))}
-                            </div>
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    'text-sm font-medium transition-colors',
+                                    isActive(link.href)
+                                        ? 'text-blue-600 border-b-2 border-blue-600'
+                                        : 'text-gray-700 hover:text-blue-600'
+                                )}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
 
-                            {/* User Actions */}
-                            <div className="flex items-center space-x-4">
-                                {/* TODO: Replace with actual user state */}
-                                <Link
-                                    href="/profile"
-                                    className="text-sm font-medium text-gray-700 hover:text-blue-600"
-                                >
-                                    Profile
-                                </Link>
-                                <Link
-                                    href="/auth"
-                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                                >
-                                    Sign In
-                                </Link>
-                            </div>
+                    {/* User Actions */}
+                    <div className="flex items-center space-x-4">
+                        <Link
+                            href="/profile"
+                            className="text-sm font-medium text-gray-700 hover:text-blue-600"
+                        >
+                            Profile
+                        </Link>
+                        <Link
+                            href="/auth"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                        >
+                            Sign In
+                        </Link>
+                    </div>
 
-                            {/* Mobile Menu Button - TODO: Implement mobile menu */}
-                            <div className="md:hidden flex items-center">
-                                <button className="text-gray-700 hover:text-blue-600">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                </button>
-                            </div>
+                    <div className="md:hidden flex items-center">
+                        <button className="text-gray-700 hover:text-blue-600">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
+            </div>
         </nav>
     );
 }

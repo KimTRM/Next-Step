@@ -1,62 +1,64 @@
 /**
- * Users API Route - NextStep Platform
+ * ============================================================================
+ * API ROUTE - Users Endpoint
+ * ============================================================================
  * 
- * GET /api/users - Returns list of all users
- * GET /api/users?role=student - Filter by role
+ * This is the Next.js API route handler for /api/users
+ * It handles HTTP requests and calls the business logic in /server/api/users.ts
  * 
- * HACKATHON TODO:
- * - Add POST endpoint for user registration
- * - Add PUT endpoint for updating user profile
- * - Add GET /api/users/[id] for single user
- * - Add authentication and authorization
- * - Connect to real database (MongoDB, PostgreSQL, Supabase)
- * - Add input validation and error handling
+ * ARCHITECTURE:
+ * - This file: HTTP layer (request parsing, response formatting, error handling)
+ * - /server/api/users.ts: Business logic layer
+ * - /server/data/users.ts: Data access layer
+ * 
+ * ENDPOINTS:
+ * - GET /api/users - Returns list of all users
+ * - GET /api/users?role=student - Filter by role
+ * - GET /api/users?search=query - Search users
+ * 
+ * NEXT STEPS FOR PRODUCTION:
+ * 1. Add authentication middleware (verify JWT token)
+ * 2. Add rate limiting
+ * 3. Add request validation
+ * 4. Implement proper error logging (Sentry, LogRocket)
+ * 5. Add CORS headers if needed for external API access
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { users } from '@/lib/data';
+import { getAllUsers } from '@/server/api/users';
 
+/**
+ * GET handler for /api/users
+ * Returns list of users with optional filtering
+ */
 export async function GET(request: NextRequest) {
   try {
-    // Get query parameters
+    // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
-    const role = searchParams.get('role');
-    const search = searchParams.get('search');
+    const role = searchParams.get('role') || undefined;
+    const search = searchParams.get('search') || undefined;
 
-    let filteredUsers = [...users];
+    // Call business logic layer
+    const result = await getAllUsers({ role, search });
 
-    // Filter by role if provided
-    if (role) {
-      filteredUsers = filteredUsers.filter(user => user.role === role);
-    }
-
-    // Search by name or email if provided
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredUsers = filteredUsers.filter(
-        user =>
-          user.name.toLowerCase().includes(searchLower) ||
-          user.email.toLowerCase().includes(searchLower)
-      );
-    }
-
+    // Return successful response
     return NextResponse.json({
       success: true,
-      data: filteredUsers,
-      count: filteredUsers.length,
+      data: result.users,
+      count: result.count,
     });
   } catch (error) {
+    // Log error in production (use proper logging service)
+    console.error('Error in GET /api/users:', error);
+
+    // Return error response
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch users' },
+      { 
+        success: false, 
+        error: 'Failed to fetch users',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
 }
-
-// TODO: Add POST endpoint for creating users
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   // Validate input
-//   // Save to database
-//   // Return created user
-// }
