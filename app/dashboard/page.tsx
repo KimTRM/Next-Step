@@ -4,52 +4,51 @@
  * ============================================================================
  * 
  * Main dashboard showing overview of user activity.
- * 
- * ARCHITECTURE:
- * - This is a server component that fetches data on the server side
- * - Imports mock data from /server/data for now
- * - In production: Replace with API calls or database queries
- * 
- * NEXT STEPS FOR PRODUCTION:
- * 1. Replace direct data imports with API calls (fetch('/api/...'))
- * 2. Implement user authentication to get current user
- * 3. Add loading states and error handling
- * 4. Implement data caching with React Query or SWR
- * 5. Add real-time updates for messages and applications
+ * Now uses Convex for real-time data and Clerk for authentication.
  */
+
+"use client";
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// BACKEND DATA: These imports pull from server-side mock data
-// In production: Replace with API calls or database queries
-import { opportunities } from '@/server/data/opportunities';
-import { applications } from '@/server/data/applications';
-import { messages } from '@/server/data/messages';
-import { users } from '@/server/data/users';
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 
-export default async function DashboardPage() {
-    // Mock current user (student with ID 1)
-    const currentUserId = '1';
-    const currentUser = users.find(u => u.id === currentUserId);
+export default function DashboardPage() {
+    const { user } = useUser();
 
-    // Get user's applications
-    const userApplications = applications.filter(app => app.userId === currentUserId);
+    // Fetch data from Convex
+    const currentUser = useQuery(api.users.getCurrentUser);
+    const opportunities = useQuery(api.opportunities.getAllOpportunities, {});
+    const userApplications = useQuery(api.applications.getUserApplications);
+    const userMessages = useQuery(api.messages.getUserMessages);
 
-    // Get user's unread messages
-    const unreadMessages = messages.filter(
-        msg => msg.receiverId === currentUserId && !msg.read
-    );
+    // Loading state
+    if (!user || currentUser === undefined || opportunities === undefined) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-lg text-gray-600">Loading dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
-    // Get recent opportunities
-    const recentOpportunities = opportunities.slice(0, 3);
+    // Calculate stats
+    const unreadMessages = userMessages?.filter(msg =>
+        !msg.read && msg.receiverId === currentUser?._id
+    ).length || 0;
+
+    const recentOpportunities = opportunities?.slice(0, 3) || [];
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
             {/* Welcome Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">
-                    Welcome back, {currentUser?.name?.split(' ')[0]}! 👋
+                    Welcome back, {user?.firstName || currentUser?.name?.split(' ')[0]}! 👋
                 </h1>
                 <p className="text-gray-600 mt-2">
                     Here's what's happening with your NextStep journey
@@ -64,7 +63,7 @@ export default async function DashboardPage() {
                             <div>
                                 <p className="text-sm text-gray-600">Applications</p>
                                 <p className="text-3xl font-bold text-gray-900">
-                                    {userApplications.length}
+                                    {userApplications?.length || 0}
                                 </p>
                             </div>
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -83,7 +82,7 @@ export default async function DashboardPage() {
                             <div>
                                 <p className="text-sm text-gray-600">Unread Messages</p>
                                 <p className="text-3xl font-bold text-gray-900">
-                                    {unreadMessages.length}
+                                    {unreadMessages}
                                 </p>
                             </div>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -127,7 +126,7 @@ export default async function DashboardPage() {
                     <CardContent>
                         <div className="space-y-4">
                             {recentOpportunities.map((opp) => (
-                                <div key={opp.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                <div key={opp._id} className="border-b border-gray-200 pb-4 last:border-b-0">
                                     <h4 className="font-semibold text-gray-900">{opp.title}</h4>
                                     <p className="text-sm text-gray-600 mt-1">
                                         {opp.company || opp.mentor}
@@ -136,7 +135,7 @@ export default async function DashboardPage() {
                                         <span className="text-xs text-gray-500">
                                             {opp.type.toUpperCase()}
                                         </span>
-                                        <Link href={`/opportunities/${opp.id}`}>
+                                        <Link href={`/opportunities/${opp._id}`}>
                                             <Button variant="outline" size="sm">View</Button>
                                         </Link>
                                     </div>
@@ -189,19 +188,19 @@ export default async function DashboardPage() {
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Pending</span>
                                     <span className="font-semibold">
-                                        {userApplications.filter(a => a.status === 'pending').length}
+                                        {userApplications?.filter(a => a.status === 'pending').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Accepted</span>
                                     <span className="font-semibold text-green-600">
-                                        {userApplications.filter(a => a.status === 'accepted').length}
+                                        {userApplications?.filter(a => a.status === 'accepted').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Rejected</span>
                                     <span className="font-semibold text-red-600">
-                                        {userApplications.filter(a => a.status === 'rejected').length}
+                                        {userApplications?.filter(a => a.status === 'rejected').length || 0}
                                     </span>
                                 </div>
                             </div>

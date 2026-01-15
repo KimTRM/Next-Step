@@ -4,39 +4,57 @@ Welcome to the NextStep documentation! This folder contains all the guides and r
 
 ## 📖 Documentation Index
 
-### For New Developers (Start Here!)
+### 🚀 Getting Started (Start Here!)
 
-1. **[QUICK-START.md](QUICK-START.md)** ⚡ **(5 min read)**
-    - Get up and running in 5 minutes
+1. **[CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md)** ⚡ **(5 min)**
+    - **START HERE** - Get Convex + Clerk running
+    - Add your API keys
+    - Test authentication
+
+2. **[QUICK-START.md](QUICK-START.md)** ⚡ **(5 min)**
+    - Original quick start guide
     - Common tasks and examples
     - Pro tips and troubleshooting
 
-### For Understanding the Project
+### 🔧 Backend Setup
 
-2. **[ARCHITECTURE.md](ARCHITECTURE.md)** 📐 **(20 min read)**
+3. **[CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)** 🔐 **(10 min)**
+    - Complete Convex database setup
+    - Clerk authentication configuration
+    - Webhook setup for user sync
+    - Environment variables guide
 
+4. **[INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)** 📋 **(5 min)**
+    - What's been integrated
+    - File structure overview
+    - Features now working
+    - Testing checklist
+
+### 📐 Understanding the Project
+
+5. **[ARCHITECTURE.md](ARCHITECTURE.md)** 📐 **(20 min)**
     - Complete architecture explanation
     - Folder structure guide
     - Data flow diagrams
     - Migration path to production
     - Testing strategy
 
-3. **[MIGRATION-GUIDE.md](MIGRATION-GUIDE.md)** 🗺️ **(15 min read)**
+6. **[MIGRATION-GUIDE.md](MIGRATION-GUIDE.md)** 🗺️ **(15 min)**
     - Before/after comparisons
     - How to add new features
     - Code review checklist
     - Troubleshooting guide
 
-### For Project History
+### 📊 Project History
 
-4. **[REFACTORING-SUMMARY.md](REFACTORING-SUMMARY.md)** 📊 **(10 min read)**
+7. **[REFACTORING-SUMMARY.md](REFACTORING-SUMMARY.md)** 📊 **(10 min)**
     - What was changed and why
     - Success metrics
     - Next steps for production
 
-### For Current Tasks
+### ✅ Current Tasks
 
-5. **[TODO.md](TODO.md)** ✅ **(5 min read)**
+8. **[TODO.md](TODO.md)** ✅ **(5 min)**
     - Feature roadmap
     - Organized by category
     - Tasks consolidated from across the project
@@ -45,13 +63,16 @@ Welcome to the NextStep documentation! This folder contains all the guides and r
 
 ### I Want To...
 
-| Task                            | Read This                                                    |
-| ------------------------------- | ------------------------------------------------------------ |
-| **Get started quickly**         | [QUICK-START.md](QUICK-START.md)                             |
-| **Understand the architecture** | [ARCHITECTURE.md](ARCHITECTURE.md)                           |
-| **Add a new feature**           | [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md#adding-new-features) |
-| **See what needs to be built**  | [TODO.md](TODO.md)                                           |
-| **Know what changed**           | [REFACTORING-SUMMARY.md](REFACTORING-SUMMARY.md)             |
+| Task                            | Read This                                                     |
+| ------------------------------- | ------------------------------------------------------------- |
+| **Set up Convex + Clerk**       | [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md) **← START HERE** |
+| **Get started quickly**         | [QUICK-START.md](QUICK-START.md)                              |
+| **Configure database & auth**   | [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)                |
+| **See what's been integrated**  | [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)              |
+| **Understand the architecture** | [ARCHITECTURE.md](ARCHITECTURE.md)                            |
+| **Add a new feature**           | [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md#adding-new-features)  |
+| **See what needs to be built**  | [TODO.md](TODO.md)                                            |
+| **Know what changed**           | [REFACTORING-SUMMARY.md](REFACTORING-SUMMARY.md)              |
 
 ## 📚 Recommended Reading Order
 
@@ -71,9 +92,9 @@ Welcome to the NextStep documentation! This folder contains all the guides and r
 
 ## 🔗 External Documentation
 
--   [Next.js Documentation](https://nextjs.org/docs) - Framework reference
--   [TypeScript Handbook](https://www.typescriptlang.org/docs/) - Language reference
--   [Tailwind CSS](https://tailwindcss.com/docs) - Styling reference
+- [Next.js Documentation](https://nextjs.org/docs) - Framework reference
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/) - Language reference
+- [Tailwind CSS](https://tailwindcss.com/docs) - Styling reference
 
 ## 💡 Documentation Standards
 

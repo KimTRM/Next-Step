@@ -1,13 +1,12 @@
 /**
- * Auth Page - NextStep Platform
- * Redirects to Clerk sign-in/sign-up
+ * Sign Up Page - NextStep Platform
  */
 
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
-export default function AuthPage() {
+export default function SignUpPage() {
     return (
-        <div className="min-h-screen bg-linear-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <div className="mb-4">
@@ -15,13 +14,13 @@ export default function AuthPage() {
                         <span className="text-4xl font-bold text-gray-900">Step</span>
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                        Welcome Back!
+                        Join NextStep
                     </h1>
                     <p className="text-gray-600">
-                        Sign in to access your dashboard and opportunities
+                        Create an account to discover opportunities and connect with mentors
                     </p>
                 </div>
-                <SignIn
+                <SignUp
                     appearance={{
                         elements: {
                             rootBox: "mx-auto",
@@ -29,12 +28,11 @@ export default function AuthPage() {
                         },
                     }}
                     routing="path"
-                    path="/auth"
-                    signUpUrl="/sign-up"
-                    afterSignInUrl="/dashboard"
+                    path="/sign-up"
+                    signInUrl="/auth"
+                    afterSignUpUrl="/dashboard"
                 />
             </div>
         </div>
     );
 }
-

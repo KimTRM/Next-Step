@@ -4,27 +4,32 @@
  * ============================================================================
  * 
  * Browse all jobs, internships, and mentorships.
- * 
- * ARCHITECTURE:
- * - This is a server component that fetches data on the server side
- * - Imports mock data from /server/data for now
- * 
- * NEXT STEPS FOR PRODUCTION:
- * 1. Replace with client component and use API calls (fetch('/api/opportunities'))
- * 2. Implement real search and filtering functionality
- * 3. Add pagination or infinite scroll
- * 4. Add bookmarking/saving opportunities
- * 5. Implement personalized recommendations
+ * Now uses Convex for real-time data.
  */
 
-// BACKEND DATA: Import from server-side mock data
-import { opportunities } from '@/server/data/opportunities';
-// FRONTEND COMPONENTS
+"use client";
+
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { OpportunityList } from '@/components/features/opportunities/OpportunityCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function OpportunitiesPage() {
+    // Fetch all opportunities from Convex
+    const opportunities = useQuery(api.opportunities.getAllOpportunities, {});
+
+    // Loading state
+    if (opportunities === undefined) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-lg text-gray-600">Loading opportunities...</p>
+                </div>
+            </div>
+        );
+    }
+
     // Group opportunities by type
     const jobs = opportunities.filter(o => o.type === 'job');
     const internships = opportunities.filter(o => o.type === 'internship');

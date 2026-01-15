@@ -2,12 +2,12 @@
 
 ## 📖 Table of Contents
 
--   [Quick Start](#quick-start)
--   [Architecture Overview](#architecture-overview)
--   [Project Structure](#project-structure)
--   [Development Workflow](#development-workflow)
--   [REST API Pattern](#rest-api-pattern)
--   [Adding New Features](#adding-new-features)
+- [Quick Start](#quick-start)
+- [Architecture Overview](#architecture-overview)
+- [Project Structure](#project-structure)
+- [Development Workflow](#development-workflow)
+- [REST API Pattern](#rest-api-pattern)
+- [Adding New Features](#adding-new-features)
 
 ---
 
@@ -129,8 +129,8 @@ export default function CoursesPage() {
 
 **Routing**: Next.js automatically creates routes from folders:
 
--   `/app/courses/page.tsx` → URL: `/courses`
--   `/app/profile/page.tsx` → URL: `/profile`
+- `/app/courses/page.tsx` → URL: `/courses`
+- `/app/profile/page.tsx` → URL: `/profile`
 
 ---
 
@@ -338,19 +338,19 @@ Future: Implement with NextAuth.js, Clerk, or Supabase
 
 Replace mock data in `/server/data` with:
 
--   **PostgreSQL** (via Prisma)
--   **MongoDB** (via Mongoose)
--   **Supabase** (PostgreSQL + Auth)
+- **PostgreSQL** (via Prisma)
+- **MongoDB** (via Mongoose)
+- **Supabase** (PostgreSQL + Auth)
 
 ---
 
 ## 📚 Additional Resources
 
--   [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture
--   [TODO.md](docs/TODO.md) - Feature roadmap
--   [QUICK-START.md](docs/QUICK-START.md) - Development guide
--   [Next.js Docs](https://nextjs.org/docs)
--   [shadcn/ui](https://ui.shadcn.com/)
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture
+- [TODO.md](docs/TODO.md) - Feature roadmap
+- [QUICK-START.md](QUICK-START.md) - Development guide
+- [Next.js Docs](https://nextjs.org/docs)
+- [shadcn/ui](https://ui.shadcn.com/)
 
 ---
 
