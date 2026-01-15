@@ -182,8 +182,8 @@ export function ConnectPage() {
                 key={area}
                 onClick={() => setSelectedExpertise(area)}
                 className={`px-4 py-2 rounded-lg transition-all capitalize ${selectedExpertise === area
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-white text-foreground border border-border hover:border-primary'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white text-foreground border border-border hover:border-primary'
                   }`}
               >
                 {area}
@@ -271,7 +271,7 @@ export function ConnectPage() {
                       <h3 className="mb-1 flex items-center gap-2">
                         {mentor.name}
                         {mentor.isVerified && (
-                          <Award className="h-4 w-4 text-primary" title="Verified Mentor" />
+                          <Award className="h-4 w-4 text-primary" aria-label="Verified Mentor" />
                         )}
                       </h3>
                       <p className="text-sm text-muted-foreground">{mentor.role}</p>
