@@ -1,67 +1,125 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, FileText, Plus, Edit3, Save, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { useUser } from '@clerk/nextjs';
+import { api } from '@/convex/_generated/api';
+import { User, Mail, MapPin, Award, FileText, Plus, Edit3, Save } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function ProfilePageContent() {
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: 'Juan Dela Cruz',
-    email: 'juan.delacruz@email.com',
-    phone: '+63 912 345 6789',
-    location: 'Naga City, Camarines Sur',
-    education: 'Bachelor of Science in Computer Science',
-    university: 'University of Naga',
-    graduationYear: '2025',
-    bio: 'Fresh graduate passionate about technology and eager to start my career in software development. Strong foundation in programming and problem-solving.',
-  });
+  const [mounted, setMounted] = useState(false);
+  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const upsertUser = useMutation(api.userMutations.upsertUser);
+  const updateProfile = useMutation(api.userMutations.updateUserProfile);
 
-  const [skills, setSkills] = useState([
-    'JavaScript',
-    'Python',
-    'React',
-    'Node.js',
-    'SQL',
-    'Git',
-    'Problem Solving',
-    'Team Collaboration'
-  ]);
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState('');
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
-  const [interests, setInterests] = useState([
-    'Web Development',
-    'Mobile Apps',
-    'AI/Machine Learning',
-    'Cloud Computing'
-  ]);
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const [goals, setGoals] = useState([
-    { id: 1, text: 'Land my first developer role within 3 months', completed: false },
-    { id: 2, text: 'Build a portfolio of 5 projects', completed: true },
-    { id: 3, text: 'Connect with 3 mentors in the tech industry', completed: false },
-    { id: 4, text: 'Complete an online certification course', completed: true }
-  ]);
+  // Auto-create user in Convex if signed in with Clerk but no Convex record
+  useEffect(() => {
+    const createUser = async () => {
+      if (clerkUser && currentUser === null && !isCreatingUser) {
+        setIsCreatingUser(true);
+        try {
+          await upsertUser({
+            clerkId: clerkUser.id,
+            email: clerkUser.emailAddresses[0]?.emailAddress || '',
+            name: clerkUser.fullName || clerkUser.firstName || 'User',
+            avatarUrl: clerkUser.imageUrl,
+          });
+        } catch (error) {
+          console.error('Failed to create user:', error);
+        } finally {
+          setIsCreatingUser(false);
+        }
+      }
+    };
+    createUser();
+  }, [clerkUser, currentUser, upsertUser, isCreatingUser]);
 
-  const [experience, setExperience] = useState([
-    {
-      id: 1,
-      role: 'Intern - Web Developer',
-      company: 'Tech Startup Inc.',
-      duration: 'Jun 2024 - Aug 2024',
-      description: 'Assisted in developing responsive web applications using React and Node.js'
-    },
-    {
-      id: 2,
-      role: 'Capstone Project Lead',
-      company: 'University of Naga',
-      duration: 'Jan 2025 - May 2025',
-      description: 'Led a team of 4 students to develop a campus management system'
+  // Initialize form data when user data loads for the first time
+  useEffect(() => {
+    if (currentUser && !hasInitialized) {
+      // Batch state updates to avoid multiple re-renders
+      setBio(currentUser.bio || '');
+      setLocation(currentUser.location || '');
+      setSkills(currentUser.skills || []);
+      setHasInitialized(true);
     }
-  ]);
+  }, [currentUser, hasInitialized]);
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    // Here you would typically save to a backend
+  const handleSaveProfile = async () => {
+    try {
+      await updateProfile({
+        bio: bio.trim() || undefined,
+        location: location.trim() || undefined,
+        skills: skills.length > 0 ? skills : undefined,
+      });
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (error) {
+      toast.error('Failed to update profile');
+      console.error(error);
+    }
   };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+      setSkills([...skills, newSkill.trim()]);
+      setNewSkill('');
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    setSkills(skills.filter(s => s !== skill));
+  };
+
+  // Show loading while mounting or while Clerk and Convex are initializing
+  if (!mounted || !clerkLoaded || currentUser === undefined) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center">
+        <p className="text-lg text-gray-600">Loading profile...</p>
+      </div>
+    );
+  }
+
+  // Not signed in with Clerk
+  if (!clerkUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
+        <p className="text-lg text-gray-600">Please sign in to view your profile</p>
+        <a
+          href="/auth"
+          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+        >
+          Sign In
+        </a>
+      </div>
+    );
+  }
+
+  // Signed in but no Convex user record yet
+  if (currentUser === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
+        <p className="text-lg text-gray-600">Setting up your profile...</p>
+        <p className="text-sm text-gray-500">Signed in as {clerkUser.emailAddresses[0]?.emailAddress}</p>
+        <p className="text-xs text-gray-400">If this persists, try refreshing the page</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20">
@@ -99,252 +157,129 @@ export function ProfilePageContent() {
             <div className="bg-white rounded-xl border border-border p-6">
               <div className="flex flex-col items-center mb-6">
                 <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <User className="h-12 w-12 text-primary" />
+                  {currentUser.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={currentUser.avatarUrl}
+                      alt={currentUser.name}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-12 w-12 text-primary" />
+                  )}
                 </div>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-2 text-center"
-                  />
-                ) : (
-                  <h2 className="mb-2">{profileData.name}</h2>
-                )}
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.education}
-                    onChange={(e) => setProfileData({ ...profileData, education: e.target.value })}
-                    className="w-full px-3 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm text-center"
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center">{profileData.education}</p>
-                )}
+                <h2 className="mb-2">{currentUser.name}</h2>
+                <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full capitalize">
+                  {currentUser.role}
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Mail className="h-4 w-4 text-primary" />
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                      className="flex-1 px-2 py-1 bg-input-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  ) : (
-                    <span>{profileData.email}</span>
-                  )}
+                  <span>{currentUser.email}</span>
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-primary" />
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                      className="flex-1 px-2 py-1 bg-input-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  ) : (
-                    <span>{profileData.phone}</span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <MapPin className="h-4 w-4 text-primary" />
+                <div className="flex items-start gap-3 text-sm">
+                  <MapPin className="h-4 w-4 text-primary mt-1" />
                   {isEditing ? (
                     <input
                       type="text"
-                      value={profileData.location}
-                      onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="Enter your location"
                       className="flex-1 px-2 py-1 bg-input-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   ) : (
-                    <span>{profileData.location}</span>
+                    <span>{location || 'No location set'}</span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <GraduationCap className="h-4 w-4 text-primary" />
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={profileData.university}
-                      onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
-                      className="flex-1 px-2 py-1 bg-input-background border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  ) : (
-                    <span>{profileData.university}</span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <span>Class of {profileData.graduationYear}</span>
+                <div className="text-sm text-gray-500">
+                  Member since {new Date(currentUser.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long'
+                  })}
                 </div>
               </div>
-            </div>
-
-            {/* Profile Completion */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <h3 className="mb-4">Profile Strength</h3>
-              <div className="mb-2">
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: '75%' }} />
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">75% Complete</p>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2 text-green-600">
-                  <Award className="h-4 w-4" />
-                  Basic info added
-                </li>
-                <li className="flex items-center gap-2 text-green-600">
-                  <Award className="h-4 w-4" />
-                  Skills listed
-                </li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Award className="h-4 w-4" />
-                  Upload resume (recommended)
-                </li>
-              </ul>
             </div>
           </div>
 
-          {/* Right Column - Detailed Info */}
+          {/* Right Column - Bio and Skills */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Bio */}
+            {/* Bio Section */}
             <div className="bg-white rounded-xl border border-border p-6">
-              <h3 className="mb-4">About Me</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  About Me
+                </h3>
+              </div>
               {isEditing ? (
                 <textarea
-                  value={profileData.bio}
-                  onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                  className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-32 resize-none"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Tell us about yourself, your goals, and what you're looking for..."
+                  className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[150px] resize-none"
                 />
               ) : (
-                <p className="text-muted-foreground">{profileData.bio}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">
+                  {bio || 'No bio added yet. Click "Edit Profile" to add information about yourself.'}
+                </p>
               )}
             </div>
 
-            {/* Skills */}
+            {/* Skills Section */}
             <div className="bg-white rounded-xl border border-border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3>Skills</h3>
-                {isEditing && (
-                  <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
-                    <Plus className="h-4 w-4" />
-                    Add Skill
-                  </button>
-                )}
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  Skills
+                </h3>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm"
+
+              {isEditing && (
+                <div className="mb-4 flex gap-2">
+                  <input
+                    type="text"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
+                    placeholder="Add a skill (press Enter)"
+                    className="flex-1 px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <button
+                    onClick={handleAddSkill}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
                   >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Experience */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3>Experience</h3>
-                {isEditing && (
-                  <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
                     <Plus className="h-4 w-4" />
-                    Add Experience
                   </button>
-                )}
-              </div>
-              <div className="space-y-4">
-                {experience.map((exp) => (
-                  <div key={exp.id} className="border-l-2 border-primary pl-4">
-                    <h4 className="mb-1">{exp.role}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {exp.company} • {exp.duration}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{exp.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              )}
 
-            {/* Career Goals */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3>Career Goals</h3>
-                {isEditing && (
-                  <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
-                    <Plus className="h-4 w-4" />
-                    Add Goal
-                  </button>
-                )}
-              </div>
-              <div className="space-y-3">
-                {goals.map((goal) => (
-                  <div key={goal.id} className="flex items-start gap-3">
-                    <div className={`mt-1 ${goal.completed ? 'text-green-600' : 'text-gray-400'}`}>
-                      {goal.completed ? (
-                        <Award className="h-5 w-5" />
-                      ) : (
-                        <div className="h-5 w-5 border-2 border-gray-300 rounded" />
+              <div className="flex flex-wrap gap-2">
+                {skills.length > 0 ? (
+                  skills.map((skill) => (
+                    <div
+                      key={skill}
+                      className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm flex items-center gap-2"
+                    >
+                      {skill}
+                      {isEditing && (
+                        <button
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-red-600"
+                        >
+                          ×
+                        </button>
                       )}
                     </div>
-                    <span className={goal.completed ? 'line-through text-muted-foreground' : ''}>
-                      {goal.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Interests */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3>Areas of Interest</h3>
-                {isEditing && (
-                  <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
-                    <Plus className="h-4 w-4" />
-                    Add Interest
-                  </button>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">
+                    No skills added yet. {isEditing ? 'Add your skills above.' : 'Click "Edit Profile" to add skills.'}
+                  </p>
                 )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {interests.map((interest, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm"
-                  >
-                    {interest}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Documents */}
-            <div className="bg-white rounded-xl border border-border p-6">
-              <h3 className="mb-4">Documents & Attachments</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm">Resume.pdf</p>
-                      <p className="text-xs text-muted-foreground">Updated Jan 5, 2026</p>
-                    </div>
-                  </div>
-                  <button className="text-sm text-primary hover:text-primary/80">View</button>
-                </div>
-                <button className="w-full py-3 border-2 border-dashed border-border rounded-lg text-sm text-muted-foreground hover:border-primary hover:text-primary transition-all">
-                  Upload Document
-                </button>
               </div>
             </div>
           </div>

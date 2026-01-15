@@ -4,11 +4,13 @@
  * This file configures Convex to use Clerk for authentication
  */
 
-export default {
+const authConfig = {
     providers: [
         {
-            domain: "https://clerk.convex.dev",
+            domain: "https://crisp-hyena-26.clerk.accounts.dev",
             applicationID: "convex",
         },
     ],
 };
+
+export default authConfig;
