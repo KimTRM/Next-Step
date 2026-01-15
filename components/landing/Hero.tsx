@@ -2,7 +2,7 @@ import { ArrowRight, Target } from 'lucide-react';
 
 export function Hero() {
   return (
-    <section className="relative bg-gradient-to-br from-white via-green-50/30 to-green-100/20 overflow-hidden">
+    <section className="relative bg-linear-to-br from-white via-green-50/30 to-green-100/20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
@@ -19,7 +19,7 @@ export function Hero() {
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A jobseeker and mentorship hub designed for youth. Discover opportunities, 
+            A jobseeker and mentorship hub designed for youth. Discover opportunities,
             track applications, and connect with mentors who guide you from campus to career.
           </p>
 

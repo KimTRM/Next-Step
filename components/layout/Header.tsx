@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,8 +40,8 @@ export function Header() {
                                 key={item.href}
                                 href={item.href}
                                 className={`transition-colors ${isActive(item.href)
-                                        ? 'text-primary font-semibold'
-                                        : 'text-foreground hover:text-primary'
+                                    ? 'text-primary font-semibold'
+                                    : 'text-foreground hover:text-primary'
                                     }`}
                             >
                                 {item.label}
@@ -50,12 +51,24 @@ export function Header() {
 
                     {/* Desktop Actions */}
                     <div className="hidden md:flex items-center gap-4">
-                        <Link href="/auth" className="px-4 py-2 text-primary hover:text-primary/80 transition-colors">
-                            Log In
-                        </Link>
-                        <Link href="/auth" className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors">
-                            Sign Up
-                        </Link>
+                        <SignedOut>
+                            <Link href="/auth" className="px-4 py-2 text-primary hover:text-primary/80 transition-colors">
+                                Log In
+                            </Link>
+                            <Link href="/sign-up" className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors">
+                                Sign Up
+                            </Link>
+                        </SignedOut>
+                        <SignedIn>
+                            <UserButton
+                                appearance={{
+                                    elements: {
+                                        avatarBox: "w-10 h-10",
+                                    },
+                                }}
+                                afterSignOutUrl="/"
+                            />
+                        </SignedIn>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -78,28 +91,42 @@ export function Header() {
                                     href={item.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={`transition-colors py-2 text-left ${isActive(item.href)
-                                            ? 'text-primary font-semibold'
-                                            : 'text-foreground hover:text-primary'
+                                        ? 'text-primary font-semibold'
+                                        : 'text-foreground hover:text-primary'
                                         }`}
                                 >
                                     {item.label}
                                 </Link>
                             ))}
                             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                                <Link
-                                    href="/auth"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="py-2 text-primary hover:text-primary/80 transition-colors text-left"
-                                >
-                                    Log In
-                                </Link>
-                                <Link
-                                    href="/auth"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center"
-                                >
-                                    Sign Up
-                                </Link>
+                                <SignedOut>
+                                    <Link
+                                        href="/auth"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="py-2 text-primary hover:text-primary/80 transition-colors text-left"
+                                    >
+                                        Log In
+                                    </Link>
+                                    <Link
+                                        href="/sign-up"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center"
+                                    >
+                                        Sign Up
+                                    </Link>
+                                </SignedOut>
+                                <SignedIn>
+                                    <div className="py-2">
+                                        <UserButton
+                                            appearance={{
+                                                elements: {
+                                                    avatarBox: "w-10 h-10",
+                                                },
+                                            }}
+                                            afterSignOutUrl="/"
+                                        />
+                                    </div>
+                                </SignedIn>
                             </div>
                         </div>
                     </div>

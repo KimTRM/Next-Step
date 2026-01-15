@@ -2,12 +2,13 @@
 
 ## 📖 Table of Contents
 
--   [Quick Start](#quick-start)
--   [Architecture Overview](#architecture-overview)
--   [Project Structure](#project-structure)
--   [Development Workflow](#development-workflow)
--   [REST API Pattern](#rest-api-pattern)
--   [Adding New Features](#adding-new-features)
+- [Quick Start](#quick-start)
+- [Architecture Overview](#architecture-overview)
+- [Project Structure](#project-structure)
+- [Development Workflow](#development-workflow)
+- [Convex Integration](#convex-integration)
+- [Clerk Authentication](#clerk-authentication)
+- [Adding New Features](#adding-new-features)
 
 ---
 
@@ -17,46 +18,47 @@
 # 1. Install dependencies
 npm install
 
-# 2. Run development server
+# 2. Set up environment variables
+# Copy .env.example to .env.local and add your keys:
+# - NEXT_PUBLIC_CONVEX_URL (auto-set by Convex)
+# - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+# - CLERK_SECRET_KEY
+
+# 3. Run Convex in development mode
+npm run convex:dev
+
+# 4. Run Next.js development server (in another terminal)
 npm run dev
 
-# 3. Open http://localhost:3000
+# 5. Open http://localhost:3000
 ```
 
 ---
 
 ## 🏗️ Architecture Overview
 
-### **Frontend-Backend Separation**
+### **Convex + Clerk + Next.js Stack**
 
 ```
 ┌─────────────────────────────────────┐
 │          FRONTEND (Next.js)         │
-│   UI Components + Page Rendering    │
+│   React Components with Hooks       │
 │                                     │
-│   Calls REST API via fetch()        │
+│   Uses useQuery/useMutation         │
 └────────────┬────────────────────────┘
-             │ HTTP Requests
+             │ Real-time WebSocket
              ▼
 ┌─────────────────────────────────────┐
-│      BACKEND (REST API Routes)      │
-│   /app/api/* - HTTP Endpoints       │
+│       CONVEX (Database + API)       │
+│   Query & Mutation Functions        │
 │                                     │
-│   Uses Business Logic Layer         │
+│   Integrated with Clerk Auth        │
 └────────────┬────────────────────────┘
-             │ Function Calls
+             │ Auth Sync
              ▼
 ┌─────────────────────────────────────┐
-│    BUSINESS LOGIC (/server/api)     │
-│   Pure functions - no HTTP          │
-│                                     │
-│   Uses Data Layer                   │
-└────────────┬────────────────────────┘
-             │ Data Access
-             ▼
-┌─────────────────────────────────────┐
-│      DATA LAYER (/server/data)      │
-│   Mock data (will become database)  │
+│      CLERK (Authentication)         │
+│   User management & sessions        │
 └─────────────────────────────────────┘
 ```
 
@@ -86,16 +88,12 @@ nextstep/
 │   ├── layout/               # Header, Footer
 │   └── features/             # Domain-specific components
 │
-├── server/                   # 🗄️ BACKEND LOGIC & DATA
-│   ├── api/                  # Business logic (pure functions)
-│   │   ├── users.ts          # User operations
-│   │   ├── opportunities.ts  # Job/internship logic
-│   │   └── messages.ts       # Messaging logic
-│   └── data/                 # Mock data (future: database)
-│       ├── users.ts
-│       ├── opportunities.ts
-│       ├── messages.ts
-│       └── applications.ts
+├── convex/                   # 🗄️ DATABASE - Convex Serverless
+│   ├── schema.ts             # Database schema
+│   ├── users.ts              # User queries & mutations
+│   ├── opportunities.ts      # Opportunity operations
+│   ├── applications.ts       # Application tracking
+│   └── messages.ts           # Messaging operations
 │
 ├── lib/                      # 🔧 SHARED UTILITIES
 │   ├── types.ts              # TypeScript types
@@ -129,8 +127,8 @@ export default function CoursesPage() {
 
 **Routing**: Next.js automatically creates routes from folders:
 
--   `/app/courses/page.tsx` → URL: `/courses`
--   `/app/profile/page.tsx` → URL: `/profile`
+- `/app/courses/page.tsx` → URL: `/courses`
+- `/app/profile/page.tsx` → URL: `/profile`
 
 ---
 
@@ -338,19 +336,19 @@ Future: Implement with NextAuth.js, Clerk, or Supabase
 
 Replace mock data in `/server/data` with:
 
--   **PostgreSQL** (via Prisma)
--   **MongoDB** (via Mongoose)
--   **Supabase** (PostgreSQL + Auth)
+- **PostgreSQL** (via Prisma)
+- **MongoDB** (via Mongoose)
+- **Supabase** (PostgreSQL + Auth)
 
 ---
 
 ## 📚 Additional Resources
 
--   [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture
--   [TODO.md](docs/TODO.md) - Feature roadmap
--   [QUICK-START.md](docs/QUICK-START.md) - Development guide
--   [Next.js Docs](https://nextjs.org/docs)
--   [shadcn/ui](https://ui.shadcn.com/)
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture
+- [TODO.md](docs/TODO.md) - Feature roadmap
+- [QUICK-START.md](QUICK-START.md) - Development guide
+- [Next.js Docs](https://nextjs.org/docs)
+- [shadcn/ui](https://ui.shadcn.com/)
 
 ---
 

@@ -6,9 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "convex:dev": "npx convex dev",
+    "convex:deploy": "npx convex deploy",
+    "convex:dashboard": "npx convex dashboard",
+    "seed": "npx convex run seed:seedAll"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.36.7",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
@@ -38,6 +43,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "convex": "^1.31.4",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.562.0",
@@ -50,6 +56,7 @@
     "react-resizable-panels": "^4.4.0",
     "recharts": "^3.6.0",
     "sonner": "^2.0.7",
+    "svix": "^1.84.1",
     "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2"
   },

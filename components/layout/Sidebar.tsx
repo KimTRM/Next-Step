@@ -8,7 +8,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 
 interface SidebarProps {
     className?: string;
@@ -21,6 +21,8 @@ export default function Sidebar({ className }: SidebarProps) {
         { href: '/dashboard', label: 'Dashboard', icon: '📊' },
         { href: '/profile', label: 'My Profile', icon: '👤' },
         { href: '/opportunities', label: 'Opportunities', icon: '💼' },
+        { href: '/jobs', label: 'Jobs', icon: '🔍' },
+        { href: '/mentors', label: 'Find Mentors', icon: '🎓' },
         { href: '/applications', label: 'My Applications', icon: '📝' },
         { href: '/messages', label: 'Messages', icon: '💬' },
     ];
