@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { User, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, FileText, Plus, Edit3, Save, Calendar } from 'lucide-react';
 
-export function StudyPage() {
+export function ProfilePageContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'Juan Dela Cruz',

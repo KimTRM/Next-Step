@@ -1,79 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Building2, MapPin, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Eye, Plus, Filter } from 'lucide-react';
 
-interface Application {
-  id: number;
-  jobTitle: string;
-  company: string;
-  location: string;
-  appliedDate: Date;
-  status: 'pending' | 'reviewing' | 'interview' | 'rejected' | 'accepted';
-  nextStep?: string;
-  interviewDate?: Date;
-  notes?: string;
-}
+type ApplicationStatus = 'pending' | 'reviewing' | 'interview' | 'rejected' | 'accepted';
 
-export function CalendarPage() {
-  const [selectedStatus, setSelectedStatus] = useState<'all' | Application['status']>('all');
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: 1,
-      jobTitle: 'Junior Software Developer',
-      company: 'TechStart Solutions',
-      location: 'Naga City',
-      appliedDate: new Date(2026, 0, 2),
-      status: 'interview',
-      nextStep: 'Technical interview scheduled',
-      interviewDate: new Date(2026, 0, 10),
-      notes: 'Prepare for coding challenge'
-    },
-    {
-      id: 2,
-      jobTitle: 'Marketing Assistant',
-      company: 'Creative Minds Agency',
-      location: 'Naga City',
-      appliedDate: new Date(2025, 11, 28),
-      status: 'reviewing',
-      nextStep: 'Application under review',
-      notes: 'Follow up on Jan 15'
-    },
-    {
-      id: 3,
-      jobTitle: 'Customer Support Intern',
-      company: 'BPO Connect',
-      location: 'Naga City',
-      appliedDate: new Date(2026, 0, 4),
-      status: 'accepted',
-      nextStep: 'Orientation on Jan 20',
-      notes: 'Prepare requirements for onboarding'
-    },
-    {
-      id: 4,
-      jobTitle: 'Junior Business Analyst',
-      company: 'DataDrive Corp',
-      location: 'Naga City',
-      appliedDate: new Date(2025, 11, 30),
-      status: 'pending',
-      notes: 'Awaiting response'
-    },
-    {
-      id: 5,
-      jobTitle: 'Web Design Intern',
-      company: 'Design Studio Pro',
-      location: 'Naga City',
-      appliedDate: new Date(2025, 11, 20),
-      status: 'rejected',
-      notes: 'Position filled internally'
-    },
-  ]);
+export function ApplicationsPageContent() {
+  const [selectedStatus, setSelectedStatus] = useState<'all' | ApplicationStatus>('all');
 
+  // Fetch applications from Convex
+  const allApplications = useQuery(api.jobApplications.getUserJobApplications);
+  const loading = allApplications === undefined;
+
+  const applications = allApplications || [];
   const filteredApplications = selectedStatus === 'all'
     ? applications
     : applications.filter(app => app.status === selectedStatus);
 
-  const getStatusColor = (status: Application['status']) => {
+  const getStatusColor = (status: ApplicationStatus) => {
     switch (status) {
       case 'pending':
         return 'bg-gray-100 text-gray-700 border-gray-300';
@@ -88,7 +34,7 @@ export function CalendarPage() {
     }
   };
 
-  const getStatusIcon = (status: Application['status']) => {
+  const getStatusIcon = (status: ApplicationStatus) => {
     switch (status) {
       case 'pending':
         return <Clock className="h-4 w-4" />;
@@ -121,7 +67,7 @@ export function CalendarPage() {
   const counts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20">
+    <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
@@ -164,8 +110,8 @@ export function CalendarPage() {
           <button
             onClick={() => setSelectedStatus('all')}
             className={`px-4 py-2 rounded-lg transition-all ${selectedStatus === 'all'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-white text-foreground border border-border hover:border-primary'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-white text-foreground border border-border hover:border-primary'
               }`}
           >
             All Applications
@@ -175,8 +121,8 @@ export function CalendarPage() {
               key={status}
               onClick={() => setSelectedStatus(status)}
               className={`px-4 py-2 rounded-lg transition-all capitalize ${selectedStatus === status
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-white text-foreground border border-border hover:border-primary'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-white text-foreground border border-border hover:border-primary'
                 }`}
             >
               {status}
@@ -193,77 +139,83 @@ export function CalendarPage() {
           </button>
         </div>
 
-        <div className="space-y-4">
-          {filteredApplications.map(app => (
-            <div
-              key={app.id}
-              className="bg-white rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all p-6"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                {/* Application Info */}
-                <div className="flex-1">
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Building2 className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="mb-2">{app.jobTitle}</h3>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
-                        <div className="flex items-center gap-1">
-                          <Building2 className="h-4 w-4" />
-                          <span>{app.company}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{app.location}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-4 w-4" />
-                          <span>Applied {formatDate(app.appliedDate)}</span>
-                        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading applications...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredApplications.map(app => (
+              <div
+                key={app._id}
+                className="bg-white rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all p-6"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  {/* Application Info */}
+                  <div className="flex-1">
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Building2 className="h-6 w-6 text-primary" />
                       </div>
-
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <div className={`px-3 py-1 rounded-full text-xs border flex items-center gap-1 ${getStatusColor(app.status)}`}>
-                          {getStatusIcon(app.status)}
-                          <span className="capitalize">{app.status}</span>
+                      <div className="flex-1">
+                        <h3 className="mb-2">{app.jobTitle}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <Building2 className="h-4 w-4" />
+                            <span>{app.company}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{app.location}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="h-4 w-4" />
+                            <span>Applied {formatDate(new Date(app.appliedDate))}</span>
+                          </div>
                         </div>
-                        {app.interviewDate && (
-                          <div className="text-sm text-purple-700 flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            Interview: {formatDate(app.interviewDate)}
+
+                        <div className="flex flex-wrap items-center gap-3 mb-3">
+                          <div className={`px-3 py-1 rounded-full text-xs border flex items-center gap-1 ${getStatusColor(app.status)}`}>
+                            {getStatusIcon(app.status)}
+                            <span className="capitalize">{app.status}</span>
+                          </div>
+                          {app.interviewDate && (
+                            <div className="text-sm text-purple-700 flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Interview: {formatDate(new Date(app.interviewDate))}
+                            </div>
+                          )}
+                        </div>
+
+                        {app.nextStep && (
+                          <div className="text-sm mb-2">
+                            <span className="text-muted-foreground">Next Step:</span> {app.nextStep}
+                          </div>
+                        )}
+
+                        {app.notes && (
+                          <div className="text-sm text-muted-foreground">
+                            <span className="font-medium">Notes:</span> {app.notes}
                           </div>
                         )}
                       </div>
-
-                      {app.nextStep && (
-                        <div className="text-sm mb-2">
-                          <span className="text-muted-foreground">Next Step:</span> {app.nextStep}
-                        </div>
-                      )}
-
-                      {app.notes && (
-                        <div className="text-sm text-muted-foreground">
-                          <span className="font-medium">Notes:</span> {app.notes}
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex lg:flex-col gap-2">
-                  <button className="flex-1 lg:flex-none px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all">
-                    View Details
-                  </button>
-                  <button className="flex-1 lg:flex-none px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all">
-                    Update Status
-                  </button>
+                  {/* Actions */}
+                  <div className="flex lg:flex-col gap-2">
+                    <button className="flex-1 lg:flex-none px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all">
+                      View Details
+                    </button>
+                    <button className="flex-1 lg:flex-none px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all">
+                      Update Status
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Empty State */}
         {filteredApplications.length === 0 && (

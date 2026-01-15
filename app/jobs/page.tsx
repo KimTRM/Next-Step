@@ -4,8 +4,8 @@
  * Browse and search job opportunities
  */
 
-import { MaterialsPage } from '@/components/pages/MaterialsPage';
+import { JobsPageContent } from '@/components/features/jobs/JobsPageContent';
 
 export default function JobsPage() {
-    return <MaterialsPage />;
+    return <JobsPageContent />;
 }

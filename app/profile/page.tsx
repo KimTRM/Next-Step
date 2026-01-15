@@ -4,9 +4,9 @@
  * User profile management and personal information
  */
 
-import { StudyPage } from '@/components/pages/StudyPage';
+import { ProfilePageContent } from '@/components/features/profile/ProfilePageContent';
 
 export default function ProfilePage() {
-    return <StudyPage />;
+    return <ProfilePageContent />;
 }
 

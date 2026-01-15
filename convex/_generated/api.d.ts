@@ -9,6 +9,9 @@
  */
 
 import type * as applications from "../applications.js";
+import type * as jobApplications from "../jobApplications.js";
+import type * as jobs from "../jobs.js";
+import type * as mentors from "../mentors.js";
 import type * as messages from "../messages.js";
 import type * as opportunities from "../opportunities.js";
 import type * as seed from "../seed.js";
@@ -23,6 +26,9 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
+  jobApplications: typeof jobApplications;
+  jobs: typeof jobs;
+  mentors: typeof mentors;
   messages: typeof messages;
   opportunities: typeof opportunities;
   seed: typeof seed;

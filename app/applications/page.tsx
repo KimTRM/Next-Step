@@ -4,10 +4,10 @@
  * Track and manage job applications
  */
 
-import { CalendarPage } from '@/components/pages/CalendarPage';
+import { ApplicationsPageContent } from '@/components/features/applications/ApplicationsPageContent';
 
 export default function ApplicationsPage() {
-    return <CalendarPage />;
+    return <ApplicationsPageContent />;
 }
 
 
