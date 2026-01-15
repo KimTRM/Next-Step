@@ -42,33 +42,34 @@ import Link from "next/link";
 <Link href="/jobs">View Jobs</Link>;
 ```
 
-| I want to...     | Go to...                  |
-| ---------------- | ------------------------- |
-| Change a page    | `app/[page]/page.tsx`     |
-| Add a component  | `components/`             |
-| Modify data      | `server/data/*.ts`        |
-| Change logic     | `server/api/*.ts`         |
-| Add API endpoint | `app/api/[name]/route.ts` |
-| Update types     | `lib/types.ts`            |
+| I want to...    | Go to...              |
+| --------------- | --------------------- |
+| Change a page   | `app/[page]/page.tsx` |
+| Add a component | `components/`         |
+| Modify database | `convex/*.ts`         |
+| Update types    | `lib/types.ts`        |
+| Add webhook     | `app/api/webhooks/`   |
 
 ### 3. Make Your First Change (2 min)
 
-**Example: Add a new user**
+**Example: Query users in a component**
 
 ```typescript
-// 1. Go to server/data/users.ts
-export const users: User[] = [
-    // ... existing users
-    {
-        id: "6",
-        name: "Your Name",
-        email: "you@email.com",
-        role: "student",
-        // ... other fields
-    },
-];
+// In any React component
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
-// 2. That's it! The change is immediately available everywhere
+export default function MyComponent() {
+    const users = useQuery(api.users.getUsers);
+
+    return (
+        <div>
+            {users?.map(user => (
+                <div key={user._id}>{user.name}</div>
+            ))}
+        </div>
+    );
+}
 ```
 
 ## 🎯 Common Tasks
@@ -84,113 +85,106 @@ export default function MyPage() {
 // 2. Access at: http://localhost:3000/my-page
 ```
 
-### Task 2: Add a New API Endpoint
+### Task 2: Add a Database Mutation
 
 ```typescript
-// 1. Create business logic: server/api/myfeature.ts
-export async function getMyData() {
-  return { data: [...] };
-}
+// 1. Add to convex/myfeature.ts
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
 
-// 2. Create HTTP handler: app/api/myfeature/route.ts
-import { getMyData } from '@/server/api/myfeature';
+export const createItem = mutation({
+    args: { name: v.string() },
+    handler: async (ctx, args) => {
+        const itemId = await ctx.db.insert("items", { name: args.name });
+        return itemId;
+    },
+});
 
-export async function GET() {
-  const result = await getMyData();
-  return NextResponse.json({ success: true, data: result.data });
-}
+// 2. Use in component
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
-// 3. Call from frontend:
-const response = await fetch('/api/myfeature');
-const data = await response.json();
+const createItem = useMutation(api.myfeature.createItem);
+await createItem({ name: "My Item" });
 ```
 
-### Task 3: Add Mock Data
+### Task 3: Query Data in a Component
 
 ```typescript
-// 1. Add type: lib/types.ts
-export interface MyType {
-    id: string;
-    name: string;
+// Use Convex real-time queries
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+export default function MyComponent() {
+  const opportunities = useQuery(api.opportunities.getOpportunities);
+
+  if (!opportunities) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {opportunities.map(opp => (
+        <div key={opp._id}>{opp.title}</div>
+      ))}
+    </div>
+  );
 }
-
-// 2. Add data: server/data/mydata.ts
-export const myData: MyType[] = [{ id: "1", name: "Example" }];
-
-// 3. Use in pages:
-import { myData } from "@/server/data/mydata";
 ```
 
 ## 📖 Documentation
 
 ### For Quick Reference
 
--   **This file** - Quick start and common tasks
--   **README.md** - Project overview and setup
+- **This file** - Quick start and common tasks
+- **README.md** - Project overview and setup
 
 ### For Deep Dives
 
--   **ARCHITECTURE.md** - Complete architecture explanation
--   **MIGRATION-GUIDE.md** - Detailed migration guide
--   **TODO.md** - Feature roadmap
+- **ARCHITECTURE.md** - Complete architecture explanation
+- **DEVELOPER-GUIDE.md** - Development workflow and patterns
+- **TODO.md** - Feature roadmap
 
 ## 💡 Pro Tips
 
-### Tip 1: Follow the Comments
-
-Every file has helpful comments explaining:
-
--   What the file does
--   How it fits in the architecture
--   What to do for production
-
-### Tip 2: Use the Right Import
+### Tip 1: Use Convex Real-Time Queries
 
 ```typescript
-// ✅ Good - Use specific imports
-import { users } from "@/server/data/users";
+// ✅ Automatically updates when data changes
+const users = useQuery(api.users.getUsers);
 
-// ⚠️ Works but deprecated
-import { users } from "@/lib/data";
+// No need for manual refetching!
 ```
 
-### Tip 3: Keep Layers Separate
+### Tip 2: Mutations for Data Changes
 
 ```typescript
-// ✅ API Route - Just HTTP handling
-export async function GET(request: NextRequest) {
-  const result = await getUsers();  // Call business logic
-  return NextResponse.json(result);
-}
-
-// ❌ Don't put business logic in API routes
-export async function GET(request: NextRequest) {
-  let users = [...allUsers];
-  users = users.filter(...);  // ❌ This should be in server/api
-  users = users.sort(...);    // ❌ This should be in server/api
-  return NextResponse.json(users);
-}
+// ✅ Use mutations for all data modifications
+const updateProfile = useMutation(api.userMutations.updateUser);
+await updateProfile({ userId, ...updates });
 ```
 
-### Tip 4: Check Existing Examples
+### Tip 3: Check Existing Examples
 
 Before creating something new, look at existing files:
 
--   Need to add an API? Look at `server/api/users.ts`
--   Need to add data? Look at `server/data/users.ts`
--   Need to add a page? Look at `app/dashboard/page.tsx`
+- Need to add a query? Look at `convex/users.ts`
+- Need to add a mutation? Look at `convex/userMutations.ts`
+- Need to add a page? Look at `app/dashboard/page.tsx`
+- Need to use auth? Look at `app/profile/page.tsx`
 
 ## 🐛 Troubleshooting
 
-### "Cannot find module '@/server/data/users'"
+### "Cannot find module '@/convex/\_generated/api'"
 
--   Make sure you're using the correct path
--   Check TypeScript paths are configured in `tsconfig.json`
+- Make sure Convex is running: `npm run convex:dev`
+- Check that code generation completed successfully
 
-### "Client component can't import server data"
+### "useQuery is not a function"
 
--   Client components (with `'use client'`) must use API calls
--   Server components can import data directly
+- Ensure component is wrapped in ConvexProvider (check `app/providers.tsx`)
+- Make sure you're using `"use client"` directive in client components
+
+- Client components (with `'use client'`) must use API calls
+- Server components can import data directly
 
 ### "Where do I put my code?"
 
@@ -203,35 +197,43 @@ Before creating something new, look at existing files:
 
 ## 🎓 Learning Path
 
-### Day 1: Basics
+### Authentication errors
+
+- Verify Clerk keys in `.env.local`
+- Check webhook configuration
+- Ensure user is signed in before accessing protected data
+
+## 📅 Learning Path
+
+### Day 1: Setup & Basics
 
 1. Read this guide ✓
-2. Browse the `server/` folder
-3. Look at one API route
-4. Make a small change to mock data
+2. Set up Convex + Clerk (see CONVEX-QUICKSTART.md)
+3. Browse the `convex/` folder
+4. Make a test query in a component
 
 ### Day 2: Understanding
 
 1. Read ARCHITECTURE.md
-2. Trace a request from frontend to backend
-3. Add a new field to existing data
-4. Create a new helper function
+2. Trace data flow from UI to database
+3. Try creating a simple mutation
+4. Explore the dashboard page implementation
 
 ### Day 3: Building
 
 1. Add a new feature
-2. Follow the examples in MIGRATION-GUIDE.md
-3. Write comprehensive comments
+2. Follow the examples in DEVELOPER-GUIDE.md
+3. Use TypeScript types effectively
 4. Test your changes
 
 ## 🚀 Ready to Code?
 
 You now know:
 
--   ✅ How the project is structured
--   ✅ Where to find things
--   ✅ How to make common changes
--   ✅ Where to get more help
+- ✅ How the project is structured
+- ✅ Where to find things
+- ✅ How to make common changes
+- ✅ Where to get more help
 
 **Start coding and refer to the docs when needed!**
 
@@ -239,13 +241,15 @@ You now know:
 
 ## 📚 Quick Links
 
--   [../README.md](../README.md) - Project overview
--   [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed architecture
--   [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md) - Complete migration guide
--   [TODO.md](TODO.md) - What to build next
+- [../README.md](../README.md) - Project overview
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed architecture
+- [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) - Development guide
+- [TODO.md](TODO.md) - What to build next
+- [Convex Docs](https://docs.convex.dev/) - Database documentation
+- [Clerk Docs](https://clerk.com/docs) - Authentication documentation
 
 ---
 
-**Questions?** Check the inline code comments - they're comprehensive!
+**Questions?** Check the documentation or the inline code comments!
 
 **Happy coding!** 🎉

@@ -93,7 +93,7 @@ export default function MessagesPage() {
                 <p className="text-gray-600 mt-2">Chat with mentors, employers, and peers</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-150">
                 {/* Conversations List */}
                 <Card className="lg:col-span-1 overflow-hidden">
                     <CardHeader>
@@ -113,7 +113,7 @@ export default function MessagesPage() {
                                         }`}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl flex-shrink-0">
+                                        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl shrink-0">
                                             👤
                                         </div>
                                         <div className="flex-1 min-w-0">

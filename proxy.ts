@@ -1,15 +1,15 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 /**
- * Clerk Authentication Middleware
- * 
+ * Clerk Authentication Proxy
+ *
  * Protects routes that require authentication
- * 
+ *
  * Public routes (no auth required):
  * - Landing page (/)
  * - Opportunities browse page (/opportunities)
  * - Static assets
- * 
+ *
  * Protected routes (auth required):
  * - Dashboard (/dashboard)
  * - Profile (/profile)
@@ -19,19 +19,19 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  */
 
 const isPublicRoute = createRouteMatcher([
-  "/",
-  "/opportunities",
-  "/api/webhooks(.*)",
-  "/auth(.*)",
-  "/sign-up(.*)",
+    "/",
+    "/opportunities",
+    "/api/webhooks(.*)",
+    "/auth(.*)",
+    "/sign-up(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
-    await auth.protect();
-  }
+    if (!isPublicRoute(request)) {
+        await auth.protect();
+    }
 });
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+    matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

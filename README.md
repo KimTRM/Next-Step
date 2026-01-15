@@ -2,7 +2,7 @@
 
 > **🚀 Modern Job & Mentorship Platform**
 >
-> A comprehensive jobseeker and mentorship platform designed to connect youth with career opportunities and experienced mentors. Now powered by **Convex** for real-time data and **Clerk** for secure authentication!
+> A comprehensive jobseeker and mentorship platform designed to connect youth with career opportunities and experienced mentors. Powered by **Convex** for real-time data and **Clerk** for secure authentication!
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
@@ -19,9 +19,7 @@
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 - [Project Structure](#project-structure)
-- [Development Roadmap](#development-roadmap)
-- [API Routes](#api-routes)
-- [Hackathon Extension Ideas](#hackathon-extension-ideas)
+- [Contributing](#contributing)
 
 ## 🎯 Overview
 
@@ -138,13 +136,11 @@ All documentation is organized in the [docs/](docs/) folder:
 ### 📖 Understanding the Project
 
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design
-- **[INTEGRATION-SUMMARY.md](docs/INTEGRATION-SUMMARY.md)** - What's been integrated
-- **[MIGRATION-GUIDE.md](docs/MIGRATION-GUIDE.md)** - How to work with the codebase
+- **[DEVELOPER-GUIDE.md](docs/DEVELOPER-GUIDE.md)** - Developer best practices
 
 ### 📋 Planning & Tasks
 
-- **[TODO.md](docs/TODO.md)** - Feature roadmap and tasks
-- **[REFACTORING-SUMMARY.md](docs/REFACTORING-SUMMARY.md)** - Project history
+- **[TODO.md](docs/TODO.md)** - Feature roadmap and planned features
 
 **👉 See [docs/README.md](docs/README.md) for the complete documentation index**
 
@@ -197,146 +193,111 @@ Next-Step/
 │       ├── profile/ProfileForm.tsx
 │       └── opportunities/OpportunityCard.tsx
 │
-├── server/                        # 🗄️ BACKEND - Business logic & data
-│   ├── api/                       # Business logic layer
-│   │   ├── users.ts               # User operations & filtering
-│   │   ├── opportunities.ts       # Opportunity operations
-│   │   └── messages.ts            # Message operations
-│   └── data/                      # Data access layer (mock data)
-│       ├── users.ts               # User data & queries
-│       ├── opportunities.ts       # Opportunity data & queries
-│       ├── messages.ts            # Message data & queries
-│       └── applications.ts        # Application data & queries
+├── lib/                           # 🔧 UTILITIES - Shared utilities
+│   ├── types.ts                   # TypeScript type definitions
+│   ├── utils.ts                   # Helper functions
+│   └── cn.ts                      # Tailwind utility
+├── lib/                           # 🔧 UTILITIES - Shared utilities
+│   ├── types.ts                   # TypeScript type definitions
+│   ├── utils.ts                   # Helper functions
+│   └── cn.ts                      # Tailwind utility
 │
-├── lib/                           # 🔧 SHARED - Used by frontend & backend
-│   ├── types.ts                   # TypeScript interfaces
-│   ├── utils.ts                   # Utility functions
-│   └── data.ts                    # (DEPRECATED) Re-exports
+├── public/                        # 📁 STATIC ASSETS
+│   └── assets/                    # Images, logos, icons
 │
-├── docs/                          # 📚 PROJECT DOCUMENTATION
-│   ├── README.md                  # Documentation index & navigation
-│   ├── CONVEX-QUICKSTART.md       # ⚡ Quick Convex + Clerk setup
-│   ├── CONVEX-CLERK-SETUP.md      # 🔐 Complete setup guide
-│   ├── INTEGRATION-SUMMARY.md     # 📋 What's been integrated
-│   ├── QUICK-START.md             # 🚀 Get started in 5 minutes
-│   ├── ARCHITECTURE.md            # 📐 System architecture (20 min)
-│   ├── DEVELOPER-GUIDE.md         # 👨‍💻 Developer handbook
-│   ├── MIGRATION-GUIDE.md         # 🗺️ Feature development guide
-│   ├── REFACTORING-SUMMARY.md     # 📊 Project history
-│   └── TODO.md                    # ✅ Feature roadmap
-│
-├── public/assets/                 # 📁 Static assets
-└── README.md                      # This file
+└── docs/                          # 📚 DOCUMENTATION
+    ├── README.md                  # Documentation index
+    ├── ARCHITECTURE.md            # System architecture
+    ├── DEVELOPER-GUIDE.md         # Developer handbook
+    ├── CONVEX-QUICKSTART.md       # Quick setup guide
+    ├── CONVEX-CLERK-SETUP.md      # Complete setup documentation
+    ├── QUICK-START.md             # Get started in 5 minutes
+    └── TODO.md                    # Feature roadmap
 ```
 
 ### Architecture Highlights
 
-**Layered Architecture**:
+**Modern Serverless Architecture**:
 
-- **Frontend Layer** (`/app`, `/components`): User interface
-- **HTTP Layer** (`/app/api`): Request/response handling
-- **Business Logic Layer** (`/server/api`): Core application logic
-- **Data Layer** (`/server/data`): Data access and mock storage
+- **Frontend Layer** (`/app`, `/components`): Next.js 16 with React 19
+- **Authentication** (Clerk): Secure user management and sessions
+- **Database** (Convex): Real-time serverless database with TypeScript
+- **Real-time Sync**: Automatic data synchronization across all clients
 
-**Benefits**:
+**Key Features**:
 
-- ✅ Clear separation between frontend and backend
-- ✅ Easy to replace mock data with real database
-- ✅ Business logic is reusable and testable
-- ✅ API routes are thin and focused on HTTP concerns
-- ✅ Well-documented with inline comments
-
-**Migration Path**:
-
-1. Replace `/server/data` arrays with database queries
-2. Add authentication middleware to `/app/api` routes
-3. Implement real-time features with WebSockets
-4. Add caching and optimization
+- ✅ Real-time data updates without polling
+- ✅ Type-safe database queries with TypeScript
+- ✅ Secure authentication with social logins
+- ✅ Automatic user sync between Clerk and Convex
+- ✅ Serverless deployment - no infrastructure management
+- ✅ Optimistic updates for instant UI feedback
 
 ---
 
-## 🗓 Development Roadmap
+## 🚀 Current Status
 
-### Day 1-2: Foundation & Core Features
+### ✅ Completed Features
 
-- [x] Set up project structure
-- [x] Create UI components
-- [x] Implement landing page
-- [x] Build dashboard with mock data
-- [x] Create opportunities browsing
-- [ ] Add authentication (NextAuth.js, Clerk, or Supabase)
-- [ ] Set up database (MongoDB, PostgreSQL, or Supabase)
-- [ ] Connect API routes to database
+- [x] Next.js 16 App Router setup
+- [x] Convex real-time database integration
+- [x] Clerk authentication with social logins
+- [x] User profiles and management
+- [x] Opportunities browsing (jobs, internships, mentorships)
+- [x] Application tracking system
+- [x] Real-time messaging interface
+- [x] Protected routes with authentication
+- [x] Responsive UI with TailwindCSS 4.0
+- [x] 48+ shadcn/ui components
+- [x] Database seeding scripts
+- [x] Webhook integration for user sync
 
-### Day 3-4: User Features
+### 🔄 In Progress
 
-- [ ] Implement profile editing with image upload
-- [ ] Add application submission functionality
-- [ ] Build filtering and search for opportunities
-- [ ] Add real-time messaging (WebSockets/Pusher)
-- [ ] Create notifications system
-- [ ] Add bookmarking/saved opportunities
+- [ ] Enhanced search and filtering
+- [ ] File uploads (avatars, resumes)
+- [ ] Email notifications
+- [ ] Mentor matching algorithm
+- [ ] Calendar integration for mentorship sessions
 
-### Day 5: Polish & Deploy
+### 🎯 Planned Features
 
-- [ ] Fix bugs and edge cases
-- [ ] Add loading states and error handling
-- [ ] Implement responsive design improvements
-- [ ] Add animations and transitions
-- [ ] Write documentation
-- [ ] Deploy to Vercel/Netlify
-- [ ] Prepare demo and presentation
+See [docs/TODO.md](docs/TODO.md) for the complete roadmap.
 
-## 🔌 API Routes
+---
 
-### GET /api/users
+## 🔌 API Structure
 
-Returns list of users. Supports filtering:
+The application uses **Convex** for all data operations. Instead of REST API routes, the app uses real-time queries and mutations:
 
-- `?role=student` - Filter by role
-- `?search=john` - Search by name/email
+### Convex Queries (Read Data)
 
-### GET /api/opportunities
+- `api.users.getUsers` - Get all users with filtering
+- `api.opportunities.getOpportunities` - Browse opportunities
+- `api.applications.getUserApplications` - Get user applications
+- `api.messages.getConversations` - Get user conversations
 
-Returns opportunities. Supports filtering:
+### Convex Mutations (Write Data)
 
-- `?type=job` - Filter by type (job, internship, mentorship)
-- `?skills=React,TypeScript` - Filter by skills
-- `?location=Toronto` - Filter by location
-- `?remote=true` - Filter remote only
+- `api.userMutations.createUser` - Create new user
+- `api.opportunities.createOpportunity` - Post new opportunity
+- `api.applications.submitApplication` - Submit application
+- `api.messages.sendMessage` - Send message
 
-### GET /api/messages
+### Usage in Components
 
-Returns messages for current user:
+```typescript
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
-- `?userId=1` - Get messages for specific user
-- `?conversationWith=2` - Get conversation between two users
+// Read data (real-time)
+const opportunities = useQuery(api.opportunities.getOpportunities);
 
-## 💡 Hackathon Extension Ideas
+// Write data
+const createApplication = useMutation(api.applications.submitApplication);
+```
 
-### High Priority
-
-1. **Authentication** - Implement real user auth (NextAuth.js recommended)
-2. **Database** - Replace mock data with real DB (Supabase quick setup)
-3. **Search & Filters** - Make opportunity filtering functional
-4. **Application System** - Allow users to apply with cover letters
-5. **Real-time Messaging** - Add WebSockets for live chat
-
-### Medium Priority
-
-6. **File Uploads** - Profile pictures and resume uploads
-7. **Matching Algorithm** - Smart mentor-mentee matching
-8. **Calendar Integration** - Schedule mentorship sessions
-9. **Email Notifications** - Send updates for applications
-10. **Admin Dashboard** - Manage users and opportunities
-
-### Nice to Have
-
-11. **AI Resume Review** - Use OpenAI to review resumes
-12. **Skills Assessment** - Quiz-based skill verification
-13. **Video Calls** - Integrate Zoom/Google Meet for mentorship
-14. **Analytics Dashboard** - Track user engagement
-15. **Mobile App** - React Native version
+---
 
 ## 🔧 Configuration
 
@@ -345,53 +306,54 @@ Returns messages for current user:
 Create a `.env.local` file:
 
 ```env
-# Database
-DATABASE_URL=your_database_url
+# Convex (automatically set by `npx convex dev`)
+NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
+CONVEX_DEPLOYMENT=your_deployment_name
 
-# Authentication
-NEXTAUTH_SECRET=your_secret
-NEXTAUTH_URL=http://localhost:3000
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_WEBHOOK_SECRET=whsec_...
 
-# Optional: Third-party services
-UPLOADTHING_SECRET=your_uploadthing_secret
-PUSHER_APP_ID=your_pusher_app_id
-OPENAI_API_KEY=your_openai_key
+# Optional: Override Clerk URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/auth
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ```
 
-## 📝 Code Comments Guide
+See [docs/CONVEX-CLERK-SETUP.md](docs/CONVEX-CLERK-SETUP.md) for detailed setup instructions.
 
-Throughout the codebase, you'll find:
+## 🤝 Contributing
 
-- `TODO:` - Immediate next steps
-- `HACKATHON TODO:` - Extension ideas for hackathon
-- `NOTE:` - Important information
-- Inline explanations of complex logic
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 🤝 Contributing During Hackathon
+---
 
-1. **Divide and Conquer**: Split team by features (auth, messaging, etc.)
-2. **Use Branches**: Create feature branches for parallel work
-3. **Mock First**: Test UI with mock data before integrating backend
-4. **Iterate Fast**: Build MVP first, polish later
-5. **Document**: Update README as you add features
+## 📚 Additional Resources
 
-## 📚 Resources
-
-- **[Full Documentation](docs/)** - All project documentation
 - [Next.js Documentation](https://nextjs.org/docs)
+- [Convex Documentation](https://docs.convex.dev/)
+- [Clerk Documentation](https://clerk.com/docs)
 - [TailwindCSS Docs](https://tailwindcss.com/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Supabase Quick Start](https://supabase.com/docs/guides/getting-started)
-- [NextAuth.js Guide](https://next-auth.js.org/getting-started/example)
+- [shadcn/ui Components](https://ui.shadcn.com/)
 
-## 🐛 Known Issues & Limitations
+---
 
-- Authentication is UI-only (no backend)
-- All data is mock/hardcoded
-- Messages are not real-time
-- No file upload functionality yet
-- Search and filters are not functional
-- No data persistence (refreshes reset state)
+## 🐛 Known Limitations
+
+- File upload functionality not yet implemented
+- Advanced search filters need enhancement
+- Email notifications pending
+- Calendar integration for mentorship sessions in progress
+- Mobile app version not yet developed
+
+---
 
 ## 📄 License
 
@@ -400,16 +362,18 @@ MIT License - feel free to use this project for your hackathon!
 ## 🎉 Quick Start Checklist
 
 - [ ] Run `npm install`
-- [ ] Run `npm run dev`
+- [ ] Set up environment variables (`.env.local`)
+- [ ] Run `npm run convex:dev` (Convex development mode)
+- [ ] Run `npm run dev` (in a new terminal)
 - [ ] Visit http://localhost:3000
-- [ ] Explore all pages
-- [ ] **Read [docs/QUICK-START.md](docs/QUICK-START.md)** for a 5-minute intro
-- [ ] Check [docs/TODO.md](docs/TODO.md) for feature ideas
-- [ ] Pick features to implement
-- [ ] Start coding!
+- [ ] Create an account via Clerk authentication
+- [ ] Explore the dashboard and features
+- [ ] Read [docs/CONVEX-QUICKSTART.md](docs/CONVEX-QUICKSTART.md) for setup details
+- [ ] Check [docs/TODO.md](docs/TODO.md) for upcoming features
+- [ ] Start building!
 
 ---
 
-**Built for hackathons. Ready to extend. Good luck! 🚀**
+**Built with modern serverless architecture. Production-ready foundation. Happy coding! 🚀**
 
 For detailed documentation, see the **[docs/](docs/)** folder. For questions, check the inline code comments.

@@ -2,28 +2,39 @@
 
 ## 📁 Project Structure Overview
 
-This document explains the refactored folder structure that separates frontend and backend concerns for better code organization and scalability.
+This document explains the Next.js App Router architecture with **Convex real-time database** and **Clerk authentication**.
 
 ```
 nextstep/
 ├── app/                          # 🎨 FRONTEND - Next.js App Router
-│   ├── layout.tsx                # Root layout (Header + Footer)
+│   ├── layout.tsx                # Root layout with Providers (Clerk + Convex)
+│   ├── providers.tsx             # Client-side providers wrapper
 │   ├── page.tsx                  # Landing page (/)
 │   ├── globals.css               # Global styles & CSS variables
 │   ├── jobs/page.tsx             # Job listings (/jobs)
 │   ├── mentors/page.tsx          # Find mentors (/mentors)
 │   ├── applications/page.tsx     # Track applications (/applications)
 │   ├── profile/page.tsx          # User profile (/profile)
-│   ├── auth/page.tsx             # Login/signup (/auth)
-│   ├── dashboard/page.tsx        # User dashboard (/dashboard)
-│   ├── messages/page.tsx         # Messaging (/messages)
+│   ├── auth/page.tsx             # Sign in with Clerk (/auth)
+│   ├── sign-up/page.tsx          # Sign up with Clerk (/sign-up)
+│   ├── dashboard/page.tsx        # User dashboard (/dashboard) ✅ Convex integrated
+│   ├── messages/page.tsx         # Messaging (/messages) ⏳ Needs Convex integration
 │   ├── opportunities/            # Job opportunities
-│   │   ├── page.tsx              # List all opportunities
-│   │   └── [id]/page.tsx         # Opportunity details
-│   └── api/                      # 🔌 REST API Endpoints (HTTP layer)
-│       ├── users/route.ts        # User endpoints
-│       ├── opportunities/route.ts # Opportunity endpoints
-│       └── messages/route.ts     # Message endpoints
+│   │   ├── page.tsx              # List all opportunities ✅ Convex integrated
+│   │   └── [id]/page.tsx         # Opportunity details ⏳ Needs Convex integration
+│   └── api/                      # 🔌 API Endpoints
+│       └── webhooks/
+│           └── clerk/route.ts    # Clerk webhook for user sync to Convex
+│
+├── convex/                       # 🗄️ BACKEND - Convex Serverless Database
+│   ├── schema.ts                 # Database schema (5 collections)
+│   ├── auth.config.js            # Clerk authentication config
+│   ├── users.ts                  # User queries
+│   ├── userMutations.ts          # User mutations (create/update/delete)
+│   ├── opportunities.ts          # Opportunity queries & mutations
+│   ├── applications.ts           # Application queries & mutations
+│   ├── messages.ts               # Message queries & mutations
+│   └── seed.ts                   # Database seeding script
 │
 ├── components/                   # 🧩 FRONTEND - Reusable UI Components
 │   ├── ui/                       # Base UI components (shadcn/ui - 48 components)
@@ -52,22 +63,15 @@ nextstep/
 │       ├── profile/ProfileForm.tsx
 │       └── opportunities/OpportunityCard.tsx
 │
-├── server/                       # 🗄️ BACKEND - Server-Side Logic & Data
-│   ├── api/                      # Business logic layer
-│   │   ├── users.ts              # User business logic
-│   │   ├── opportunities.ts      # Opportunity business logic
-│   │   └── messages.ts           # Message business logic
-│   └── data/                     # Data access layer (mock data)
-│       ├── users.ts              # User data & queries
-│       ├── opportunities.ts      # Opportunity data & queries
-│       ├── messages.ts           # Message data & queries
-│       └── applications.ts       # Application data & queries
-│
 ├── lib/                          # 🔧 SHARED - Used by Both Frontend & Backend
 │   ├── types.ts                  # TypeScript type definitions
 │   ├── utils.ts                  # Utility functions
-│   └── data.ts                   # (DEPRECATED) Re-exports for compatibility
+│   ├── data.ts                   # ⚠️ DEPRECATED - Old mock data re-exports
+│   └── cn.ts                     # Tailwind utility function
 │
+├── proxy.ts                      # 🔐 Route protection with Clerk middleware
+├── .env.local                    # Environment variables (Convex + Clerk keys)
+├── .env.example                  # Environment template
 ├── public/assets/                # 📁 Static assets (images, icons)
 ├── README.md                     # Project documentation
 ├── ARCHITECTURE.md               # This file
@@ -80,28 +84,66 @@ nextstep/
 
 ## 🏗️ Architecture Layers
 
-### Next.js App Router Architecture
+### Current Stack
 
-**Current Implementation**: The app uses **Next.js App Router** with file-based routing:
+**Authentication**: Clerk
 
-**Routes**:
+- Social logins (Google, GitHub, etc.)
+- User management and session handling
+- Webhook integration for user sync to Convex
+
+**Database**: Convex
+
+- Real-time serverless database
+- TypeScript-first with automatic type generation
+- Optimistic updates and live queries
+- Schema: users, opportunities, applications, messages, mentorshipSessions
+
+**Frontend**: Next.js 16 App Router
+
+- Server and Client Components
+- File-based routing
+- React 19 with Hooks (useQuery, useMutation from Convex)
+
+### Data Flow
 
 ```
-/                    → app/page.tsx (Landing page)
-/jobs                → app/jobs/page.tsx (Job listings)
-/mentors             → app/mentors/page.tsx (Find mentors)
-/applications        → app/applications/page.tsx (Track applications)
-/profile             → app/profile/page.tsx (User profile)
-/auth                → app/auth/page.tsx (Authentication)
+┌─────────────────────────────────────┐
+│          FRONTEND (React)           │
+│   Client Components with useQuery   │
+│                                     │
+│   Uses Convex React Hooks          │
+└────────────┬────────────────────────┘
+             │ Real-time subscriptions
+             ▼
+┌─────────────────────────────────────┐
+│       CONVEX (Database + API)       │
+│   Query & Mutation Functions        │
+│                                     │
+│   Auto-synced with Clerk Auth       │
+└─────────────────────────────────────┘
 ```
 
-**Benefits**:
+### Authentication Flow
 
--   ✅ SEO-friendly URLs
--   ✅ Shareable direct links
--   ✅ Browser history works properly
--   ✅ Automatic code splitting
--   ✅ Next.js Link prefetching
+```
+User Sign-In (Clerk)
+       │
+       ├──> Session Created
+       │
+       ├──> Clerk Webhook Triggered
+       │
+       ├──> /api/webhooks/clerk
+       │
+       └──> Convex userMutations.upsertUser
+                   │
+                   └──> User synced to Convex DB
+```
+
+- ✅ Shareable direct links
+- ✅ Browser history works properly
+- ✅ Automatic code splitting
+- ✅ Next.js Link prefetching
 
 ### 1. Frontend Layer (`/app` & `/components`)
 
@@ -109,19 +151,19 @@ nextstep/
 
 **Components**:
 
--   **Main App** (`app/page.tsx`): Client component with routing logic
--   **Page Components** (`components/pages/`): Full page views
--   **Landing Sections** (`components/landing/`): Reusable landing page sections
--   **UI Components** (`components/ui/`): 48 shadcn/ui components
--   **Client Components**: Interactive components with state (marked with `'use client'`)
+- **Main App** (`app/page.tsx`): Client component with routing logic
+- **Page Components** (`components/pages/`): Full page views
+- **Landing Sections** (`components/landing/`): Reusable landing page sections
+- **UI Components** (`components/ui/`): 48 shadcn/ui components
+- **Client Components**: Interactive components with state (marked with `'use client'`)
 
 **Key Principles**:
 
--   Client-side navigation for smooth transitions
--   Reusable landing sections compose the HomePage
--   Import data from `/server/data` when needed
--   Keep UI logic separate from business logic
--   Use TypeScript types from `/lib/types.ts`
+- Client-side navigation for smooth transitions
+- Reusable landing sections compose the HomePage
+- Import data from `/server/data` when needed
+- Keep UI logic separate from business logic
+- Use TypeScript types from `/lib/types.ts`
 
 **Example**:
 
@@ -142,18 +184,18 @@ const data = await response.json();
 
 **Responsibilities**:
 
--   Parse request parameters
--   Call business logic functions
--   Format responses
--   Handle errors
--   Return appropriate HTTP status codes
+- Parse request parameters
+- Call business logic functions
+- Format responses
+- Handle errors
+- Return appropriate HTTP status codes
 
 **Key Principles**:
 
--   Thin layer - minimal logic
--   Delegate to business logic in `/server/api`
--   Consistent response format
--   Proper error handling
+- Thin layer - minimal logic
+- Delegate to business logic in `/server/api`
+- Consistent response format
+- Proper error handling
 
 **Example**:
 
@@ -184,18 +226,18 @@ export async function GET(request: NextRequest) {
 
 **Responsibilities**:
 
--   Data filtering and sorting
--   Input validation
--   Business rules enforcement
--   Data transformation
--   Aggregation logic
+- Data filtering and sorting
+- Input validation
+- Business rules enforcement
+- Data transformation
+- Aggregation logic
 
 **Key Principles**:
 
--   Pure functions (no HTTP concerns)
--   Reusable across different endpoints
--   Well-documented and commented
--   Easy to test
+- Pure functions (no HTTP concerns)
+- Reusable across different endpoints
+- Well-documented and commented
+- Easy to test
 
 **Example**:
 
@@ -220,16 +262,16 @@ export async function getAllUsers(filters?: { role?: string }) {
 
 **Responsibilities**:
 
--   Store data (mock arrays for now)
--   Provide query functions
--   Data access helpers
+- Store data (mock arrays for now)
+- Provide query functions
+- Data access helpers
 
 **Key Principles**:
 
--   Abstracted from business logic
--   Easy to replace with real database
--   Includes helper functions for common queries
--   Well-documented for future migration
+- Abstracted from business logic
+- Easy to replace with real database
+- Includes helper functions for common queries
+- Well-documented for future migration
 
 **Example**:
 
@@ -253,9 +295,9 @@ export const getUserById = (id: string) => {
 
 **Contents**:
 
--   **types.ts**: TypeScript interfaces and types
--   **utils.ts**: Utility functions (formatting, validation)
--   **data.ts**: (DEPRECATED) Re-exports for backward compatibility
+- **types.ts**: TypeScript interfaces and types
+- **utils.ts**: Utility functions (formatting, validation)
+- **data.ts**: (DEPRECATED) Re-exports for backward compatibility
 
 ---
 
@@ -372,12 +414,12 @@ export const getUserById = async (id: string) => {
 
 **Improvements**:
 
--   Add Redis caching for frequently accessed data
--   Implement pagination and infinite scroll
--   Add full-text search (Elasticsearch)
--   Implement CDN for static assets
--   Add monitoring and logging (Sentry, LogRocket)
--   Set up CI/CD pipeline
+- Add Redis caching for frequently accessed data
+- Implement pagination and infinite scroll
+- Add full-text search (Elasticsearch)
+- Implement CDN for static assets
+- Add monitoring and logging (Sentry, LogRocket)
+- Set up CI/CD pipeline
 
 ---
 
@@ -402,10 +444,10 @@ Throughout the codebase, you'll find structured comments:
 
 ### Section Markers
 
--   `// FRONTEND:` - UI-related code
--   `// BACKEND:` - Server-side code
--   `// SHARED:` - Used by both frontend and backend
--   `// PRODUCTION:` - Code that needs replacement in production
+- `// FRONTEND:` - UI-related code
+- `// BACKEND:` - Server-side code
+- `// SHARED:` - Used by both frontend and backend
+- `// PRODUCTION:` - Code that needs replacement in production
 
 ---
 
@@ -413,27 +455,27 @@ Throughout the codebase, you'll find structured comments:
 
 ### Unit Tests
 
--   `/server/api/*` - Test business logic functions
--   `/lib/utils.ts` - Test utility functions
+- `/server/api/*` - Test business logic functions
+- `/lib/utils.ts` - Test utility functions
 
 ### Integration Tests
 
--   `/app/api/*` - Test API endpoints
--   Test data flow from API to business logic to data layer
+- `/app/api/*` - Test API endpoints
+- Test data flow from API to business logic to data layer
 
 ### End-to-End Tests
 
--   Test user flows from frontend to backend
--   Test critical paths (signup, apply to job, send message)
+- Test user flows from frontend to backend
+- Test critical paths (signup, apply to job, send message)
 
 ---
 
 ## 📚 Further Reading
 
--   [Next.js App Router Documentation](https://nextjs.org/docs/app)
--   [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
--   [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
--   [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
+- [Next.js App Router Documentation](https://nextjs.org/docs/app)
+- [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
 
 ---
 
@@ -451,10 +493,10 @@ When adding new features:
 
 Always include:
 
--   Clear comments explaining purpose
--   Production improvement suggestions
--   TypeScript types
--   Error handling
+- Clear comments explaining purpose
+- Production improvement suggestions
+- TypeScript types
+- Error handling
 
 ---
 
