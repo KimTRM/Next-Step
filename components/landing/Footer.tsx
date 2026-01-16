@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer() {
   return (
@@ -8,7 +9,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center mb-4">
-              <span className="text-2xl font-bold text-primary display-font">NextStep</span>
+              <Image src="/assets/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Helping you take your next step in life. Empowering youth through job discovery and mentorship.

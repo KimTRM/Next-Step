@@ -46,13 +46,27 @@ export default function MessagesPage() {
     const sendMessage = useMutation(api.messages.sendMessage);
     const markAsRead = useMutation(api.messages.markMessageAsRead);
 
+    // Get current user from Convex (match by Clerk ID)
+    const currentUser = users?.find(u => u.clerkId === clerkUser?.id);
+
+    // Mark messages as read when conversation opens
+    useEffect(() => {
+        if (conversation && selectedUserId && currentUser) {
+            conversation.forEach(msg => {
+                if (msg.receiverId === currentUser._id && !msg.read) {
+                    markAsRead({ messageId: msg._id });
+                }
+            });
+        }
+    }, [conversation, selectedUserId, currentUser, markAsRead]);
+
     // Loading state
     if (messages === undefined || users === undefined) {
         return (
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="animate-pulse">
                     <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-                    <div className="h-[600px] bg-gray-200 rounded"></div>
+                    <div className="h-150 bg-gray-200 rounded"></div>
                 </div>
             </div>
         );
@@ -71,8 +85,6 @@ export default function MessagesPage() {
         );
     }
 
-    // Get current user from Convex (match by Clerk ID)
-    const currentUser = users.find(u => u.clerkId === clerkUser.id);
     if (!currentUser) {
         return (
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -125,17 +137,6 @@ export default function MessagesPage() {
     // Get selected user details
     const selectedUser = users.find(u => u._id === selectedUserId);
 
-    // Mark messages as read when conversation opens
-    useEffect(() => {
-        if (conversation && selectedUserId) {
-            conversation.forEach(msg => {
-                if (msg.receiverId === currentUser._id && !msg.read) {
-                    markAsRead({ messageId: msg._id });
-                }
-            });
-        }
-    }, [conversation, selectedUserId, currentUser._id, markAsRead]);
-
     // Handle send message
     const handleSendMessage = async (content: string) => {
         if (!selectedUserId) return;
@@ -165,7 +166,7 @@ export default function MessagesPage() {
             </div>
 
             {/* Main messaging interface */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-150">
                 {/* Conversations List */}
                 <ConversationList
                     conversations={conversationPartners}
