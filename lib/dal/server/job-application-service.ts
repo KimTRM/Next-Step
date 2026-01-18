@@ -17,11 +17,14 @@ export class JobApplicationDAL {
     /**
      * Get current user's job applications
      */
-    static async getUserApplications(): Promise<ApplicationWithJobDetails[]> {
+    static async getUserApplications(
+        auth?: string | (() => Promise<string | null>),
+    ): Promise<ApplicationWithJobDetails[]> {
         try {
             const result = await queryConvex(
                 api.jobApplications.getUserJobApplications,
                 {},
+                auth,
             );
             return (result as ApplicationWithJobDetails[]) || [];
         } catch (error) {
@@ -99,12 +102,17 @@ export class JobApplicationDAL {
     static async updateStatus(
         applicationId: Id<"jobApplications">,
         status: "pending" | "reviewing" | "interview" | "rejected" | "accepted",
+        auth?: string | (() => Promise<string | null>),
     ): Promise<void> {
         try {
-            await mutateConvex(api.jobApplications.updateApplicationStatus, {
-                applicationId,
-                status,
-            });
+            await mutateConvex(
+                api.jobApplications.updateApplicationStatus,
+                {
+                    applicationId,
+                    status,
+                },
+                auth,
+            );
         } catch (error) {
             throw new DALError(
                 "DATABASE_ERROR",
