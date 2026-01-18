@@ -5,9 +5,6 @@
  */
 
 'use client';
-
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,8 +34,43 @@ interface MentorDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
+type MentorDTO = {
+    _creationTime?: number;
+    userId?: Id<'users'>;
+    _id: Id<'mentors'>;
+    name: string;
+    role: string;
+    company?: string;
+    location?: string;
+    isVerified?: boolean;
+    profileImageUrl?: string;
+    expertise: string[];
+    specializations?: string[];
+    yearsOfExperience?: number;
+    rating: number;
+    mentees: number;
+    bio?: string;
+    availability?: string;
+    languages?: string[];
+    hourlyRate?: number;
+    currency?: string;
+    offersFreeSession?: boolean;
+    availableDays?: string[];
+    availableTimeSlots?: string[];
+    responseTime?: string;
+    timezone?: string;
+    sessionsCompleted?: number;
+    linkedInUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    twitterUrl?: string;
+};
+
 export default function MentorDetailPage({ params }: MentorDetailPageProps) {
     const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
+    const [mentor, setMentor] = useState<MentorDTO | null>(null);
+    const [similarMentors, setSimilarMentors] = useState<MentorDTO[]>([]);
+    const [loading, setLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showConnectModal, setShowConnectModal] = useState(false);
     const router = useRouter();
@@ -48,28 +80,49 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
         params.then(setResolvedParams);
     }, [params]);
 
-    const mentorId = resolvedParams?.id as Id<'mentors'> | undefined;
-
-    // Call hooks unconditionally
-    const mentor = useQuery(
-        api.mentors.getMentorById,
-        mentorId ? { mentorId } : 'skip'
-    );
-    const similarMentors = useQuery(
-        api.mentors.getSimilarMentors,
-        mentorId ? { mentorId, limit: 3 } : 'skip'
-    );
+    // Fetch mentor and similar mentors via API when params resolve
+    useEffect(() => {
+        if (!resolvedParams?.id) return;
+        const id = resolvedParams.id;
+        setLoading(true);
+        (async () => {
+            try {
+                const [mentorRes, similarRes] = await Promise.all([
+                    fetch(`/api/mentors/${id}`),
+                    fetch(`/api/mentors/${id}/similar?limit=3`),
+                ]);
+                const mentorJson = await mentorRes.json();
+                if (mentorJson.success) {
+                    setMentor(mentorJson.data);
+                } else {
+                    setMentor(null);
+                }
+                const similarJson = await similarRes.json();
+                if (similarJson.success) {
+                    setSimilarMentors(similarJson.data || []);
+                } else {
+                    setSimilarMentors([]);
+                }
+            } catch (e) {
+                console.error('Failed to load mentor details:', e);
+                setMentor(null);
+                setSimilarMentors([]);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, [resolvedParams]);
 
     // Show loading state while params are being resolved
     if (!resolvedParams) {
         return <MentorDetailSkeleton />;
     }
 
-    if (mentor === undefined) {
+    if (loading) {
         return <MentorDetailSkeleton />;
     }
 
-    if (mentor === null) {
+    if (!mentor) {
         return (
             <div className="max-w-5xl mx-auto px-4 py-8">
                 <Card className="p-12 text-center">
@@ -108,7 +161,11 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                                 <Avatar className="h-20 w-20">
                                     <AvatarImage src={mentor.profileImageUrl} alt={mentor.name} />
                                     <AvatarFallback>
-                                        {mentor.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
+                                        {String(mentor.name)
+                                            .split(' ')
+                                            .map((n: string) => n[0])
+                                            .join('')
+                                            .toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
@@ -150,7 +207,7 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                             <div>
                                 <h3 className="font-semibold mb-2">Expertise</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {mentor.expertise.map((skill, index) => (
+                                    {(mentor.expertise as string[]).map((skill: string, index: number) => (
                                         <Badge key={index} variant="secondary">
                                             {skill}
                                         </Badge>
@@ -161,7 +218,7 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                                 <div>
                                     <h3 className="font-semibold mb-2">Specializations</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {mentor.specializations.map((spec, index) => (
+                                        {(mentor.specializations as string[]).map((spec: string, index: number) => (
                                             <Badge key={index} variant="outline">
                                                 {spec}
                                             </Badge>
@@ -222,7 +279,10 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                                             <Avatar>
                                                 <AvatarImage src={similar.profileImageUrl} />
                                                 <AvatarFallback>
-                                                    {similar.name.split(' ').map((n) => n[0]).join('')}
+                                                    {String(similar.name)
+                                                        .split(' ')
+                                                        .map((n: string) => n[0])
+                                                        .join('')}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">
@@ -285,7 +345,7 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                                 </p>
                                 {mentor.availableDays && mentor.availableDays.length > 0 && (
                                     <div className="flex flex-wrap gap-1">
-                                        {mentor.availableDays.map((day, index) => (
+                                        {(mentor.availableDays as string[]).map((day: string, index: number) => (
                                             <Badge key={index} variant="outline" className="text-xs capitalize">
                                                 {day}
                                             </Badge>
@@ -400,14 +460,24 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
             {/* Modals */}
             {showBookingModal && mentor && (
                 <BookingModal
-                    mentor={mentor}
+                    mentor={{
+                        _id: mentor._id,
+                        name: mentor.name,
+                        role: mentor.role,
+                        hourlyRate: mentor.hourlyRate,
+                        currency: mentor.currency,
+                        offersFreeSession: mentor.offersFreeSession,
+                        availableDays: mentor.availableDays,
+                        availableTimeSlots: mentor.availableTimeSlots,
+                        timezone: mentor.timezone,
+                    }}
                     onClose={() => setShowBookingModal(false)}
                 />
             )}
 
             {showConnectModal && mentor && (
                 <ConnectModal
-                    mentor={mentor}
+                    mentor={{ _id: mentor._id, name: mentor.name }}
                     onClose={() => setShowConnectModal(false)}
                 />
             )}

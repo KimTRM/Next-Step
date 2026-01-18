@@ -7,8 +7,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Calendar, Clock, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,7 +64,23 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const bookSession = useMutation(api.mentors.bookSession);
+    const bookSession = async (payload: {
+        mentorId: Id<'mentors'>;
+        topic: string;
+        scheduledDate: number;
+        duration: number;
+        message?: string;
+    }) => {
+        const res = await fetch('/api/mentors/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+            throw new Error(json?.error?.message || 'Failed to book session');
+        }
+    };
 
     const availableDates = getNextTwoWeeks();
     const mentorAvailableDays = mentor.availableDays?.map(d => d.toLowerCase()) || [];
@@ -315,8 +329,8 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
                                             setSelectedHour(null);
                                         }}
                                         className={`p-3 rounded-lg border text-center transition-all ${isSelected
-                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                : 'hover:border-primary hover:bg-primary/5'
+                                            ? 'bg-primary text-primary-foreground border-primary'
+                                            : 'hover:border-primary hover:bg-primary/5'
                                             }`}
                                     >
                                         <div className="text-xs font-medium">
@@ -357,10 +371,10 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
                                             }}
                                             disabled={!isAvailable}
                                             className={`p-4 rounded-lg border text-left transition-all ${!isAvailable
-                                                    ? 'opacity-50 cursor-not-allowed'
-                                                    : isSelected
-                                                        ? 'bg-primary text-primary-foreground border-primary'
-                                                        : 'hover:border-primary hover:bg-primary/5'
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : isSelected
+                                                    ? 'bg-primary text-primary-foreground border-primary'
+                                                    : 'hover:border-primary hover:bg-primary/5'
                                                 }`}
                                         >
                                             <div className="font-medium capitalize">{slot.value}</div>
@@ -386,8 +400,8 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
                                             key={hour}
                                             onClick={() => setSelectedHour(hour)}
                                             className={`p-3 rounded-lg border text-center transition-all ${isSelected
-                                                    ? 'bg-primary text-primary-foreground border-primary'
-                                                    : 'hover:border-primary hover:bg-primary/5'
+                                                ? 'bg-primary text-primary-foreground border-primary'
+                                                : 'hover:border-primary hover:bg-primary/5'
                                                 }`}
                                         >
                                             {formatTime(hour)}
@@ -410,8 +424,8 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
                                             key={option.value}
                                             onClick={() => setDuration(option.value)}
                                             className={`p-3 rounded-lg border transition-all ${isSelected
-                                                    ? 'bg-primary text-primary-foreground border-primary'
-                                                    : 'hover:border-primary hover:bg-primary/5'
+                                                ? 'bg-primary text-primary-foreground border-primary'
+                                                : 'hover:border-primary hover:bg-primary/5'
                                                 }`}
                                         >
                                             {option.label}
