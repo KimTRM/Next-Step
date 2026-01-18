@@ -16,12 +16,19 @@ export class UserDAL {
     /**
      * Get all users
      */
-    static async getAllUsers(params?: {
-        role?: string;
-        search?: string;
-    }): Promise<User[]> {
+    static async getAllUsers(
+        params?: {
+            role?: string;
+            search?: string;
+        },
+        auth?: string,
+    ): Promise<User[]> {
         try {
-            return await queryConvex<User[]>(api.users.getAllUsers, params);
+            return await queryConvex<User[]>(
+                api.users.getAllUsers,
+                params,
+                auth,
+            );
         } catch (error) {
             throw new DALError(
                 "DATABASE_ERROR",

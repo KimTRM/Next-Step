@@ -16,6 +16,7 @@ export function Header() {
         { href: '/jobs', label: 'Jobs' },
         { href: '/applications', label: 'Applications' },
         { href: '/mentors', label: 'Mentors' },
+        { href: '/messages', label: 'Messages' },
         { href: '/profile', label: 'Profile' }
     ];
 
