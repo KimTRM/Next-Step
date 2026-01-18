@@ -83,6 +83,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     const [isApplying, setIsApplying] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [showProfileDialog, setShowProfileDialog] = useState(false);
+    const [hasApplied, setHasApplied] = useState(false);
     const router = useRouter();
 
     // Resolve params promise
@@ -126,15 +127,35 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     const handleApply = async () => {
         if (!job) return;
 
-        // TODO: Check profile completeness via API
-        // For now, skip profile check
-
         setIsApplying(true);
         try {
-            // TODO: Wire to job application API
-            toast.info('Job application feature coming soon');
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const res = await fetch('/api/jobs/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jobId: job._id,
+                    notes: notes || undefined,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 409) {
+                    toast.error('You have already applied to this job');
+                    setHasApplied(true);
+                } else if (res.status === 401) {
+                    toast.error('You must be logged in to apply');
+                    router.push('/sign-in');
+                } else {
+                    toast.error(data.error?.message || 'Failed to submit application');
+                }
+                return;
+            }
+
+            toast.success('Application submitted successfully!');
             setNotes('');
+            setHasApplied(true);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to submit application');
         } finally {
@@ -458,7 +479,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {false ? (
+                            {hasApplied ? (
                                 <div className="text-center py-8">
                                     <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                                     <p className="text-gray-600 mb-4">

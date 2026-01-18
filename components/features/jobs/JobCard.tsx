@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { Briefcase, Building2, MapPin, DollarSign, Eye, BookmarkPlus } from 'lucide-react';
+import { Briefcase, Building2, MapPin, DollarSign, Eye, BookmarkPlus, BookmarkCheck } from 'lucide-react';
 import type { Id } from '@/convex/_generated/dataModel';
+import { toast } from 'sonner';
 
 type JobType = 'full-time' | 'part-time' | 'internship' | 'contract' | 'temporary';
 
@@ -23,6 +27,16 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
+    const [saved, setSaved] = useState(false);
+
+    const handleSave = () => {
+        setSaved((prev) => {
+            const next = !prev;
+            toast.success(next ? 'Job saved' : 'Removed from saved');
+            return next;
+        });
+    };
+
     const getTypeColor = (type?: JobType) => {
         if (!type) return 'bg-gray-100 text-gray-700';
         switch (type) {
@@ -117,9 +131,14 @@ export function JobCard({ job }: JobCardProps) {
                         <Eye className="h-4 w-4" />
                         View Details
                     </Link>
-                    <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
-                        <BookmarkPlus className="h-4 w-4" />
-                        Save
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        aria-pressed={saved}
+                        className={`px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${saved ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        {saved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
+                        {saved ? 'Saved' : 'Save'}
                     </button>
                 </div>
             </div>
