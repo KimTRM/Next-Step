@@ -194,7 +194,7 @@ export const searchJobs = query({
 
             jobs = jobs
                 .map((job) => {
-                    const jobSkillsLower = job.requiredSkills.map((s) =>
+                    const jobSkillsLower = (job.requiredSkills || []).map((s) =>
                         s.toLowerCase(),
                     );
                     const matchCount = skillsLower.filter((skill) =>
@@ -305,7 +305,7 @@ export const getRecommendedJobs = query({
         const userSkillsLower = user.skills.map((s) => s.toLowerCase());
 
         const jobsWithScores = jobs.map((job) => {
-            const jobSkillsLower = job.requiredSkills.map((s) =>
+            const jobSkillsLower = (job.requiredSkills || []).map((s) =>
                 s.toLowerCase(),
             );
             const matchCount = userSkillsLower.filter((skill) =>
@@ -332,6 +332,73 @@ export const getRecommendedJobs = query({
             .slice(0, limit);
 
         return recommendedJobs;
+    },
+});
+
+/**
+ * Get related jobs based on current job's skills and company
+ */
+export const getRelatedJobs = query({
+    args: {
+        jobId: v.id("jobs"),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const currentJob = await ctx.db.get(args.jobId);
+        if (!currentJob) {
+            return [];
+        }
+
+        const now = Date.now();
+        const limit = args.limit ?? 4;
+
+        // Get active jobs excluding current job
+        let jobs = await ctx.db
+            .query("jobs")
+            .withIndex("by_isActive", (q) => q.eq("isActive", true))
+            .collect();
+
+        // Filter out expired jobs and current job
+        jobs = jobs.filter(
+            (job) =>
+                job._id !== args.jobId &&
+                (!job.expiresDate || job.expiresDate > now),
+        );
+
+        // Calculate match score based on skills and company
+        const currentSkillsLower = (currentJob.requiredSkills || []).map((s) =>
+            s.toLowerCase(),
+        );
+
+        const jobsWithScores = jobs.map((job) => {
+            const jobSkillsLower = (job.requiredSkills || []).map((s) =>
+                s.toLowerCase(),
+            );
+            const skillMatchCount = currentSkillsLower.filter((skill) =>
+                jobSkillsLower.includes(skill),
+            ).length;
+
+            // Bonus points for same company
+            const companyMatch = job.company === currentJob.company ? 10 : 0;
+
+            return {
+                ...job,
+                matchScore: skillMatchCount + companyMatch,
+            };
+        });
+
+        // Filter jobs with at least some match and sort by score
+        const relatedJobs = jobsWithScores
+            .filter((job) => job.matchScore > 0)
+            .sort((a, b) => {
+                if (b.matchScore !== a.matchScore) {
+                    return b.matchScore - a.matchScore;
+                }
+                return b.postedDate - a.postedDate;
+            })
+            .slice(0, limit);
+
+        return relatedJobs;
     },
 });
 

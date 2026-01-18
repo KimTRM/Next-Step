@@ -2,7 +2,7 @@ import { Briefcase, Building2, TrendingUp, Clock } from 'lucide-react';
 
 interface JobStatsProps {
     jobs: Array<{
-        employmentType: string;
+        employmentType?: string;
         company: string;
     }>;
 }

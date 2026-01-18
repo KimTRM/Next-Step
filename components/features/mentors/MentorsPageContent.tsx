@@ -48,7 +48,7 @@ export function MentorsPageContent() {
   const mentors = allMentors || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20">
+    <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">

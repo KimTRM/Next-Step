@@ -89,11 +89,11 @@ export function MessageThread({
                             >
                                 <div
                                     className={`max-w-md p-3 rounded-lg ${isSentByCurrentUser
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-white text-gray-900 border border-gray-200'
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-white text-gray-900 border border-gray-200'
                                         }`}
                                 >
-                                    <p className="break-words">{message.content}</p>
+                                    <p className="wrap-break-word">{message.content}</p>
                                     <p
                                         className={`text-xs mt-1 ${isSentByCurrentUser ? 'text-green-100' : 'text-gray-500'
                                             }`}

@@ -6,6 +6,8 @@
  */
 
 import { internalMutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 
 /**
  * Seed all data
@@ -30,7 +32,7 @@ export const seedAll = internalMutation({
         const applicationIds = await seedApplications(
             ctx,
             userIds,
-            opportunityIds
+            opportunityIds,
         );
         console.log(`✓ Seeded ${applicationIds.length} applications`);
 
@@ -61,7 +63,7 @@ export const seedAll = internalMutation({
 /**
  * Clear all data (use with caution!)
  */
-async function clearAllData(ctx: any) {
+async function clearAllData(ctx: MutationCtx) {
     const users = await ctx.db.query("users").collect();
     for (const user of users) {
         await ctx.db.delete(user._id);
@@ -88,7 +90,7 @@ async function clearAllData(ctx: any) {
 /**
  * Seed users
  */
-async function seedUsers(ctx: any) {
+async function seedUsers(ctx: MutationCtx): Promise<Id<"users">[]> {
     const mockUsers = [
         {
             clerkId: "user_mock_1",
@@ -151,7 +153,10 @@ async function seedUsers(ctx: any) {
     for (const user of mockUsers) {
         const id = await ctx.db.insert("users", {
             ...user,
+            profileCompletion: 75,
+            isOnboardingComplete: true,
             createdAt: Date.now(),
+            updatedAt: Date.now(),
         });
         userIds.push(id);
     }
@@ -162,7 +167,10 @@ async function seedUsers(ctx: any) {
 /**
  * Seed opportunities
  */
-async function seedOpportunities(ctx: any, userIds: any[]) {
+async function seedOpportunities(
+    ctx: MutationCtx,
+    userIds: Id<"users">[],
+): Promise<Id<"opportunities">[]> {
     const mockOpportunities = [
         {
             title: "Frontend Developer Intern",
@@ -236,10 +244,10 @@ async function seedOpportunities(ctx: any, userIds: any[]) {
  * Seed applications
  */
 async function seedApplications(
-    ctx: any,
-    userIds: any[],
-    opportunityIds: any[]
-) {
+    ctx: MutationCtx,
+    userIds: Id<"users">[],
+    opportunityIds: Id<"opportunities">[],
+): Promise<Id<"applications">[]> {
     const mockApplications = [
         {
             opportunityId: opportunityIds[0],
@@ -278,7 +286,10 @@ async function seedApplications(
 /**
  * Seed messages
  */
-async function seedMessages(ctx: any, userIds: any[]) {
+async function seedMessages(
+    ctx: MutationCtx,
+    userIds: Id<"users">[],
+): Promise<Id<"messages">[]> {
     const mockMessages = [
         {
             senderId: userIds[0], // student
@@ -316,67 +327,133 @@ async function seedMessages(ctx: any, userIds: any[]) {
 /**
  * Seed jobs
  */
-async function seedJobs(ctx: any, userIds: any[]) {
+async function seedJobs(
+    ctx: MutationCtx,
+    userIds: Id<"users">[],
+): Promise<Id<"jobs">[]> {
     const mockJobs = [
         {
             title: "Junior Software Developer",
             company: "TechStart Solutions",
             location: "Naga City, Camarines Sur",
-            type: "full-time" as const,
-            category: "technology",
-            salary: "₱20,000 - ₱28,000/month",
+            employmentType: "full-time" as const,
+            locationType: "hybrid" as const,
+            jobCategory: "technology",
+            minSalary: 20000,
+            maxSalary: 28000,
+            salaryCurrency: "₱",
+            salaryPeriod: "month" as const,
             description:
                 "Looking for fresh graduates with strong programming fundamentals and eagerness to learn.",
+            requiredSkills: ["JavaScript", "React", "Node.js", "Git"],
+            experienceLevel: "entry" as const,
+            education: "bachelor" as const,
             postedBy: userIds[2], // employer
-            applicants: 23,
+            views: 23,
+            industry: "Technology",
+            tags: ["entry-level", "fresh-grad-friendly"],
         },
         {
             title: "Marketing Assistant",
             company: "Creative Minds Agency",
             location: "Naga City, Camarines Sur",
-            type: "full-time" as const,
-            category: "marketing",
-            salary: "₱18,000 - ₱22,000/month",
+            employmentType: "full-time" as const,
+            locationType: "on-site" as const,
+            jobCategory: "marketing",
+            minSalary: 18000,
+            maxSalary: 22000,
+            salaryCurrency: "₱",
+            salaryPeriod: "month" as const,
             description:
                 "Entry-level position perfect for communication graduates ready to start their marketing career.",
+            requiredSkills: [
+                "Social Media",
+                "Content Writing",
+                "Communication",
+                "MS Office",
+            ],
+            experienceLevel: "entry" as const,
+            education: "bachelor" as const,
             postedBy: userIds[2],
-            applicants: 41,
+            views: 41,
+            industry: "Marketing",
+            tags: ["entry-level", "communications"],
         },
         {
             title: "Customer Support Intern",
             company: "BPO Connect",
             location: "Naga City, Camarines Sur",
-            type: "internship" as const,
-            category: "customer-service",
-            salary: "₱8,000 - ₱12,000/month",
+            employmentType: "internship" as const,
+            locationType: "on-site" as const,
+            jobCategory: "customer-service",
+            minSalary: 8000,
+            maxSalary: 12000,
+            salaryCurrency: "₱",
+            salaryPeriod: "month" as const,
             description:
                 "3-month internship program with potential for full-time employment. Training provided.",
+            requiredSkills: [
+                "Communication",
+                "Customer Service",
+                "Problem Solving",
+            ],
+            experienceLevel: "entry" as const,
             postedBy: userIds[2],
-            applicants: 67,
+            views: 67,
+            industry: "BPO",
+            tags: ["internship", "training-provided"],
         },
         {
             title: "Junior Business Analyst",
             company: "DataDrive Corp",
             location: "Naga City, Camarines Sur",
-            type: "full-time" as const,
-            category: "business",
-            salary: "₱22,000 - ₱30,000/month",
+            employmentType: "full-time" as const,
+            locationType: "hybrid" as const,
+            jobCategory: "business",
+            minSalary: 22000,
+            maxSalary: 30000,
+            salaryCurrency: "₱",
+            salaryPeriod: "month" as const,
             description:
                 "Fresh graduates with analytical mindset welcome. Experience with Excel and data analysis a plus.",
+            requiredSkills: [
+                "Excel",
+                "Data Analysis",
+                "SQL",
+                "Analytical Thinking",
+            ],
+            experienceLevel: "entry" as const,
+            education: "bachelor" as const,
             postedBy: userIds[2],
-            applicants: 34,
+            views: 34,
+            industry: "Technology",
+            tags: ["entry-level", "data"],
         },
         {
             title: "Teaching Assistant",
             company: "NextGen Academy",
             location: "Naga City, Camarines Sur",
-            type: "part-time" as const,
-            category: "education",
-            salary: "₱300 - ₱500/hour",
+            employmentType: "part-time" as const,
+            locationType: "on-site" as const,
+            jobCategory: "education",
+            minSalary: 300,
+            maxSalary: 500,
+            salaryCurrency: "₱",
+            salaryPeriod: "hour" as const,
             description:
                 "Part-time opportunity for education graduates to assist in classroom instruction and tutoring.",
+            requiredSkills: [
+                "Teaching",
+                "Communication",
+                "Patience",
+                "Subject Knowledge",
+            ],
+            experienceLevel: "entry" as const,
+            education: "bachelor" as const,
             postedBy: userIds[2],
-            applicants: 18,
+            views: 18,
+            industry: "Education",
+            tags: ["part-time", "teaching"],
         },
     ];
 
@@ -396,7 +473,10 @@ async function seedJobs(ctx: any, userIds: any[]) {
 /**
  * Seed mentors
  */
-async function seedMentors(ctx: any, userIds: any[]) {
+async function seedMentors(
+    ctx: MutationCtx,
+    userIds: Id<"users">[],
+): Promise<Id<"mentors">[]> {
     const mockMentors = [
         {
             userId: userIds[1], // mentor

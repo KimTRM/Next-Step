@@ -64,12 +64,12 @@ export default defineSchema({
         portfolioUrl: v.optional(v.string()),
 
         // Profile Tracking
-        profileCompletion: v.number(), // 0-100 percentage
-        isOnboardingComplete: v.boolean(),
+        profileCompletion: v.optional(v.number()), // 0-100 percentage
+        isOnboardingComplete: v.optional(v.boolean()),
 
         // Metadata
         createdAt: v.number(),
-        updatedAt: v.number(),
+        updatedAt: v.optional(v.number()),
         lastSeenAt: v.optional(v.number()),
     })
         .index("by_clerk_id", ["clerkId"])
@@ -98,18 +98,22 @@ export default defineSchema({
         description: v.string(), // Markdown or HTML, max 5000 chars
 
         // Job Details
-        employmentType: v.union(
-            v.literal("full-time"),
-            v.literal("part-time"),
-            v.literal("contract"),
-            v.literal("internship"),
-            v.literal("temporary"),
+        employmentType: v.optional(
+            v.union(
+                v.literal("full-time"),
+                v.literal("part-time"),
+                v.literal("contract"),
+                v.literal("internship"),
+                v.literal("temporary"),
+            ),
         ),
         location: v.string(),
-        locationType: v.union(
-            v.literal("on-site"),
-            v.literal("remote"),
-            v.literal("hybrid"),
+        locationType: v.optional(
+            v.union(
+                v.literal("on-site"),
+                v.literal("remote"),
+                v.literal("hybrid"),
+            ),
         ),
         minSalary: v.optional(v.number()),
         maxSalary: v.optional(v.number()),
@@ -119,13 +123,15 @@ export default defineSchema({
         ),
 
         // Requirements
-        requiredSkills: v.array(v.string()),
-        experienceLevel: v.union(
-            v.literal("entry"),
-            v.literal("mid"),
-            v.literal("senior"),
-            v.literal("lead"),
-            v.literal("executive"),
+        requiredSkills: v.optional(v.array(v.string())),
+        experienceLevel: v.optional(
+            v.union(
+                v.literal("entry"),
+                v.literal("mid"),
+                v.literal("senior"),
+                v.literal("lead"),
+                v.literal("executive"),
+            ),
         ),
         education: v.optional(
             v.union(

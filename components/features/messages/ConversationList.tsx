@@ -83,7 +83,7 @@ export function ConversationList({
                             <div className="flex items-center space-x-3">
                                 {/* User Avatar */}
                                 <div
-                                    className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                                    className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl shrink-0"
                                     aria-hidden="true"
                                 >
                                     {userInitial}

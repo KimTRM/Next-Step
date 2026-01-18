@@ -10,7 +10,7 @@ interface JobCardProps {
         title: string;
         company: string;
         location: string;
-        employmentType: JobType;
+        employmentType?: JobType;
         jobCategory?: string;
         minSalary?: number;
         maxSalary?: number;
@@ -23,7 +23,8 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
-    const getTypeColor = (type: JobType) => {
+    const getTypeColor = (type?: JobType) => {
+        if (!type) return 'bg-gray-100 text-gray-700';
         switch (type) {
             case 'full-time':
                 return 'bg-green-100 text-green-700';
