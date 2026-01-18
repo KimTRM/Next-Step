@@ -47,7 +47,7 @@ export function MessageInput({ onSendMessage, disabled = false }: MessageInputPr
     const isSendDisabled = disabled || !messageText.trim() || isSending;
 
     return (
-        <div className="border-t p-4 bg-gradient-to-r from-blue-50/50 to-white">
+        <div className="border-t p-4 bg-linear-to-r from-blue-50/50 to-white">
             <div className="flex space-x-3">
                 <Input
                     type="text"
@@ -62,7 +62,7 @@ export function MessageInput({ onSendMessage, disabled = false }: MessageInputPr
                 <Button
                     onClick={handleSend}
                     disabled={isSendDisabled}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 shadow-sm"
+                    className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 shadow-sm"
                 >
                     {isSending ? (
                         <>

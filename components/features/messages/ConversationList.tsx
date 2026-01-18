@@ -52,7 +52,7 @@ export function ConversationList({
     if (conversations.length === 0) {
         return (
             <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
-                <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-blue-100">
+                <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
                     <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 text-center text-gray-500">
@@ -68,7 +68,7 @@ export function ConversationList({
 
     return (
         <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
-            <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-blue-100">
+            <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
                 <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
             </CardHeader>
             <CardContent className="p-0 overflow-y-auto flex-1">
@@ -88,7 +88,7 @@ export function ConversationList({
                             <div className="flex items-center space-x-3">
                                 {/* User Avatar */}
                                 <div
-                                    className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-md"
+                                    className="w-12 h-12 bg-linear-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-md"
                                     aria-hidden="true"
                                 >
                                     {userInitial}

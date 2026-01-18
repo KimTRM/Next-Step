@@ -11,7 +11,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent, CardHeader } from '@/components/ui/card';
 import { Id } from '@/convex/_generated/dataModel';
 import { timeAgo } from '@/lib/utils';
 
@@ -53,10 +53,10 @@ export function MessageThread({
     return (
         <>
             {/* Chat Header */}
-            <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-blue-100">
+            <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
                 <div className="flex items-center space-x-3">
                     <div
-                        className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shadow-md"
+                        className="w-12 h-12 bg-linear-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shadow-md"
                         aria-hidden="true"
                     >
                         {userInitial}
@@ -69,7 +69,7 @@ export function MessageThread({
             </CardHeader>
 
             {/* Messages */}
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-blue-50/20">
+            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-linear-to-br from-gray-50 to-blue-50/20">
                 {conversation === undefined ? (
                     <div className="text-center text-gray-500 py-12">
                         Loading conversation...
@@ -90,7 +90,7 @@ export function MessageThread({
                                 <div
                                     className={`max-w-md p-4 rounded-2xl shadow-sm ${
                                         isSentByCurrentUser
-                                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
+                                            ? 'bg-linear-to-br from-blue-500 to-blue-600 text-white'
                                             : 'bg-white text-gray-900 border border-gray-200'
                                     }`}
                                 >

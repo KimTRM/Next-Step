@@ -147,22 +147,16 @@ All documentation is organized in the [docs/](docs/) folder:
 
 ### Getting Started
 
-- **[CONVEX-QUICKSTART.md](docs/CONVEX-QUICKSTART.md)** - Quick setup (START HERE!)
-- **[CONVEX-CLERK-SETUP.md](docs/CONVEX-CLERK-SETUP.md)** - Complete setup guide
-- **[CLERK-QUICK-SETUP.md](docs/CLERK-QUICK-SETUP.md)** - 5-minute quick reference
+- **[SETUP-GUIDE.md](docs/SETUP-GUIDE.md)** - Complete setup guide (START HERE!)
+- **[QUICK-START.md](docs/QUICK-START.md)** - Alternative quick start
+- **[INDEX.md](docs/INDEX.md)** - Documentation navigation hub
 
-### Clerk Authentication
+### Core Documentation
 
-- **[CLERK-TESTING-GUIDE.md](docs/CLERK-TESTING-GUIDE.md)** - Test all auth flows (30+ issues documented)
-- **[CLERK-SETUP-COMPLETION.md](docs/CLERK-SETUP-COMPLETION.md)** - Implementation summary
-- **[README-CLERK.md](docs/README-CLERK.md)** - Clerk documentation index
-
-### Technical Documentation
-
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and data flow
-- **[DEVELOPER-GUIDE.md](docs/DEVELOPER-GUIDE.md)** - Development patterns
-- **[INTEGRATION-SUMMARY.md](docs/INTEGRATION-SUMMARY.md)** - Service integrations
-- **[TODO.md](docs/TODO.md)** - Feature roadmap and planned features
+- **[README.md](docs/README.md)** - Documentation overview
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and DAL pattern
+- **[DEVELOPER-GUIDE.md](docs/DEVELOPER-GUIDE.md)** - Development patterns and best practices
+- **[TODO.md](docs/TODO.md)** - Feature roadmap and status
 
 ---
 
@@ -171,57 +165,96 @@ All documentation is organized in the [docs/](docs/) folder:
 ```
 next-step/
 ├── app/                          # Next.js App Router
+│   ├── (auth)/                   # Auth routes (public)
+│   │   ├── auth/                 # Sign-in page
+│   │   └── sign-up/              # Sign-up page
 │   ├── (platform)/               # Protected routes
-│   │   ├── dashboard/            # Dashboard page
+│   │   ├── dashboard/            # Dashboard overview
 │   │   ├── profile/              # User profile
-│   │   ├── messages/             # Messaging system
-│   │   ├── opportunities/[id]/   # Job/opportunity details
-│   │   ├── jobs/[id]/            # Job detail pages
-│   │   ├── mentors/              # Mentor system
-│   │   └── applications/         # Application tracking
-│   ├── (auth)/                   # Auth routes
-│   │   ├── auth/page.tsx         # Login page
-│   │   └── sign-up/page.tsx      # Sign-up page
-│   ├── api/webhooks/clerk/       # Clerk webhook handler
+│   │   ├── messages/             # Real-time messaging
+│   │   ├── jobs/                 # Job listings
+│   │   │   └── [id]/             # Job detail pages
+│   │   ├── applications/         # Application tracking
+│   │   ├── mentors/              # Mentor directory
+│   │   │   └── [id]/             # Mentor profiles
+│   │   └── opportunities/        # All opportunities
+│   │       └── [id]/             # Opportunity details
+│   ├── api/                      # API routes
+│   │   └── webhooks/clerk/       # Clerk user sync
 │   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Landing page
 │   ├── providers.tsx             # Clerk & Convex providers
-│   └── middleware.ts             # Route protection
+│   └── globals.css               # Global styles
 │
 ├── components/
 │   ├── features/                 # Feature-specific components
-│   │   ├── opportunities/
-│   │   ├── profile/
-│   │   ├── applications/
-│   │   ├── messages/
-│   │   └── jobs/
+│   │   ├── jobs/                 # JobCard, JobList, JobFilters
+│   │   ├── applications/         # ApplicationCard, ApplicationList
+│   │   ├── messages/             # MessageThread, MessageInput, ConversationList
+│   │   ├── mentors/              # MentorCard, MentorList
+│   │   ├── opportunities/        # OpportunityCard, OpportunityList
+│   │   ├── profile/              # ProfileCard, SkillsEditor
+│   │   └── dashboard/            # StatsCard, ActivityFeed
+│   ├── landing/                  # Landing page components
+│   │   ├── Hero.tsx
+│   │   ├── Features.tsx
+│   │   └── Footer.tsx
 │   ├── layout/                   # Layout components
-│   │   ├── Header.tsx
-│   │   ├── Navbar.tsx
-│   │   └── Sidebar.tsx
+│   │   ├── Header.tsx            # Main navigation
+│   │   ├── Sidebar.tsx           # Platform sidebar
+│   │   └── Navbar.tsx            # Mobile navigation
 │   └── ui/                       # shadcn/ui components (50+)
 │
 ├── convex/                       # Real-time database (Convex)
-│   ├── schema.ts                 # Database schema
+│   ├── schema.ts                 # Database schema definitions
 │   ├── auth.config.js            # Clerk authentication config
 │   ├── users.ts                  # User queries
-│   ├── userMutations.ts          # User mutations
+│   ├── userMutations.ts          # User CRUD operations
+│   ├── jobs.ts                   # Job queries & mutations
+│   ├── jobApplications.ts        # Application operations
+│   ├── applications.ts           # Legacy application operations
+│   ├── messages.ts               # Real-time messaging
+│   ├── mentors.ts                # Mentor operations
 │   ├── opportunities.ts          # Opportunity operations
-│   ├── applications.ts           # Application operations
-│   ├── messages.ts               # Message operations
-│   └── seed.ts                   # Database seeding
+│   └── seed.ts                   # Database seeding script
 │
-├── docs/                         # Documentation (13 files)
-├── lib/                          # Utilities
+├── lib/
+│   ├── dal/                      # Data Access Layer
+│   │   ├── jobs.ts               # Jobs DAL service
+│   │   ├── applications.ts       # Applications DAL service
+│   │   └── messages.ts           # Messages DAL service
+│   ├── actions/                  # Server actions (if any)
+│   ├── constants/                # App constants
+│   ├── types.ts                  # TypeScript type definitions
+│   ├── utils.ts                  # Utility functions
+│   └── cn.ts                     # Class name utility
+│
+├── docs/                         # Documentation
+│   ├── README.md                 # Documentation overview
+│   ├── INDEX.md                  # Documentation navigation hub
+│   ├── SETUP-GUIDE.md            # Complete setup guide
+│   ├── QUICK-START.md            # Quick start guide
+│   ├── ARCHITECTURE.md           # System architecture & DAL pattern
+│   ├── DEVELOPER-GUIDE.md        # Development patterns & best practices
+│   └── TODO.md                   # Feature roadmap & status
+│
 ├── public/                       # Static assets
-├── scripts/                      # Utility scripts (env validator)
+│   └── assets/                   # Images, icons, etc.
+│
+├── scripts/                      # Utility scripts
+│   └── check-env.js              # Environment variable validator
+│
+├── middleware.ts                 # Route protection (root level)
 │
 └── Configuration Files
-    ├── .env.example
-    ├── next.config.ts
-    ├── tsconfig.json
-    ├── tailwind.config.ts
-    ├── eslint.config.mjs
-    └── package.json
+    ├── .env.local                # Environment variables (not in repo)
+    ├── .env.example              # Environment template
+    ├── next.config.ts            # Next.js configuration
+    ├── tsconfig.json             # TypeScript configuration
+    ├── tailwind.config.ts        # TailwindCSS configuration
+    ├── postcss.config.mjs        # PostCSS configuration
+    ├── eslint.config.mjs         # ESLint configuration
+    └── package.json              # Dependencies & scripts
 ```
 
 ---
@@ -408,11 +441,11 @@ MIT License - See LICENSE file for details
 6. Create an account via Clerk authentication
 7. Explore the dashboard and features
 
-See [docs/CONVEX-QUICKSTART.md](docs/CONVEX-QUICKSTART.md) for detailed setup and [docs/TODO.md](docs/TODO.md) for upcoming features.
+See [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md) for detailed setup and [docs/TODO.md](docs/TODO.md) for upcoming features.
 
 ---
 
-**Last Updated**: January 15, 2026  
+**Last Updated**: January 19, 2026  
 **Version**: 5.0 (Phase 5 - Production Ready)
 
 Built with modern serverless architecture. Production-ready foundation. Happy coding! 🚀

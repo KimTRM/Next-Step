@@ -1,255 +1,313 @@
-# 🚀 Quick Start Guide - NextStep
+# ⚡ NextStep - Quick Start Guide
 
-Welcome to the NextStep platform! This guide will help you get up and running quickly.
+**Last Updated:** January 18, 2026
 
-## 📋 What You Need to Know
+Get NextStep running in **10 minutes**!
 
-### The app follows a clean REST API architecture:
+---
 
-1. **Frontend** (`app/`) - Next.js pages with proper routing
-2. **REST API** (`app/api/`) - HTTP endpoints
-3. **Business Logic** (`server/api/`) - Pure functions
-4. **Data Layer** (`server/data/`) - Mock data (future: database)
-5. **UI Components** (`components/ui/`) - 48 shadcn/ui components
+## 🎯 Prerequisites
 
-## 🏃 Getting Started in 5 Minutes
+- **Node.js 18+** installed
+- **npm** package manager
+- **Git** installed
+- **Clerk account** (free) → [clerk.com](https://clerk.com)
+- **Convex account** (free) → [convex.dev](https://convex.dev)
 
-### 1. Understand the Structure (2 min)
+---
 
-```
-app/              → Pages & API routes
-  ├─ page.tsx     → Landing page (/)
-  ├─ jobs/        → Jobs page (/jobs)
-  ├─ api/         → REST API endpoints
-components/       → UI components
-server/api/       → Business logic
-server/data/      → Mock data
-```
+## 🚀 Setup Steps
 
-### 2. How Navigation Works (1 min)
+### 1. Clone & Install
 
-Next.js **file-based routing**:
-
-```
-app/jobs/page.tsx     → URL: /jobs
-app/profile/page.tsx  → URL: /profile
+```bash
+git clone <repository-url>
+cd next-step
+npm install
 ```
 
-Navigation:
+### 2. Get Clerk Keys
 
-```tsx
-import Link from "next/link";
-<Link href="/jobs">View Jobs</Link>;
+1. Go to [clerk.com/dashboard](https://dashboard.clerk.com)
+2. Create a new application (or use existing)
+3. Go to **API Keys** section
+4. Copy:
+    - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+    - `CLERK_SECRET_KEY`
+
+**Important:** Configure JWT Template named "convex"
+
+- Go to **JWT Templates** in Clerk dashboard
+- Click **New Template**
+- Name it: `convex`
+- Save
+
+### 3. Get Convex Keys
+
+```bash
+# Run this command (will open browser)
+npx convex dev
 ```
 
-| I want to...    | Go to...              |
-| --------------- | --------------------- |
-| Change a page   | `app/[page]/page.tsx` |
-| Add a component | `components/`         |
-| Modify database | `convex/*.ts`         |
-| Update types    | `lib/types.ts`        |
-| Add webhook     | `app/api/webhooks/`   |
+This will:
 
-### 3. Make Your First Change (2 min)
+- Create a Convex project
+- Generate `NEXT_PUBLIC_CONVEX_URL`
+- Set up `convex/` directory
 
-**Example: Query users in a component**
+### 4. Configure Environment
 
-```typescript
-// In any React component
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+Create `.env.local`:
 
-export default function MyComponent() {
-    const users = useQuery(api.users.getUsers);
-
-    return (
-        <div>
-            {users?.map(user => (
-                <div key={user._id}>{user.name}</div>
-            ))}
-        </div>
-    );
-}
+```bash
+# .env.local
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+CLERK_SECRET_KEY=sk_test_your_key_here
 ```
 
-## 🎯 Common Tasks
+### 5. Configure Convex Auth
 
-### Task 1: Add a New Page
+Update `convex/auth.config.js`:
 
-```typescript
-// 1. Create file: app/my-page/page.tsx
-export default function MyPage() {
-    return <div>My New Page</div>;
-}
-
-// 2. Access at: http://localhost:3000/my-page
+```javascript
+export default {
+    providers: [
+        {
+            domain:
+                process.env.CLERK_DOMAIN ||
+                "https://your-domain.clerk.accounts.dev",
+            applicationID: "convex",
+        },
+    ],
+};
 ```
 
-### Task 2: Add a Database Mutation
+**Get your Clerk domain:**
 
-```typescript
-// 1. Add to convex/myfeature.ts
-import { mutation } from "./_generated/server";
-import { v } from "convex/values";
+- In Clerk Dashboard → Settings → General
+- Copy the "Frontend API" URL
 
-export const createItem = mutation({
-    args: { name: v.string() },
-    handler: async (ctx, args) => {
-        const itemId = await ctx.db.insert("items", { name: args.name });
-        return itemId;
-    },
-});
+### 6. Start Development
 
-// 2. Use in component
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+**Terminal 1 - Convex:**
 
-const createItem = useMutation(api.myfeature.createItem);
-await createItem({ name: "My Item" });
+```bash
+npm run convex:dev
 ```
 
-### Task 3: Query Data in a Component
+**Terminal 2 - Next.js:**
 
-```typescript
-// Use Convex real-time queries
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-
-export default function MyComponent() {
-  const opportunities = useQuery(api.opportunities.getOpportunities);
-
-  if (!opportunities) return <div>Loading...</div>;
-
-  return (
-    <div>
-      {opportunities.map(opp => (
-        <div key={opp._id}>{opp.title}</div>
-      ))}
-    </div>
-  );
-}
+```bash
+npm run dev
 ```
 
-## 📖 Documentation
+### 7. Open Browser
 
-### For Quick Reference
+Visit: **http://localhost:3000**
 
-- **This file** - Quick start and common tasks
-- **README.md** - Project overview and setup
+---
 
-### For Deep Dives
+## ✅ Verify Setup
 
-- **ARCHITECTURE.md** - Complete architecture explanation
-- **DEVELOPER-GUIDE.md** - Development workflow and patterns
-- **TODO.md** - Feature roadmap
+### Test Authentication
 
-## 💡 Pro Tips
+1. Click "Sign In" or "Sign Up"
+2. Create an account
+3. Should redirect to dashboard
 
-### Tip 1: Use Convex Real-Time Queries
+### Test Jobs Feature
 
-```typescript
-// ✅ Automatically updates when data changes
-const users = useQuery(api.users.getUsers);
+1. Navigate to `/jobs`
+2. Should see job listings
+3. Try search and filters
 
-// No need for manual refetching!
-```
+### Test Messages
 
-### Tip 2: Mutations for Data Changes
+1. Navigate to `/messages`
+2. Should see messaging interface
+3. Requires at least 2 users to test
 
-```typescript
-// ✅ Use mutations for all data modifications
-const updateProfile = useMutation(api.userMutations.updateUser);
-await updateProfile({ userId, ...updates });
-```
-
-### Tip 3: Check Existing Examples
-
-Before creating something new, look at existing files:
-
-- Need to add a query? Look at `convex/users.ts`
-- Need to add a mutation? Look at `convex/userMutations.ts`
-- Need to add a page? Look at `app/dashboard/page.tsx`
-- Need to use auth? Look at `app/profile/page.tsx`
+---
 
 ## 🐛 Troubleshooting
 
-### "Cannot find module '@/convex/\_generated/api'"
+### "Unauthorized" on API calls
 
-- Make sure Convex is running: `npm run convex:dev`
-- Check that code generation completed successfully
+**Problem:** Clerk JWT template not configured
 
-### "useQuery is not a function"
+**Solution:**
 
-- Ensure component is wrapped in ConvexProvider (check `app/providers.tsx`)
-- Make sure you're using `"use client"` directive in client components
+1. Go to Clerk Dashboard → JWT Templates
+2. Create template named "convex"
+3. Restart dev server
 
-- Client components (with `'use client'`) must use API calls
-- Server components can import data directly
+### Convex auth not working
 
-### "Where do I put my code?"
+**Problem:** Wrong domain in `auth.config.js`
 
-1. Data? → `server/data/`
-2. Logic? → `server/api/`
-3. HTTP? → `app/api/`
-4. UI? → `app/` or `components/`
-5. Types? → `lib/types.ts`
-6. Utils? → `lib/utils.ts`
+**Solution:**
 
-## 🎓 Learning Path
+1. Check Clerk Dashboard → Settings → General
+2. Copy exact "Frontend API" URL
+3. Update `convex/auth.config.js`
+4. Run `npx convex dev` again
 
-### Authentication errors
+### Build errors
 
-- Verify Clerk keys in `.env.local`
-- Check webhook configuration
-- Ensure user is signed in before accessing protected data
+**Problem:** TypeScript type errors
 
-## 📅 Learning Path
+**Solution:**
 
-### Day 1: Setup & Basics
+```bash
+npm run type-check
+# Fix any errors shown
+npm run build
+```
 
-1. Read this guide ✓
-2. Set up Convex + Clerk (see CONVEX-QUICKSTART.md)
-3. Browse the `convex/` folder
-4. Make a test query in a component
+### Module not found
 
-### Day 2: Understanding
+**Problem:** Missing dependencies
 
-1. Read ARCHITECTURE.md
-2. Trace data flow from UI to database
-3. Try creating a simple mutation
-4. Explore the dashboard page implementation
+**Solution:**
 
-### Day 3: Building
-
-1. Add a new feature
-2. Follow the examples in DEVELOPER-GUIDE.md
-3. Use TypeScript types effectively
-4. Test your changes
-
-## 🚀 Ready to Code?
-
-You now know:
-
-- ✅ How the project is structured
-- ✅ Where to find things
-- ✅ How to make common changes
-- ✅ Where to get more help
-
-**Start coding and refer to the docs when needed!**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ---
 
-## 📚 Quick Links
+## 📁 Project Structure
 
-- [../README.md](../README.md) - Project overview
-- [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed architecture
-- [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) - Development guide
-- [TODO.md](TODO.md) - What to build next
-- [Convex Docs](https://docs.convex.dev/) - Database documentation
-- [Clerk Docs](https://clerk.com/docs) - Authentication documentation
+```
+next-step/
+├── app/                    # Pages & API routes
+│   ├── (platform)/        # Protected pages
+│   │   ├── jobs/          # ✅ Jobs feature
+│   │   ├── applications/  # ✅ Applications
+│   │   ├── messages/      # ✅ Messages
+│   │   └── ...
+│   └── api/               # API routes
+│       ├── jobs/
+│       ├── applications/
+│       └── messages/
+├── components/            # React components
+│   ├── ui/               # shadcn/ui
+│   ├── layout/           # Header, Sidebar
+│   └── features/         # Feature components
+├── convex/               # Backend (Convex)
+│   ├── schema.ts
+│   ├── jobs.ts
+│   ├── messages.ts
+│   └── ...
+├── lib/                  # Utilities
+│   └── dal/             # Data Access Layer
+│       ├── types/
+│       └── server/
+└── proxy.ts             # Auth middleware
+```
 
 ---
 
-**Questions?** Check the documentation or the inline code comments!
+## 🎨 Features Available
 
-**Happy coding!** 🎉
+### ✅ Complete
+
+- **Jobs:** Search, filter, view details, apply
+- **Applications:** Track status, update, view details
+- **Messages:** Real-time chat, conversations
+- **Auth:** Sign in/up, protected routes
+
+### 🟡 Partial
+
+- **Mentors:** Some functionality
+- **Profile:** Basic features
+
+### ⚪ Coming Soon
+
+- **Opportunities:** Learning opportunities
+- **Dashboard:** Analytics and insights
+
+---
+
+## 🔧 Common Commands
+
+```bash
+# Development
+npm run dev              # Start Next.js
+npm run convex:dev       # Start Convex
+
+# Building
+npm run build            # Production build
+npm run type-check       # Check types
+npm run lint             # Lint code
+
+# Convex
+npx convex dev           # Interactive dev
+npx convex deploy        # Deploy to production
+npx convex dashboard     # Open Convex dashboard
+```
+
+---
+
+## 📚 Next Steps
+
+### Learn the Codebase
+
+1. **Read** [ARCHITECTURE.md](ARCHITECTURE.md) - Understand system design
+2. **Study** [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) - Learn patterns
+3. **Explore** `app/(platform)/jobs/` - See complete feature
+
+### Try Development
+
+1. **Find** a small feature to add
+2. **Follow** the DAL pattern (types → DAL → API → component)
+3. **Test** your changes
+4. **Submit** a pull request
+
+### Explore Features
+
+- Test job search and application
+- Try messaging between users
+- Check out application tracking
+- Explore profile settings
+
+---
+
+## 🆘 Need Help?
+
+### Documentation
+
+- [README.md](README.md) - Main documentation index
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
+- [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) - Development patterns
+
+### External Resources
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [Convex Docs](https://docs.convex.dev)
+- [Clerk Docs](https://clerk.com/docs)
+
+### Common Issues
+
+- Check [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) for troubleshooting
+- Search existing issues in repository
+- Create new issue with details
+
+---
+
+## 🎉 You're Ready!
+
+Your development environment is now set up. Start exploring the codebase and building features!
+
+**Remember:**
+
+- Keep both terminals running (Convex + Next.js)
+- Changes auto-reload
+- Check browser console for errors
+- Have fun coding!
+
+---
+
+**Last Updated:** January 18, 2026

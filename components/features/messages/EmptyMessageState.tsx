@@ -8,7 +8,7 @@
 
 export function EmptyMessageState() {
     return (
-        <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-blue-50/20">
+        <div className="flex items-center justify-center h-full bg-linear-to-br from-gray-50 to-blue-50/20">
             <div className="text-center px-6 py-12">
                 <div className="text-7xl mb-6">💬</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No Conversation Selected</h3>

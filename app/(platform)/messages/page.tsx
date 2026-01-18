@@ -184,7 +184,7 @@ export default function MessagesPage() {
     // Loading state with skeleton
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="mb-8">
                         <Skeleton className="h-10 w-64 mb-2" />
@@ -206,7 +206,7 @@ export default function MessagesPage() {
     // Auth check
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <Card className="shadow-lg">
                         <CardContent className="text-center py-12">
@@ -220,7 +220,7 @@ export default function MessagesPage() {
 
     if (!currentUser) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <Card className="shadow-lg">
                         <CardContent className="text-center py-12">
@@ -276,7 +276,7 @@ export default function MessagesPage() {
     const totalUnread = conversationPartners.reduce((sum, p) => sum + p.unreadCount, 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+        <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Header */}
                 <div className="mb-8">
