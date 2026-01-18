@@ -4,6 +4,24 @@ Welcome to the **NextStep** documentation! This index helps you find the right g
 
 ## 🚀 Quick Navigation
 
+### 🎯 MVP Development (NEW!)
+
+**Start here if you're ready to build the NextStep MVP**
+
+| Guide                                 | Time   | Purpose                                  |
+| ------------------------------------- | ------ | ---------------------------------------- |
+| [MVP Quick Start](QUICK-START-MVP.md) | 5 min  | Get started with MVP development         |
+| [MVP Plan](MVP-PLAN.md)               | 15 min | Complete 2-3 week development roadmap    |
+| [GitHub Issues](GITHUB-ISSUES.md)     | 10 min | All 23 issues with detailed descriptions |
+
+**→ Ready to build?**
+
+- **Start here** → [QUICK-START-MVP.md](QUICK-START-MVP.md)
+- **See full plan** → [MVP-PLAN.md](MVP-PLAN.md)
+- **Create issues** → Run `/scripts/create-github-issues.ps1`
+
+---
+
 ### Getting Started (New Users)
 
 **Start here if you're setting up the project for the first time**

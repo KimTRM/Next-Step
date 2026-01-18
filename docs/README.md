@@ -2,7 +2,30 @@
 
 Welcome to the **NextStep** documentation!
 
+## � **NEW! MVP Development Plan Available**
+
+**Ready to build NextStep in 2-3 weeks?** We've created a complete development plan!
+
+### 🎯 Start Building Now:
+
+- **[⚡ Quick Start Guide](QUICK-START-MVP.md)** - Get started in 5 minutes
+- **[📋 Complete MVP Plan](MVP-PLAN.md)** - 21-day detailed roadmap
+- **[🎫 GitHub Issues](GITHUB-ISSUES.md)** - All 23 issues ready to create
+- **[✅ Week-by-Week Checklist](CHECKLIST.md)** - Track your progress
+- **[📊 Visual Timeline](MVP-TIMELINE-VISUAL.md)** - See the big picture
+- **[📦 Complete Summary](SUMMARY.md)** - Everything you need to know
+
+### 🤖 Create Issues Automatically:
+
+```powershell
+.\scripts\create-github-issues.ps1
+```
+
+---
+
 ## 👉 Quick Links
+
+### 📖 Documentation
 
 - **[📖 Documentation Index](INDEX.md)** - Find the right guide for your needs
 - **[⚡ Quick Setup](CLERK-QUICK-SETUP.md)** - Get running in 5 minutes
@@ -11,23 +34,29 @@ Welcome to the **NextStep** documentation!
 - **[🏗️ Architecture](ARCHITECTURE.md)** - System design overview
 - **[📋 Developer Guide](DEVELOPER-GUIDE.md)** - Development patterns
 
+---
+
 ## 🎯 Choose Your Path
 
-### Getting Started?
+### 🚀 Ready to Build the MVP?
 
-→ **[Start with Quick Setup (5 min)](CLERK-QUICK-SETUP.md)** or **[Complete Setup (30 min)](CONVEX-CLERK-SETUP.md)**
+→ **[Start with MVP Quick Start](QUICK-START-MVP.md)** - Your complete 2-3 week plan
 
-### Need Detailed Docs?
+### 🔧 Setting Up the Project?
+
+→ **[Quick Setup (5 min)](CLERK-QUICK-SETUP.md)** or **[Complete Setup (30 min)](CONVEX-CLERK-SETUP.md)**
+
+### 📚 Need Detailed Docs?
 
 → **[Read the Documentation Index](INDEX.md)** - organized by role and use case
 
-### Troubleshooting?
+### 🐛 Troubleshooting?
 
 → **[See Testing Guide](CLERK-TESTING-GUIDE.md)** - 30+ documented issues and solutions
 
-### Understanding Architecture?
+### 🏗️ Understanding Architecture?
 
-→ **[Read System Architecture](ARCHITECTURE.md)** + **[Integration Summary](INTEGRATION-SUMMARY.md)**
+→ **[Read System Architecture](ARCHITECTURE.md)** - System design overview
 
 ## 📚 All Documentation
 
