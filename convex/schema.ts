@@ -257,24 +257,89 @@ export default defineSchema({
 
     /**
      * Mentors Collection
-     * Mentor profiles with expertise and availability
+     * Comprehensive mentor profiles with expertise, availability, and verification
+     *
+     * Indexes:
+     * - by_user_id: Link mentor profile to user account
+     * - by_rating: Sort by rating for top mentors
+     * - by_is_verified: Filter verified mentors
+     * - by_expertise: Match mentors by skills/expertise
+     * - by_hourlyRate: Filter by price range
+     * - by_rating_verified: Compound index for verified mentors sorted by rating
      */
     mentors: defineTable({
-        userId: v.id("users"), // Reference to user account
-        role: v.string(), // Professional role
+        // User Reference
+        userId: v.id("users"),
+
+        // Professional Information
+        role: v.string(), // Current role/title
         company: v.string(),
+        currentPosition: v.optional(v.string()), // More specific than role
+        yearsOfExperience: v.optional(v.number()), // Numeric value for better filtering (TEMPORARILY optional for old data)
+        industry: v.optional(v.string()),
+
+        // Profile & Bio
+        bio: v.string(), // Short bio (200 chars)
+        longBio: v.optional(v.string()), // Detailed background (1000+ chars)
+        profileImageUrl: v.optional(v.string()),
+        tagline: v.optional(v.string()), // One-liner value proposition
+
+        // Location & Timezone
         location: v.string(),
-        expertise: v.array(v.string()),
-        experience: v.string(), // e.g., "8 years"
-        rating: v.number(),
-        mentees: v.number(), // Number of current mentees
-        bio: v.string(),
-        availability: v.string(),
+        timezone: v.optional(v.string()), // e.g., "Asia/Manila", "America/New_York"
+        isRemoteOnly: v.optional(v.boolean()),
+
+        // Expertise & Skills
+        expertise: v.array(v.string()), // Primary areas
+        specializations: v.optional(v.array(v.string())), // More specific skills
+        languages: v.optional(v.array(v.string())), // e.g., ["English", "Filipino", "Spanish"]
+
+        // Availability
+        availability: v.string(), // Human-readable (e.g., "Weekends")
+        availableDays: v.optional(v.array(v.string())), // ["monday", "wednesday", "friday"]
+        availableTimeSlots: v.optional(v.array(v.string())), // ["morning", "evening"]
+
+        // Pricing
+        hourlyRate: v.optional(v.number()),
+        currency: v.optional(v.string()), // e.g., "USD", "PHP"
+        offersFreeSession: v.optional(v.boolean()),
+
+        // Metrics & Performance
+        rating: v.number(), // Average rating (0-5)
+        totalReviews: v.optional(v.number()), // Number of reviews
+        mentees: v.number(), // Current active mentees
+        sessionsCompleted: v.optional(v.number()),
+        responseTime: v.optional(v.string()), // e.g., "within 24 hours"
+        acceptanceRate: v.optional(v.number()), // % of requests accepted
+
+        // Verification & Status
         isVerified: v.boolean(),
+        verifiedAt: v.optional(v.number()), // Unix timestamp
+        isAvailableForNewMentees: v.optional(v.boolean()),
+        maxMentees: v.optional(v.number()), // Capacity limit
+
+        // Social Links
+        linkedInUrl: v.optional(v.string()),
+        githubUrl: v.optional(v.string()),
+        portfolioUrl: v.optional(v.string()),
+        twitterUrl: v.optional(v.string()),
+
+        // Mentorship Style
+        mentoringStyle: v.optional(v.array(v.string())), // ["hands-on", "advisory", "career-coaching"]
+        focusAreas: v.optional(v.array(v.string())), // ["career-transition", "skill-building", "interview-prep"]
+
+        // Metadata
+        createdAt: v.optional(v.number()), // TEMPORARILY optional for old data
+        updatedAt: v.optional(v.number()),
+        lastActiveAt: v.optional(v.number()),
     })
         .index("by_user_id", ["userId"])
         .index("by_rating", ["rating"])
-        .index("by_is_verified", ["isVerified"]),
+        .index("by_is_verified", ["isVerified"])
+        .index("by_expertise", ["expertise"])
+        .index("by_hourlyRate", ["hourlyRate"])
+        .index("by_rating_verified", ["isVerified", "rating"])
+        .index("by_yearsOfExperience", ["yearsOfExperience"]),
 
     /**
      * Job Applications Collection

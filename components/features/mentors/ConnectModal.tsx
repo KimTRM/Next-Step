@@ -10,18 +10,15 @@ type MentorWithUser = {
     company: string;
     location: string;
     expertise: string[];
-    experience: string;
+    yearsOfExperience?: number;
     rating: number;
     mentees: number;
     bio: string;
     availability: string;
     isVerified: boolean;
-    user?: {
-        _id: Id<'users'>;
-        name: string;
-        email: string;
-        profileImage?: string;
-    };
+    name: string;
+    email?: string;
+    avatarUrl?: string;
 };
 
 interface ConnectModalProps {
@@ -34,14 +31,14 @@ export function ConnectModal({ mentor, onClose }: ConnectModalProps) {
 
     const handleSubmit = () => {
         // TODO: Implement sending connection request
-        console.log('Sending connection request to', mentor.user?.name, 'with message:', message);
+        console.log('Sending connection request to', mentor.name, 'with message:', message);
         onClose();
     };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-md w-full p-6">
-                <h3 className="mb-4">Connect with {mentor.user?.name || 'Mentor'}</h3>
+                <h3 className="mb-4">Connect with {mentor.name}</h3>
                 <p className="text-sm text-muted-foreground mb-6">
                     Send a message to introduce yourself and explain what kind of guidance you're looking for.
                 </p>

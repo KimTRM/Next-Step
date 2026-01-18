@@ -10,7 +10,7 @@ import { MentorFilters } from '@/components/features/mentors/MentorFilters';
 import { ConnectModal } from '@/components/features/mentors/ConnectModal';
 import { EmptyMentorState } from '@/components/features/mentors/EmptyMentorState';
 
-// Extended Mentor type from Convex
+// Extended Mentor type from Convex queries (enriched with user data)
 type MentorWithUser = {
   _id: Id<'mentors'>;
   _creationTime: number;
@@ -19,18 +19,24 @@ type MentorWithUser = {
   company: string;
   location: string;
   expertise: string[];
-  experience: string;
+  yearsOfExperience?: number;
   rating: number;
   mentees: number;
   bio: string;
+  tagline?: string;
   availability: string;
   isVerified: boolean;
-  user?: {
-    _id: Id<'users'>;
-    name: string;
-    email: string;
-    profileImage?: string;
-  };
+  hourlyRate?: number;
+  currency?: string;
+  offersFreeSession?: boolean;
+  totalReviews?: number;
+  sessionsCompleted?: number;
+  specializations?: string[];
+  isAvailableForNewMentees?: boolean;
+  // Enriched user data from queries
+  name: string;
+  email?: string;
+  avatarUrl?: string;
 };
 
 export function MentorsPageContent() {
@@ -83,14 +89,21 @@ export function MentorsPageContent() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {mentors.map((mentor) => (
-              <MentorCard key={mentor._id} mentor={mentor} onConnect={setSelectedMentor} />
+              <MentorCard
+                key={mentor._id}
+                mentor={mentor as MentorWithUser}
+                onConnect={setSelectedMentor}
+              />
             ))}
           </div>
         )}
 
         {/* Connection Modal */}
         {selectedMentor && (
-          <ConnectModal mentor={selectedMentor} onClose={() => setSelectedMentor(null)} />
+          <ConnectModal
+            mentor={selectedMentor as MentorWithUser}
+            onClose={() => setSelectedMentor(null)}
+          />
         )}
       </div>
     </div>
