@@ -192,22 +192,24 @@ export const searchJobs = query({
         if (args.skills && args.skills.length > 0) {
             const skillsLower = args.skills.map((s) => s.toLowerCase());
 
-            jobs = jobs
-                .map((job) => {
-                    const jobSkillsLower = (job.requiredSkills || []).map((s) =>
-                        s.toLowerCase(),
-                    );
-                    const matchCount = skillsLower.filter((skill) =>
-                        jobSkillsLower.includes(skill),
-                    ).length;
+            const jobsWithScores = jobs.map((job) => {
+                const jobSkillsLower = (job.requiredSkills || []).map((s) =>
+                    s.toLowerCase(),
+                );
+                const matchCount = skillsLower.filter((skill) =>
+                    jobSkillsLower.includes(skill),
+                ).length;
 
-                    return {
-                        ...job,
-                        matchScore: matchCount,
-                    };
-                })
-                .filter((job) => job.matchScore > 0)
-                .sort((a, b) => b.matchScore - a.matchScore);
+                return {
+                    job,
+                    matchScore: matchCount,
+                };
+            });
+
+            jobs = jobsWithScores
+                .filter((item) => item.matchScore > 0)
+                .sort((a, b) => b.matchScore - a.matchScore)
+                .map((item) => item.job);
         } else {
             // Sort by posted date (newest first) if no skills filter
             jobs.sort((a, b) => b.postedDate - a.postedDate);
@@ -218,7 +220,26 @@ export const searchJobs = query({
             jobs = jobs.slice(0, args.limit);
         }
 
-        return jobs;
+        // Fetch poster information for each job
+        const jobsWithPosters = await Promise.all(
+            jobs.map(async (job) => {
+                const poster = await ctx.db.get(job.postedBy);
+                return {
+                    ...job,
+                    poster:
+                        poster ?
+                            {
+                                _id: poster._id,
+                                name: poster.name,
+                                role: poster.role,
+                                avatarUrl: poster.avatarUrl,
+                            }
+                        :   null,
+                };
+            }),
+        );
+
+        return jobsWithPosters;
     },
 });
 

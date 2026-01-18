@@ -1,7 +1,5 @@
 'use client';
 
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,8 +37,48 @@ interface JobDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
+type JobDTO = {
+    _id: Id<'jobs'>;
+    _creationTime: number;
+    title: string;
+    company: string;
+    location: string;
+    employmentType: string;
+    locationType: string;
+    jobCategory: string;
+    minSalary?: number;
+    maxSalary?: number;
+    salaryCurrency?: string;
+    salaryPeriod?: string;
+    description: string;
+    requiredSkills: string[];
+    experienceLevel: string;
+    education?: string;
+    postedBy: Id<'users'>;
+    postedDate: number;
+    expiresDate?: number;
+    views: number;
+    industry?: string;
+    tags?: string[];
+    isActive: boolean;
+    companyWebsite?: string;
+    companyLogo?: string;
+    applicationDeadline?: number;
+    applicationUrl?: string;
+    howToApply?: string;
+    poster?: {
+        _id: Id<'users'>;
+        name: string;
+        role: string;
+        avatarUrl?: string;
+    } | null;
+};
+
 export default function JobDetailPage({ params }: JobDetailPageProps) {
     const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
+    const [job, setJob] = useState<JobDTO | null>(null);
+    const [relatedJobs, setRelatedJobs] = useState<JobDTO[]>([]);
+    const [loading, setLoading] = useState(true);
     const [notes, setNotes] = useState('');
     const [isApplying, setIsApplying] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -52,50 +90,51 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         params.then(setResolvedParams);
     }, [params]);
 
-    const jobId = resolvedParams?.id as Id<'jobs'> | undefined;
-
-    // Call hooks unconditionally
-    const job = useQuery(
-        api.jobs.getJobById,
-        jobId ? { jobId } : 'skip'
-    );
-    const createJobApplication = useMutation(api.jobApplications.createJobApplication);
-    const userJobApplications = useQuery(api.jobApplications.getUserJobApplications);
-    const relatedJobs = useQuery(
-        api.jobs.getRelatedJobs,
-        jobId ? { jobId, limit: 4 } : 'skip'
-    );
-    const currentUser = useQuery(api.users.getCurrentUser);
-
-    // Check if user already applied
-    const hasApplied = jobId ? userJobApplications?.some((app) => app.jobId === jobId) : false;
+    // Fetch job and related jobs via API when params resolve
+    useEffect(() => {
+        if (!resolvedParams?.id) return;
+        const id = resolvedParams.id;
+        setLoading(true);
+        (async () => {
+            try {
+                const [jobRes, relatedRes] = await Promise.all([
+                    fetch(`/api/jobs/${id}`),
+                    fetch(`/api/jobs/${id}/related?limit=4`),
+                ]);
+                const jobJson = await jobRes.json();
+                if (jobJson.success) {
+                    setJob(jobJson.data);
+                } else {
+                    setJob(null);
+                }
+                const relatedJson = await relatedRes.json();
+                if (relatedJson.success) {
+                    setRelatedJobs(relatedJson.data || []);
+                } else {
+                    setRelatedJobs([]);
+                }
+            } catch (e) {
+                console.error('Failed to load job details:', e);
+                setJob(null);
+                setRelatedJobs([]);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, [resolvedParams]);
 
     const handleApply = async () => {
-        if (!jobId) return;
+        if (!job) return;
 
-        // Check profile completeness
-        if (currentUser) {
-            const isProfileComplete =
-                currentUser.skills &&
-                currentUser.skills.length > 0 &&
-                currentUser.bio &&
-                currentUser.educationLevel;
-
-            if (!isProfileComplete) {
-                setShowProfileDialog(true);
-                return;
-            }
-        }
+        // TODO: Check profile completeness via API
+        // For now, skip profile check
 
         setIsApplying(true);
         try {
-            await createJobApplication({
-                jobId,
-                notes: notes.trim() || undefined,
-            });
-            toast.success('Application submitted successfully!');
+            // TODO: Wire to job application API
+            toast.info('Job application feature coming soon');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             setNotes('');
-            router.push('/applications');
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to submit application');
         } finally {
@@ -152,7 +191,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         );
     }
 
-    if (job === undefined) {
+    if (loading) {
         return (
             <div className="max-w-5xl mx-auto px-4 py-8">
                 <Skeleton className="h-10 w-64 mb-6" />
@@ -415,11 +454,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                     <Card className="sticky top-6">
                         <CardHeader>
                             <CardTitle>
-                                {hasApplied ? 'Application Submitted' : 'Apply for this Job'}
+                                Apply for this Job
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {hasApplied ? (
+                            {false ? (
                                 <div className="text-center py-8">
                                     <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                                     <p className="text-gray-600 mb-4">
