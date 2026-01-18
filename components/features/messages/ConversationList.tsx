@@ -51,21 +51,25 @@ export function ConversationList({
 }: ConversationListProps) {
     if (conversations.length === 0) {
         return (
-            <Card className="lg:col-span-1 overflow-hidden flex flex-col">
-                <CardHeader className="border-b">
-                    <CardTitle>Conversations</CardTitle>
+            <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
+                <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
+                    <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 text-center text-gray-500">
-                    No conversations yet. Send a message to start chatting!
+                    <div className="py-8">
+                        <div className="text-4xl mb-3">💬</div>
+                        <p className="text-base">No conversations yet.</p>
+                        <p className="text-sm mt-2">Send a message to start chatting!</p>
+                    </div>
                 </CardContent>
             </Card>
         );
     }
 
     return (
-        <Card className="lg:col-span-1 overflow-hidden flex flex-col">
-            <CardHeader className="border-b">
-                <CardTitle>Conversations</CardTitle>
+        <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
+            <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
+                <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
             </CardHeader>
             <CardContent className="p-0 overflow-y-auto flex-1">
                 {conversations.map((partner) => {
@@ -76,14 +80,15 @@ export function ConversationList({
                         <button
                             key={partner.userId}
                             onClick={() => onSelectConversation(partner.userId)}
-                            className={`w-full p-4 border-b hover:bg-gray-50 text-left transition-colors ${isSelected ? 'bg-green-50 border-l-4 border-l-green-600' : ''
-                                }`}
+                            className={`w-full p-4 border-b hover:bg-blue-50 text-left transition-all duration-200 ${
+                                isSelected ? 'bg-blue-50 border-l-4 border-l-blue-600 shadow-sm' : ''
+                            }`}
                             aria-label={`Conversation with ${partner.user.name}`}
                         >
                             <div className="flex items-center space-x-3">
                                 {/* User Avatar */}
                                 <div
-                                    className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                                    className="w-12 h-12 bg-linear-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-md"
                                     aria-hidden="true"
                                 >
                                     {userInitial}
@@ -96,7 +101,7 @@ export function ConversationList({
                                             {partner.user.name}
                                         </p>
                                         {partner.unreadCount > 0 && (
-                                            <Badge variant="destructive" className="ml-2">
+                                            <Badge variant="destructive" className="ml-2 text-xs">
                                                 {partner.unreadCount}
                                             </Badge>
                                         )}

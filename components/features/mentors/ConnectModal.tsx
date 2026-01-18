@@ -2,68 +2,86 @@ import { Send } from 'lucide-react';
 import { useState } from 'react';
 import type { Id } from '@/convex/_generated/dataModel';
 
-type MentorWithUser = {
+type MentorBasic = {
     _id: Id<'mentors'>;
-    _creationTime: number;
-    userId: Id<'users'>;
-    role: string;
-    company: string;
-    location: string;
-    expertise: string[];
-    experience: string;
-    rating: number;
-    mentees: number;
-    bio: string;
-    availability: string;
-    isVerified: boolean;
-    user?: {
-        _id: Id<'users'>;
-        name: string;
-        email: string;
-        profileImage?: string;
-    };
+    name: string;
 };
 
 interface ConnectModalProps {
-    mentor: MentorWithUser;
+    mentor: MentorBasic;
     onClose: () => void;
 }
 
 export function ConnectModal({ mentor, onClose }: ConnectModalProps) {
     const [message, setMessage] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [sent, setSent] = useState(false);
 
-    const handleSubmit = () => {
-        // TODO: Implement sending connection request
-        console.log('Sending connection request to', mentor.user?.name, 'with message:', message);
-        onClose();
+    const handleSubmit = async () => {
+        const trimmed = message.trim();
+        if (!trimmed) {
+            setError('Please add a short message.');
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            setError('');
+            const res = await fetch('/api/mentors/connect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mentorId: mentor._id, message: trimmed }),
+            });
+            const json = await res.json();
+            if (!res.ok || !json.success) {
+                throw new Error(json?.error?.message || 'Failed to send request');
+            }
+            setSent(true);
+            setTimeout(() => onClose(), 1200);
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Failed to send request';
+            setError(msg);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl max-w-md w-full p-6">
-                <h3 className="mb-4">Connect with {mentor.user?.name || 'Mentor'}</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                    Send a message to introduce yourself and explain what kind of guidance you're looking for.
+                <h3 className="mb-2">Connect with {mentor.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                    Send a message to introduce yourself and explain what kind of guidance you&apos;re looking for.
                 </p>
                 <textarea
                     placeholder="Hi, I'm a fresh graduate interested in..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-4 h-32 resize-none"
+                    disabled={submitting || sent}
+                    className="w-full px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-3 h-32 resize-none disabled:opacity-60"
                 />
+                {error && (
+                    <p className="text-sm text-destructive mb-3">{error}</p>
+                )}
+                {sent && (
+                    <p className="text-sm text-emerald-600 mb-3">Request sent!</p>
+                )}
                 <div className="flex gap-2">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                        disabled={submitting}
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-60"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                        disabled={submitting || sent}
+                        className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                         <Send className="h-4 w-4" />
-                        Send Request
+                        {submitting ? 'Sending…' : sent ? 'Sent' : 'Send Request'}
                     </button>
                 </div>
             </div>

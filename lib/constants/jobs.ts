@@ -1,4 +1,9 @@
-export type JobType = "full-time" | "part-time" | "internship" | "contract";
+export type JobType =
+    | "full-time"
+    | "part-time"
+    | "internship"
+    | "contract"
+    | "temporary";
 
 export const JOB_CATEGORIES = [
     "all",
@@ -16,4 +21,5 @@ export const JOB_TYPES: JobType[] = [
     "part-time",
     "internship",
     "contract",
+    "temporary",
 ];

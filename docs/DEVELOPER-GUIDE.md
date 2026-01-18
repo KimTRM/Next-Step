@@ -1,33 +1,37 @@
-# 🚀 NextStep Platform - Developer Guide
+# 🚀 NextStep - Developer Guide
 
-## 📖 Table of Contents
+**Last Updated:** January 18, 2026
+
+## 📋 Table of Contents
 
 - [Quick Start](#quick-start)
-- [Architecture Overview](#architecture-overview)
-- [Project Structure](#project-structure)
-- [Development Workflow](#development-workflow)
-- [Convex Integration](#convex-integration)
-- [Clerk Authentication](#clerk-authentication)
-- [Adding New Features](#adding-new-features)
+- [Development Setup](#development-setup)
+- [Architecture Patterns](#architecture-patterns)
+- [Feature Development](#feature-development)
+- [API Development](#api-development)
+- [Component Development](#component-development)
+- [Database Operations](#database-operations)
+- [Testing](#testing)
+- [Best Practices](#best-practices)
 
 ---
 
 ## ⚡ Quick Start
 
 ```bash
-# 1. Install dependencies
+# 1. Clone and install
+git clone <repository-url>
+cd next-step
 npm install
 
-# 2. Set up environment variables
-# Copy .env.example to .env.local and add your keys:
-# - NEXT_PUBLIC_CONVEX_URL (auto-set by Convex)
-# - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-# - CLERK_SECRET_KEY
+# 2. Environment setup
+cp .env.example .env.local
+# Add Clerk and Convex keys
 
-# 3. Run Convex in development mode
+# 3. Start Convex (Terminal 1)
 npm run convex:dev
 
-# 4. Run Next.js development server (in another terminal)
+# 4. Start Next.js (Terminal 2)
 npm run dev
 
 # 5. Open http://localhost:3000
@@ -35,330 +39,713 @@ npm run dev
 
 ---
 
-## 🏗️ Architecture Overview
+## 🔧 Development Setup
 
-### **Convex + Clerk + Next.js Stack**
+### Prerequisites
 
+- Node.js 18+ and npm
+- Git
+- VS Code (recommended)
+- Clerk account (free)
+- Convex account (free)
+
+### Environment Variables
+
+```bash
+# .env.local
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
 ```
-┌─────────────────────────────────────┐
-│          FRONTEND (Next.js)         │
-│   React Components with Hooks       │
-│                                     │
-│   Uses useQuery/useMutation         │
-└────────────┬────────────────────────┘
-             │ Real-time WebSocket
-             ▼
-┌─────────────────────────────────────┐
-│       CONVEX (Database + API)       │
-│   Query & Mutation Functions        │
-│                                     │
-│   Integrated with Clerk Auth        │
-└────────────┬────────────────────────┘
-             │ Auth Sync
-             ▼
-┌─────────────────────────────────────┐
-│      CLERK (Authentication)         │
-│   User management & sessions        │
-└─────────────────────────────────────┘
-```
+
+### VS Code Extensions (Recommended)
+
+- ESLint
+- Prettier
+- Tailwind CSS IntelliSense
+- TypeScript and JavaScript Language Features
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Architecture Patterns
+
+### DAL (Data Access Layer) Pattern
+
+**Every feature follows this structure:**
 
 ```
-nextstep/
-├── app/                      # 🎨 FRONTEND - Next.js Pages
-│   ├── page.tsx              # Landing page (/)
-│   ├── jobs/page.tsx         # Jobs listing (/jobs)
-│   ├── mentors/page.tsx      # Find mentors (/mentors)
-│   ├── applications/page.tsx # Track applications (/applications)
-│   ├── profile/page.tsx      # User profile (/profile)
-│   ├── auth/page.tsx         # Login/signup (/auth)
-│   ├── layout.tsx            # Global layout (Header + Footer)
-│   └── api/                  # 🔌 REST API ROUTES
-│       ├── users/route.ts    # GET/POST /api/users
-│       ├── opportunities/route.ts
-│       └── messages/route.ts
-│
-├── components/               # 🧩 UI COMPONENTS
-│   ├── ui/                   # shadcn/ui (48 components)
-│   ├── landing/              # Landing sections (Hero, Features, etc.)
-│   ├── pages/                # Full page components
-│   ├── layout/               # Header, Footer
-│   └── features/             # Domain-specific components
-│
-├── convex/                   # 🗄️ DATABASE - Convex Serverless
-│   ├── schema.ts             # Database schema
-│   ├── users.ts              # User queries & mutations
-│   ├── opportunities.ts      # Opportunity operations
-│   ├── applications.ts       # Application tracking
-│   └── messages.ts           # Messaging operations
-│
-├── lib/                      # 🔧 SHARED UTILITIES
-│   ├── types.ts              # TypeScript types
-│   └── utils.ts              # Helper functions
-│
-├── public/assets/            # 📁 Static files (images, logo)
-└── docs/                     # 📚 Documentation
+1. Define Types (lib/dal/types/*.types.ts)
+2. Create DAL Service (lib/dal/server/*-service.ts)
+3. Build API Routes (app/api/*)
+4. Develop Components (components/features/*)
+5. Create Pages (app/(platform)/*)
 ```
 
----
+### Example: Complete Feature Implementation
 
-## 🔄 Development Workflow
+#### 1. Define Types
 
-### **1. Frontend Development**
+```typescript
+// lib/dal/types/job.types.ts
+import { Id } from "@/convex/_generated/dataModel";
 
-**Location**: `/app` and `/components`
+export interface Job {
+    _id: Id<"jobs">;
+    title: string;
+    company: string;
+    location: string;
+    description: string;
+    postedBy: Id<"users">;
+    postedDate: number;
+    isActive: boolean;
+}
 
-**Example**: Add a new page
+export interface JobSearchParams {
+    query?: string;
+    employmentType?: string;
+    jobCategory?: string;
+    page?: number;
+    limit?: number;
+}
+```
 
-```tsx
-// app/courses/page.tsx
-export default function CoursesPage() {
+#### 2. Create DAL Service
+
+```typescript
+// lib/dal/server/job-service.ts
+import { api } from "@/convex/_generated/api";
+import { queryConvex } from "./convex";
+import { DALError } from "./dal-error";
+import type { Job, JobSearchParams } from "../types/job.types";
+
+export class JobDAL {
+    /**
+     * Search jobs with filters
+     */
+    static async searchJobs(
+        params: JobSearchParams,
+        auth?: string,
+    ): Promise<{ jobs: Job[]; total: number }> {
+        try {
+            const result = await queryConvex(api.jobs.searchJobs, params, auth);
+            return result as { jobs: Job[]; total: number };
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to search jobs",
+                error,
+            );
+        }
+    }
+
+    /**
+     * Get job by ID
+     */
+    static async getJobById(jobId: string, auth?: string): Promise<Job | null> {
+        try {
+            const result = await queryConvex(
+                api.jobs.getJobById,
+                { id: jobId },
+                auth,
+            );
+            return result as Job | null;
+        } catch (error) {
+            throw new DALError("DATABASE_ERROR", "Failed to get job", error);
+        }
+    }
+}
+```
+
+#### 3. Build API Routes
+
+```typescript
+// app/api/jobs/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { JobDAL } from "@/lib/dal/server";
+
+/**
+ * GET /api/jobs - Search and list jobs
+ */
+export async function GET(req: NextRequest) {
+    try {
+        // 1. AUTH CHECK
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, error: { message: "Unauthorized" } },
+                { status: 401 },
+            );
+        }
+
+        // 2. GET AUTH TOKEN
+        const token = await auth().then((auth) =>
+            auth.getToken({ template: "convex" }),
+        );
+
+        // 3. PARSE PARAMETERS
+        const { searchParams } = new URL(req.url);
+        const params = {
+            query: searchParams.get("query") || undefined,
+            employmentType: searchParams.get("employmentType") || undefined,
+            jobCategory: searchParams.get("jobCategory") || undefined,
+            page: parseInt(searchParams.get("page") || "1"),
+            limit: parseInt(searchParams.get("limit") || "12"),
+        };
+
+        // 4. CALL DAL
+        const result = await JobDAL.searchJobs(params, token || undefined);
+
+        // 5. RETURN RESPONSE
+        return NextResponse.json({
+            success: true,
+            data: result.jobs,
+            meta: {
+                total: result.total,
+                page: params.page,
+                limit: params.limit,
+            },
+        });
+    } catch (error) {
+        console.error("GET /api/jobs error:", error);
+        return NextResponse.json(
+            {
+                success: false,
+                error: {
+                    message:
+                        error instanceof Error ?
+                            error.message
+                        :   "Internal server error",
+                },
+            },
+            { status: 500 },
+        );
+    }
+}
+```
+
+#### 4. Develop Components
+
+```typescript
+// components/features/jobs/JobsPageContent.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { JobCard } from './JobCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { Job } from '@/lib/dal/types/job.types';
+
+export function JobsPageContent() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Fetch jobs
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+
+    (async () => {
+      try {
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('query', searchTerm);
+
+        const res = await fetch(`/api/jobs?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          setJobs(json.data || []);
+        }
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          console.error('Failed to load jobs:', error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [searchTerm]);
+
+  if (loading) {
     return (
-        <div>
-            <h1>Courses</h1>
-            {/* Your UI components */}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-64 w-full" />
+        ))}
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6">
+      <input
+        type="text"
+        placeholder="Search jobs..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full px-4 py-2 border rounded-lg"
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {jobs.map((job) => (
+          <JobCard key={job._id} job={job} />
+        ))}
+      </div>
+    </div>
+  );
 }
 ```
 
-**Routing**: Next.js automatically creates routes from folders:
-
-- `/app/courses/page.tsx` → URL: `/courses`
-- `/app/profile/page.tsx` → URL: `/profile`
-
----
-
-### **2. Backend API Development**
-
-**Location**: `/app/api` (HTTP layer) + `/server/api` (business logic)
-
-**Step 1**: Create business logic (pure function)
+#### 5. Create Pages
 
 ```typescript
-// server/api/courses.ts
-import { courses } from "@/server/data/courses";
+// app/(platform)/jobs/page.tsx
+import { JobsPageContent } from '@/components/features/jobs/JobsPageContent';
 
-export function getAllCourses() {
-    return courses;
-}
-
-export function getCourseById(id: string) {
-    return courses.find((course) => course.id === id);
-}
-```
-
-**Step 2**: Create API route (HTTP endpoint)
-
-```typescript
-// app/api/courses/route.ts
-import { NextResponse } from "next/server";
-import { getAllCourses } from "@/server/api/courses";
-
-export async function GET() {
-    const courses = getAllCourses();
-    return NextResponse.json(courses);
-}
-```
-
-**Step 3**: Call from frontend
-
-```tsx
-// app/courses/page.tsx
-"use client";
-import { useEffect, useState } from "react";
-
-export default function CoursesPage() {
-    const [courses, setCourses] = useState([]);
-
-    useEffect(() => {
-        fetch("/api/courses")
-            .then((res) => res.json())
-            .then((data) => setCourses(data));
-    }, []);
-
-    return (
-        <div>
-            {courses.map((course) => (
-                <div key={course.id}>{course.title}</div>
-            ))}
-        </div>
-    );
+export default function JobsPage() {
+  return <JobsPageContent />;
 }
 ```
 
 ---
 
-### **3. Data Layer**
+## 🔌 API Development
 
-**Location**: `/server/data`
-
-Currently uses **mock data**. In production, replace with database queries.
+### API Route Structure
 
 ```typescript
-// server/data/courses.ts
-export const courses = [
-    { id: "1", title: "React Basics", duration: "4 weeks" },
-    { id: "2", title: "TypeScript", duration: "3 weeks" },
-];
+// app/api/[feature]/route.ts
+
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { FeatureDAL } from "@/lib/dal/server";
+
+export async function GET(req: NextRequest) {
+    try {
+        // 1. Authentication
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, error: { message: "Unauthorized" } },
+                { status: 401 },
+            );
+        }
+
+        // 2. Get token
+        const token = await auth().then((auth) =>
+            auth.getToken({ template: "convex" }),
+        );
+
+        // 3. Parse parameters
+        const { searchParams } = new URL(req.url);
+        const params = {
+            // ... extract params
+        };
+
+        // 4. Validate input (if needed)
+        if (!params.required) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: { message: "Missing required parameter" },
+                },
+                { status: 400 },
+            );
+        }
+
+        // 5. Call DAL
+        const data = await FeatureDAL.getData(params, token || undefined);
+
+        // 6. Return response
+        return NextResponse.json({
+            success: true,
+            data,
+        });
+    } catch (error) {
+        console.error("API error:", error);
+        return NextResponse.json(
+            {
+                success: false,
+                error: {
+                    message:
+                        error instanceof Error ? error.message : "Server error",
+                },
+            },
+            { status: 500 },
+        );
+    }
+}
+
+export async function POST(req: NextRequest) {
+    try {
+        const { userId } = await auth();
+        if (!userId)
+            return NextResponse.json({ success: false }, { status: 401 });
+
+        const token = await auth().then((auth) =>
+            auth.getToken({ template: "convex" }),
+        );
+        const body = await req.json();
+
+        // Validate body
+        if (!body.field) {
+            return NextResponse.json(
+                { success: false, error: { message: "Invalid input" } },
+                { status: 400 },
+            );
+        }
+
+        const result = await FeatureDAL.create(body, token || undefined);
+
+        return NextResponse.json({ success: true, data: result });
+    } catch (error) {
+        return NextResponse.json(
+            { success: false, error: { message: "Server error" } },
+            { status: 500 },
+        );
+    }
+}
 ```
 
-**Future (Database)**:
+### Response Format
 
-```typescript
-// server/data/courses.ts
-import { db } from "@/lib/database";
+**Success:**
 
-export async function getAllCourses() {
-    return await db.courses.findMany();
+```json
+{
+    "success": true,
+    "data": {
+        /* your data */
+    },
+    "meta": {
+        /* optional metadata */
+    }
+}
+```
+
+**Error:**
+
+```json
+{
+    "success": false,
+    "error": {
+        "code": "ERROR_CODE",
+        "message": "Human-readable message"
+    }
 }
 ```
 
 ---
 
-## 🔗 REST API Pattern
+## 🧩 Component Development
 
-### **Why This Pattern?**
-
-✅ **Clear separation**: Frontend doesn't access data directly  
-✅ **Reusable logic**: Business logic works with any client (web, mobile, etc.)  
-✅ **Testable**: Test business logic without HTTP layer  
-✅ **Scalable**: Easy to replace mock data with real database
-
-### **How It Works**
-
-```
-User clicks button
-      ↓
-Frontend calls: fetch('/api/users')
-      ↓
-API Route (/app/api/users/route.ts) receives request
-      ↓
-Calls business logic: getUsers() from /server/api/users.ts
-      ↓
-Business logic calls: users from /server/data/users.ts
-      ↓
-Returns data → API route → Frontend
-```
-
----
-
-## ➕ Adding New Features
-
-### **Example: Add "Courses" Feature**
-
-**1. Create data**
+### Component Structure
 
 ```typescript
-// server/data/courses.ts
-export const courses = [{ id: "1", title: "React Basics" }];
+// components/features/[feature]/ComponentName.tsx
+
+'use client'; // If using hooks or client features
+
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+interface ComponentProps {
+  data: SomeType;
+  onAction?: () => void;
+}
+
+export function ComponentName({ data, onAction }: ComponentProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      // Do something
+      onAction?.();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="p-6">
+      <h3 className="text-lg font-semibold">{data.title}</h3>
+      <Button onClick={handleClick} disabled={loading}>
+        {loading ? 'Loading...' : 'Action'}
+      </Button>
+    </Card>
+  );
+}
 ```
 
-**2. Create business logic**
+### Design System Usage
 
 ```typescript
-// server/api/courses.ts
-import { courses } from "@/server/data/courses";
-export function getAllCourses() {
-    return courses.filter((c) => c.isPublished);
-}
+// Use shadcn/ui components
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+// Use Tailwind classes
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 className="text-4xl font-bold text-gray-900 mb-6">Title</h1>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {/* Content */}
+  </div>
+</div>
+
+// Use gradients
+<div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+  {/* Content */}
+</div>
 ```
 
-**3. Create API endpoint**
+---
+
+## 🗄️ Database Operations
+
+### Convex Schema
 
 ```typescript
-// app/api/courses/route.ts
-import { getAllCourses } from "@/server/api/courses";
-export async function GET() {
-    return NextResponse.json(getAllCourses());
-}
+// convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+    jobs: defineTable({
+        title: v.string(),
+        company: v.string(),
+        location: v.string(),
+        description: v.string(),
+        postedBy: v.id("users"),
+        postedDate: v.number(),
+        isActive: v.boolean(),
+    }).index("by_company", ["company"]),
+});
 ```
 
-**4. Create frontend page**
+### Convex Queries
 
-```tsx
-// app/courses/page.tsx
-"use client";
-export default function CoursesPage() {
-    // Fetch from /api/courses and display
-}
+```typescript
+// convex/jobs.ts
+import { query } from "./_generated/server";
+import { v } from "convex/values";
+
+export const searchJobs = query({
+    args: {
+        query: v.optional(v.string()),
+        page: v.optional(v.number()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const { query, page = 1, limit = 12 } = args;
+
+        let jobsQuery = ctx.db
+            .query("jobs")
+            .filter((q) => q.eq(q.field("isActive"), true));
+
+        if (query) {
+            jobsQuery = jobsQuery.filter((q) =>
+                q.or(
+                    q.eq(q.field("title"), query),
+                    q.eq(q.field("company"), query),
+                ),
+            );
+        }
+
+        const jobs = await jobsQuery.order("desc").take(limit * page);
+
+        return {
+            jobs: jobs.slice((page - 1) * limit, page * limit),
+            total: jobs.length,
+        };
+    },
+});
 ```
 
-**5. Add navigation link**
+### Convex Mutations
 
-```tsx
-// components/layout/Header.tsx
-const navItems = [
-    { href: "/courses", label: "Courses" }, // Add this
-];
+```typescript
+// convex/jobs.ts
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+
+export const createJob = mutation({
+    args: {
+        title: v.string(),
+        company: v.string(),
+        location: v.string(),
+        description: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Not authenticated");
+
+        const userId = identity.subject;
+
+        return await ctx.db.insert("jobs", {
+            ...args,
+            postedBy: userId,
+            postedDate: Date.now(),
+            isActive: true,
+        });
+    },
+});
 ```
 
 ---
 
-## 🎨 UI Components
+## 🧪 Testing
 
-### **Using shadcn/ui**
+### Manual Testing Checklist
 
-We use 48 pre-built components from shadcn/ui:
+- [ ] Authentication works (sign in/out)
+- [ ] Protected routes redirect when not authenticated
+- [ ] Data loads correctly
+- [ ] Forms submit successfully
+- [ ] Error states display properly
+- [ ] Loading states show
+- [ ] Responsive on mobile
+- [ ] Browser console has no errors
 
-```tsx
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+### Testing API Routes
 
-export function MyComponent() {
-    return (
-        <Card>
-            <CardContent>
-                <Input placeholder="Enter name" />
-                <Button>Submit</Button>
-            </CardContent>
-        </Card>
-    );
+```bash
+# Using curl
+curl http://localhost:3000/api/jobs
+
+# Using browser dev tools
+fetch('/api/jobs')
+  .then(r => r.json())
+  .then(console.log)
+```
+
+---
+
+## ✅ Best Practices
+
+### TypeScript
+
+```typescript
+// ✅ Good: Type everything
+interface User {
+    id: string;
+    name: string;
+}
+
+function getUser(id: string): Promise<User | null> {
+    // ...
+}
+
+// ❌ Bad: Using any
+function getUser(id: any): any {
+    // ...
 }
 ```
 
-**Available components**: button, card, input, dialog, dropdown, tabs, accordion, alert, avatar, badge, calendar, checkbox, and more! Check `components/ui/`
+### Error Handling
+
+```typescript
+// ✅ Good: Proper error handling
+try {
+    const data = await fetchData();
+    return data;
+} catch (error) {
+    console.error("Failed to fetch:", error);
+    throw new DALError("FETCH_ERROR", "Failed to fetch data", error);
+}
+
+// ❌ Bad: Swallowing errors
+try {
+    const data = await fetchData();
+} catch (error) {
+    // Silent failure
+}
+```
+
+### Component Structure
+
+```typescript
+// ✅ Good: Clear, focused components
+export function JobCard({ job }: { job: Job }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{job.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>{job.company}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ❌ Bad: Too much in one component
+export function JobsPage() {
+  // 500 lines of code with everything mixed together
+}
+```
+
+### API Design
+
+```typescript
+// ✅ Good: RESTful, predictable
+GET    /api/jobs          // List jobs
+GET    /api/jobs/[id]     // Get job
+POST   /api/jobs          // Create job
+PATCH  /api/jobs/[id]     // Update job
+DELETE /api/jobs/[id]     // Delete job
+
+// ❌ Bad: Unclear, inconsistent
+GET /api/getJobs
+POST /api/addNewJob
+GET /api/job-detail?id=123
+```
 
 ---
 
-## 🔐 Authentication (TODO)
+## 🚀 Common Commands
 
-Current: Mock auth (redirect to `/auth`)  
-Future: Implement with NextAuth.js, Clerk, or Supabase
+```bash
+# Development
+npm run dev              # Start Next.js
+npm run convex:dev       # Start Convex
 
----
+# Building
+npm run build            # Production build
+npm run type-check       # Check TypeScript
 
-## 🗄️ Database Migration (TODO)
+# Convex
+npx convex dev           # Run Convex dev
+npx convex deploy        # Deploy functions
+npx convex dashboard     # Open dashboard
+npx convex import        # Import data
 
-Replace mock data in `/server/data` with:
-
-- **PostgreSQL** (via Prisma)
-- **MongoDB** (via Mongoose)
-- **Supabase** (PostgreSQL + Auth)
+# Git
+git checkout -b feature/new-feature
+git add .
+git commit -m "feat: Add new feature"
+git push origin feature/new-feature
+```
 
 ---
 
 ## 📚 Additional Resources
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed architecture
-- [TODO.md](docs/TODO.md) - Feature roadmap
-- [QUICK-START.md](QUICK-START.md) - Development guide
-- [Next.js Docs](https://nextjs.org/docs)
-- [shadcn/ui](https://ui.shadcn.com/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Convex Documentation](https://docs.convex.dev)
+- [Clerk Documentation](https://clerk.com/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
 
 ---
 
-## 🤝 Contributing
-
-1. Create a feature branch
-2. Follow the architecture pattern
-3. Test your changes
-4. Submit a pull request
-
----
-
-**Questions?** Check the docs or ask the team! 🚀
+**Last Updated:** January 18, 2026

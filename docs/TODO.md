@@ -1,302 +1,394 @@
-# NextStep Platform - TODO List
+# 📋 NextStep - TODO & Roadmap
 
-This document contains all planned features and improvements for the NextStep platform.
+**Last Updated:** January 18, 2026
 
----
+## 🎯 Current Sprint (In Progress)
 
-## ✅ Recently Completed
+### Complete Feature Migrations
 
-### Integration & Architecture (January 2026)
+- [ ] **Mentors Feature** - Migrate to DAL pattern
+    - [ ] Create MentorDAL service
+    - [ ] Build API routes (/api/mentors/\*)
+    - [ ] Migrate frontend components
+    - [ ] Test end-to-end
+    - [ ] Update documentation
 
--   [x] Integrated NextStep Vite app components into Next.js
--   [x] **Converted to proper Next.js App Router with file-based routing**
--   [x] **Implemented REST API pattern (Frontend → API → Business Logic → Data)**
--   [x] Added NextStep logo asset (`/assets/logo.png`)
--   [x] Updated Header with Next.js Link and usePathname
--   [x] Created proper routes: /, /jobs, /mentors, /applications, /profile
--   [x] Fixed all shadcn/ui component imports (button, card, input)
--   [x] Renamed UI components to lowercase for consistency
--   [x] Integrated 48 shadcn/ui components
--   [x] Applied monochromatic green color scheme
--   [x] Added Placard Condensed display font
--   [x] Created comprehensive developer documentation
+- [ ] **Profile Feature** - Expand functionality
+    - [ ] Complete ProfileDAL
+    - [ ] Add profile update API
+    - [ ] Enhance profile page UI
+    - [ ] Add avatar upload
+    - [ ] Add skills management
 
----
-
-## 📁 Authentication & User Management
-
-### Auth Page (`app/auth/page.tsx`)
-
--   [ ] Implement actual authentication (NextAuth.js, Clerk, or Supabase Auth)
--   [ ] Add OAuth providers (Google, GitHub, LinkedIn)
--   [ ] Add password validation
--   [ ] Add "Forgot Password" functionality
--   [ ] Add email verification
--   [ ] Add role selection during signup
--   [ ] Redirect to dashboard after successful login
--   [ ] Implement OAuth buttons functionality
+- [ ] **Opportunities Feature** - Migrate to DAL pattern
+    - [ ] Create OpportunityDAL service
+    - [ ] Build API routes
+    - [ ] Migrate frontend
+    - [ ] Add filtering and search
+    - [ ] Test functionality
 
 ---
 
-## 👤 Profile Management
+## ✅ Completed Features
 
-### Profile Form (`components/features/profile/ProfileForm.tsx`)
+### Phase 1: Core Infrastructure (Complete)
 
--   [ ] Add image upload for avatar
--   [ ] Add skills tags input (multi-select)
--   [ ] Add form validation with error handling
--   [ ] Add save/cancel functionality with API integration
--   [ ] Add success/error toast notifications
--   [ ] Add role-specific fields based on user role
+- ✅ Next.js 16 setup with Turbopack
+- ✅ Convex database integration
+- ✅ Clerk authentication setup
+- ✅ Middleware configuration (proxy.ts)
+- ✅ TypeScript configuration
+- ✅ Tailwind CSS + shadcn/ui setup
+- ✅ DAL pattern architecture
 
----
+### Phase 2: Jobs Feature (Complete)
 
-## 📋 Applications
+- ✅ Job types and interfaces
+- ✅ JobDAL service with all methods
+- ✅ Jobs API routes (list, detail, related, apply)
+- ✅ JobsPageContent with search and filters
+- ✅ Job detail page
+- ✅ Job application submission
+- ✅ Pagination and loading states
+- ✅ Save job functionality
+- ✅ Related jobs feature
 
-### Applications Page (`app/applications/page.tsx`)
+### Phase 3: Applications Feature (Complete)
 
--   [ ] Fetch data from API route
--   [ ] Add filtering by status (pending, accepted, rejected)
--   [ ] Make filter tabs functional
--   [ ] Add sorting options
--   [ ] Add withdraw application functionality
--   [ ] Show application timeline/history
--   [ ] Add notes/comments on applications
+- ✅ Application types and interfaces
+- ✅ JobApplicationDAL service
+- ✅ Applications API routes
+- ✅ Applications tracker page
+- ✅ Status filtering
+- ✅ Status update dialog
+- ✅ View details navigation
+- ✅ Loading skeletons
 
----
+### Phase 4: Messages Feature (Complete)
 
-## 🔔 Navigation & Layout
-
-### Navbar (`components/layout/Navbar.tsx`)
-
--   [ ] Add mobile responsive menu (hamburger)
--   [ ] Add notifications dropdown
--   [ ] Add user profile dropdown with logout
--   [ ] Add search functionality in navbar
--   [ ] Highlight active page
--   [ ] Replace with actual user state
--   [ ] Implement mobile menu
-
-### Sidebar (`components/layout/Sidebar.tsx`)
-
--   [ ] Add collapsible sidebar for mobile
--   [ ] Add icons for each menu item
--   [ ] Add nested menu items (e.g., Settings submenu)
--   [ ] Add badge indicators (e.g., unread messages count)
--   [ ] Add user info section at top/bottom
-
----
-
-## 💼 Opportunities
-
-### Opportunity Card (`components/features/opportunities/OpportunityCard.tsx`)
-
--   [ ] Add bookmark/save functionality
--   [ ] Add share functionality
--   [ ] Add apply button with modal
--   [ ] Add tags for skills with colors
--   [ ] Add company logo display
+- ✅ Message types and interfaces
+- ✅ MessageDAL service
+- ✅ Messages API routes (send, receive, mark as read)
+- ✅ Conversation list component
+- ✅ Message thread component
+- ✅ Message input component
+- ✅ Real-time updates (refetch-based)
+- ✅ Modern blue design
+- ✅ Navigation integration
+- ✅ Empty states
+- ✅ Loading states
 
 ---
 
-## 🎨 UI Components
+## 🚀 Upcoming Features
 
-### Button Component (`components/ui/Button.tsx`)
+### High Priority
 
--   [ ] Add loading state with spinner
--   [ ] Add icon support (left/right icons)
--   [ ] Add disabled state styling
--   [ ] Consider using a UI library like shadcn/ui or Material-UI
+#### 1. Complete Mentors Migration
 
----
+- [ ] Create `lib/dal/types/mentor.types.ts`
+- [ ] Build `lib/dal/server/mentor-service.ts`
+- [ ] Complete API routes:
+    - [ ] GET /api/mentors (list with filters)
+    - [ ] GET /api/mentors/[id] (details)
+    - [ ] POST /api/mentors/book (book session)
+    - [ ] POST /api/mentors/connect (connect request)
+- [ ] Migrate `components/features/mentors/MentorsPageContent.tsx`
+- [ ] Update mentor detail page
+- [ ] Add booking functionality
+- [ ] Test end-to-end
 
-## 🏠 Pages
+#### 2. Expand Profile Features
 
-### Landing Page (`app/page.tsx`)
+- [ ] Complete profile update API
+- [ ] Add resume upload
+- [ ] Add avatar upload
+- [ ] Skills management
+- [ ] Experience history
+- [ ] Education history
+- [ ] Portfolio links
+- [ ] Social media integration
 
--   [ ] Add hero section with compelling copy
--   [ ] Add features section
--   [ ] Add testimonials
--   [ ] Add statistics/impact numbers
--   [ ] Add footer with links
--   [ ] Make it responsive and visually appealing
+#### 3. Dashboard Enhancement
 
-### Dashboard Page (`app/dashboard/page.tsx`)
+- [ ] Application statistics
+- [ ] Recent activity feed
+- [ ] Recommended jobs
+- [ ] Upcoming interviews
+- [ ] Message notifications
+- [ ] Profile completion progress
+- [ ] Achievement badges
 
--   [ ] Add charts/graphs for activity stats
--   [ ] Add quick actions (apply to job, message mentor)
--   [ ] Add recent activity feed
--   [ ] Customize dashboard based on user role
--   [ ] Add notifications panel
--   [ ] Add upcoming mentorship sessions calendar
+### Medium Priority
 
----
+#### 4. Search & Discovery
 
-## 🔌 API Routes
+- [ ] Global search across all features
+- [ ] Advanced job search filters
+- [ ] Saved searches
+- [ ] Job alerts/notifications
+- [ ] Mentor recommendations
+- [ ] Similar job suggestions
 
-### Opportunities API (`app/api/opportunities/route.ts`)
+#### 5. Real-time Features
 
--   [ ] Add POST endpoint for creating opportunities (employers/mentors)
--   [ ] Add PUT/PATCH endpoint for updating opportunities
--   [ ] Add DELETE endpoint for removing opportunities
--   [ ] Add pagination support
--   [ ] Add sorting (by date, relevance, etc.)
--   [ ] Add advanced search and filtering
--   [ ] Connect to real database
+- [ ] Message notifications
+- [ ] New job alerts
+- [ ] Application status changes
+- [ ] Mentor response notifications
+- [ ] Real-time message updates (polling or WebSocket)
 
-### Users API (`app/api/users/route.ts`)
+#### 6. User Experience
 
--   [ ] Add POST endpoint for user registration
--   [ ] Add PUT endpoint for updating user profile
--   [ ] Add GET /api/users/[id] for single user
--   [ ] Add authentication and authorization
--   [ ] Connect to real database (MongoDB, PostgreSQL, Supabase)
--   [ ] Add input validation and error handling
+- [ ] Onboarding flow
+- [ ] Tutorial/walkthrough
+- [ ] Help center
+- [ ] Keyboard shortcuts
+- [ ] Dark mode
+- [ ] Accessibility improvements
 
----
+### Low Priority
 
-## 💾 Data Layer
+#### 7. Analytics & Insights
 
-### Mock Data (`lib/data.ts`)
+- [ ] User activity tracking
+- [ ] Application analytics
+- [ ] Job market insights
+- [ ] Success rate metrics
+- [ ] Time to hire statistics
 
--   [ ] Replace with real database (MongoDB, PostgreSQL, Supabase)
--   [ ] Add more diverse sample data
--   [ ] Create seed scripts for database population
--   [ ] Add search function for opportunities by skills
--   [ ] Add filtering by location, remote options
--   [ ] Add sorting by date, relevance
--   [ ] Add pagination helpers
+#### 8. Advanced Features
 
-### Type Definitions (`lib/types.ts`)
-
--   [ ] Add more fields as features grow (e.g., ratings, reviews)
--   [ ] Create validation schemas using Zod
--   [ ] Add enums for status types (PENDING, ACCEPTED, etc.)
-
----
-
-## 💬 Messages
-
-### Messages Page (`app/messages/page.tsx`)
-
--   [ ] Fetch data from API route
--   [ ] Add real-time messaging (WebSockets/Pusher/Socket.io)
--   [ ] Add conversation list/sidebar
--   [ ] Add message input and send functionality
--   [ ] Add file attachments
--   [ ] Add read receipts
--   [ ] Add typing indicators
--   [ ] Add search conversations
--   [ ] Send message to API
-
-### Messages API (`app/api/messages/route.ts`)
-
--   [ ] Add POST endpoint for sending messages
--   [ ] Add PUT endpoint for marking messages as read
--   [ ] Add DELETE endpoint for deleting messages
--   [ ] Add real-time messaging with WebSockets or Pusher
--   [ ] Add message threading/conversations
--   [ ] Add file attachment support
--   [ ] Implement authentication to get current user
--   [ ] Get list of conversations (unique users)
+- [ ] Video interviews
+- [ ] Document generation (CV, cover letter)
+- [ ] Interview preparation tools
+- [ ] Salary calculator
+- [ ] Company reviews
+- [ ] Referral program
 
 ---
 
-## 💼 Opportunities (Extended)
+## 🔧 Technical Improvements
 
-### Opportunities Page (`app/opportunities/page.tsx`)
+### Code Quality
 
--   [ ] Add search functionality
--   [ ] Add filters (type, location, remote, skills)
--   [ ] Make search and filters functional
--   [ ] Make filter tabs functional
--   [ ] Add sorting options
--   [ ] Add pagination
--   [ ] Add bookmarking/saving opportunities
--   [ ] Fetch data from API instead of importing directly
+- [ ] Add unit tests (Jest + React Testing Library)
+- [ ] Add E2E tests (Playwright)
+- [ ] Improve TypeScript coverage
+- [ ] Add JSDoc comments
+- [ ] Code documentation
+- [ ] Performance profiling
 
-### Opportunity Detail Page (`app/opportunities/[id]/page.tsx`)
+### Performance
 
--   [ ] Fetch data from API route
--   [ ] Add "Apply" button with modal/form
--   [ ] Add "Save" bookmark functionality
--   [ ] Add "Share" functionality
--   [ ] Show related opportunities
--   [ ] Display company/mentor profile
--   [ ] Add application deadline countdown
--   [ ] Add more sections to opportunity details
--   [ ] Expand company/mentor information
+- [ ] Implement caching strategy
+- [ ] Optimize database queries
+- [ ] Add pagination to all lists
+- [ ] Lazy load images
+- [ ] Code splitting
+- [ ] Bundle size optimization
 
----
+### Security
 
-## 👤 Profile (Extended)
+- [ ] Rate limiting on API routes
+- [ ] Input sanitization
+- [ ] CSRF protection
+- [ ] Content Security Policy
+- [ ] Security audit
+- [ ] Penetration testing
 
-### Profile Page (`app/profile/page.tsx`)
+### DevOps
 
--   [ ] Add view/edit mode toggle
--   [ ] Add portfolio section (projects, links)
--   [ ] Add resume upload
--   [ ] Add education history
--   [ ] Add work experience section
--   [ ] Add achievements/certifications
--   [ ] Make profile public/private
--   [ ] Implement additional profile sections
-
----
-
-## 🎨 UI Components (Extended)
-
-### Card Component (`components/ui/Card.tsx`)
-
--   [ ] Add card variants (elevated, outlined, filled)
--   [ ] Add hover effects for interactive cards
--   [ ] Add card actions (buttons in footer)
--   [ ] Add card media support (images, videos)
-
-### Input Component (`components/ui/Input.tsx`)
-
--   [ ] Add input types (email, password, number, textarea)
--   [ ] Add character counter for text areas
--   [ ] Add input validation and error messages
--   [ ] Add prefix/suffix support (icons, text)
+- [ ] CI/CD pipeline
+- [ ] Automated testing
+- [ ] Staging environment
+- [ ] Error monitoring (Sentry)
+- [ ] Performance monitoring
+- [ ] Logging system
+- [ ] Backup strategy
 
 ---
 
-## 🛠️ Utilities
+## 🐛 Known Issues
 
-### Utility Functions (`lib/utils.ts`)
+### High Priority
 
--   [ ] Add date formatting helpers
--   [ ] Add validation functions
--   [ ] Add string manipulation utilities
--   [ ] Add localStorage helpers for client-side state
--   [ ] Replace generateId with UUID library or database-generated IDs
+- [ ] Messages need real-time updates (currently refetch-based)
+- [ ] No rate limiting on API routes
+- [ ] Missing input validation in some endpoints
 
----
+### Medium Priority
 
-## 📝 Priority Matrix
+- [ ] No error boundary components
+- [ ] Missing loading states in some components
+- [ ] Inconsistent error messages
+- [ ] Mobile menu needs improvement
 
-### High Priority (Core Functionality)
+### Low Priority
 
-1. Implement real authentication system
-2. Connect to real database
-3. Build API endpoints for CRUD operations
-4. Add input validation and error handling
-
-### Medium Priority (Enhanced Features)
-
-1. Add filtering and sorting across all pages
-2. Implement user profile management
-3. Add notifications system
-4. Mobile responsiveness
-
-### Low Priority (Nice to Have)
-
-1. Charts and graphs
-2. OAuth providers
-3. Advanced search
-4. Testimonials and marketing content
+- [ ] Some console warnings in dev mode
+- [ ] Need better TypeScript types in some areas
+- [ ] Component prop types could be more specific
 
 ---
 
-**Last Updated:** January 12, 2026
+## 📱 Mobile App
+
+### Future Consideration
+
+- [ ] React Native version
+- [ ] Progressive Web App (PWA)
+- [ ] Push notifications
+- [ ] Offline support
+- [ ] App store deployment
+
+---
+
+## 🎨 Design Improvements
+
+### UI/UX
+
+- [ ] Consistent spacing across all pages
+- [ ] Better empty states
+- [ ] Improved error states
+- [ ] Loading animations
+- [ ] Micro-interactions
+- [ ] Animation polish
+
+### Accessibility
+
+- [ ] ARIA labels
+- [ ] Keyboard navigation
+- [ ] Screen reader support
+- [ ] High contrast mode
+- [ ] Focus indicators
+- [ ] Color blind friendly
+
+---
+
+## 📊 Metrics & Goals
+
+### Technical Metrics
+
+- **Page Load:** < 2s
+- **API Response:** < 500ms
+- **Lighthouse Score:** > 90
+- **Test Coverage:** > 80%
+- **TypeScript Coverage:** 100%
+
+### User Metrics
+
+- **Active Users:** TBD
+- **Job Applications:** TBD
+- **Messages Sent:** TBD
+- **Mentor Connections:** TBD
+
+---
+
+## 🗓️ Timeline
+
+### Q1 2026 (Current)
+
+- ✅ Complete Jobs feature
+- ✅ Complete Applications feature
+- ✅ Complete Messages feature
+- 🔄 Complete Mentors migration
+- 🔄 Expand Profile features
+- 🔄 Migrate Opportunities
+
+### Q2 2026
+
+- Dashboard enhancements
+- Real-time features
+- Search & discovery
+- Analytics implementation
+
+### Q3 2026
+
+- Mobile app research
+- Advanced features
+- Performance optimization
+- Security hardening
+
+### Q4 2026
+
+- Scale & optimization
+- Feature refinement
+- User feedback implementation
+- Launch preparation
+
+---
+
+## 💡 Feature Requests
+
+### Community Suggestions
+
+_(Add user-requested features here)_
+
+- [ ] Calendar integration
+- [ ] Email notifications
+- [ ] Resume builder
+- [ ] Interview scheduler
+- [ ] Job comparison tool
+
+---
+
+## 📝 Documentation TODOs
+
+- [ ] API documentation (OpenAPI/Swagger)
+- [ ] Component storybook
+- [ ] Architecture diagrams
+- [ ] Video tutorials
+- [ ] Contributing guide
+- [ ] Code of conduct
+- [ ] FAQ section
+
+---
+
+## 🎯 Success Criteria
+
+### Feature Complete When:
+
+- ✅ DAL service created
+- ✅ API routes implemented
+- ✅ Frontend migrated
+- ✅ Tests passing
+- ✅ Documentation updated
+- ✅ No console errors
+- ✅ Responsive design
+- ✅ Accessibility checks pass
+
+### Production Ready When:
+
+- ✅ All features complete
+- ✅ Tests > 80% coverage
+- ✅ Performance metrics met
+- ✅ Security audit passed
+- ✅ Documentation complete
+- ✅ Error monitoring active
+- ✅ Backup system in place
+
+---
+
+## 🤝 Contributing
+
+Want to help? Pick an item from this TODO list and:
+
+1. Create an issue
+2. Fork the repository
+3. Create a feature branch
+4. Implement the feature
+5. Add tests
+6. Update documentation
+7. Submit pull request
+
+---
+
+## 📞 Questions?
+
+Have ideas or suggestions? Open an issue or discussion in the repository!
+
+---
+
+**Last Updated:** January 18, 2026  
+**Next Review:** February 1, 2026

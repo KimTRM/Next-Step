@@ -1,23 +1,67 @@
 'use client';
 
-import { useState } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Building2, MapPin, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Eye, Plus, Filter } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Building2, MapPin, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Eye, Plus } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import type { ApplicationStatus } from '@/lib/dal/types/job-application.types';
+import type { Id } from '@/convex/_generated/dataModel';
 
-type ApplicationStatus = 'pending' | 'reviewing' | 'interview' | 'rejected' | 'accepted';
+type Application = {
+  _id: Id<'jobApplications'>;
+  _creationTime: number;
+  jobId: Id<'jobs'>;
+  userId: Id<'users'>;
+  status: ApplicationStatus;
+  appliedDate: number;
+  nextStep?: string;
+  interviewDate?: number;
+  notes?: string;
+  jobTitle?: string;
+  company?: string;
+  location?: string;
+};
 
 export function ApplicationsPageContent() {
+  const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<'all' | ApplicationStatus>('all');
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+  const [updating, setUpdating] = useState(false);
 
-  // Fetch applications from Convex
-  const allApplications = useQuery(api.jobApplications.getUserJobApplications);
-  const loading = allApplications === undefined;
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    (async () => {
+      try {
+        const res = await fetch('/api/applications', { signal: controller.signal });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json?.error?.message || 'Failed to load applications');
+        }
+        setApplications(json.data || []);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          console.error('Failed to load applications:', error);
+          toast.error(error instanceof Error ? error.message : 'Failed to load applications');
+        }
+        setApplications([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, []);
 
-  const applications = allApplications || [];
-  const filteredApplications = selectedStatus === 'all'
-    ? applications
-    : applications.filter(app => app.status === selectedStatus);
+  const filteredApplications = useMemo(() => {
+    if (selectedStatus === 'all') return applications;
+    return applications.filter((app) => app.status === selectedStatus);
+  }, [applications, selectedStatus]);
 
   const getStatusColor = (status: ApplicationStatus) => {
     switch (status) {
@@ -51,6 +95,50 @@ export function ApplicationsPageContent() {
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const handleViewDetails = (app: Application) => {
+    if (app.jobId) {
+      router.push(`/jobs/${app.jobId}`);
+    }
+  };
+
+  const handleUpdateStatus = (app: Application) => {
+    setSelectedApp(app);
+    setStatusDialogOpen(true);
+  };
+
+  const handleStatusChange = async (newStatus: ApplicationStatus) => {
+    if (!selectedApp) return;
+    
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/applications/${selectedApp._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId: selectedApp._id, status: newStatus }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data?.error?.message || 'Failed to update status');
+      }
+
+      // Update local state
+      setApplications((prev) =>
+        prev.map((app) =>
+          app._id === selectedApp._id ? { ...app, status: newStatus } : app
+        )
+      );
+      toast.success('Application status updated');
+      setStatusDialogOpen(false);
+      setSelectedApp(null);
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update status');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const getStatusCounts = () => {
@@ -140,8 +228,35 @@ export function ApplicationsPageContent() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading applications...</p>
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="bg-white rounded-xl border border-border p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-start gap-4">
+                      <Skeleton className="h-12 w-12 rounded-lg" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-1/3" />
+                        <div className="flex flex-wrap gap-3">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-4 w-28" />
+                        </div>
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                  <div className="flex lg:flex-col gap-2 w-full lg:w-auto">
+                    <Skeleton className="h-10 w-full lg:w-32" />
+                    <Skeleton className="h-10 w-full lg:w-28" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-4">
@@ -158,15 +273,15 @@ export function ApplicationsPageContent() {
                         <Building2 className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="mb-2">{app.jobTitle}</h3>
+                        <h3 className="mb-2">{app.jobTitle || 'Unknown Position'}</h3>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
                             <Building2 className="h-4 w-4" />
-                            <span>{app.company}</span>
+                            <span>{app.company || 'Unknown Company'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
-                            <span>{app.location}</span>
+                            <span>{app.location || 'Unknown Location'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <CalendarIcon className="h-4 w-4" />
@@ -204,10 +319,16 @@ export function ApplicationsPageContent() {
 
                   {/* Actions */}
                   <div className="flex lg:flex-col gap-2">
-                    <button className="flex-1 lg:flex-none px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all">
+                    <button
+                      onClick={() => handleViewDetails(app)}
+                      className="flex-1 lg:flex-none px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all"
+                    >
                       View Details
                     </button>
-                    <button className="flex-1 lg:flex-none px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all">
+                    <button
+                      onClick={() => handleUpdateStatus(app)}
+                      className="flex-1 lg:flex-none px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                    >
                       Update Status
                     </button>
                   </div>
@@ -233,6 +354,45 @@ export function ApplicationsPageContent() {
             </button>
           </div>
         )}
+
+        {/* Update Status Dialog */}
+        <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update Application Status</DialogTitle>
+              <DialogDescription>
+                Change the status of your application for {selectedApp?.jobTitle}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-1 gap-2 py-4">
+              {(['pending', 'reviewing', 'interview', 'accepted', 'rejected'] as const).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => handleStatusChange(status)}
+                  disabled={updating || selectedApp?.status === status}
+                  className={`px-4 py-3 rounded-lg text-left transition-all capitalize ${
+                    selectedApp?.status === status
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  } disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+                >
+                  {getStatusIcon(status)}
+                  {status}
+                  {selectedApp?.status === status && ' (Current)'}
+                </button>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setStatusDialogOpen(false)}
+                disabled={updating}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

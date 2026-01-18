@@ -41,7 +41,7 @@ export const getUserJobApplications = query({
                     company: job?.company || "Unknown Company",
                     location: job?.location || "Unknown",
                 };
-            })
+            }),
         );
 
         return enrichedApplications;
@@ -103,13 +103,8 @@ export const createJobApplication = mutation({
             notes: args.notes,
         });
 
-        // Increment job applicants count
-        const job = await ctx.db.get(args.jobId);
-        if (job) {
-            await ctx.db.patch(args.jobId, {
-                applicants: job.applicants + 1,
-            });
-        }
+        // Note: Applicant count is now calculated from applications table, not stored on job
+        // No need to increment a counter
 
         return applicationId;
     },
@@ -126,7 +121,7 @@ export const updateApplicationStatus = mutation({
             v.literal("reviewing"),
             v.literal("interview"),
             v.literal("rejected"),
-            v.literal("accepted")
+            v.literal("accepted"),
         ),
         nextStep: v.optional(v.string()),
         interviewDate: v.optional(v.number()),
@@ -209,12 +204,7 @@ export const deleteApplication = mutation({
 
         await ctx.db.delete(args.applicationId);
 
-        // Decrement job applicants count
-        const job = await ctx.db.get(application.jobId);
-        if (job && job.applicants > 0) {
-            await ctx.db.patch(application.jobId, {
-                applicants: job.applicants - 1,
-            });
-        }
+        // Note: Applicant count is now calculated from applications table, not stored on job
+        // No need to decrement a counter
     },
 });

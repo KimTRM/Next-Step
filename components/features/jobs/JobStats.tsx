@@ -2,15 +2,15 @@ import { Briefcase, Building2, TrendingUp, Clock } from 'lucide-react';
 
 interface JobStatsProps {
     jobs: Array<{
-        type: string;
+        employmentType?: string;
         company: string;
     }>;
 }
 
 export function JobStats({ jobs }: JobStatsProps) {
     const totalCompanies = new Set(jobs.map((job) => job.company)).size;
-    const fullTimeJobs = jobs.filter((job) => job.type === 'full-time').length;
-    const internships = jobs.filter((job) => job.type === 'internship').length;
+    const fullTimeJobs = jobs.filter((job) => job.employmentType === 'full-time').length;
+    const internships = jobs.filter((job) => job.employmentType === 'internship').length;
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">

@@ -1,233 +1,334 @@
 # 📚 NextStep Documentation Index
 
-Welcome to the **NextStep** documentation! This index helps you find the right guide for your needs.
+**Last Updated:** January 18, 2026
 
-## 🚀 Quick Navigation
-
-### Getting Started (New Users)
-
-**Start here if you're setting up the project for the first time**
-
-| Guide                                         | Time   | Purpose                                   |
-| --------------------------------------------- | ------ | ----------------------------------------- |
-| [5-Minute Quick Setup](CLERK-QUICK-SETUP.md)  | 5 min  | Get running in 5 minutes (essential only) |
-| [Complete Setup Guide](CONVEX-CLERK-SETUP.md) | 30 min | Full configuration with explanations      |
-| [Clerk Quick Setup](CLERK-QUICK-SETUP.md)     | 5 min  | Fastest possible setup path               |
-
-**→ Choose based on available time:**
-
-- **Rushing?** → Use [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)
-- **Have time?** → Use [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md) for complete understanding
+Welcome to NextStep! This index helps you find the right documentation for your needs.
 
 ---
 
-### Authentication (Clerk)
+## 🚀 Quick Access
 
-**Focus: User registration, login, and session management**
-
-| Guide                                         | Purpose                                   | User Type  |
-| --------------------------------------------- | ----------------------------------------- | ---------- |
-| [Testing Guide](CLERK-TESTING-GUIDE.md)       | Test all auth flows (7 flows, 30+ issues) | Developers |
-| [Setup Completion](CLERK-SETUP-COMPLETION.md) | Implementation summary & checklist        | Developers |
-| [Quick Setup](CLERK-QUICK-SETUP.md)           | Fast implementation guide                 | Developers |
-| [Clerk Index](README-CLERK.md)                | All Clerk-related docs                    | All users  |
-
-**What to test:**
-
-- Email/password signup & verification
-- Social logins (Google, GitHub)
-- Session persistence
-- Token-based API calls
-- Webhook integration
+| I want to...                    | Go to...                                     |
+| ------------------------------- | -------------------------------------------- |
+| **Get started quickly**         | [QUICK-START.md](QUICK-START.md)             |
+| **Understand the architecture** | [ARCHITECTURE.md](ARCHITECTURE.md)           |
+| **Learn development patterns**  | [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)     |
+| **Set up authentication**       | [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md) |
+| **See what's next**             | [TODO.md](TODO.md)                           |
 
 ---
 
-### Database (Convex)
+## 👥 By Role
 
-**Focus: Real-time database, schema, and API**
+### 👨‍💻 New Developers
 
-| Guide                                | Purpose                  |
-| ------------------------------------ | ------------------------ |
-| [Setup Guide](CONVEX-CLERK-SETUP.md) | Integration with Clerk   |
-| [Quick Start](CONVEX-QUICKSTART.md)  | Database quick reference |
+Start here to get up and running:
 
----
+1. **[SETUP-GUIDE.md](SETUP-GUIDE.md)** - Complete setup with Clerk & Convex (10 min)
+2. **[ARCHITECTURE.md](ARCHITECTURE.md)** - System overview (15 min)
+3. **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Development patterns (20 min)
+4. Explore the codebase: `app/(platform)/jobs/` for complete example
 
-### Technical Architecture
+**What you'll learn:**
 
-**Focus: System design, data flow, and integration**
+- How to set up your development environment
+- Project structure and organization
+- DAL pattern and architecture
+- How to add new features
 
-| Guide                                         | Purpose                          | Audience                |
-| --------------------------------------------- | -------------------------------- | ----------------------- |
-| [System Architecture](ARCHITECTURE.md)        | Overall system design            | Architects, Senior devs |
-| [Integration Summary](INTEGRATION-SUMMARY.md) | How services connect             | All developers          |
-| [Developer Guide](DEVELOPER-GUIDE.md)         | Development patterns & practices | Frontend developers     |
+### 🔧 DevOps / Setup
 
----
+Configuration and deployment:
 
-### Project Info
+1. **[CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)** - Auth setup (5 min)
+2. **[CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md)** - Database setup (5 min)
+3. **[CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)** - Full integration (30 min)
 
-**Focus: Project goals, status, and planning**
+**What you'll configure:**
 
-| Guide                                         | Purpose               |
-| --------------------------------------------- | --------------------- |
-| [Migration Guide](MIGRATION-GUIDE.md)         | Migration information |
-| [Refactoring Summary](REFACTORING-SUMMARY.md) | Code improvements     |
-| [TODO List](TODO.md)                          | Future enhancements   |
+- Clerk authentication
+- Convex database
+- Environment variables
+- JWT templates
 
----
+### 🧪 QA / Testing
 
-## 📖 Documentation by Role
+Testing and validation:
 
-### For Developers Setting Up the Project
+1. **[CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)** - Test auth flows
+2. **[CLERK-SETUP-COMPLETION.md](CLERK-SETUP-COMPLETION.md)** - Verify setup
+3. **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md#testing)** - Testing section
 
-1. **First time setup?**
-    - Read: [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md) (5 min) or [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md) (30 min)
+**What you'll test:**
 
-2. **Want to test authentication?**
-    - Read: [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)
-    - Follow: All 7 test flows
+- Authentication flows
+- Protected routes
+- API endpoints
+- Feature functionality
 
-3. **Need to understand architecture?**
-    - Read: [ARCHITECTURE.md](ARCHITECTURE.md)
-    - Review: [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)
+### 📝 Product / Planning
 
-4. **Building new features?**
-    - Read: [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
-    - Reference: [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)
+Product planning and roadmap:
 
-### For DevOps / Deployment
+1. **[README.md](README.md)** - Project overview
+2. **[TODO.md](TODO.md)** - Roadmap and priorities
+3. **[MVP-PLAN.md](MVP-PLAN.md)** - MVP planning (if applicable)
 
-1. **Deploying to production?**
-    - Check: [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md)
-    - Review: [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)
+**What you'll find:**
 
-2. **Monitoring & logging?**
-    - Read: [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md#debugging) (Debugging section)
-
-### For Project Managers
-
-1. **Understand project status?**
-    - Read: [ARCHITECTURE.md](ARCHITECTURE.md) (System Overview)
-
-2. **What's planned?**
-    - Read: [TODO.md](TODO.md)
+- Current implementation status
+- Upcoming features
+- Known issues
+- Feature priorities
 
 ---
 
-## 🎯 Find Your Use Case
+## 📖 By Topic
+
+### 🏗️ Architecture & Design
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete system architecture
+    - Tech stack overview
+    - DAL pattern explanation
+    - Data flow diagrams
+    - Authentication flow
+    - API structure
+
+- **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Development patterns
+    - Code organization
+    - Component structure
+    - API development
+    - Best practices
+
+### 🔐 Authentication
+
+- **[SETUP-GUIDE.md](SETUP-GUIDE.md)** - Complete Clerk setup guide
+    - Account creation and API keys
+    - JWT template configuration
+    - Social authentication (Google, GitHub)
+    - Testing and troubleshooting
+
+### 💾 Database
+
+- **[SETUP-GUIDE.md](SETUP-GUIDE.md#step-3-convex-database-setup)** - Convex setup
+- **[ARCHITECTURE.md](ARCHITECTURE.md#database-operations)** - Schema and operations
+- **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md#database-operations)** - Convex queries/mutations
+
+### ✨ Features
+
+- **[TODO.md](TODO.md)** - Feature status and roadmap
+- **[ARCHITECTURE.md](ARCHITECTURE.md#feature-status)** - Current implementation
+
+### 🚀 Development
+
+- **[QUICK-START.md](QUICK-START.md)** - Get started fast
+- **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Complete development guide
+- **[ARCHITECTURE.md](ARCHITECTURE.md#development-commands)** - Common commands
+
+---
+
+## 📚 Core Documentation
+
+### Essential Reading
+
+| Document                                 | Purpose                         | Time   | Priority |
+| ---------------------------------------- | ------------------------------- | ------ | -------- |
+| [README.md](README.md)                   | Project overview and navigation | 5 min  | ⭐⭐⭐   |
+| [QUICK-START.md](QUICK-START.md)         | Get running quickly             | 10 min | ⭐⭐⭐   |
+| [ARCHITECTURE.md](ARCHITECTURE.md)       | System design and structure     | 15 min | ⭐⭐⭐   |
+| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Development patterns            | 20 min | ⭐⭐⭐   |
+
+### Setup Guides
+
+| Document                                       | Purpose              | Time   | When to Use      |
+| ---------------------------------------------- | -------------------- | ------ | ---------------- |
+| [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)   | Fast auth setup      | 5 min  | First time setup |
+| [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md)   | Database quick ref   | 5 min  | Database setup   |
+| [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md) | Complete integration | 30 min | Detailed setup   |
+
+### Testing & Verification
+
+| Document                                               | Purpose         | Time   | When to Use      |
+| ------------------------------------------------------ | --------------- | ------ | ---------------- |
+| [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)       | Test auth flows | 30 min | After setup      |
+| [CLERK-SETUP-COMPLETION.md](CLERK-SETUP-COMPLETION.md) | Verify setup    | 10 min | Setup validation |
+| [CLERK-SETUP-SUMMARY.md](CLERK-SETUP-SUMMARY.md)       | Setup summary   | 10 min | Quick reference  |
+
+### Feature Documentation
+
+| Document           | Purpose | Time  | When to Use   |
+| ------------------ | ------- | ----- | ------------- |
+| [TODO.md](TODO.md) | Roadmap | 5 min | Planning work |
+
+### Planning (Optional)
+
+| Document                                         | Purpose         | Time   | When to Use       |
+| ------------------------------------------------ | --------------- | ------ | ----------------- |
+| [MVP-PLAN.md](MVP-PLAN.md)                       | MVP roadmap     | 15 min | Planning MVP      |
+| [MVP-TIMELINE-VISUAL.md](MVP-TIMELINE-VISUAL.md) | Visual timeline | 5 min  | Timeline overview |
+
+---
+
+## 🎯 Learning Paths
+
+### Path 1: Complete Beginner (2-3 hours)
+
+1. **[README.md](README.md)** - Understand what NextStep is (5 min)
+2. **[SETUP-GUIDE.md](SETUP-GUIDE.md)** - Complete setup (10 min)
+3. **[ARCHITECTURE.md](ARCHITECTURE.md)** - Understand structure (15 min)
+4. **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Learn patterns (20 min)
+5. **Explore Code** - Look at `app/(platform)/jobs/` (30 min)
+6. **Try Building** - Add a small feature (60 min)
+
+### Path 2: Experienced Developer (1 hour)
+
+1. **[ARCHITECTURE.md](ARCHITECTURE.md)** - System overview (15 min)
+2. **[QUICK-START.md](QUICK-START.md)** - Environment setup (10 min)
+3. **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Patterns (15 min)
+4. **Explore Code** - Review DAL pattern in action (20 min)
+
+### Path 3: DevOps/Setup Only (30 min)
+
+1. **[SETUP-GUIDE.md](SETUP-GUIDE.md)** - Complete setup (10 min)
+2. Test authentication flows (5 min)
+3. Verify environment (5 min)
+
+### Path 4: Contributing Developer (45 min)
+
+1. **[ARCHITECTURE.md](ARCHITECTURE.md)** - Understand system (15 min)
+2. **[DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - Learn patterns (20 min)
+3. **[TODO.md](TODO.md)** - Find task (5 min)
+4. **Start Coding** - Implement feature (5 min to start)
+
+---
+
+## 🔍 By Use Case
 
 ### "I need to set up the project"
 
+→ [QUICK-START.md](QUICK-START.md)
+
+### "I need to configure Clerk authentication"
+
 → [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md) or [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)
 
-### "Authentication isn't working"
+### "I need to understand the architecture"
 
-→ [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md) (30+ known issues documented)
+→ [ARCHITECTURE.md](ARCHITECTURE.md)
 
-### "I need to understand the system"
+### "I need to add a new feature"
 
-→ [ARCHITECTURE.md](ARCHITECTURE.md) + [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)
+→ [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md#feature-development)
 
-### "I'm building a new feature"
+### "I need to test authentication"
 
-→ [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
+→ [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)
 
-### "I need to deploy this"
-
-→ [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md) + [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)
-
-### "I want to know what's next"
+### "I need to know what's next"
 
 → [TODO.md](TODO.md)
 
----
+### "I need to understand the DAL pattern"
 
-## 📚 All Documentation Files
+→ [ARCHITECTURE.md](ARCHITECTURE.md#api-layer-dal-pattern)
 
-| File                                                   | Lines | Focus                                     | Last Updated |
-| ------------------------------------------------------ | ----- | ----------------------------------------- | ------------ |
-| [ARCHITECTURE.md](ARCHITECTURE.md)                     | ~150  | System design & data flow                 | Phase 5      |
-| [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)           | ~85   | 5-minute setup                            | Phase 5      |
-| [CLERK-SETUP-COMPLETION.md](CLERK-SETUP-COMPLETION.md) | ~320  | Setup implementation summary              | Phase 5      |
-| [CLERK-SETUP-SUMMARY.md](CLERK-SETUP-SUMMARY.md)       | ~380  | Complete setup guide                      | Phase 5      |
-| [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)       | ~450  | Test flows & troubleshooting (30+ issues) | Phase 5      |
-| [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)         | ~500  | Full integration guide                    | Phase 5      |
-| [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md)           | ~120  | Quick reference                           | Phase 5      |
-| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)               | ~200  | Development patterns                      | Phase 5      |
-| [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)       | ~180  | Service integration overview              | Phase 5      |
-| [MIGRATION-GUIDE.md](MIGRATION-GUIDE.md)               | ~100  | Migration information                     | Phase 5      |
-| [REFACTORING-SUMMARY.md](REFACTORING-SUMMARY.md)       | ~150  | Code improvements                         | Phase 5      |
-| [TODO.md](TODO.md)                                     | ~100  | Future enhancements                       | Phase 5      |
+### "I'm getting errors"
 
-**Total Documentation**: ~2,700+ lines of guides, examples, and troubleshooting
+→ [QUICK-START.md](QUICK-START.md#troubleshooting) or [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md#best-practices)
+
+### "I want to contribute"
+
+→ [TODO.md](TODO.md) + [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
 
 ---
 
-## 🔍 Search Tricks
+## 📊 Documentation Status
 
-### By Technology
+### ✅ Up to Date (January 2026)
 
-- **Clerk (Authentication)**: See [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md), [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)
-- **Convex (Database)**: See [CONVEX-QUICKSTART.md](CONVEX-QUICKSTART.md), [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)
-- **Next.js (Framework)**: See [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md), [ARCHITECTURE.md](ARCHITECTURE.md)
+- README.md
+- ARCHITECTURE.md
+- DEVELOPER-GUIDE.md
+- QUICK-START.md
+- TODO.md
+- INDEX.md
 
-### By Problem Type
+### 🔒 Setup Guides (Stable)
 
-- **Auth Problems**: [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md) (30+ known issues)
-- **Setup Issues**: [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md) (step-by-step)
-- **Architecture Questions**: [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Development Help**: [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
+- CLERK-QUICK-SETUP.md
+- CLERK-SETUP-COMPLETION.md
+- CLERK-SETUP-SUMMARY.md
+- CLERK-TESTING-GUIDE.md
+- CONVEX-CLERK-SETUP.md
+- CONVEX-QUICKSTART.md
 
-### By Time Available
+### 🟡 Legacy (Reference Only)
 
-- **5 minutes**: [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)
-- **30 minutes**: [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)
-- **1+ hours**: [ARCHITECTURE.md](ARCHITECTURE.md) + [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) + [INTEGRATION-SUMMARY.md](INTEGRATION-SUMMARY.md)
-
----
-
-## 💡 Common Questions
-
-### "Where do I start?"
-
-→ Read main [README.md](../README.md) first, then [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md)
-
-### "How do I get setup fast?"
-
-→ [CLERK-QUICK-SETUP.md](CLERK-QUICK-SETUP.md) (5 minutes)
-
-### "I'm stuck, what do I do?"
-
-→ [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md) (contains 30+ common issues & solutions)
-
-### "I want to understand everything"
-
-→ [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md) (comprehensive guide)
-
-### "How does this all fit together?"
-
-→ [ARCHITECTURE.md](ARCHITECTURE.md) (system overview)
-
-### "How do I add a new feature?"
-
-→ [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
-
-### "What happens next?"
-
-→ [TODO.md](TODO.md)
+- MVP-PLAN.md (if planning MVP)
+- MVP-TIMELINE-VISUAL.md (if planning MVP)
+- README-CLERK.md (older reference)
 
 ---
 
-## 📞 Need Help?
+## 🆘 Getting Help
 
-1. **Check the [CLERK-TESTING-GUIDE.md](CLERK-TESTING-GUIDE.md)** - contains 30+ documented issues and solutions
-2. **Review [ARCHITECTURE.md](ARCHITECTURE.md)** - understand how systems connect
-3. **Follow [CONVEX-CLERK-SETUP.md](CONVEX-CLERK-SETUP.md)** - detailed step-by-step guide
-4. **See [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)** - patterns and best practices
+### Can't Find What You Need?
+
+1. **Search** this index
+2. **Check** the table of contents in each doc
+3. **Read** the Quick Start for basics
+4. **Review** example code in `app/(platform)/jobs/`
+5. **Open** an issue with your question
+
+### Documentation Feedback
+
+Found an error or have a suggestion?
+
+- Open an issue
+- Submit a PR with improvements
+- Tag docs in your issue
 
 ---
 
-**Last Updated**: January 15, 2026  
-**Version**: 5.0  
-**Documentation Status**: ✅ Complete & Organized
+## 📝 Documentation Standards
+
+When contributing documentation:
+
+1. **Keep it current** - Update dates
+2. **Be clear** - Write for beginners
+3. **Use examples** - Show, don't just tell
+4. **Stay organized** - Follow existing structure
+5. **Link related docs** - Help navigation
+6. **Test instructions** - Verify they work
+
+---
+
+## 🗺️ Documentation Map
+
+```
+docs/
+├── README.md                    # Main overview
+├── INDEX.md                     # This file - navigation hub
+├── SETUP-GUIDE.md               # Complete setup (10 min)
+│
+├── Getting Started
+│   └── QUICK-START.md           # Alternative quick start
+│
+├── Architecture & Development
+│   ├── ARCHITECTURE.md          # System design
+│   └── DEVELOPER-GUIDE.md       # Development patterns
+│
+├── Features & Planning
+│   ├── TODO.md                  # Roadmap
+│   ├── MVP-PLAN.md              # MVP planning (optional)
+│   └── MVP-TIMELINE-VISUAL.md   # Timeline (optional)
+│
+└── Legacy/Reference
+    └── README-CLERK.md          # Older reference
+```
+
+---
+
+**Need help navigating?** Start with [README.md](README.md) for a guided introduction!
+
+**Last Updated:** January 18, 2026
