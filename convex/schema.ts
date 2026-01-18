@@ -79,6 +79,97 @@ export default defineSchema({
         .index("by_education_level", ["educationLevel"]),
 
     /**
+     * Jobs Collection
+     * Job listings with comprehensive details
+     *
+     * Indexes:
+     * - by_company: Group jobs by company for company pages
+     * - by_requiredSkills: Match jobs by skills for recommendations
+     * - by_employmentType: Filter by full-time, part-time, contract, etc.
+     * - by_location: Filter by job location
+     * - by_postedDate: Sort by newest/oldest
+     * - by_isActive: Filter active jobs
+     * - by_isActive_postedDate: Compound index for active jobs sorted by date
+     */
+    jobs: defineTable({
+        // Basic Information
+        title: v.string(),
+        company: v.string(),
+        description: v.string(), // Markdown or HTML, max 5000 chars
+
+        // Job Details
+        employmentType: v.union(
+            v.literal("full-time"),
+            v.literal("part-time"),
+            v.literal("contract"),
+            v.literal("internship"),
+            v.literal("temporary"),
+        ),
+        location: v.string(),
+        locationType: v.union(
+            v.literal("on-site"),
+            v.literal("remote"),
+            v.literal("hybrid"),
+        ),
+        minSalary: v.optional(v.number()),
+        maxSalary: v.optional(v.number()),
+        salaryCurrency: v.optional(v.string()), // e.g., "USD", "EUR"
+        salaryPeriod: v.optional(
+            v.union(v.literal("hour"), v.literal("month"), v.literal("year")),
+        ),
+
+        // Requirements
+        requiredSkills: v.array(v.string()),
+        experienceLevel: v.union(
+            v.literal("entry"),
+            v.literal("mid"),
+            v.literal("senior"),
+            v.literal("lead"),
+            v.literal("executive"),
+        ),
+        education: v.optional(
+            v.union(
+                v.literal("high_school"),
+                v.literal("associate"),
+                v.literal("bachelor"),
+                v.literal("master"),
+                v.literal("phd"),
+                v.literal("none"),
+            ),
+        ),
+
+        // Application Details
+        applicationDeadline: v.optional(v.number()), // Unix timestamp
+        applicationUrl: v.optional(v.string()),
+        howToApply: v.optional(v.string()),
+
+        // Metadata
+        postedDate: v.number(), // Unix timestamp
+        expiresDate: v.optional(v.number()), // Unix timestamp
+        isActive: v.boolean(),
+        views: v.number(), // View count
+
+        // Poster Information
+        postedBy: v.id("users"),
+        companyLogo: v.optional(v.string()),
+        companyWebsite: v.optional(v.string()),
+
+        // Categorization
+        industry: v.optional(v.string()),
+        jobCategory: v.optional(v.string()), // e.g., "Engineering", "Design", "Marketing"
+        tags: v.optional(v.array(v.string())),
+    })
+        .index("by_company", ["company"])
+        .index("by_requiredSkills", ["requiredSkills"])
+        .index("by_employmentType", ["employmentType"])
+        .index("by_location", ["location"])
+        .index("by_postedDate", ["postedDate"])
+        .index("by_isActive", ["isActive"])
+        .index("by_isActive_postedDate", ["isActive", "postedDate"])
+        .index("by_postedBy", ["postedBy"])
+        .index("by_experienceLevel", ["experienceLevel"]),
+
+    /**
      * Opportunities Collection
      * Jobs, internships, and mentorship opportunities
      */
@@ -157,34 +248,6 @@ export default defineSchema({
         .index("by_mentor", ["mentorId"])
         .index("by_student", ["studentId"])
         .index("by_status", ["status"]),
-
-    /**
-     * Jobs Collection
-     * Job postings for fresh graduates
-     */
-    jobs: defineTable({
-        title: v.string(),
-        company: v.string(),
-        location: v.string(),
-        type: v.union(
-            v.literal("full-time"),
-            v.literal("part-time"),
-            v.literal("internship"),
-            v.literal("contract"),
-        ),
-        category: v.string(),
-        salary: v.string(),
-        description: v.string(),
-        postedDate: v.number(), // Unix timestamp
-        postedBy: v.id("users"),
-        applicants: v.number(), // Count of applicants
-        isActive: v.boolean(),
-    })
-        .index("by_type", ["type"])
-        .index("by_category", ["category"])
-        .index("by_posted_by", ["postedBy"])
-        .index("by_posted_date", ["postedDate"])
-        .index("by_is_active", ["isActive"]),
 
     /**
      * Mentors Collection

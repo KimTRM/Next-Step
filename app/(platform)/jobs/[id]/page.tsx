@@ -8,12 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-    Briefcase,
     MapPin,
     DollarSign,
-    Clock,
     Building2,
     Users,
     CheckCircle,
@@ -32,26 +30,26 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     const router = useRouter();
 
     // Resolve params promise
-    if (!resolvedParams) {
+    useEffect(() => {
         params.then(setResolvedParams);
-        return (
-            <div className="max-w-5xl mx-auto px-4 py-8">
-                <div className="flex items-center justify-center h-64">
-                    <p className="text-lg text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    }, [params]);
 
-    const jobId = resolvedParams.id as Id<'jobs'>;
-    const job = useQuery(api.jobs.getJobById, { jobId });
+    const jobId = resolvedParams?.id as Id<'jobs'> | undefined;
+
+    // Call hooks unconditionally
+    const job = useQuery(
+        api.jobs.getJobById,
+        jobId ? { jobId } : 'skip'
+    );
     const createJobApplication = useMutation(api.jobApplications.createJobApplication);
     const userJobApplications = useQuery(api.jobApplications.getUserJobApplications);
 
     // Check if user already applied
-    const hasApplied = userJobApplications?.some((app) => app.jobId === jobId);
+    const hasApplied = jobId ? userJobApplications?.some((app) => app.jobId === jobId) : false;
 
     const handleApply = async () => {
+        if (!jobId) return;
+
         setIsApplying(true);
         try {
             await createJobApplication({
@@ -67,6 +65,17 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             setIsApplying(false);
         }
     };
+
+    // Show loading state while params are being resolved
+    if (!resolvedParams) {
+        return (
+            <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-lg text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (job === undefined) {
         return (
@@ -89,11 +98,12 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         );
     }
 
-    const typeColors = {
+    const typeColors: Record<string, string> = {
         'full-time': 'bg-blue-100 text-blue-800 border-blue-200',
         'part-time': 'bg-green-100 text-green-800 border-green-200',
         internship: 'bg-purple-100 text-purple-800 border-purple-200',
         contract: 'bg-orange-100 text-orange-800 border-orange-200',
+        temporary: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     };
 
     return (
@@ -116,11 +126,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                                     <div className="flex items-center gap-2">
                                         <Badge
                                             variant="outline"
-                                            className={typeColors[job.type]}
+                                            className={typeColors[job.employmentType] || 'bg-gray-100 text-gray-800'}
                                         >
-                                            {job.type.toUpperCase().replace('-', ' ')}
+                                            {job.employmentType?.toUpperCase().replace('-', ' ') || 'NOT SPECIFIED'}
                                         </Badge>
-                                        <Badge variant="secondary">{job.category}</Badge>
+                                        <Badge variant="secondary">{job.jobCategory || 'General'}</Badge>
                                     </div>
                                     <CardTitle className="text-3xl">{job.title}</CardTitle>
                                 </div>
@@ -135,18 +145,21 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <MapPin className="h-4 w-4" />
-                                    <span>{job.location}</span>
+                                    <span>{job.location} ({job.locationType || 'on-site'})</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <DollarSign className="h-4 w-4" />
-                                    <span>{job.salary}</span>
+                                    <span>
+                                        {job.minSalary && job.maxSalary
+                                            ? `${job.salaryCurrency || '$'}${job.minSalary.toLocaleString()} - ${job.salaryCurrency || '$'}${job.maxSalary.toLocaleString()}/${job.salaryPeriod || 'year'}`
+                                            : job.minSalary
+                                                ? `From ${job.salaryCurrency || '$'}${job.minSalary.toLocaleString()}/${job.salaryPeriod || 'year'}`
+                                                : 'Salary not specified'}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4" />
-                                    <span>
-                                        {job.applicants}{' '}
-                                        {job.applicants === 1 ? 'applicant' : 'applicants'}
-                                    </span>
+                                    <span>{job.views || 0} views</span>
                                 </div>
                             </div>
 

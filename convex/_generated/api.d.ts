@@ -10,6 +10,8 @@
 
 import type * as applications from "../applications.js";
 import type * as jobApplications from "../jobApplications.js";
+import type * as jobMutations from "../jobMutations.js";
+import type * as jobQueries from "../jobQueries.js";
 import type * as jobs from "../jobs.js";
 import type * as mentors from "../mentors.js";
 import type * as messages from "../messages.js";
@@ -27,6 +29,8 @@ import type {
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   jobApplications: typeof jobApplications;
+  jobMutations: typeof jobMutations;
+  jobQueries: typeof jobQueries;
   jobs: typeof jobs;
   mentors: typeof mentors;
   messages: typeof messages;

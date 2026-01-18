@@ -16,8 +16,8 @@ export function JobsPageContent() {
   // Fetch jobs from Convex
   const allJobs = useQuery(api.jobs.searchJobs, {
     searchTerm,
-    type: selectedType === 'all' ? undefined : selectedType,
-    category: selectedCategory === 'all' ? undefined : selectedCategory,
+    employmentType: selectedType === 'all' ? undefined : selectedType,
+    jobCategory: selectedCategory === 'all' ? undefined : selectedCategory,
   });
 
   const loading = allJobs === undefined;
