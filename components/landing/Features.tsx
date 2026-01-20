@@ -1,13 +1,17 @@
-import { 
-  Briefcase, 
-  ClipboardList, 
-  UserCheck, 
-  MessageSquare, 
-  Users, 
+"use client";
+
+import {
+  Briefcase,
+  ClipboardList,
+  UserCheck,
+  MessageSquare,
+  Users,
   FileText,
   TrendingUp,
   Target
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer, cardIn, animationConfig, animationConfigFast } from '@/lib/animations';
 
 const features = [
   {
@@ -64,31 +68,58 @@ export function Features() {
   return (
     <section id="features" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
+        <motion.div
+          className="text-center mb-16"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeInUp}
+        >
+          <motion.h2
+            className="display-font text-4xl sm:text-5xl text-foreground mb-4"
+            variants={fadeInUp}
+          >
             Everything You Need to <span className="text-primary">Succeed</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p
+            className="text-lg text-muted-foreground max-w-2xl mx-auto"
+            variants={fadeInUp}
+          >
             Comprehensive tools to guide you from student to professional. Find jobs, track applications, and get mentored.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+        >
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
               className="p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-lg transition-all group"
+              variants={cardIn}
+              transition={animationConfig}
+              whileHover={{ y: -6, boxShadow: "0 18px 45px rgba(0, 0, 0, 0.08)" }}
+              whileTap={{ scale: 0.99 }}
             >
-              <div className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 group-hover:scale-110 transition-transform ${feature.color}`}>
+              <motion.div
+                className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 group-hover:scale-110 transition-transform ${feature.color}`}
+                whileHover={{ rotate: index % 2 === 0 ? 3 : -3, scale: 1.08 }}
+                transition={animationConfigFast}
+              >
                 <feature.icon className="h-6 w-6" />
-              </div>
+              </motion.div>
               <h3 className="mb-2">{feature.title}</h3>
               <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
