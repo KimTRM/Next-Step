@@ -51,10 +51,8 @@ export default defineSchema({
 
         // Skills & Interests
         skills: v.optional(v.array(v.string())),
-        interests: v.optional(v.array(v.string())),
 
         // Career
-        careerGoals: v.optional(v.string()),
         lookingFor: v.optional(v.array(v.string())), // ["job", "mentorship", "internship", "networking"]
         timeline: v.optional(v.string()), // e.g., "3-6 months", "immediate", "exploring"
 
@@ -71,6 +69,64 @@ export default defineSchema({
         createdAt: v.number(),
         updatedAt: v.optional(v.number()),
         lastSeenAt: v.optional(v.number()),
+
+        // Onboarding fields
+        onboardingCompleted: v.optional(v.boolean()),
+        onboardingStep: v.optional(v.number()),
+
+        // Basic Info
+        phone: v.optional(v.string()),
+        dateOfBirth: v.optional(v.number()), // Unix timestamp
+        gender: v.optional(
+            v.union(
+                v.literal("male"),
+                v.literal("female"),
+                v.literal("other"),
+                v.literal("prefer_not_to_say"),
+            ),
+        ),
+
+        // Education
+        education: v.optional(
+            v.array(
+                v.object({
+                    institution: v.string(),
+                    degree: v.string(),
+                    field: v.string(),
+                    startDate: v.number(), // Unix timestamp
+                    endDate: v.optional(v.number()), // Unix timestamp, null if current
+                    isCurrent: v.boolean(),
+                }),
+            ),
+        ),
+
+        // Interests
+        interests: v.optional(v.array(v.string())),
+        workStyles: v.optional(
+            v.array(
+                v.union(
+                    v.literal("remote"),
+                    v.literal("hybrid"),
+                    v.literal("onsite"),
+                    v.literal("flexible"),
+                ),
+            ),
+        ),
+
+        // Career Goals
+        careerGoals: v.optional(v.string()),
+        targetIndustries: v.optional(v.array(v.string())),
+        targetRoles: v.optional(v.array(v.string())),
+        salaryExpectation: v.optional(v.string()),
+        availability: v.optional(
+            v.union(
+                v.literal("immediately"),
+                v.literal("within_1_month"),
+                v.literal("within_3_months"),
+                v.literal("within_6_months"),
+                v.literal("just_exploring"),
+            ),
+        ),
     })
         .index("by_clerk_id", ["clerkId"])
         .index("by_email", ["email"])
