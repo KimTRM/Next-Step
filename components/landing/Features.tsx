@@ -11,7 +11,8 @@ import {
   Target
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, cardIn, animationConfig, animationConfigFast } from '@/lib/animations';
+import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { fadeInUp, staggerContainer, cardIn, animationConfig, animationConfigFast, scaleIn } from '@/lib/animations';
 
 const features = [
   {
@@ -70,56 +71,50 @@ export function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={fadeInUp}
-        >
-          <motion.h2
-            className="display-font text-4xl sm:text-5xl text-foreground mb-4"
-            variants={fadeInUp}
-          >
+        <ScrollReveal className="text-center mb-16" delay={0}>
+          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
             Everything You Need to <span className="text-primary">Succeed</span>
-          </motion.h2>
-          <motion.p
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
-            variants={fadeInUp}
-          >
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Comprehensive tools to guide you from student to professional. Find jobs, track applications, and get mentored.
-          </motion.p>
-        </motion.div>
+          </p>
+        </ScrollReveal>
 
         {/* Features Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={staggerContainer}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-lg transition-all group"
-              variants={cardIn}
-              transition={animationConfig}
-              whileHover={{ y: -6, boxShadow: "0 18px 45px rgba(0, 0, 0, 0.08)" }}
-              whileTap={{ scale: 0.99 }}
-            >
+            <ScrollReveal key={index} delay={index * 0.1} direction="up">
               <motion.div
-                className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 group-hover:scale-110 transition-transform ${feature.color}`}
-                whileHover={{ rotate: index % 2 === 0 ? 3 : -3, scale: 1.08 }}
-                transition={animationConfigFast}
+                className="p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-xl transition-all group h-full"
+                whileHover={{ 
+                  y: -8, 
+                  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.12)",
+                  scale: 1.02
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
               >
-                <feature.icon className="h-6 w-6" />
+                <motion.div
+                  className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 ${feature.color}`}
+                  whileHover={{ 
+                    rotate: index % 2 === 0 ? 5 : -5, 
+                    scale: 1.1,
+                    backgroundColor: "rgba(34, 197, 94, 0.2)"
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <feature.icon className="h-6 w-6" />
+                </motion.div>
+                <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
               </motion.div>
-              <h3 className="mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </motion.div>
+            </ScrollReveal>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
