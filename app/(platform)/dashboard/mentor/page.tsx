@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, MessageSquare, Star, MapPin, Building } from "lucide-react";
 
 interface Mentor {
-  _id: string;
+  _id: Id<"mentors">;
   name: string;
   email?: string;
   role: string;
@@ -28,7 +29,7 @@ interface Mentor {
 }
 
 interface Mentee {
-  _id: string;
+  _id: Id<"users">;
   name: string;
   email: string;
   role: string;
@@ -38,14 +39,14 @@ interface Mentee {
 }
 
 interface ConnectionRequest {
-  _id: string;
-  opportunityId: string;
-  userId: string;
+  _id: Id<"applications">;
+  opportunityId: Id<"opportunities">;
+  userId: Id<"users">;
   status: "pending" | "accepted" | "rejected";
   appliedDate: number;
   coverLetter?: string;
   opportunity: {
-    _id: string;
+    _id: Id<"opportunities">;
     title: string;
     description: string;
     type: string;
@@ -58,22 +59,19 @@ export default function MentorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Get mentor profile
-  const mentorProfile = useQuery(api.mentors.getMentorProfile, {});
-  
-  // Get all mentors for comparison/stats
-  const allMentors = useQuery(api.mentors.getAllMentors, {});
+  const mentorProfile = useQuery(api.mentors.getMentorProfile, {}) as Mentor | undefined;
 
   // Get mentees (when mentor profile is loaded)
   const mentees = useQuery(
     api.mentors.getMentees,
     mentorProfile ? { mentorId: mentorProfile._id } : "skip"
-  );
+  ) as (Mentee | null)[] | undefined;
 
   // Get connection requests (when mentor profile is loaded)
   const connectionRequests = useQuery(
     api.mentors.getConnectionRequests,
     mentorProfile ? { mentorId: mentorProfile._id } : "skip"
-  );
+  ) as ConnectionRequest[] | undefined;
 
   if (!isLoaded || !userId) {
     return <div>Loading...</div>;
@@ -98,7 +96,7 @@ export default function MentorDashboard() {
   }
 
   const menteesList = (mentees ?? []).filter(
-    (m): m is Exclude<typeof m, null> => m !== null
+    (m: Mentee | null): m is Exclude<typeof m, null> => m !== null
   );
 
   const handleAcceptRequest = (requestId: string) => {
@@ -162,7 +160,7 @@ export default function MentorDashboard() {
               <MessageSquare className="h-8 w-8 text-green-500" />
               <div>
                 <p className="text-2xl font-bold">
-                  {connectionRequests?.filter(r => r.status === "pending").length || 0}
+                  {connectionRequests?.filter((r: ConnectionRequest) => r.status === "pending").length || 0}
                 </p>
                 <p className="text-sm text-muted-foreground">Pending Requests</p>
               </div>
@@ -218,11 +216,11 @@ export default function MentorDashboard() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="font-semibold mb-2">Expertise</h4>
                   <div className="flex flex-wrap gap-2">
-                    {mentorProfile.expertise.map((skill, index) => (
+                    {mentorProfile.expertise.map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary">
                         {skill}
                       </Badge>
@@ -244,7 +242,7 @@ export default function MentorDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {connectionRequests?.slice(0, 5).map((request) => (
+                  {connectionRequests?.slice(0, 5).map((request: ConnectionRequest) => (
                     <div key={request._id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">{request.opportunity.title}</p>
@@ -252,9 +250,9 @@ export default function MentorDashboard() {
                           Applied {new Date(request.appliedDate).toLocaleDateString()}
                         </p>
                       </div>
-                      <Badge 
-                        variant={request.status === "pending" ? "default" : 
-                                request.status === "accepted" ? "default" : "secondary"}
+                      <Badge
+                        variant={request.status === "pending" ? "default" :
+                          request.status === "accepted" ? "default" : "secondary"}
                         className={request.status === "accepted" ? "bg-green-500" : ""}
                       >
                         {request.status}
@@ -277,7 +275,7 @@ export default function MentorDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {menteesList.map((mentee) => (
+                {menteesList.map((mentee: Mentee) => (
                   <div key={mentee._id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center space-x-4">
                       <Avatar>
@@ -317,7 +315,7 @@ export default function MentorDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {connectionRequests?.map((request) => (
+                {connectionRequests?.map((request: ConnectionRequest) => (
                   <div key={request._id} className="p-4 border rounded-lg">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -327,7 +325,7 @@ export default function MentorDashboard() {
                         </p>
                         {request.coverLetter && (
                           <p className="text-sm mt-2 p-2 bg-gray-50 rounded">
-                            "{request.coverLetter}"
+                            &ldquo;{request.coverLetter}&rdquo;
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-2">
@@ -335,9 +333,9 @@ export default function MentorDashboard() {
                         </p>
                       </div>
                       <div className="flex items-center space-x-2 ml-4">
-                        <Badge 
-                          variant={request.status === "pending" ? "default" : 
-                                  request.status === "accepted" ? "default" : "secondary"}
+                        <Badge
+                          variant={request.status === "pending" ? "default" :
+                            request.status === "accepted" ? "default" : "secondary"}
                           className={request.status === "accepted" ? "bg-green-500" : ""}
                         >
                           {request.status}
@@ -346,14 +344,14 @@ export default function MentorDashboard() {
                     </div>
                     {request.status === "pending" && (
                       <div className="flex space-x-2 mt-4">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={() => handleAcceptRequest(request._id)}
                         >
                           Accept
                         </Button>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleRejectRequest(request._id)}
                         >

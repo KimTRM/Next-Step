@@ -195,62 +195,75 @@ export const completeOnboarding = mutation({
  * Update user with onboarding data
  */
 export const updateUser = mutation({
-  args: {
-    clerkId: v.string(),
-    onboardingCompleted: v.boolean(),
-    onboardingStep: v.optional(v.number()),
-    phone: v.optional(v.string()),
-    dateOfBirth: v.optional(v.number()),
-    gender: v.optional(v.union(
-      v.literal("male"),
-      v.literal("female"),
-      v.literal("other"),
-      v.literal("prefer_not_to_say")
-    )),
-    education: v.optional(v.array(v.object({
-      institution: v.string(),
-      degree: v.string(),
-      field: v.string(),
-      startDate: v.number(),
-      endDate: v.optional(v.number()),
-      isCurrent: v.boolean(),
-    }))),
-    skills: v.optional(v.array(v.string())),
-    interests: v.optional(v.array(v.string())),
-    workStyles: v.optional(v.array(v.union(
-      v.literal("remote"),
-      v.literal("hybrid"),
-      v.literal("onsite"),
-      v.literal("flexible")
-    ))),
-    careerGoals: v.optional(v.string()),
-    targetIndustries: v.optional(v.array(v.string())),
-    targetRoles: v.optional(v.array(v.string())),
-    salaryExpectation: v.optional(v.string()),
-    availability: v.optional(v.union(
-      v.literal("immediately"),
-      v.literal("within_1_month"),
-      v.literal("within_3_months"),
-      v.literal("within_6_months"),
-      v.literal("just_exploring")
-    )),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .unique();
+    args: {
+        clerkId: v.string(),
+        onboardingCompleted: v.boolean(),
+        onboardingStep: v.optional(v.number()),
+        phone: v.optional(v.string()),
+        dateOfBirth: v.optional(v.number()),
+        gender: v.optional(
+            v.union(
+                v.literal("male"),
+                v.literal("female"),
+                v.literal("other"),
+                v.literal("prefer_not_to_say"),
+            ),
+        ),
+        education: v.optional(
+            v.array(
+                v.object({
+                    institution: v.string(),
+                    degree: v.string(),
+                    field: v.string(),
+                    startDate: v.number(),
+                    endDate: v.optional(v.number()),
+                    isCurrent: v.boolean(),
+                }),
+            ),
+        ),
+        skills: v.optional(v.array(v.string())),
+        interests: v.optional(v.array(v.string())),
+        workStyles: v.optional(
+            v.array(
+                v.union(
+                    v.literal("remote"),
+                    v.literal("hybrid"),
+                    v.literal("onsite"),
+                    v.literal("flexible"),
+                ),
+            ),
+        ),
+        careerGoals: v.optional(v.string()),
+        targetIndustries: v.optional(v.array(v.string())),
+        targetRoles: v.optional(v.array(v.string())),
+        salaryExpectation: v.optional(v.string()),
+        availability: v.optional(
+            v.union(
+                v.literal("immediately"),
+                v.literal("within_1_month"),
+                v.literal("within_3_months"),
+                v.literal("within_6_months"),
+                v.literal("just_exploring"),
+            ),
+        ),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+            .unique();
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+        if (!user) {
+            throw new Error("User not found");
+        }
 
-    // Remove clerkId from args as it's not part of the update
-    const { clerkId, ...updateData } = args;
+        // Remove clerkId from args as it's not part of the update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { clerkId, ...updateData } = args;
 
-    await ctx.db.patch(user._id, updateData);
-    return user._id;
-  },
+        await ctx.db.patch(user._id, updateData);
+        return user._id;
+    },
 });
 
 /**
