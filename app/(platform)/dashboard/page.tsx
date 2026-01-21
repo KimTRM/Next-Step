@@ -10,14 +10,18 @@
 "use client";
 
 import Link from 'next/link';
+import { use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
+import { FileText, MessageCircle, Briefcase, Search, Edit, CheckCircle, XCircle, Clock, PartyPopper } from 'lucide-react';
 
-export default function DashboardPage() {
+function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
     const { user } = useUser();
+    const resolvedSearchParams = use(searchParams);
+    const justCompletedOnboarding = resolvedSearchParams.welcome === 'true';
 
     // Fetch data from Convex
     const currentUser = useQuery(api.users.getCurrentUser);
@@ -25,16 +29,8 @@ export default function DashboardPage() {
     const userApplications = useQuery(api.applications.getUserApplications);
     const userMessages = useQuery(api.messages.getUserMessages);
 
-    // Loading state
-    if (!user || currentUser === undefined || opportunities === undefined) {
-        return (
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex items-center justify-center h-64">
-                    <p className="text-lg text-gray-600">Loading dashboard...</p>
-                </div>
-            </div>
-        );
-    }
+    // Show skeleton loading while data loads
+    const isLoading = !user || currentUser === undefined || opportunities === undefined;
 
     // Calculate stats
     const unreadMessages = userMessages?.filter(msg =>
@@ -45,10 +41,37 @@ export default function DashboardPage() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
+            {/* Welcome Alert for New Users */}
+            {justCompletedOnboarding && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <PartyPopper className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-green-800">
+                                Welcome to NextStep!
+                            </h3>
+                            <div className="mt-2 text-sm text-green-700">
+                                <p>Your profile is now complete! You can start exploring opportunities and connect with mentors.</p>
+                                <div className="mt-3">
+                                    <Link href="/opportunities">
+                                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                                            Explore Opportunities
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Welcome Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">
-                    Welcome back, {user?.firstName || currentUser?.name?.split(' ')[0]}! 👋
+                    Welcome back,{" "}
+                    {user?.firstName || currentUser?.name?.split(" ")[0]}
                 </h1>
                 <p className="text-gray-600 mt-2">
                     Here's what's happening with your NextStep journey
@@ -62,12 +85,16 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Applications</p>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    {userApplications?.length || 0}
-                                </p>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {isLoading ? (
+                                        <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                                    ) : (
+                                        userApplications?.length || 0
+                                    )}
+                                </div>
                             </div>
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">📝</span>
+                                <FileText className="w-6 h-6 text-blue-600" />
                             </div>
                         </div>
                         <Link href="/applications" className="text-sm text-green-700 hover:underline mt-2 block">
@@ -81,12 +108,16 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Unread Messages</p>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    {unreadMessages}
-                                </p>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {isLoading ? (
+                                        <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                                    ) : (
+                                        unreadMessages
+                                    )}
+                                </div>
                             </div>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">💬</span>
+                                <MessageCircle className="w-6 h-6 text-green-600" />
                             </div>
                         </div>
                         <Link href="/messages" className="text-sm text-green-700 hover:underline mt-2 block">
@@ -100,12 +131,16 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">New Opportunities</p>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    {opportunities.length}
-                                </p>
+                                <div className="text-3xl font-bold text-gray-900">
+                                    {isLoading ? (
+                                        <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                                    ) : (
+                                        opportunities.length
+                                    )}
+                                </div>
                             </div>
                             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">💼</span>
+                                <Briefcase className="w-6 h-6 text-purple-600" />
                             </div>
                         </div>
                         <Link href="/opportunities" className="text-sm text-green-700 hover:underline mt-2 block">
@@ -161,17 +196,20 @@ export default function DashboardPage() {
                             <div className="space-y-3">
                                 <Link href="/opportunities">
                                     <Button variant="default" className="w-full">
-                                        🔍 Browse Opportunities
+                                        <Search className="w-4 h-4 mr-2" />
+                                        Browse Opportunities
                                     </Button>
                                 </Link>
                                 <Link href="/profile">
                                     <Button variant="outline" className="w-full">
-                                        ✏️ Update Profile
+                                        <Edit className="w-4 h-4 mr-2" />
+                                        Update Profile
                                     </Button>
                                 </Link>
                                 <Link href="/messages">
                                     <Button variant="outline" className="w-full">
-                                        💬 Check Messages
+                                        <MessageCircle className="w-4 h-4 mr-2" />
+                                        Check Messages
                                     </Button>
                                 </Link>
                             </div>
@@ -210,6 +248,10 @@ export default function DashboardPage() {
             </div>
         </div>
     );
+}
+
+export default function DashboardPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+    return <DashboardContent searchParams={searchParams} />;
 }
 
 

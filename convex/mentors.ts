@@ -4,6 +4,7 @@
 
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 
 /**
  * Get all mentors with user enrichment
@@ -620,5 +621,141 @@ export const sendConnectionRequest = mutation({
         });
 
         return messageId;
+    },
+});
+
+/**
+ * Get current user's mentor profile
+ */
+export const getMentorProfile = query({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            return null;
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            return null;
+        }
+
+        const mentor = await ctx.db
+            .query("mentors")
+            .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+            .unique();
+
+        if (!mentor) {
+            return null;
+        }
+
+        return {
+            ...mentor,
+            name: user.name || "Unknown",
+            email: user.email,
+        };
+    },
+});
+
+/**
+ * Get mentees for a mentor
+ */
+export const getMentees = query({
+    args: { mentorId: v.id("mentors") },
+    handler: async (ctx, args) => {
+        const mentor = await ctx.db.get(args.mentorId);
+        if (!mentor) {
+            return [];
+        }
+
+        // Get all mentorship sessions for this mentor
+        const sessions = await ctx.db
+            .query("mentorshipSessions")
+            .filter((q) => q.eq(q.field("mentorId"), mentor.userId))
+            .collect();
+
+        // Get unique student IDs
+        const studentIds = [...new Set(sessions.map((s) => s.studentId))];
+
+        // Get student details
+        const mentees = await Promise.all(
+            studentIds.map(async (studentId) => {
+                const user = await ctx.db.get(studentId);
+                if (!user) return null;
+
+                return {
+                    _id: user._id,
+                    name: user.name || "Unknown",
+                    email: user.email || "",
+                    role: user.role || "Student",
+                    bio: user.bio,
+                    skills: user.skills,
+                    location: user.location,
+                };
+            }),
+        );
+
+        return mentees.filter((m) => m !== null);
+    },
+});
+
+/**
+ * Get connection requests for a mentor
+ */
+export const getConnectionRequests = query({
+    args: { mentorId: v.id("mentors") },
+    handler: async (ctx, args) => {
+        const mentor = await ctx.db.get(args.mentorId);
+        if (!mentor) {
+            return [];
+        }
+
+        // Get all opportunities posted by this mentor
+        const opportunities = await ctx.db
+            .query("opportunities")
+            .filter((q) => q.eq(q.field("mentor"), args.mentorId))
+            .collect();
+
+        const opportunityIds = opportunities.map((o) => o._id);
+
+        // Get all applications for these opportunities
+        const applications = await ctx.db.query("applications").collect();
+
+        const relevantApplications = applications.filter((app) =>
+            opportunityIds.includes(app.opportunityId),
+        );
+
+        // Enrich applications with opportunity data
+        const enrichedApplications = await Promise.all(
+            relevantApplications.map(async (app) => {
+                const opportunity = opportunities.find(
+                    (o) => o._id === app.opportunityId,
+                );
+
+                if (!opportunity) return null;
+
+                return {
+                    _id: app._id,
+                    opportunityId: app.opportunityId,
+                    userId: app.userId,
+                    status: app.status,
+                    appliedDate: app.appliedDate,
+                    coverLetter: app.coverLetter,
+                    opportunity: {
+                        _id: opportunity._id,
+                        title: opportunity.title,
+                        description: opportunity.description,
+                        type: opportunity.type,
+                        postedDate: opportunity.postedDate,
+                    },
+                };
+            }),
+        );
+
+        return enrichedApplications.filter((a) => a !== null);
     },
 });

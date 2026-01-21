@@ -1,10 +1,22 @@
+"use client";
+
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import Image from 'next/image';
+import { motion } from "framer-motion";
+import { fadeInUp, animationConfig, animationConfigFast } from "@/lib/animations";
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-gray-50 to-white border-t border-border">
+    <motion.footer
+      className="bg-gradient-to-br from-gray-50 to-white border-t border-border"
+      initial="initial"
+      whileInView="animate"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={fadeInUp}
+      transition={animationConfig}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div>
@@ -15,18 +27,42 @@ export function Footer() {
               Helping you take your next step in life. Empowering youth through job discovery and mentorship.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+              <motion.a
+                href="#"
+                className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                whileHover={{ y: -2, scale: 1.06 }}
+                whileTap={{ scale: 0.98 }}
+                transition={animationConfigFast}
+              >
                 <Facebook className="h-5 w-5 text-primary" />
-              </a>
-              <a href="#" className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+              </motion.a>
+              <motion.a
+                href="#"
+                className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                whileHover={{ y: -2, scale: 1.06 }}
+                whileTap={{ scale: 0.98 }}
+                transition={animationConfigFast}
+              >
                 <Twitter className="h-5 w-5 text-primary" />
-              </a>
-              <a href="#" className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+              </motion.a>
+              <motion.a
+                href="#"
+                className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                whileHover={{ y: -2, scale: 1.06 }}
+                whileTap={{ scale: 0.98 }}
+                transition={animationConfigFast}
+              >
                 <Instagram className="h-5 w-5 text-primary" />
-              </a>
-              <a href="#" className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+              </motion.a>
+              <motion.a
+                href="#"
+                className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                whileHover={{ y: -2, scale: 1.06 }}
+                whileTap={{ scale: 0.98 }}
+                transition={animationConfigFast}
+              >
                 <Linkedin className="h-5 w-5 text-primary" />
-              </a>
+              </motion.a>
             </div>
           </div>
 
@@ -116,7 +152,7 @@ export function Footer() {
         <div className="pt-8 border-t border-border">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2026 NextStep. All rights reserved. Team Array Code.
+              &copy; 2026 NextStep. All rights reserved. Team Array Code.
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="h-4 w-4" />
@@ -127,6 +163,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }

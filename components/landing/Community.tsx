@@ -1,10 +1,15 @@
+"use client";
+
 import { MessageSquare, Users, ThumbsUp, Award } from 'lucide-react';
+import { motion } from "framer-motion";
+import { CountUp } from "@/components/animations/CountUp";
+import { fadeInUp, staggerContainer, cardIn, animationConfig, animationConfigFast } from "@/lib/animations";
 
 const stats = [
-  { icon: MessageSquare, value: '3K+', label: 'Active Mentors' },
-  { icon: Users, value: '5K+', label: 'Job Seekers' },
-  { icon: ThumbsUp, value: '12K+', label: 'Success Stories' },
-  { icon: Award, value: '800+', label: 'Partner Companies' }
+  { icon: MessageSquare, end: 3000, suffix: "+", label: 'Active Mentors' },
+  { icon: Users, end: 5000, suffix: "+", label: 'Job Seekers' },
+  { icon: ThumbsUp, end: 12000, suffix: "+", label: 'Success Stories' },
+  { icon: Award, end: 800, suffix: "+", label: 'Partner Companies' }
 ];
 
 export function Community() {
@@ -13,18 +18,26 @@ export function Community() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div>
-            <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-6">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={staggerContainer}
+          >
+            <motion.h2
+              className="display-font text-4xl sm:text-5xl text-foreground mb-6"
+              variants={fadeInUp}
+            >
               Join a Supportive <span className="text-accent">Network</span>
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            </motion.h2>
+            <motion.p className="text-lg text-muted-foreground mb-8" variants={fadeInUp}>
               Connect with mentors, professionals, and fellow jobseekers. Get guidance, share experiences, 
               and navigate your career journey with confidence and support.
-            </p>
+            </motion.p>
 
             {/* Features List */}
-            <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3">
+            <motion.div className="space-y-4 mb-8" variants={staggerContainer}>
+              <motion.div className="flex items-start gap-3" variants={fadeInUp}>
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-primary" />
                 </div>
@@ -34,9 +47,9 @@ export function Community() {
                     Get personalized guidance from experienced professionals who understand your journey.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex items-start gap-3">
+              <motion.div className="flex items-start gap-3" variants={fadeInUp}>
                 <div className="p-2 bg-accent/10 rounded-lg">
                   <Users className="h-5 w-5 text-accent" />
                 </div>
@@ -46,9 +59,9 @@ export function Community() {
                     Share tips, ask questions, and learn from peers in the same career transition phase.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex items-start gap-3">
+              <motion.div className="flex items-start gap-3" variants={fadeInUp}>
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <Award className="h-5 w-5 text-primary" />
                 </div>
@@ -58,29 +71,43 @@ export function Community() {
                     Connect with verified mentors and companies committed to youth development.
                   </p>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             <button className="px-8 py-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all">
               Find a Mentor
             </button>
-          </div>
+          </motion.div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-6">
+          <motion.div
+            className="grid grid-cols-2 gap-6"
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={staggerContainer}
+          >
             {stats.map((stat, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="p-6 rounded-xl bg-white border border-border hover:border-primary hover:shadow-lg transition-all"
+                className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all"
+                variants={cardIn}
+                transition={animationConfig}
+                whileHover={{ y: -6, boxShadow: "0 18px 45px rgba(0, 0, 0, 0.08)" }}
+                whileTap={{ scale: 0.99 }}
               >
-                <div className="inline-flex p-3 bg-primary/10 rounded-lg mb-4">
+                <motion.div
+                  className="inline-flex p-3 bg-primary/10 rounded-lg mb-4"
+                  whileHover={{ rotate: index % 2 === 0 ? 3 : -3, scale: 1.06 }}
+                  transition={animationConfigFast}
+                >
                   <stat.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div className="text-3xl text-foreground mb-1">{stat.value}</div>
+                </motion.div>
+                <CountUp end={stat.end} suffix={stat.suffix} className="text-3xl text-foreground mb-1" />
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

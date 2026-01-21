@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const eventType = evt.type;
     console.log(`📨 Received webhook event: ${eventType}`);
 
-    if (eventType === "user.created" || eventType === "user.updated") {
+    if (evt.type === "user.created" || evt.type === "user.updated") {
         const { id, email_addresses, first_name, last_name, image_url } =
             evt.data;
 
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
             return new Response(
                 JSON.stringify({
                     success: true,
-                    message: `User ${eventType === "user.created" ? "created" : "updated"}`,
+                    message: `User ${evt.type === "user.created" ? "created" : "updated"}`,
                     userId: id,
                 }),
                 {
@@ -143,7 +143,7 @@ export async function POST(req: Request) {
         }
     }
 
-    if (eventType === "user.deleted") {
+    if (evt.type === "user.deleted") {
         const { id } = evt.data;
 
         console.log(`🗑️  Deleting user ${id} from Convex`);
