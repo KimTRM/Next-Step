@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,6 +82,7 @@ export default function OnboardingPage() {
   const [customInterest, setCustomInterest] = useState("");
   const [customIndustry, setCustomIndustry] = useState("");
   const [customRole, setCustomRole] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState<OnboardingData>({
     education: [{
@@ -233,33 +234,70 @@ export default function OnboardingPage() {
     if (!userId || !validateStep(4)) return;
 
     setIsSaving(true);
+    const startTime = Date.now();
+    
+    // Add timeout to prevent infinite loading
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Save timeout - please try again")), 15000)
+    );
+
     try {
-      await updateUser({
+      console.log("Starting onboarding save...");
+      
+      // Prepare data more efficiently - remove empty strings and nulls
+      const updateData = {
         clerkId: userId,
         onboardingCompleted: true,
         onboardingStep: 4,
-        phone: formData.phone,
+        phone: formData.phone?.trim() || undefined,
         dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth).getTime() : undefined,
-        gender: formData.gender,
-        education: formData.education.map(edu => ({
-          ...edu,
-          startDate: new Date(edu.startDate).getTime(),
-          endDate: edu.endDate ? new Date(edu.endDate).getTime() : undefined,
-        })),
-        skills: formData.skills,
-        interests: formData.interests,
+        gender: formData.gender || undefined,
+        education: formData.education
+          .filter(edu => edu.institution?.trim()) // Only include education with institution
+          .map(edu => ({
+            institution: edu.institution?.trim() || "",
+            degree: edu.degree?.trim() || "",
+            field: edu.field?.trim() || "",
+            startDate: edu.startDate ? new Date(edu.startDate).getTime() : Date.now(),
+            endDate: edu.endDate ? new Date(edu.endDate).getTime() : undefined,
+            isCurrent: edu.isCurrent,
+          })),
+        skills: formData.skills.filter(s => s.trim()).slice(0, 20), // Limit to 20 skills
+        interests: formData.interests.filter(i => i.trim()).slice(0, 15), // Limit to 15 interests
         workStyles: formData.workStyles,
-        careerGoals: formData.careerGoals,
-        targetIndustries: formData.targetIndustries,
-        targetRoles: formData.targetRoles,
-        salaryExpectation: formData.salaryExpectation,
+        careerGoals: formData.careerGoals?.trim() || "",
+        targetIndustries: formData.targetIndustries.filter(i => i.trim()).slice(0, 10), // Limit to 10
+        targetRoles: formData.targetRoles.filter(r => r.trim()).slice(0, 10), // Limit to 10
+        salaryExpectation: formData.salaryExpectation?.trim() || "",
         availability: formData.availability,
-      });
+      };
 
+      console.log("Prepared data:", Object.keys(updateData).length, "fields");
+      console.log("Data size:", JSON.stringify(updateData).length, "characters");
+
+      // Race between save operation and timeout
+      await Promise.race([
+        updateUser(updateData),
+        timeoutPromise
+      ]);
+
+      const endTime = Date.now();
+      console.log(`Save completed in ${endTime - startTime}ms`);
+
+      // Clear localStorage and redirect
       localStorage.removeItem("onboardingData");
       router.push("/dashboard?welcome=true");
-    } catch (error) {
-      console.error("Error saving onboarding data:", error);
+    } catch (error: unknown) {
+      const endTime = Date.now();
+      console.error(`Save failed after ${endTime - startTime}ms:`, error);
+      
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      if (errorMessage === "Save timeout - please try again") {
+        alert("Save is taking too long. This might be due to a slow connection. Please try again.");
+      } else {
+        alert("Error saving your information. Please check your connection and try again.");
+      }
     } finally {
       setIsSaving(false);
     }
@@ -358,6 +396,22 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
+      {/* Loading overlay for save operations */}
+      {isSaving && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-center mb-2">Saving Your Profile</h3>
+            <p className="text-sm text-gray-600 text-center mb-1">
+              Setting up your personalized experience...
+            </p>
+            <p className="text-xs text-gray-500 text-center">
+              This usually takes just a few seconds
+            </p>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
