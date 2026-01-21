@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { User } from '@/lib/types';
 
@@ -81,69 +82,90 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
             <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
 
-                <Input
-                    label="Full Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                />
+                <div>
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                        required
+                    />
+                </div>
 
-                <Input
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="your.email@example.com"
-                    required
-                />
+                <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="your.email@example.com"
+                        required
+                    />
+                </div>
 
-                <Input
-                    label="Location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="City, Province/State"
-                />
+                <div>
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder="City, Province/State"
+                    />
+                </div>
             </div>
 
             {/* About Section */}
             <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">About You</h3>
 
-                <Textarea
-                    label="Bio"
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleChange}
-                    placeholder="Tell us about yourself, your goals, and what you're looking for..."
-                    helperText="A good bio helps mentors and employers understand your background"
-                />
+                <div>
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                        id="bio"
+                        name="bio"
+                        value={formData.bio}
+                        onChange={handleChange}
+                        placeholder="Tell us about yourself, your goals, and what you're looking for..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">A good bio helps mentors and employers understand your background</p>
+                </div>
 
-                <Input
-                    label="Skills"
-                    name="skills"
-                    value={formData.skills}
-                    onChange={handleChange}
-                    placeholder="React, Python, Communication, etc. (comma-separated)"
-                    helperText="List your skills separated by commas"
-                />
+                <div>
+                    <Label htmlFor="skills">Skills</Label>
+                    <Input
+                        id="skills"
+                        name="skills"
+                        value={formData.skills}
+                        onChange={handleChange}
+                        placeholder="React, Python, Communication, etc. (comma-separated)"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">List your skills separated by commas</p>
+                </div>
             </div>
 
             {user?.role === 'student' && (
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900">Student Info</h3>
-                    <Input
-                        label="Education"
-                        placeholder="e.g., Computer Science, University of Toronto"
-                    />
-                    <Input
-                        label="Graduation Year"
-                        type="number"
-                        placeholder="2026"
-                    />
+                    <div>
+                        <Label htmlFor="education">Education</Label>
+                        <Input
+                            id="education"
+                            placeholder="e.g., Computer Science, University of Toronto"
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="graduationYear">Graduation Year</Label>
+                        <Input
+                            id="graduationYear"
+                            type="number"
+                            placeholder="2026"
+                        />
+                    </div>
                 </div>
             )}
 

@@ -1,69 +1,146 @@
-/**
- * ============================================================================
- * API ROUTE - Messages Endpoint
- * ============================================================================
- * 
- * This is the Next.js API route handler for /api/messages
- * It handles HTTP requests and calls the business logic in /server/api/messages.ts
- * 
- * ARCHITECTURE:
- * - This file: HTTP layer (request parsing, response formatting, error handling)
- * - /server/api/messages.ts: Business logic layer
- * - /server/data/messages.ts: Data access layer
- * 
- * ENDPOINTS:
- * - GET /api/messages - Returns messages for current user
- * - GET /api/messages?userId=1 - Get messages for specific user (mock auth)
- * - GET /api/messages?conversationWith=2 - Get conversation between users
- * 
- * NEXT STEPS FOR PRODUCTION:
- * 1. Implement real authentication (get userId from JWT token)
- * 2. Add POST endpoint for sending messages
- * 3. Add PUT endpoint for marking messages as read
- * 4. Add DELETE endpoint for deleting messages
- * 5. Implement real-time messaging with WebSockets
- * 6. Add pagination for message history
- * 7. Implement message search
- */
-
-import { NextRequest, NextResponse } from 'next/server';
-import { getMessages, getConversations } from '@/server/api/messages';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { MessageDAL } from "@/lib/dal/server";
+import { Id } from "@/convex/_generated/dataModel";
 
 /**
- * GET handler for /api/messages
- * Returns messages for a user with optional conversation filtering
+ * GET /api/messages - Get all messages for current user
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    
-    // Mock authentication: Get userId from query param
-    // In production: Get from JWT token or session
-    const userId = searchParams.get('userId') || '1';
-    const conversationWith = searchParams.get('conversationWith') || undefined;
+export async function GET() {
+    try {
+        const { userId, getToken } = await auth();
+        if (!userId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "UNAUTHORIZED",
+                        message: "You must be logged in to view messages",
+                    },
+                },
+                { status: 401 },
+            );
+        }
 
-    // Call business logic layer
-    const result = await getMessages(userId, conversationWith);
+        const token = await getToken({ template: "convex" });
+        if (!token) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "UNAUTHORIZED",
+                        message:
+                            "Authentication token missing. Ensure Clerk Convex template is configured.",
+                    },
+                },
+                { status: 401 },
+            );
+        }
 
-    // Return successful response
-    return NextResponse.json({
-      success: true,
-      data: result.messages,
-      count: result.count,
-    });
-  } catch (error) {
-    // Log error in production (use proper logging service)
-    console.error('Error in GET /api/messages:', error);
+        const messages = await MessageDAL.getUserMessages(token);
 
-    // Return error response
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch messages',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
+        return NextResponse.json({ success: true, data: messages });
+    } catch (error) {
+        console.error("Messages fetch error:", error);
+        return NextResponse.json(
+            {
+                success: false,
+                error: {
+                    code: "SERVER_ERROR",
+                    message: "Failed to load messages",
+                },
+            },
+            { status: 500 },
+        );
+    }
+}
+
+/**
+ * POST /api/messages - Send a new message
+ */
+export async function POST(req: NextRequest) {
+    try {
+        const { userId, getToken } = await auth();
+        if (!userId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "UNAUTHORIZED",
+                        message: "You must be logged in to send messages",
+                    },
+                },
+                { status: 401 },
+            );
+        }
+
+        const token = await getToken({ template: "convex" });
+        if (!token) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "UNAUTHORIZED",
+                        message:
+                            "Authentication token missing. Ensure Clerk Convex template is configured.",
+                    },
+                },
+                { status: 401 },
+            );
+        }
+
+        const body = await req.json();
+        const { receiverId, content } = body;
+
+        if (!receiverId || typeof receiverId !== "string") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "INVALID_INPUT",
+                        message: "receiverId is required",
+                    },
+                },
+                { status: 400 },
+            );
+        }
+
+        if (!content || typeof content !== "string" || content.trim() === "") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: {
+                        code: "INVALID_INPUT",
+                        message: "content is required",
+                    },
+                },
+                { status: 400 },
+            );
+        }
+
+        const messageId = await MessageDAL.sendMessage(
+            {
+                receiverId: receiverId as Id<"users">,
+                content: content.trim(),
+            },
+            token,
+        );
+
+        return NextResponse.json({
+            success: true,
+            data: { messageId },
+        });
+    } catch (error) {
+        console.error("Send message error:", error);
+        return NextResponse.json(
+            {
+                success: false,
+                error: {
+                    code: "SERVER_ERROR",
+                    message: "Failed to send message",
+                },
+            },
+            { status: 500 },
+        );
+    }
 }
