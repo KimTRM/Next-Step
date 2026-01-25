@@ -62,6 +62,7 @@ export const getUserByClerkId = query({
 
 /**
  * Get current user (authenticated)
+ * Returns the full user object for the currently authenticated user
  */
 export const getCurrentUser = query({
     args: {},
@@ -75,6 +76,38 @@ export const getCurrentUser = query({
             .query("users")
             .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
             .unique();
+    },
+});
+
+/**
+ * Get current user session info
+ * Returns simplified session data with auth identity
+ */
+export const getCurrentSession = query({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            return null;
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            return null;
+        }
+
+        return {
+            id: identity.subject,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            avatarUrl: user.avatarUrl,
+            userId: user._id,
+        };
     },
 });
 

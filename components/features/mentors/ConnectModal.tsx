@@ -1,9 +1,11 @@
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 import type { Id } from '@/convex/_generated/dataModel';
+import { MentorsAPI, APIError } from '@/lib/api/client';
 
 type MentorBasic = {
     _id: Id<'mentors'>;
+    userId: Id<'users'>;
     name: string;
 };
 
@@ -28,19 +30,14 @@ export function ConnectModal({ mentor, onClose }: ConnectModalProps) {
         try {
             setSubmitting(true);
             setError('');
-            const res = await fetch('/api/mentors/connect', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mentorId: mentor._id, message: trimmed }),
+            await MentorsAPI.connectToMentor({
+                mentorId: mentor.userId,
+                message: trimmed,
             });
-            const json = await res.json();
-            if (!res.ok || !json.success) {
-                throw new Error(json?.error?.message || 'Failed to send request');
-            }
             setSent(true);
             setTimeout(() => onClose(), 1200);
         } catch (err) {
-            const msg = err instanceof Error ? err.message : 'Failed to send request';
+            const msg = err instanceof APIError ? err.message : 'Failed to send request';
             setError(msg);
         } finally {
             setSubmitting(false);
