@@ -2,9 +2,9 @@
  * Convex Query and Mutation Functions - Mentors
  */
 
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import type { Doc } from "./_generated/dataModel";
+import type { Doc } from "../_generated/dataModel";
 
 /**
  * Get all mentors with user enrichment

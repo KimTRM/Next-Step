@@ -1,13 +1,13 @@
 /**
- * Onboarding API
- * POST /api/profile/onboarding - Complete user onboarding with data
+ * Dashboard API
+ * GET /api/dashboard - Get aggregated dashboard data for current user
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { UserDAL } from "@/lib/dal/server/user-service";
+import { DashboardDAL } from "@/lib/dal/server/dashboard-service";
 
-export async function POST(req: NextRequest) {
+export async function GET() {
     try {
         // Check authentication
         const { userId } = await auth();
@@ -18,32 +18,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get onboarding data from request body
-        const onboardingData = await req.json();
-
         // Get Convex auth token
         const token = await auth().then((auth) =>
             auth.getToken({ template: "convex" }),
         );
 
-        // Complete onboarding with full data
-        const updatedUser = await UserDAL.completeOnboardingWithData(
-            {
-                ...onboardingData,
-                clerkId: userId,
-            },
-            token || undefined,
-        );
+        if (!token) {
+            return NextResponse.json(
+                { error: "Failed to get authentication token" },
+                { status: 401 },
+            );
+        }
+
+        // Get dashboard data
+        const dashboardData = await DashboardDAL.getUserDashboardData(token);
 
         return NextResponse.json({
             success: true,
-            data: updatedUser,
-            message: "Onboarding completed successfully",
+            data: dashboardData,
         });
     } catch (error: unknown) {
-        console.error("Onboarding completion error:", error);
+        console.error("Dashboard data fetch error:", error);
 
-        // Handle errors
         if (
             error &&
             typeof error === "object" &&
@@ -57,7 +53,7 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json(
-            { error: "Failed to complete onboarding" },
+            { error: "Failed to fetch dashboard data" },
             { status: 500 },
         );
     }

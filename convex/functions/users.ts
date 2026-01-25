@@ -4,7 +4,7 @@
  * Query operations for user data (read-only)
  */
 
-import { query } from "./_generated/server";
+import { query } from "../_generated/server";
 import { v } from "convex/values";
 
 /**

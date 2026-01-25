@@ -48,6 +48,10 @@ export interface User {
     profileCompletion: number;
     isOnboardingComplete: boolean;
 
+    // Onboarding (legacy fields from schema)
+    onboardingCompleted?: boolean;
+    onboardingStep?: number;
+
     // Metadata
     createdAt: number;
     updatedAt: number;

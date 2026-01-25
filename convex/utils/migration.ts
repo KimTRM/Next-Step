@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation } from "../_generated/server";
 
 /**
  * Migration to clear old jobs and reseed with new schema

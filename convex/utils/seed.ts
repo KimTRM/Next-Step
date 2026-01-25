@@ -5,9 +5,9 @@
  * Run with: npx convex run seed:seedAll
  */
 
-import { internalMutation } from "./_generated/server";
-import type { MutationCtx } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import { internalMutation } from "../_generated/server";
+import type { MutationCtx } from "../_generated/server";
+import type { Id } from "../_generated/dataModel";
 
 /**
  * Seed all data

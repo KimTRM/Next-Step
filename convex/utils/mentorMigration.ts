@@ -4,8 +4,8 @@
  * Clears old mentor data and reseeds with new comprehensive schema
  */
 
-import { mutation } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import { mutation } from "../_generated/server";
+import { Id } from "../_generated/dataModel";
 
 export const clearAndReseedMentors = mutation({
     args: {},

@@ -50,7 +50,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
 
     // Check if user already applied
     const hasApplied = userApplications?.some(
-        (app) => app.opportunityId === opportunityId
+        (app: any) => app.opportunityId === opportunityId
     );
 
     const handleApply = async () => {
@@ -196,7 +196,7 @@ export default function OpportunityDetailPage({ params }: OpportunityDetailPageP
                                 <div className="pt-4 border-t">
                                     <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {opportunity.skills.map((skill) => (
+                                        {opportunity.skills.map((skill: string) => (
                                             <Badge key={skill} variant="secondary">
                                                 {skill}
                                             </Badge>

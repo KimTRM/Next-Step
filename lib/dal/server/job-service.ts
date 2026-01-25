@@ -4,10 +4,12 @@
  */
 
 import { api } from "./convex";
-import { queryConvex } from "./convex";
+import { queryConvex, mutateConvex } from "./convex";
 import { DALError } from "../types/common.types";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { SearchJobsInput, JobWithPoster } from "../types/job.types";
+
+type AuthProvider = string | (() => Promise<string | null>);
 
 export class JobDAL {
     /**
@@ -154,6 +156,99 @@ export class JobDAL {
             throw new DALError(
                 "DATABASE_ERROR",
                 "Failed to fetch jobs by user",
+                error,
+            );
+        }
+    }
+
+    /**
+     * Create a new job posting
+     */
+    static async createJob(
+        jobData: any,
+        auth: AuthProvider,
+    ): Promise<Id<"jobs">> {
+        try {
+            const result = await mutateConvex(
+                api.jobs.createJob,
+                jobData,
+                auth,
+            );
+            return result as Id<"jobs">;
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to create job",
+                error,
+            );
+        }
+    }
+
+    /**
+     * Update an existing job
+     */
+    static async updateJob(
+        jobId: Id<"jobs">,
+        updates: any,
+        auth: AuthProvider,
+    ): Promise<Id<"jobs">> {
+        try {
+            const result = await mutateConvex(
+                api.jobs.updateJob,
+                { jobId, ...updates },
+                auth,
+            );
+            return result as Id<"jobs">;
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to update job",
+                error,
+            );
+        }
+    }
+
+    /**
+     * Deactivate a job (soft delete)
+     */
+    static async deactivateJob(
+        jobId: Id<"jobs">,
+        auth: AuthProvider,
+    ): Promise<Id<"jobs">> {
+        try {
+            const result = await mutateConvex(
+                api.jobs.deactivateJob,
+                { jobId },
+                auth,
+            );
+            return result as Id<"jobs">;
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to deactivate job",
+                error,
+            );
+        }
+    }
+
+    /**
+     * Reactivate a deactivated job
+     */
+    static async reactivateJob(
+        jobId: Id<"jobs">,
+        auth: AuthProvider,
+    ): Promise<Id<"jobs">> {
+        try {
+            const result = await mutateConvex(
+                api.jobs.reactivateJob,
+                { jobId },
+                auth,
+            );
+            return result as Id<"jobs">;
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to reactivate job",
                 error,
             );
         }

@@ -125,6 +125,28 @@ export class UserDAL {
     }
 
     /**
+     * Complete onboarding with full user data
+     */
+    static async completeOnboardingWithData(
+        onboardingData: any,
+        auth?: string | (() => Promise<string | null>),
+    ): Promise<any> {
+        try {
+            return await mutateConvex(
+                api.userMutations.updateUser,
+                onboardingData,
+                auth,
+            );
+        } catch (error) {
+            throw new DALError(
+                "DATABASE_ERROR",
+                "Failed to complete onboarding with data",
+                error,
+            );
+        }
+    }
+
+    /**
      * Search users by skills
      */
     static async searchBySkills(params: {

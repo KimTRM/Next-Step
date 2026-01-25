@@ -55,7 +55,7 @@ export default function OpportunitiesPage() {
                         </CardContent>
                     </Card>
                 ) : (
-                    opportunities.map((opp) => (
+                    opportunities.map((opp: any) => (
                         <Card key={opp._id} className="hover:shadow-lg transition-shadow">
                             <CardContent className="p-6">
                                 <div className="flex items-start justify-between gap-4">
