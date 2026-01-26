@@ -6,6 +6,8 @@
 
 'use client';
 import { Id } from '@/convex/_generated/dataModel';
+import { api } from '@/convex/_generated/api';
+import { useQuery } from 'convex/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -68,9 +70,6 @@ type MentorDTO = {
 
 export default function MentorDetailPage({ params }: MentorDetailPageProps) {
     const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
-    const [mentor, setMentor] = useState<MentorDTO | null>(null);
-    const [similarMentors, setSimilarMentors] = useState<MentorDTO[]>([]);
-    const [loading, setLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showConnectModal, setShowConnectModal] = useState(false);
     const router = useRouter();
@@ -80,45 +79,19 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
         params.then(setResolvedParams);
     }, [params]);
 
-    // Fetch mentor and similar mentors via API when params resolve
-    useEffect(() => {
-        if (!resolvedParams?.id) return;
-        const id = resolvedParams.id;
-        setLoading(true);
-        (async () => {
-            try {
-                const [mentorRes, similarRes] = await Promise.all([
-                    fetch(`/api/mentors/${id}`),
-                    fetch(`/api/mentors/${id}/similar?limit=3`),
-                ]);
-                const mentorJson = await mentorRes.json();
-                if (mentorJson.success) {
-                    setMentor(mentorJson.data);
-                } else {
-                    setMentor(null);
-                }
-                const similarJson = await similarRes.json();
-                if (similarJson.success) {
-                    setSimilarMentors(similarJson.data || []);
-                } else {
-                    setSimilarMentors([]);
-                }
-            } catch (e) {
-                console.error('Failed to load mentor details:', e);
-                setMentor(null);
-                setSimilarMentors([]);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [resolvedParams]);
+    // Fetch mentor and similar mentors using Convex queries
+    const mentor = useQuery(
+        api.functions.mentors.getMentorById,
+        resolvedParams?.id ? { mentorId: resolvedParams.id as Id<'mentors'> } : 'skip'
+    );
 
-    // Show loading state while params are being resolved
-    if (!resolvedParams) {
-        return <MentorDetailSkeleton />;
-    }
+    const similarMentors = useQuery(
+        api.functions.mentors.getSimilarMentors,
+        resolvedParams?.id ? { mentorId: resolvedParams.id as Id<'mentors'>, limit: 3 } : 'skip'
+    );
 
-    if (loading) {
+    // Show loading state while params are being resolved or data is loading
+    if (!resolvedParams || mentor === undefined) {
         return <MentorDetailSkeleton />;
     }
 
@@ -263,7 +236,7 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                     </Card>
 
                     {/* Similar Mentors */}
-                    {similarMentors && similarMentors.length > 0 && (
+                    {similarMentors && Array.isArray(similarMentors) && similarMentors.length > 0 && (
                         <Card>
                             <CardHeader>
                                 <CardTitle>Similar Mentors</CardTitle>
@@ -458,10 +431,11 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
             </div>
 
             {/* Modals */}
-            {showBookingModal && mentor && (
+            {showBookingModal && mentor && mentor.userId && (
                 <BookingModal
                     mentor={{
                         _id: mentor._id,
+                        userId: mentor.userId,
                         name: mentor.name,
                         role: mentor.role,
                         hourlyRate: mentor.hourlyRate,
@@ -475,9 +449,9 @@ export default function MentorDetailPage({ params }: MentorDetailPageProps) {
                 />
             )}
 
-            {showConnectModal && mentor && (
+            {showConnectModal && mentor && mentor.userId && (
                 <ConnectModal
-                    mentor={{ _id: mentor._id, name: mentor.name }}
+                    mentor={{ _id: mentor._id, userId: mentor.userId, name: mentor.name }}
                     onClose={() => setShowConnectModal(false)}
                 />
             )}

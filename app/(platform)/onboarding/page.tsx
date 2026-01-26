@@ -22,7 +22,7 @@ interface OnboardingData {
   phone?: string;
   dateOfBirth?: string;
   gender?: "male" | "female" | "other" | "prefer_not_to_say";
-  
+
   // Education
   education: Array<{
     institution: string;
@@ -32,12 +32,12 @@ interface OnboardingData {
     endDate?: string;
     isCurrent: boolean;
   }>;
-  
+
   // Skills & Interests
   skills: string[];
   interests: string[];
   workStyles: Array<"remote" | "hybrid" | "onsite" | "flexible">;
-  
+
   // Career Goals
   careerGoals: string;
   targetIndustries: string[];
@@ -74,7 +74,7 @@ const ROLE_OPTIONS = [
 export default function OnboardingPage() {
   const router = useRouter();
   const { userId } = useAuth();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -83,7 +83,7 @@ export default function OnboardingPage() {
   const [customIndustry, setCustomIndustry] = useState("");
   const [customRole, setCustomRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState<OnboardingData>({
     education: [{
       institution: "",
@@ -125,8 +125,8 @@ export default function OnboardingPage() {
   }, []);
 
   // Convex mutations
-  const updateUser = useMutation(api.userMutations.updateUser);
-  const getUser = useQuery(api.users.getUserByClerkId, { clerkId: userId || "" });
+  const updateUser = useMutation(api.functions.userMutations.updateUser);
+  const getUser = useQuery(api.functions.users.getUserByClerkId, { clerkId: userId || "" });
 
   // Check if user already completed onboarding
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function OnboardingPage() {
           newErrors.gender = "Please select your gender";
         }
         break;
-      
+
       case 2: // Education
         const edu = formData.education[0];
         if (!edu?.institution?.trim()) {
@@ -169,7 +169,7 @@ export default function OnboardingPage() {
           newErrors.endDate = "End date is required (unless currently studying)";
         }
         break;
-      
+
       case 3: // Skills & Interests
         if (formData.skills.length === 0) {
           newErrors.skills = "Please select at least one skill";
@@ -181,7 +181,7 @@ export default function OnboardingPage() {
           newErrors.workStyles = "Please select at least one work style preference";
         }
         break;
-      
+
       case 4: // Career Goals
         if (!formData.careerGoals?.trim()) {
           newErrors.careerGoals = "Please describe your career goals";
@@ -208,7 +208,7 @@ export default function OnboardingPage() {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       saveToLocalStorage(formData, nextStep);
-      
+
       // Scroll to top for mobile
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -235,15 +235,15 @@ export default function OnboardingPage() {
 
     setIsSaving(true);
     const startTime = Date.now();
-    
+
     // Add timeout to prevent infinite loading
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Save timeout - please try again")), 15000)
     );
 
     try {
       console.log("Starting onboarding save...");
-      
+
       // Prepare data more efficiently - remove empty strings and nulls
       const updateData = {
         clerkId: userId,
@@ -290,7 +290,7 @@ export default function OnboardingPage() {
     } catch (error: unknown) {
       const endTime = Date.now();
       console.error(`Save failed after ${endTime - startTime}ms:`, error);
-      
+
       // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       if (errorMessage === "Save timeout - please try again") {
@@ -411,7 +411,7 @@ export default function OnboardingPage() {
           </div>
         </div>
       )}
-      
+
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -421,7 +421,7 @@ export default function OnboardingPage() {
               Skip for now
             </Button>
           </div>
-          
+
           {/* Progress */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -433,9 +433,8 @@ export default function OnboardingPage() {
               {[1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
-                  className={`w-2 h-2 rounded-full ${
-                    step <= currentStep ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`w-2 h-2 rounded-full ${step <= currentStep ? "bg-primary" : "bg-muted"
+                    }`}
                 />
               ))}
             </div>
@@ -450,7 +449,7 @@ export default function OnboardingPage() {
               {currentStep === 2 && <GraduationCap className="h-5 w-5" />}
               {currentStep === 3 && <Target className="h-5 w-5" />}
               {currentStep === 4 && <Briefcase className="h-5 w-5" />}
-              
+
               {currentStep === 1 && "Basic Information"}
               {currentStep === 2 && "Education"}
               {currentStep === 3 && "Skills & Interests"}
@@ -463,7 +462,7 @@ export default function OnboardingPage() {
               {currentStep === 4 && "Let us know your career aspirations"}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
@@ -481,7 +480,7 @@ export default function OnboardingPage() {
                     />
                     {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="dateOfBirth">Date of Birth *</Label>
                     <Input
@@ -494,12 +493,12 @@ export default function OnboardingPage() {
                     {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth}</p>}
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Gender *</Label>
                   <Select
                     value={formData.gender || ""}
-                    onValueChange={(value: any) => setFormData(prev => ({ ...prev, gender: value }))}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value as "male" | "female" | "other" | "prefer_not_to_say" }))}
                   >
                     <SelectTrigger className={errors.gender ? "border-destructive" : ""}>
                       <SelectValue placeholder="Select your gender" />
@@ -537,7 +536,7 @@ export default function OnboardingPage() {
                         />
                         {errors.institution && <p className="text-sm text-destructive">{errors.institution}</p>}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor={`degree-${index}`}>Degree *</Label>
                         <Input
@@ -554,7 +553,7 @@ export default function OnboardingPage() {
                         {errors.degree && <p className="text-sm text-destructive">{errors.degree}</p>}
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor={`field-${index}`}>Field of Study *</Label>
@@ -571,7 +570,7 @@ export default function OnboardingPage() {
                         />
                         {errors.field && <p className="text-sm text-destructive">{errors.field}</p>}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor={`startDate-${index}`}>Start Date *</Label>
                         <Input
@@ -588,7 +587,7 @@ export default function OnboardingPage() {
                         {errors.startDate && <p className="text-sm text-destructive">{errors.startDate}</p>}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={`isCurrent-${index}`}
@@ -604,7 +603,7 @@ export default function OnboardingPage() {
                       />
                       <Label htmlFor={`isCurrent-${index}`}>Currently studying here</Label>
                     </div>
-                    
+
                     {!edu.isCurrent && (
                       <div className="space-y-2">
                         <Label htmlFor={`endDate-${index}`}>End Date *</Label>
@@ -646,7 +645,7 @@ export default function OnboardingPage() {
                       </Badge>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Select from popular skills:</p>
                     <div className="flex flex-wrap gap-2">
@@ -663,7 +662,7 @@ export default function OnboardingPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add custom skill"
@@ -712,7 +711,7 @@ export default function OnboardingPage() {
                       </Badge>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Select from popular interests:</p>
                     <div className="flex flex-wrap gap-2">
@@ -729,7 +728,7 @@ export default function OnboardingPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add custom interest"
@@ -820,7 +819,7 @@ export default function OnboardingPage() {
                       </Badge>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Select from popular industries:</p>
                     <div className="flex flex-wrap gap-2">
@@ -837,7 +836,7 @@ export default function OnboardingPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add custom industry"
@@ -884,7 +883,7 @@ export default function OnboardingPage() {
                       </Badge>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Select from popular roles:</p>
                     <div className="flex flex-wrap gap-2">
@@ -901,7 +900,7 @@ export default function OnboardingPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add custom role"
@@ -943,7 +942,7 @@ export default function OnboardingPage() {
                       onChange={(e) => setFormData(prev => ({ ...prev, salaryExpectation: e.target.value }))}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="availability">Availability</Label>
                     <Select
@@ -979,7 +978,7 @@ export default function OnboardingPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          
+
           <Button
             onClick={handleNext}
             disabled={isSaving}
@@ -1000,7 +999,7 @@ export default function OnboardingPage() {
 
         {/* Keyboard shortcuts hint */}
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          Press <kbd className="px-2 py-1 bg-muted rounded">Enter</kbd> to continue • 
+          Press <kbd className="px-2 py-1 bg-muted rounded">Enter</kbd> to continue •
           Press <kbd className="px-2 py-1 bg-muted rounded">Esc</kbd> to go back
         </div>
       </div>

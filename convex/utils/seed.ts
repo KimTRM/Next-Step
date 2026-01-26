@@ -24,16 +24,8 @@ export const seedAll = internalMutation({
         const userIds = await seedUsers(ctx);
         console.log(`✓ Seeded ${userIds.length} users`);
 
-        // Seed opportunities
-        const opportunityIds = await seedOpportunities(ctx, userIds);
-        console.log(`✓ Seeded ${opportunityIds.length} opportunities`);
-
         // Seed applications
-        const applicationIds = await seedApplications(
-            ctx,
-            userIds,
-            opportunityIds,
-        );
+        const applicationIds = await seedApplications(ctx, userIds);
         console.log(`✓ Seeded ${applicationIds.length} applications`);
 
         // Seed messages
@@ -51,7 +43,6 @@ export const seedAll = internalMutation({
         console.log("✅ Database seeding complete!");
         return {
             users: userIds.length,
-            opportunities: opportunityIds.length,
             applications: applicationIds.length,
             messages: messageIds.length,
             jobs: jobIds.length,
@@ -67,11 +58,6 @@ async function clearAllData(ctx: MutationCtx) {
     const users = await ctx.db.query("users").collect();
     for (const user of users) {
         await ctx.db.delete(user._id);
-    }
-
-    const opportunities = await ctx.db.query("opportunities").collect();
-    for (const opp of opportunities) {
-        await ctx.db.delete(opp._id);
     }
 
     const applications = await ctx.db.query("applications").collect();
@@ -165,122 +151,14 @@ async function seedUsers(ctx: MutationCtx): Promise<Id<"users">[]> {
 }
 
 /**
- * Seed opportunities
- */
-async function seedOpportunities(
-    ctx: MutationCtx,
-    userIds: Id<"users">[],
-): Promise<Id<"opportunities">[]> {
-    const mockOpportunities = [
-        {
-            title: "Frontend Developer Intern",
-            type: "internship" as const,
-            description: "Work on React and TypeScript projects with our team",
-            company: "TechCorp Inc.",
-            location: "Toronto, ON",
-            skills: ["React", "TypeScript", "CSS"],
-            postedBy: userIds[2], // employer
-            isRemote: false,
-            salary: "$20-25/hour",
-        },
-        {
-            title: "Junior Full Stack Developer",
-            type: "job" as const,
-            description: "Join our startup as a full-time developer",
-            company: "StartupXYZ",
-            location: "Vancouver, BC",
-            skills: ["JavaScript", "Node.js", "PostgreSQL"],
-            postedBy: userIds[2],
-            isRemote: true,
-            salary: "$50,000-60,000/year",
-        },
-        {
-            title: "Career Mentorship - Software Engineering",
-            type: "mentorship" as const,
-            description: "1-on-1 mentorship for aspiring software engineers",
-            mentor: "Sarah Chen",
-            location: "Remote",
-            skills: ["Career Guidance", "Interview Prep", "System Design"],
-            postedBy: userIds[1], // mentor
-            isRemote: true,
-        },
-        {
-            title: "Marketing Coordinator Internship",
-            type: "internship" as const,
-            description: "Digital marketing and content creation role",
-            company: "MediaCo",
-            location: "Montreal, QC",
-            skills: ["Social Media", "Content Writing", "Analytics"],
-            postedBy: userIds[2],
-            isRemote: false,
-            salary: "$18-22/hour",
-        },
-        {
-            title: "Product Management Mentorship",
-            type: "mentorship" as const,
-            description: "Learn product management from an experienced PM",
-            mentor: "David Kim",
-            location: "Remote",
-            skills: ["Product Management", "Strategy", "Leadership"],
-            postedBy: userIds[4], // mentor
-            isRemote: true,
-        },
-    ];
-
-    const opportunityIds = [];
-    for (const opp of mockOpportunities) {
-        const id = await ctx.db.insert("opportunities", {
-            ...opp,
-            postedDate: Date.now(),
-            deadline: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
-        });
-        opportunityIds.push(id);
-    }
-
-    return opportunityIds;
-}
-
-/**
  * Seed applications
  */
 async function seedApplications(
     ctx: MutationCtx,
     userIds: Id<"users">[],
-    opportunityIds: Id<"opportunities">[],
 ): Promise<Id<"applications">[]> {
-    const mockApplications = [
-        {
-            opportunityId: opportunityIds[0],
-            userId: userIds[0], // student
-            status: "pending" as const,
-            coverLetter:
-                "I'm very interested in this internship opportunity...",
-        },
-        {
-            opportunityId: opportunityIds[1],
-            userId: userIds[0],
-            status: "accepted" as const,
-            coverLetter:
-                "I have strong experience with full stack development...",
-        },
-        {
-            opportunityId: opportunityIds[3],
-            userId: userIds[3], // student
-            status: "pending" as const,
-            coverLetter: "My marketing skills would be a great fit...",
-        },
-    ];
-
-    const applicationIds = [];
-    for (const app of mockApplications) {
-        const id = await ctx.db.insert("applications", {
-            ...app,
-            appliedDate: Date.now(),
-        });
-        applicationIds.push(id);
-    }
-
-    return applicationIds;
+    // Applications seeding can be added when opportunities table exists
+    return [];
 }
 
 /**

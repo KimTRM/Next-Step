@@ -1,62 +1,44 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, MapPin, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, AlertCircle, Eye, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import type { ApplicationStatus } from '@/lib/dal/types/job-application.types';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import type { Application as BaseApplication } from '@/lib/types';
 import type { Id } from '@/convex/_generated/dataModel';
 
-type Application = {
-  _id: Id<'jobApplications'>;
-  _creationTime: number;
-  jobId: Id<'jobs'>;
-  userId: Id<'users'>;
+type ApplicationStatus = "pending" | "reviewing" | "interview" | "accepted" | "rejected";
+
+interface Application extends Omit<BaseApplication, 'status'> {
+  _id: Id<"applications">;
   status: ApplicationStatus;
-  appliedDate: number;
-  nextStep?: string;
-  interviewDate?: number;
-  notes?: string;
   jobTitle?: string;
   company?: string;
   location?: string;
-};
+  interviewDate?: number;
+  nextStep?: string;
+  notes?: string;
+}
 
 export function ApplicationsPageContent() {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<'all' | ApplicationStatus>('all');
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    (async () => {
-      try {
-        const res = await fetch('/api/applications', { signal: controller.signal });
-        const json = await res.json();
-        if (!res.ok || !json.success) {
-          throw new Error(json?.error?.message || 'Failed to load applications');
-        }
-        setApplications(json.data || []);
-      } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
-          console.error('Failed to load applications:', error);
-          toast.error(error instanceof Error ? error.message : 'Failed to load applications');
-        }
-        setApplications([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => controller.abort();
-  }, []);
+  const applicationsData = useQuery(api.functions.applications.getUserApplications);
+  const updateStatus = useMutation(api.functions.applications.updateApplicationStatus);
+
+  const applications = useMemo(() => {
+    return (applicationsData as Application[] | undefined) || [];
+  }, [applicationsData]);
+  const loading = applicationsData === undefined;
 
   const filteredApplications = useMemo(() => {
     if (selectedStatus === 'all') return applications;
@@ -98,8 +80,8 @@ export function ApplicationsPageContent() {
   };
 
   const handleViewDetails = (app: Application) => {
-    if (app.jobId) {
-      router.push(`/jobs/${app.jobId}`);
+    if (app.opportunityId) {
+      router.push(`/opportunities/${app.opportunityId}`);
     }
   };
 
@@ -110,32 +92,21 @@ export function ApplicationsPageContent() {
 
   const handleStatusChange = async (newStatus: ApplicationStatus) => {
     if (!selectedApp) return;
-    
+
     setUpdating(true);
     try {
-      const res = await fetch(`/api/applications/${selectedApp._id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId: selectedApp._id, status: newStatus }),
+      await updateStatus({
+        applicationId: selectedApp._id,
+        status: newStatus as ApplicationStatus,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data?.error?.message || 'Failed to update status');
-      }
-
-      // Update local state
-      setApplications((prev) =>
-        prev.map((app) =>
-          app._id === selectedApp._id ? { ...app, status: newStatus } : app
-        )
-      );
       toast.success('Application status updated');
       setStatusDialogOpen(false);
       setSelectedApp(null);
     } catch (error) {
       console.error('Failed to update status:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to update status');
+      const message = error instanceof Error ? error.message : 'Failed to update status';
+      toast.error(message);
     } finally {
       setUpdating(false);
     }
@@ -370,11 +341,10 @@ export function ApplicationsPageContent() {
                   key={status}
                   onClick={() => handleStatusChange(status)}
                   disabled={updating || selectedApp?.status === status}
-                  className={`px-4 py-3 rounded-lg text-left transition-all capitalize ${
-                    selectedApp?.status === status
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                  } disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+                  className={`px-4 py-3 rounded-lg text-left transition-all capitalize ${selectedApp?.status === status
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    } disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
                 >
                   {getStatusIcon(status)}
                   {status}

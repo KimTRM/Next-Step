@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Mentor } from '@/lib/dal/types/mentor.types';
+import type { MentorWithUser } from '@/lib/types/index';
 import { MentorCard } from '@/components/features/mentors/MentorCard';
 import { MentorStats } from '@/components/features/mentors/MentorStats';
 import { MentorFilters } from '@/components/features/mentors/MentorFilters';
@@ -15,13 +15,13 @@ import { ConnectModal } from '@/components/features/mentors/ConnectModal';
 import { EmptyMentorState } from '@/components/features/mentors/EmptyMentorState';
 
 interface MentorsClientWrapperProps {
-    initialMentors: Mentor[];
+    initialMentors: MentorWithUser[];
 }
 
 export function MentorsClientWrapper({ initialMentors }: MentorsClientWrapperProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedExpertise, setSelectedExpertise] = useState('all');
-    const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+    const [selectedMentor, setSelectedMentor] = useState<MentorWithUser | null>(null);
 
     // Filter mentors based on search and expertise
     const filteredMentors = initialMentors.filter(mentor => {

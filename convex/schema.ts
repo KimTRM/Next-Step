@@ -232,32 +232,6 @@ export default defineSchema({
         .index("by_experienceLevel", ["experienceLevel"]),
 
     /**
-     * Opportunities Collection
-     * Jobs, internships, and mentorship opportunities
-     */
-    opportunities: defineTable({
-        title: v.string(),
-        type: v.union(
-            v.literal("job"),
-            v.literal("internship"),
-            v.literal("mentorship"),
-        ),
-        description: v.string(),
-        company: v.optional(v.string()),
-        mentor: v.optional(v.string()),
-        location: v.string(),
-        skills: v.array(v.string()),
-        postedBy: v.id("users"), // Reference to user who posted
-        postedDate: v.number(), // Unix timestamp
-        deadline: v.optional(v.number()), // Unix timestamp
-        isRemote: v.boolean(),
-        salary: v.optional(v.string()),
-    })
-        .index("by_type", ["type"])
-        .index("by_posted_by", ["postedBy"])
-        .index("by_posted_date", ["postedDate"]),
-
-    /**
      * Applications Collection
      * User applications to opportunities
      */

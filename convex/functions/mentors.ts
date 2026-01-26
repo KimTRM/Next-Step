@@ -4,7 +4,6 @@
 
 import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import type { Doc } from "../_generated/dataModel";
 
 /**
  * Get all mentors with user enrichment
@@ -714,43 +713,53 @@ export const getConnectionRequests = query({
             return [];
         }
 
-        // Get all opportunities posted by this mentor
-        const opportunities = await ctx.db
-            .query("opportunities")
-            .filter((q) => q.eq(q.field("mentor"), args.mentorId))
+        // Get all jobs posted by this mentor
+        const jobs = await ctx.db
+            .query("jobs")
+            .filter((q) => q.eq(q.field("postedBy"), mentor.userId))
             .collect();
 
-        const opportunityIds = opportunities.map((o) => o._id);
+        const jobIds = jobs.map((j) => j._id);
 
-        // Get all applications for these opportunities
-        const applications = await ctx.db.query("applications").collect();
+        // Get all applications for these jobs
+        const allApplications = await ctx.db.query("jobApplications").collect();
 
-        const relevantApplications = applications.filter((app) =>
-            opportunityIds.includes(app.opportunityId),
+        const relevantApplications = allApplications.filter((app) =>
+            jobIds.includes(app.jobId),
         );
 
-        // Enrich applications with opportunity data
+        // Enrich applications with job data
         const enrichedApplications = await Promise.all(
             relevantApplications.map(async (app) => {
-                const opportunity = opportunities.find(
-                    (o) => o._id === app.opportunityId,
-                );
+                const job = jobs.find((j) => j._id === app.jobId);
+                const applicant = await ctx.db.get(app.userId);
 
-                if (!opportunity) return null;
+                if (!job) return null;
 
                 return {
                     _id: app._id,
-                    opportunityId: app.opportunityId,
+                    jobId: app.jobId,
                     userId: app.userId,
                     status: app.status,
                     appliedDate: app.appliedDate,
-                    coverLetter: app.coverLetter,
-                    opportunity: {
-                        _id: opportunity._id,
-                        title: opportunity.title,
-                        description: opportunity.description,
-                        type: opportunity.type,
-                        postedDate: opportunity.postedDate,
+                    nextStep: app.nextStep,
+                    interviewDate: app.interviewDate,
+                    notes: app.notes,
+                    applicant:
+                        applicant ?
+                            {
+                                name: applicant.name || "Unknown",
+                                email: applicant.email,
+                                avatarUrl: applicant.avatarUrl,
+                            }
+                        :   null,
+                    job: {
+                        _id: job._id,
+                        title: job.title,
+                        description: job.description,
+                        employmentType: job.employmentType,
+                        postedDate: job.postedDate,
+                        location: job.location,
                     },
                 };
             }),

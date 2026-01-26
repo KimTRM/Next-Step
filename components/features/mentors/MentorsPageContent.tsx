@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Id } from '@/convex/_generated/dataModel';
+import type { MentorWithUser } from '@/lib/types/index';
 import { MentorCard } from '@/components/features/mentors/MentorCard';
 import { MentorStats } from '@/components/features/mentors/MentorStats';
 import { MentorFilters } from '@/components/features/mentors/MentorFilters';
@@ -10,35 +10,6 @@ import { EmptyMentorState } from '@/components/features/mentors/EmptyMentorState
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/components/ui/pagination';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-
-// Extended Mentor type from Convex queries (enriched with user data)
-type MentorWithUser = {
-  _id: Id<'mentors'>;
-  _creationTime: number;
-  userId: Id<'users'>;
-  role: string;
-  company: string;
-  location: string;
-  expertise: string[];
-  yearsOfExperience?: number;
-  rating: number;
-  mentees: number;
-  bio: string;
-  tagline?: string;
-  availability: string;
-  isVerified: boolean;
-  hourlyRate?: number;
-  currency?: string;
-  offersFreeSession?: boolean;
-  totalReviews?: number;
-  sessionsCompleted?: number;
-  specializations?: string[];
-  isAvailableForNewMentees?: boolean;
-  // Enriched user data from queries
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-};
 
 export function MentorsPageContent() {
   const [searchTerm, setSearchTerm] = useState('');

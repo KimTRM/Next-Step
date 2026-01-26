@@ -9,17 +9,16 @@
  */
 
 import type * as api_ from "../api.js";
-import type * as applications from "../applications.js";
-import type * as jobApplications from "../jobApplications.js";
-import type * as jobs from "../jobs.js";
-import type * as mentorMigration from "../mentorMigration.js";
-import type * as mentors from "../mentors.js";
-import type * as messages from "../messages.js";
-import type * as migration from "../migration.js";
-import type * as opportunities from "../opportunities.js";
-import type * as seed from "../seed.js";
-import type * as userMutations from "../userMutations.js";
-import type * as users from "../users.js";
+import type * as functions_applications from "../functions/applications.js";
+import type * as functions_jobApplications from "../functions/jobApplications.js";
+import type * as functions_jobs from "../functions/jobs.js";
+import type * as functions_mentors from "../functions/mentors.js";
+import type * as functions_messages from "../functions/messages.js";
+import type * as functions_userMutations from "../functions/userMutations.js";
+import type * as functions_users from "../functions/users.js";
+import type * as utils_mentorMigration from "../utils/mentorMigration.js";
+import type * as utils_migration from "../utils/migration.js";
+import type * as utils_seed from "../utils/seed.js";
 
 import type {
   ApiFromModules,
@@ -29,17 +28,16 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   api: typeof api_;
-  applications: typeof applications;
-  jobApplications: typeof jobApplications;
-  jobs: typeof jobs;
-  mentorMigration: typeof mentorMigration;
-  mentors: typeof mentors;
-  messages: typeof messages;
-  migration: typeof migration;
-  opportunities: typeof opportunities;
-  seed: typeof seed;
-  userMutations: typeof userMutations;
-  users: typeof users;
+  "functions/applications": typeof functions_applications;
+  "functions/jobApplications": typeof functions_jobApplications;
+  "functions/jobs": typeof functions_jobs;
+  "functions/mentors": typeof functions_mentors;
+  "functions/messages": typeof functions_messages;
+  "functions/userMutations": typeof functions_userMutations;
+  "functions/users": typeof functions_users;
+  "utils/mentorMigration": typeof utils_mentorMigration;
+  "utils/migration": typeof utils_migration;
+  "utils/seed": typeof utils_seed;
 }>;
 
 /**

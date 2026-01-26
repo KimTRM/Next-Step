@@ -24,10 +24,12 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
     const justCompletedOnboarding = resolvedSearchParams.welcome === 'true';
 
     // Fetch data from Convex
-    const currentUser = useQuery(api.users.getCurrentUser);
-    const opportunities = useQuery(api.opportunities.getAllOpportunities, {});
-    const userApplications = useQuery(api.applications.getUserApplications);
-    const userMessages = useQuery(api.messages.getUserMessages);
+    const currentUser = useQuery(api.functions.users.getCurrentUser);
+    // TODO: Uncomment when opportunities feature is migrated
+    // const opportunities = useQuery(api.functions.opportunities.getAllOpportunities, {});
+    const opportunities = [] as any[]; // Temporary placeholder until opportunities feature is migrated
+    const userApplications = useQuery(api.functions.applications.getUserApplications);
+    const userMessages = useQuery(api.functions.messages.getUserMessages);
 
     // Show skeleton loading while data loads
     const isLoading = !user || currentUser === undefined || opportunities === undefined;

@@ -3,7 +3,7 @@
  * FRONTEND - Messages Page
  * ============================================================================
  * 
- * Real-time messaging interface - now using backend API!
+ * Real-time messaging interface using Convex for instant updates!
  * 
  * ARCHITECTURE:
  * - ConversationList: Left sidebar with conversation partners
@@ -16,6 +16,8 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { toast } from 'sonner';
 // UI COMPONENTS
@@ -50,158 +52,54 @@ type User = {
 export default function MessagesPage() {
     const { user: clerkUser } = useUser();
     const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
-    const [conversation, setConversation] = useState<Message[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [conversationLoading, setConversationLoading] = useState(false);
 
-    // Fetch all messages and users
-    useEffect(() => {
-        const controller = new AbortController();
-        setLoading(true);
-        (async () => {
-            try {
-                const [messagesRes, usersRes] = await Promise.all([
-                    fetch('/api/messages', { signal: controller.signal }),
-                    fetch('/api/users', { signal: controller.signal }),
-                ]);
+    // Fetch all data via Convex - real-time updates!
+    const messages = useQuery(api.functions.messages.getUserMessages) || [];
+    const users = useQuery(api.functions.users.getAllUsers, {}) || [];
+    const conversation = useQuery(
+        api.functions.messages.getConversation,
+        selectedUserId ? { otherUserId: selectedUserId } : "skip"
+    ) || [];
 
-                const messagesJson = await messagesRes.json();
-                const usersJson = await usersRes.json();
+    // Mutations
+    const sendMessage = useMutation(api.functions.messages.sendMessage);
+    const markAsRead = useMutation(api.functions.messages.markMessageAsRead);
 
-                if (messagesRes.ok && messagesJson.success) {
-                    setMessages(messagesJson.data || []);
-                }
-                if (usersRes.ok && usersJson.success) {
-                    setUsers(usersJson.data || []);
-                }
-            } catch (error) {
-                if (!(error instanceof DOMException && error.name === 'AbortError')) {
-                    console.error('Failed to load messages:', error);
-                    toast.error('Failed to load messages');
-                }
-            } finally {
-                setLoading(false);
-            }
-        })();
-        return () => controller.abort();
-    }, []);
-
-    // Fetch specific conversation when user is selected
-    useEffect(() => {
-        if (!selectedUserId) {
-            setConversation([]);
-            return;
-        }
-
-        const controller = new AbortController();
-        setConversationLoading(true);
-        (async () => {
-            try {
-                const res = await fetch(`/api/messages/conversation/${selectedUserId}`, {
-                    signal: controller.signal,
-                });
-                const json = await res.json();
-
-                if (res.ok && json.success) {
-                    setConversation(json.data || []);
-                } else {
-                    throw new Error(json?.error?.message || 'Failed to load conversation');
-                }
-            } catch (error) {
-                if (!(error instanceof DOMException && error.name === 'AbortError')) {
-                    console.error('Failed to load conversation:', error);
-                    toast.error(error instanceof Error ? error.message : 'Failed to load conversation');
-                }
-                setConversation([]);
-            } finally {
-                setConversationLoading(false);
-            }
-        })();
-        return () => controller.abort();
-    }, [selectedUserId]);
+    // Loading states
+    const loading = messages === undefined || users === undefined;
+    const conversationLoading = selectedUserId && conversation === undefined;
 
     // Get current user from users list (match by Clerk ID)
-    const currentUser = users.find(u => u.clerkId === clerkUser?.id);
+    const currentUser = users.find((u: User) => u.clerkId === clerkUser?.id);
 
     // Mark messages as read when conversation opens
     useEffect(() => {
         if (conversation.length > 0 && selectedUserId && currentUser) {
-            conversation.forEach(msg => {
+            conversation.forEach((msg: Message) => {
                 if (msg.receiverId === currentUser._id && !msg.read) {
-                    fetch(`/api/messages/${msg._id}`, {
-                        method: 'PATCH',
-                    }).catch(err => console.error('Failed to mark as read:', err));
+                    markAsRead({ messageId: msg._id }).catch(err =>
+                        console.error('Failed to mark as read:', err)
+                    );
                 }
             });
         }
-    }, [conversation, selectedUserId, currentUser]);
+    }, [conversation, selectedUserId, currentUser, markAsRead]);
 
     // Send message handler
     const handleSendMessage = async (content: string) => {
         if (!selectedUserId) return;
 
         try {
-            const res = await fetch('/api/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    receiverId: selectedUserId,
-                    content: content.trim(),
-                }),
+            await sendMessage({
+                receiverId: selectedUserId,
+                content: content.trim(),
             });
-
-            const json = await res.json();
-
-            if (!res.ok || !json.success) {
-                throw new Error(json?.error?.message || 'Failed to send message');
-            }
-
-            // Refetch the conversation to get the complete message with all fields
-            const conversationRes = await fetch(`/api/messages/conversation/${selectedUserId}`);
-            const conversationJson = await conversationRes.json();
-            
-            if (conversationRes.ok && conversationJson.success) {
-                setConversation(conversationJson.data || []);
-            }
-
-            // Also refetch all messages to update the conversation list
-            const messagesRes = await fetch('/api/messages');
-            const messagesJson = await messagesRes.json();
-            
-            if (messagesRes.ok && messagesJson.success) {
-                setMessages(messagesJson.data || []);
-            }
-
-            toast.success('Message sent');
+            toast.success('Message sent!');
         } catch (error) {
             console.error('Failed to send message:', error);
-            toast.error(error instanceof Error ? error.message : 'Failed to send message');
+            toast.error('Failed to send message');
         }
     };
-
-    // Loading state with skeleton
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="mb-8">
-                        <Skeleton className="h-10 w-64 mb-2" />
-                        <Skeleton className="h-6 w-96" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="md:col-span-1">
-                            <Skeleton className="h-150 w-full" />
-                        </div>
-                        <div className="md:col-span-2">
-                            <Skeleton className="h-150 w-full" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     // Auth check
     if (!clerkUser) {
@@ -233,12 +131,12 @@ export default function MessagesPage() {
     }
 
     // Build conversation partners list
-    const conversationPartners: ConversationPartner[] = messages.reduce((acc, msg) => {
+    const conversationPartners: ConversationPartner[] = messages.reduce((acc: ConversationPartner[], msg: Message) => {
         const partnerId = msg.senderId === currentUser._id ? msg.receiverId : msg.senderId;
         const existing = acc.find(p => p.userId === partnerId);
 
         if (!existing) {
-            const partner = users.find(u => u._id === partnerId);
+            const partner = users.find((u: User) => u._id === partnerId);
             if (partner) {
                 acc.push({
                     userId: partnerId,
@@ -258,32 +156,27 @@ export default function MessagesPage() {
     }, [] as ConversationPartner[]);
 
     // Calculate unread counts
-    conversationPartners.forEach(partner => {
+    conversationPartners.forEach((partner: ConversationPartner) => {
         partner.unreadCount = messages.filter(
-            msg => msg.senderId === partner.userId &&
-                msg.receiverId === currentUser._id &&
-                !msg.read
+            (msg: Message) => msg.senderId === partner.userId && msg.receiverId === currentUser._id && !msg.read
         ).length;
     });
 
-    // Sort by most recent message
+    // Sort by latest message
     conversationPartners.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
 
-    // Get selected user details
-    const selectedUser = users.find(u => u._id === selectedUserId);
-
-    // Total unread count for badge
-    const totalUnread = conversationPartners.reduce((sum, p) => sum + p.unreadCount, 0);
+    // Calculate total unread
+    const totalUnread = conversationPartners.reduce((sum: number, p: ConversationPartner) => sum + p.unreadCount, 0);
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
+        <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Header */}
+                {/* Page Header */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-                            <p className="text-gray-600 text-lg">Connect with mentors, employers, and peers</p>
+                            <h1 className="text-4xl font-bold text-gray-900">Messages</h1>
+                            <p className="text-gray-600 mt-2">Connect with mentors, employers, and peers</p>
                         </div>
                         {totalUnread > 0 && (
                             <Badge variant="destructive" className="text-lg px-4 py-2">
@@ -293,45 +186,65 @@ export default function MessagesPage() {
                     </div>
                 </div>
 
-                {/* Main messaging interface */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ height: '600px' }}>
-                {/* Conversations List */}
-                <ConversationList
-                    conversations={conversationPartners}
-                    selectedUserId={selectedUserId}
-                    onSelectConversation={setSelectedUserId}
-                />
+                {/* Messages Layout */}
+                <div className="grid grid-cols-12 gap-6">
+                    {/* Conversation List - Left Sidebar */}
+                    <Card className="col-span-12 lg:col-span-4 shadow-lg">
+                        <CardContent className="p-0">
+                            <div className="p-4 border-b">
+                                <h2 className="font-semibold text-lg">Conversations</h2>
+                                <Badge variant="secondary" className="mt-2">
+                                    {conversationPartners.length} {conversationPartners.length === 1 ? 'conversation' : 'conversations'}
+                                </Badge>
+                            </div>
 
-                {/* Message Thread */}
-                <Card className="lg:col-span-2 flex flex-col overflow-hidden shadow-lg">
-                    {selectedUser ? (
-                        <>
-                            {conversationLoading ? (
-                                <div className="flex-1 p-6 space-y-4">
-                                    <Skeleton className="h-16 w-3/4" />
-                                    <Skeleton className="h-16 w-2/3 ml-auto" />
-                                    <Skeleton className="h-16 w-3/4" />
-                                    <Skeleton className="h-16 w-2/3 ml-auto" />
+                            {loading ? (
+                                <div className="p-4 space-y-4">
+                                    {[1, 2, 3].map(i => (
+                                        <Skeleton key={i} className="h-20 w-full" />
+                                    ))}
                                 </div>
                             ) : (
-                                <>
-                                    <MessageThread
-                                        conversation={conversation || []}
-                                        selectedUser={selectedUser}
-                                        currentUserId={currentUser._id}
-                                    />
-                                    <MessageInput onSendMessage={handleSendMessage} />
-                                </>
+                                <ConversationList
+                                    conversations={conversationPartners}
+                                    selectedUserId={selectedUserId}
+                                    onSelectConversation={setSelectedUserId}
+                                />
                             )}
-                        </>
-                    ) : (
-                        <EmptyMessageState />
-                    )}
-                </Card>
+                        </CardContent>
+                    </Card>
+
+                    {/* Message Thread - Main Area */}
+                    <Card className="col-span-12 lg:col-span-8 shadow-lg flex flex-col" style={{ height: '600px' }}>
+                        {!selectedUserId ? (
+                            <EmptyMessageState />
+                        ) : (
+                            <>
+                                {/* Message Thread */}
+                                <div className="flex-1 overflow-hidden">
+                                    {conversationLoading ? (
+                                        <div className="p-4 space-y-4">
+                                            {[1, 2, 3].map(i => (
+                                                <Skeleton key={i} className="h-16 w-3/4" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <MessageThread
+                                            conversation={conversation}
+                                            currentUserId={currentUser._id}
+                                            selectedUser={users.find((u: User) => u._id === selectedUserId)!} />
+                                    )}
+                                </div>
+
+                                {/* Message Input */}
+                                <div className="border-t">
+                                    <MessageInput onSendMessage={handleSendMessage} />
+                                </div>
+                            </>
+                        )}
+                    </Card>
                 </div>
             </div>
         </div>
     );
 }
-
-
