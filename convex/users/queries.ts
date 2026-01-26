@@ -1,7 +1,6 @@
 /**
- * Convex Query Functions - Users
- *
- * Query operations for user data (read-only)
+ * User Queries
+ * Retrieve and search user data (read-only)
  */
 
 import { query } from "../_generated/server";
