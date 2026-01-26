@@ -8,8 +8,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/landing/Footer";
+import { Header } from "@/shared/components/layout";
+import { Footer } from "@/shared/components/landing/Footer";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   title: "NextStep",
   description: "Connect youth with job opportunities and mentors to advance their careers",
   icons: {
-    icon: "/assets/icon.svg",
-    apple: "/assets/icon.svg",
+    icon: "favicon.svg",
+    apple: "favicon.svg",
   }
 };
 
