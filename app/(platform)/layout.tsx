@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useCurrentUser } from "@/features/users/api";
 
 export default function PlatformLayout({
   children,
@@ -14,9 +13,7 @@ export default function PlatformLayout({
   const { userId } = useAuth();
   const router = useRouter();
 
-  const currentUser = useQuery(api.functions.users.getUserByClerkId, {
-    clerkId: userId || ""
-  });
+  const currentUser = useCurrentUser();
 
   useEffect(() => {
     if (userId && currentUser) {

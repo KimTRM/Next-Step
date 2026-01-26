@@ -4,7 +4,7 @@
  * Track and manage job applications
  */
 
-import { ApplicationsPageContent } from '@/components/features/applications/ApplicationsPageContent';
+import { ApplicationsPageContent } from '@/features/applications/components';
 
 export default function ApplicationsPage() {
     return <ApplicationsPageContent />;
