@@ -8,7 +8,7 @@ import { fadeInUp, animationConfig, animationConfigFast } from "@/shared/lib/ani
 export function Footer() {
   return (
     <motion.footer
-      className="bg-gradient-to-br from-gray-50 to-white border-t border-border"
+      className="bg-linear-to-br from-gray-50 to-white border-t border-border"
       initial="initial"
       whileInView="animate"
       viewport={{ once: true, amount: 0.2 }}
@@ -21,7 +21,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center mb-4">
-              <Image src="/assets/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
+              <Image src="/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Helping you take your next step in life. Empowering youth through job discovery and mentorship.

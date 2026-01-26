@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
-// import { Id } from '@/convex/_generated/dataModel';
-import { Id } from '@/features/messages/api';
+
+// eslint-disable-next-line no-restricted-imports
+import { Id } from '@/convex/_generated/dataModel';
+
 import { toast } from 'sonner';
 // UI COMPONENTS
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -38,8 +40,13 @@ export function MessagesPageContent() {
     const messages = useUserMessages() || [];
     // const currentUser = useCurrentUser();
     // For demonstration, using clerkUser as currentUser (replace with actual user logic as needed)
-    const currentUser = clerkUser ? { _id: clerkUser.id as Id<'users'>, clerkId: clerkUser.id, name: clerkUser.fullName ?? '', role: '' } : undefined;
-    const conversation = useConversation(selectedUserId) || [];
+    const currentUser = useMemo(() => (
+        clerkUser
+            ? { _id: clerkUser.id as Id<'users'>, clerkId: clerkUser.id, name: clerkUser.fullName ?? '', role: '' }
+            : undefined
+    ), [clerkUser]);
+    const rawConversation = useConversation(selectedUserId);
+    const conversation = useMemo(() => rawConversation || [], [rawConversation]);
 
     // Mutations
     const sendMessage = useSendMessage();

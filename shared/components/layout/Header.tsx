@@ -39,7 +39,7 @@ export function Header() {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                        <Image src="/assets/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
+                        <Image src="/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
                     </Link>
 
                     {/* Desktop Navigation */}
