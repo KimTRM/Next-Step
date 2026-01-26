@@ -240,6 +240,8 @@ export default defineSchema({
         userId: v.id("users"),
         status: v.union(
             v.literal("pending"),
+            v.literal("reviewing"),
+            v.literal("interview"),
             v.literal("accepted"),
             v.literal("rejected"),
         ),

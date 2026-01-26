@@ -14,12 +14,13 @@ export type ApplicationStatus =
     | "rejected";
 
 // Application Types
+// TODO: Update opportunityId to Id<"opportunities"> when opportunities table is created
 export type Application = {
     _id: Id<"applications">;
     _creationTime: number;
-    opportunityId: Id<"opportunities">;
+    opportunityId: string; // Using string until opportunities table is migrated
     userId: Id<"users">;
-    status: "pending" | "accepted" | "rejected";
+    status: ApplicationStatus; // Using expanded ApplicationStatus type
     appliedDate: number;
     coverLetter?: string;
 };
@@ -199,10 +200,11 @@ export type User = {
 };
 
 // Opportunity Types
+// TODO: Update to use Id<"opportunities"> when opportunities table is created
 export type OpportunityType = "job" | "internship" | "mentorship";
 
 export type Opportunity = {
-    _id: Id<"opportunities">;
+    _id: string; // Using string until opportunities table is migrated
     _creationTime: number;
     title: string;
     type: OpportunityType;

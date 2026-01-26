@@ -97,7 +97,13 @@ export const createApplication = mutation({
 export const updateApplicationStatus = mutation({
   args: {
     applicationId: v.id("applications"),
-    status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("rejected")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("reviewing"),
+      v.literal("interview"),
+      v.literal("accepted"),
+      v.literal("rejected")
+    ),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
