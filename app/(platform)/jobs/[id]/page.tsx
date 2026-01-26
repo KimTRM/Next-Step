@@ -1,6 +1,8 @@
 'use client';
 
 import { Id } from '@/convex/_generated/dataModel';
+import { api } from '@/convex/_generated/api';
+import { useQuery, useMutation } from 'convex/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -76,9 +78,6 @@ type JobDTO = {
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
     const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
-    const [job, setJob] = useState<JobDTO | null>(null);
-    const [relatedJobs, setRelatedJobs] = useState<JobDTO[]>([]);
-    const [loading, setLoading] = useState(true);
     const [notes, setNotes] = useState('');
     const [isApplying, setIsApplying] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -91,73 +90,44 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         params.then(setResolvedParams);
     }, [params]);
 
-    // Fetch job and related jobs via API when params resolve
-    useEffect(() => {
-        if (!resolvedParams?.id) return;
-        const id = resolvedParams.id;
-        setLoading(true);
-        (async () => {
-            try {
-                const [jobRes, relatedRes] = await Promise.all([
-                    fetch(`/api/jobs/${id}`),
-                    fetch(`/api/jobs/${id}/related?limit=4`),
-                ]);
-                const jobJson = await jobRes.json();
-                if (jobJson.success) {
-                    setJob(jobJson.data);
-                } else {
-                    setJob(null);
-                }
-                const relatedJson = await relatedRes.json();
-                if (relatedJson.success) {
-                    setRelatedJobs(relatedJson.data || []);
-                } else {
-                    setRelatedJobs([]);
-                }
-            } catch (e) {
-                console.error('Failed to load job details:', e);
-                setJob(null);
-                setRelatedJobs([]);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [resolvedParams]);
+    // Fetch job and related jobs using Convex queries
+    const job = useQuery(
+        api.functions.jobs.getJobById,
+        resolvedParams?.id ? { jobId: resolvedParams.id as Id<'jobs'> } : 'skip'
+    );
+
+    const relatedJobs = useQuery(
+        api.functions.jobs.getRelatedJobs,
+        resolvedParams?.id ? { jobId: resolvedParams.id as Id<'jobs'>, limit: 4 } : 'skip'
+    );
+
+    const createApplication = useMutation(api.functions.jobApplications.createJobApplication);
 
     const handleApply = async () => {
         if (!job) return;
 
         setIsApplying(true);
         try {
-            const res = await fetch('/api/jobs/apply', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    jobId: job._id,
-                    notes: notes || undefined,
-                }),
+            await createApplication({
+                jobId: job._id,
+                notes: notes || undefined,
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                if (res.status === 409) {
-                    toast.error('You have already applied to this job');
-                    setHasApplied(true);
-                } else if (res.status === 401) {
-                    toast.error('You must be logged in to apply');
-                    router.push('/sign-in');
-                } else {
-                    toast.error(data.error?.message || 'Failed to submit application');
-                }
-                return;
-            }
 
             toast.success('Application submitted successfully!');
             setNotes('');
             setHasApplied(true);
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to submit application');
+            const errorMessage = error instanceof Error ? error.message : 'Failed to submit application';
+
+            if (errorMessage.includes('already applied')) {
+                toast.error('You have already applied to this job');
+                setHasApplied(true);
+            } else if (errorMessage.includes('authenticated') || errorMessage.includes('logged in')) {
+                toast.error('You must be logged in to apply');
+                router.push('/sign-in');
+            } else {
+                toast.error(errorMessage);
+            }
         } finally {
             setIsApplying(false);
         }
@@ -177,42 +147,8 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         }
     };
 
-    // Show loading state while params are being resolved
-    if (!resolvedParams) {
-        return (
-            <div className="max-w-5xl mx-auto px-4 py-8">
-                <Skeleton className="h-10 w-64 mb-6" />
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <Skeleton className="h-8 w-3/4 mb-2" />
-                                <Skeleton className="h-4 w-1/2" />
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-2/3" />
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <div className="lg:col-span-1">
-                        <Card>
-                            <CardHeader>
-                                <Skeleton className="h-6 w-full" />
-                            </CardHeader>
-                            <CardContent>
-                                <Skeleton className="h-32 w-full mb-4" />
-                                <Skeleton className="h-10 w-full" />
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (loading) {
+    // Show loading state while params are being resolved or data is loading
+    if (!resolvedParams || job === undefined) {
         return (
             <div className="max-w-5xl mx-auto px-4 py-8">
                 <Skeleton className="h-10 w-64 mb-6" />
@@ -526,7 +462,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             </div>
 
             {/* Related Jobs Section */}
-            {relatedJobs && relatedJobs.length > 0 && (
+            {relatedJobs && Array.isArray(relatedJobs) && relatedJobs.length > 0 && (
                 <div className="mt-12">
                     <h2 className="text-2xl font-bold mb-6">Related Jobs</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

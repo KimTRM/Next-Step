@@ -40,13 +40,13 @@ interface Mentee {
 
 interface ConnectionRequest {
   _id: Id<"applications">;
-  opportunityId: Id<"opportunities">;
+  opportunityId: string; // Using string since opportunities table doesn't exist yet
   userId: Id<"users">;
   status: "pending" | "accepted" | "rejected";
   appliedDate: number;
   coverLetter?: string;
   opportunity: {
-    _id: Id<"opportunities">;
+    _id: string; // Using string since opportunities table doesn't exist yet
     title: string;
     description: string;
     type: string;
@@ -59,17 +59,17 @@ export default function MentorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Get mentor profile
-  const mentorProfile = useQuery(api.mentors.getMentorProfile, {}) as Mentor | undefined;
+  const mentorProfile = useQuery(api.functions.mentors.getMentorProfile, {}) as Mentor | undefined;
 
   // Get mentees (when mentor profile is loaded)
   const mentees = useQuery(
-    api.mentors.getMentees,
+    api.functions.mentors.getMentees,
     mentorProfile ? { mentorId: mentorProfile._id } : "skip"
   ) as (Mentee | null)[] | undefined;
 
   // Get connection requests (when mentor profile is loaded)
   const connectionRequests = useQuery(
-    api.mentors.getConnectionRequests,
+    api.functions.mentors.getConnectionRequests,
     mentorProfile ? { mentorId: mentorProfile._id } : "skip"
   ) as ConnectionRequest[] | undefined;
 

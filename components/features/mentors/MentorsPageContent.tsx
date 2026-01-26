@@ -1,53 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Id } from '@/convex/_generated/dataModel';
+import type { MentorWithUser } from '@/lib/types/index';
 import { MentorCard } from '@/components/features/mentors/MentorCard';
 import { MentorStats } from '@/components/features/mentors/MentorStats';
 import { MentorFilters } from '@/components/features/mentors/MentorFilters';
 import { ConnectModal } from '@/components/features/mentors/ConnectModal';
 import { EmptyMentorState } from '@/components/features/mentors/EmptyMentorState';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/components/ui/pagination';
-
-// Extended Mentor type from Convex queries (enriched with user data)
-type MentorWithUser = {
-  _id: Id<'mentors'>;
-  _creationTime: number;
-  userId: Id<'users'>;
-  role: string;
-  company: string;
-  location: string;
-  expertise: string[];
-  yearsOfExperience?: number;
-  rating: number;
-  mentees: number;
-  bio: string;
-  tagline?: string;
-  availability: string;
-  isVerified: boolean;
-  hourlyRate?: number;
-  currency?: string;
-  offersFreeSession?: boolean;
-  totalReviews?: number;
-  sessionsCompleted?: number;
-  specializations?: string[];
-  isAvailableForNewMentees?: boolean;
-  // Enriched user data from queries
-  name: string;
-  email?: string;
-  avatarUrl?: string;
-};
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export function MentorsPageContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState('all');
   const [selectedMentor, setSelectedMentor] = useState<MentorWithUser | null>(null);
-  const [mentors, setMentors] = useState<MentorWithUser[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const pageSize = 12;
-  const [total, setTotal] = useState(0);
 
   // Debounce search term
   useEffect(() => {
@@ -58,38 +28,15 @@ export function MentorsPageContent() {
     return () => clearTimeout(id);
   }, [searchTerm]);
 
-  // Fetch mentors via API with query and expertise filters
-  useEffect(() => {
-    const controller = new AbortController();
-    const params = new URLSearchParams();
-    if (debouncedSearchTerm.trim()) params.set('query', debouncedSearchTerm.trim());
-    if (selectedExpertise !== 'all') params.set('expertise', selectedExpertise);
-    params.set('page', String(page));
-    params.set('limit', String(pageSize));
-    setLoading(true);
-    (async () => {
-      try {
-        const res = await fetch(`/api/mentors?${params.toString()}`, { signal: controller.signal });
-        const json = await res.json();
-        if (res.ok && json.success) {
-          setMentors((json.data || []) as MentorWithUser[]);
-          setTotal(typeof json.meta?.total === 'number' ? json.meta.total : (json.data || []).length);
-        } else {
-          setMentors([]);
-          setTotal(0);
-        }
-      } catch (e) {
-        if (e instanceof Error && e.name !== 'AbortError') {
-          console.error('Failed to load mentors:', e);
-        }
-        setMentors([]);
-        setTotal(0);
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => controller.abort();
-  }, [debouncedSearchTerm, selectedExpertise, page]);
+  // Fetch mentors directly from Convex
+  const mentorsData = useQuery(api.functions.mentors.searchMentors, {
+    searchTerm: debouncedSearchTerm.trim() || '',
+    expertise: selectedExpertise !== 'all' ? selectedExpertise : undefined,
+  });
+
+  const mentors = (mentorsData as MentorWithUser[] | undefined) || [];
+  const loading = mentorsData === undefined;
+  const total = mentors.length;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">

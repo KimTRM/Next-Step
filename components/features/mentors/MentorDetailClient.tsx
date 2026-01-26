@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mentor } from '@/lib/dal/types/mentor.types';
+import type { MentorWithUser } from '@/lib/types/index';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,8 +23,8 @@ import {
 } from 'lucide-react';
 
 interface MentorDetailClientProps {
-    mentor: Mentor;
-    similarMentors?: Mentor[];
+    mentor: MentorWithUser;
+    similarMentors?: MentorWithUser[];
 }
 
 export function MentorDetailClient({
@@ -137,7 +137,7 @@ export function MentorDetailClient({
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-wrap gap-2">
-                                    {mentor.expertise.map((skill, index) => (
+                                    {mentor.expertise.map((skill: string, index: number) => (
                                         <Badge key={index} variant="secondary">
                                             {skill}
                                         </Badge>
@@ -155,7 +155,7 @@ export function MentorDetailClient({
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-wrap gap-2">
-                                    {mentor.specializations.map((spec, index) => (
+                                    {mentor.specializations.map((spec: string, index: number) => (
                                         <Badge key={index} variant="outline">
                                             {spec}
                                         </Badge>
@@ -336,18 +336,18 @@ export function MentorDetailClient({
                     </Card>
 
                     {/* Social Links */}
-                    {(mentor.linkedin ||
-                        mentor.github ||
-                        mentor.website ||
-                        mentor.twitter) && (
+                    {(mentor.linkedInUrl ||
+                        mentor.githubUrl ||
+                        mentor.portfolioUrl ||
+                        mentor.twitterUrl) && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Connect</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
-                                    {mentor.linkedin && (
+                                    {mentor.linkedInUrl && (
                                         <a
-                                            href={mentor.linkedin}
+                                            href={mentor.linkedInUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
@@ -356,9 +356,9 @@ export function MentorDetailClient({
                                             <span>LinkedIn</span>
                                         </a>
                                     )}
-                                    {mentor.github && (
+                                    {mentor.githubUrl && (
                                         <a
-                                            href={mentor.github}
+                                            href={mentor.githubUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
@@ -367,9 +367,9 @@ export function MentorDetailClient({
                                             <span>GitHub</span>
                                         </a>
                                     )}
-                                    {mentor.website && (
+                                    {mentor.portfolioUrl && (
                                         <a
-                                            href={mentor.website}
+                                            href={mentor.portfolioUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
@@ -378,9 +378,9 @@ export function MentorDetailClient({
                                             <span>Portfolio</span>
                                         </a>
                                     )}
-                                    {mentor.twitter && (
+                                    {mentor.twitterUrl && (
                                         <a
-                                            href={mentor.twitter}
+                                            href={mentor.twitterUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm hover:text-primary transition-colors"

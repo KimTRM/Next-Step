@@ -1,17 +1,19 @@
 /**
  * Profile Management Hooks
  * Client-side hooks for profile operations
+ *
+ * TODO: Migrate to Convex - currently using legacy API routes
  */
 
 "use client";
 
 import { useState, useCallback } from "react";
-import type {
-    User,
-    UpdateProfileInput,
-    PublicUserProfile,
-} from "@/lib/dal/types/user.types";
+import type { User } from "@/lib/types/index";
 import type { Id } from "@/convex/_generated/dataModel";
+
+// TODO: These types should be defined in lib/types/index.ts or migrated to Convex
+type UpdateProfileInput = Partial<User>;
+type PublicUserProfile = Omit<User, 'email'>;
 
 interface ApiResponse<T> {
     success: boolean;

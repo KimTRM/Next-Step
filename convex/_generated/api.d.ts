@@ -9,17 +9,25 @@
  */
 
 import type * as api_ from "../api.js";
-import type * as applications from "../applications.js";
-import type * as jobApplications from "../jobApplications.js";
-import type * as jobs from "../jobs.js";
-import type * as mentorMigration from "../mentorMigration.js";
-import type * as mentors from "../mentors.js";
-import type * as messages from "../messages.js";
-import type * as migration from "../migration.js";
-import type * as opportunities from "../opportunities.js";
-import type * as seed from "../seed.js";
-import type * as userMutations from "../userMutations.js";
-import type * as users from "../users.js";
+import type * as applications_index from "../applications/index.js";
+import type * as applications_mutations from "../applications/mutations.js";
+import type * as applications_queries from "../applications/queries.js";
+import type * as jobs_index from "../jobs/index.js";
+import type * as jobs_mutations from "../jobs/mutations.js";
+import type * as jobs_queries from "../jobs/queries.js";
+import type * as mentors_index from "../mentors/index.js";
+import type * as mentors_mutations from "../mentors/mutations.js";
+import type * as mentors_queries from "../mentors/queries.js";
+import type * as messages_index from "../messages/index.js";
+import type * as messages_mutations from "../messages/mutations.js";
+import type * as messages_queries from "../messages/queries.js";
+import type * as users_helpers from "../users/helpers.js";
+import type * as users_index from "../users/index.js";
+import type * as users_mutations from "../users/mutations.js";
+import type * as users_queries from "../users/queries.js";
+import type * as utils_mentorMigration from "../utils/mentorMigration.js";
+import type * as utils_migration from "../utils/migration.js";
+import type * as utils_seed from "../utils/seed.js";
 
 import type {
   ApiFromModules,
@@ -29,17 +37,25 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   api: typeof api_;
-  applications: typeof applications;
-  jobApplications: typeof jobApplications;
-  jobs: typeof jobs;
-  mentorMigration: typeof mentorMigration;
-  mentors: typeof mentors;
-  messages: typeof messages;
-  migration: typeof migration;
-  opportunities: typeof opportunities;
-  seed: typeof seed;
-  userMutations: typeof userMutations;
-  users: typeof users;
+  "applications/index": typeof applications_index;
+  "applications/mutations": typeof applications_mutations;
+  "applications/queries": typeof applications_queries;
+  "jobs/index": typeof jobs_index;
+  "jobs/mutations": typeof jobs_mutations;
+  "jobs/queries": typeof jobs_queries;
+  "mentors/index": typeof mentors_index;
+  "mentors/mutations": typeof mentors_mutations;
+  "mentors/queries": typeof mentors_queries;
+  "messages/index": typeof messages_index;
+  "messages/mutations": typeof messages_mutations;
+  "messages/queries": typeof messages_queries;
+  "users/helpers": typeof users_helpers;
+  "users/index": typeof users_index;
+  "users/mutations": typeof users_mutations;
+  "users/queries": typeof users_queries;
+  "utils/mentorMigration": typeof utils_mentorMigration;
+  "utils/migration": typeof utils_migration;
+  "utils/seed": typeof utils_seed;
 }>;
 
 /**

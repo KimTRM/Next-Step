@@ -24,16 +24,18 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
     const justCompletedOnboarding = resolvedSearchParams.welcome === 'true';
 
     // Fetch data from Convex
-    const currentUser = useQuery(api.users.getCurrentUser);
-    const opportunities = useQuery(api.opportunities.getAllOpportunities, {});
-    const userApplications = useQuery(api.applications.getUserApplications);
-    const userMessages = useQuery(api.messages.getUserMessages);
+    const currentUser = useQuery(api.functions.users.getCurrentUser);
+    // TODO: Uncomment when opportunities feature is migrated
+    // const opportunities = useQuery(api.functions.opportunities.getAllOpportunities, {});
+    const opportunities = [] as any[]; // Temporary placeholder until opportunities feature is migrated
+    const userApplications = useQuery(api.functions.applications.getUserApplications);
+    const userMessages = useQuery(api.functions.messages.getUserMessages);
 
     // Show skeleton loading while data loads
     const isLoading = !user || currentUser === undefined || opportunities === undefined;
 
     // Calculate stats
-    const unreadMessages = userMessages?.filter(msg =>
+    const unreadMessages = userMessages?.filter((msg: any) =>
         !msg.read && msg.receiverId === currentUser?._id
     ).length || 0;
 
@@ -160,7 +162,7 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {recentOpportunities.map((opp) => (
+                            {recentOpportunities.map((opp: any) => (
                                 <div key={opp._id} className="border-b border-gray-200 pb-4 last:border-b-0">
                                     <h4 className="font-semibold text-gray-900">{opp.title}</h4>
                                     <p className="text-sm text-gray-600 mt-1">
@@ -226,19 +228,19 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Pending</span>
                                     <span className="font-semibold">
-                                        {userApplications?.filter(a => a.status === 'pending').length || 0}
+                                        {userApplications?.filter((a: any) => a.status === 'pending').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Accepted</span>
                                     <span className="font-semibold text-green-600">
-                                        {userApplications?.filter(a => a.status === 'accepted').length || 0}
+                                        {userApplications?.filter((a: any) => a.status === 'accepted').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Rejected</span>
                                     <span className="font-semibold text-red-600">
-                                        {userApplications?.filter(a => a.status === 'rejected').length || 0}
+                                        {userApplications?.filter((a: any) => a.status === 'rejected').length || 0}
                                     </span>
                                 </div>
                             </div>

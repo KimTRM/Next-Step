@@ -11,10 +11,13 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Calendar, Clock, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 interface BookingModalProps {
     mentor: {
         _id: Id<'mentors'>;
+        userId: Id<'users'>;
         name: string;
         role: string;
         hourlyRate?: number;
@@ -64,23 +67,7 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const bookSession = async (payload: {
-        mentorId: Id<'mentors'>;
-        topic: string;
-        scheduledDate: number;
-        duration: number;
-        message?: string;
-    }) => {
-        const res = await fetch('/api/mentors/book', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        const json = await res.json();
-        if (!res.ok || !json.success) {
-            throw new Error(json?.error?.message || 'Failed to book session');
-        }
-    };
+    const bookSession = useMutation(api.functions.mentors.bookSession);
 
     const availableDates = getNextTwoWeeks();
     const mentorAvailableDays = mentor.availableDays?.map(d => d.toLowerCase()) || [];
@@ -121,7 +108,7 @@ export function BookingModal({ mentor, onClose }: BookingModalProps) {
                 topic,
                 scheduledDate: scheduledDate.getTime(),
                 duration,
-                message: message || undefined,
+                message,
             });
 
             setStep('success');

@@ -11,9 +11,9 @@ export function ProfilePageContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
-  const currentUser = useQuery(api.users.getCurrentUser);
-  const upsertUser = useMutation(api.userMutations.upsertUser);
-  const updateProfile = useMutation(api.userMutations.updateUserProfile);
+  const currentUser = useQuery(api.functions.users.getCurrentUser);
+  const upsertUser = useMutation(api.functions.userMutations.upsertUser);
+  const updateProfile = useMutation(api.functions.userMutations.updateUserProfile);
 
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');

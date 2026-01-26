@@ -13,9 +13,9 @@ export default function PlatformLayout({
 }) {
   const { userId } = useAuth();
   const router = useRouter();
-  
-  const currentUser = useQuery(api.users.getUserByClerkId, { 
-    clerkId: userId || "" 
+
+  const currentUser = useQuery(api.functions.users.getUserByClerkId, {
+    clerkId: userId || ""
   });
 
   useEffect(() => {
