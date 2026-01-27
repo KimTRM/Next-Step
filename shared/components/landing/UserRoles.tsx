@@ -50,7 +50,7 @@ export function UserRoles() {
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
             variants={fadeInUp}
           >
-            Whether you're seeking guidance, offering mentorship, or hiring talent, NextStep connects you.
+            Whether you&apos;re seeking guidance, offering mentorship, or hiring talent, NextStep connects you.
           </motion.p>
         </motion.div>
 
