@@ -92,7 +92,7 @@ export function Header() {
                 Log In
               </Link>
               <Link
-                href="/sign-up"
+                href="/welcome"
                 className="px-6 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors"
               >
                 Sign Up
@@ -157,7 +157,7 @@ export function Header() {
                     Log In
                   </Link>
                   <Link
-                    href="/sign-up"
+                    href="/welcome"
                     onClick={() => setMobileMenuOpen(false)}
                     className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center"
                   >
