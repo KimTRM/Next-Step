@@ -1,4 +1,4 @@
-import { internalMutation } from "../_generated/server";
+import { internalMutation, mutation } from "../_generated/server";
 
 /**
  * Migration to clear old jobs and reseed with new schema
@@ -173,6 +173,51 @@ export const clearAndReseedJobs = internalMutation({
             success: true,
             message: `Migration complete: ${jobIds.length} jobs created`,
             jobIds,
+        };
+    },
+});
+
+/**
+ * Migration to convert messages from old `read` field to new `isRead` field
+ * Run manually: npx convex run utils/migration:migrateMessagesReadField
+ */
+export const migrateMessagesReadField = mutation({
+    args: {},
+    handler: async (ctx) => {
+        console.log("Starting migration: Converting read -> isRead in messages...");
+
+        // Get all messages (we need to use a raw query approach)
+        const allMessages = await ctx.db.query("messages").collect();
+
+        let migratedCount = 0;
+        let skippedCount = 0;
+
+        for (const message of allMessages) {
+            // Check if message has old 'read' field but no 'isRead' field
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const msg = message as any;
+
+            if (msg.read !== undefined && msg.isRead === undefined) {
+                // Update the message with the new field
+                await ctx.db.patch(message._id, {
+                    isRead: msg.read,
+                });
+
+                // We can't delete the old field directly, but the schema will ignore it
+                migratedCount++;
+            } else if (msg.isRead !== undefined) {
+                skippedCount++;
+            }
+        }
+
+        console.log(`✓ Migrated ${migratedCount} messages`);
+        console.log(`✓ Skipped ${skippedCount} messages (already migrated)`);
+
+        return {
+            success: true,
+            message: `Migration complete: ${migratedCount} messages migrated, ${skippedCount} skipped`,
+            migratedCount,
+            skippedCount,
         };
     },
 });

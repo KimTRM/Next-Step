@@ -174,19 +174,19 @@ async function seedMessages(
             receiverId: userIds[1], // mentor
             content:
                 "Hi Sarah, I'd love to learn more about your mentorship program!",
-            read: true,
+            isRead: true,
         },
         {
             senderId: userIds[1],
             receiverId: userIds[0],
             content: "Hello Alex! I'd be happy to help. Let's schedule a call.",
-            read: false,
+            isRead: false,
         },
         {
             senderId: userIds[2], // employer
             receiverId: userIds[0], // student
             content: "We'd like to interview you for the intern position.",
-            read: false,
+            isRead: false,
         },
     ];
 
