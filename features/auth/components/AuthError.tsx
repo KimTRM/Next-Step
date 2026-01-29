@@ -12,7 +12,7 @@ type AuthErrorProps = {
     title?: string;
     message?: string;
     code?: string;
-    onRetry?: () => void;
+    onRetryAction?: () => void;
     showHomeLink?: boolean;
     showBackLink?: boolean;
 };
@@ -108,7 +108,7 @@ export function AuthErrorDisplay({
     title,
     message,
     code,
-    onRetry,
+    onRetryAction,
     showHomeLink = true,
     showBackLink = false,
 }: AuthErrorProps) {
@@ -118,7 +118,7 @@ export function AuthErrorDisplay({
     const displayMessage = message || errorInfo?.message || "An unexpected error occurred. Please try again.";
 
     return (
-        <div className="min-h-[400px] flex flex-col items-center justify-center p-8">
+        <div className="min-h-100 flex flex-col items-center justify-center p-8">
             <div className="bg-red-50 rounded-full p-4 mb-6">
                 <AlertCircle className="w-12 h-12 text-red-500" />
             </div>
@@ -132,9 +132,9 @@ export function AuthErrorDisplay({
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-                {onRetry && (
+                {onRetryAction && (
                     <button
-                        onClick={onRetry}
+                        onClick={onRetryAction}
                         className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
                     >
                         <RefreshCw className="w-4 h-4" />

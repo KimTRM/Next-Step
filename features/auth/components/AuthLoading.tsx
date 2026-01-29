@@ -6,6 +6,7 @@
  */
 
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 type AuthLoadingProps = {
     message?: string;
@@ -59,11 +60,15 @@ export function AuthLoadingSkeleton() {
  */
 export function FullPageLoading() {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-500 to-green-700">
-            <img
+        <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-green-500 to-green-700">
+            <Image
                 src="/logo-white.png"
                 alt="NextStep"
+                width={64}
+                height={64}
                 className="w-16 h-auto mb-6 animate-pulse"
+                style={{ height: "auto" }}
+                priority
             />
             <Loader2 className="w-8 h-8 animate-spin text-white" />
         </div>

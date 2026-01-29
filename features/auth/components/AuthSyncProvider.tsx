@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useRef, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -18,6 +19,7 @@ type AuthSyncProviderProps = {
 export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
     const { isLoaded: authLoaded, isSignedIn } = useAuth();
     const { user, isLoaded: userLoaded } = useUser();
+    const router = useRouter();
     const upsertUser = useMutation(api.users.index.upsertUser);
     const convexUser = useQuery(
         api.users.index.getCurrentUser,
@@ -62,7 +64,6 @@ export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
                 });
 
                 hasSynced.current = true;
-                console.log("User synced to Convex");
             } catch (error) {
                 console.error("Error syncing user to Convex:", error);
             }
@@ -70,6 +71,31 @@ export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
 
         syncUser();
     }, [authLoaded, userLoaded, isSignedIn, user, convexUser, upsertUser]);
+
+    // If Clerk reports not signed in but a server session cookie exists,
+    // trigger a router refresh to allow ClerkProvider to rehydrate client state.
+    useEffect(() => {
+        try {
+            if (typeof window === "undefined") return;
+            // Only attempt once per page load
+            if (hasSynced.current) return;
+
+            if (authLoaded && !isSignedIn) {
+                const hasSessionCookie = document.cookie.includes("__session=");
+                if (hasSessionCookie) {
+                    console.warn(
+                        "AuthSyncProvider: detected server session cookie but Clerk reports not signed in. Refreshing router to resync client auth state.",
+                    );
+                    hasSynced.current = true;
+                    // Use Next router refresh to re-run server components / middleware
+                    void router.refresh();
+                }
+            }
+        } catch (e) {
+            // Non-fatal - ignore
+            console.error("AuthSyncProvider: refresh check failed:", e);
+        }
+    }, [authLoaded, isSignedIn, router]);
 
     return <>{children}</>;
 }

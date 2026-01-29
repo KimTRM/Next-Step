@@ -11,16 +11,16 @@ import type { AuthError } from "../types";
 
 type EmailVerificationProps = {
     email: string;
-    onVerify: (code: string) => Promise<{ success: boolean; error: AuthError | null }>;
-    onResend: () => Promise<{ success: boolean; error: AuthError | null }>;
+    onVerifyAction: (code: string) => Promise<{ success: boolean; error: AuthError | null }>;
+    onResendAction: () => Promise<{ success: boolean; error: AuthError | null }>;
     isLoading: boolean;
     error: AuthError | null;
 };
 
 export function EmailVerification({
     email,
-    onVerify,
-    onResend,
+    onVerifyAction,
+    onResendAction,
     isLoading,
     error,
 }: EmailVerificationProps) {
@@ -35,12 +35,12 @@ export function EmailVerification({
             return;
         }
 
-        await onVerify(code.trim());
+        await onVerifyAction(code.trim());
     };
 
     const handleResend = async () => {
         setResendMessage(null);
-        const result = await onResend();
+        const result = await onResendAction();
         if (result.success) {
             setResendMessage("Verification code sent!");
             setCode("");

@@ -7,6 +7,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useIsMobile } from "@/shared/components/ui/use-mobile";
 import { useIsTablet } from "@/shared/components/ui/use-tablet";
@@ -15,13 +18,26 @@ import { OAuthButtons } from "./OAuthButtons";
 import { AuthLoading } from "./AuthLoading";
 
 export function SignUpPageContent() {
-    const { isLoaded } = useAuth();
+    const { isLoaded, isSignedIn } = useAuth();
+    const router = useRouter();
     const isMobile = useIsMobile();
     const isTablet = useIsTablet();
+
+    // Redirect if already signed in
+    useEffect(() => {
+        if (isLoaded && isSignedIn) {
+            router.replace("/dashboard");
+        }
+    }, [isLoaded, isSignedIn, router]);
 
     // Show loading state while Clerk initializes
     if (!isLoaded) {
         return <AuthLoading message="Preparing sign up..." />;
+    }
+
+    // Don't render form if already signed in (will redirect)
+    if (isSignedIn) {
+        return <AuthLoading message="Redirecting to dashboard..." />;
     }
 
     return (
@@ -35,7 +51,7 @@ export function SignUpPageContent() {
 
 function LoginDirection() {
     return (
-        <div className="relative w-1/2 h-screen bg-gradient-to-b from-green-500 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="relative w-1/2 h-screen bg-linear-to-b from-green-500 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden">
             <motion.div
                 className="relative z-10 flex flex-col items-center"
                 initial={{ y: "7vh", opacity: 0 }}
@@ -43,12 +59,16 @@ function LoginDirection() {
                 transition={{ type: "spring", stiffness: 90, damping: 40 }}
             >
                 <div className="relative z-10 flex flex-col items-center">
-                    <img
-                        className="w-16 sm:w-20 lg:w-24 h-auto mb-8"
+                    <Image
+                        className="w-16 sm:w-20 lg:w-24 mb-8"
                         src="/logo-white.png"
                         alt="NextStep logo"
+                        width={96}
+                        height={96}
+                        style={{ height: "auto", width: "auto" }}
+                        priority
                     />
-                    <h1 className="[font-family:'Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 text-center">
+                    <h1 className="font-['Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 text-center">
                         Welcome Back!
                     </h1>
                 </div>
@@ -81,7 +101,7 @@ function SignUpSection() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 90, damping: 40 }}
             >
-                <h1 className="[font-family:'Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-green-600 mb-8 text-center">
+                <h1 className="font-['Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-green-600 mb-8 text-center">
                     Create an Account
                 </h1>
 

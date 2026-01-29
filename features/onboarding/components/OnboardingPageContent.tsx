@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useOrganizationList, useClerk } from "@clerk/nextjs";
 import { useUserByClerkId, useUpdateUser } from "@/features/onboarding/api";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -72,7 +72,9 @@ const ROLE_OPTIONS = [
 
 export default function OnboardingPageContent() {
   const router = useRouter();
-  const { userId } = useAuth();
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const clerk = useClerk();
+  const { userMemberships, isLoaded: orgsLoaded } = useOrganizationList();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
@@ -81,7 +83,12 @@ export default function OnboardingPageContent() {
   const [customInterest, setCustomInterest] = useState("");
   const [customIndustry, setCustomIndustry] = useState("");
   const [customRole, setCustomRole] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Organization creation for OAuth users
+  const [needsOrganization, setNeedsOrganization] = useState(false);
+  const [organizationName, setOrganizationName] = useState("");
+  const [isCreatingOrg, setIsCreatingOrg] = useState(false);
+  const [orgError, setOrgError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<OnboardingData>({
     education: [{
@@ -127,14 +134,61 @@ export default function OnboardingPageContent() {
   const updateUser = useUpdateUser();
   const getUser = useUserByClerkId(userId || "");
 
+  // Redirect to auth if not signed in
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.replace("/auth?redirect_url=/onboarding");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   // Check if user already completed onboarding
   useEffect(() => {
     if (getUser?.onboardingCompleted) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
   }, [getUser, router]);
 
-  const validateStep = (step: number): boolean => {
+  // Check if user needs to create an organization (OAuth users)
+  useEffect(() => {
+    if (orgsLoaded && isSignedIn) {
+      const hasOrganization = userMemberships?.data && userMemberships.data.length > 0;
+      setNeedsOrganization(!hasOrganization);
+    }
+  }, [orgsLoaded, isSignedIn, userMemberships]);
+
+  // Handle organization creation for OAuth users
+  const handleCreateOrganization = useCallback(async () => {
+    if (!organizationName.trim()) {
+      setOrgError("Organization name is required");
+      return;
+    }
+
+    if (organizationName.trim().length < 2) {
+      setOrgError("Organization name must be at least 2 characters");
+      return;
+    }
+
+    setIsCreatingOrg(true);
+    setOrgError(null);
+
+    try {
+      await clerk.createOrganization({ name: organizationName.trim() });
+      setNeedsOrganization(false);
+      setOrganizationName("");
+    } catch (err: unknown) {
+      console.error("Failed to create organization:", err);
+      const clerkError = err as {
+        errors?: Array<{ message: string }>;
+      };
+      setOrgError(
+        clerkError.errors?.[0]?.message || "Failed to create organization. Please try again."
+      );
+    } finally {
+      setIsCreatingOrg(false);
+    }
+  }, [organizationName, clerk]);
+
+  const validateStep = useCallback((step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
     switch (step) {
@@ -196,40 +250,9 @@ export default function OnboardingPageContent() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
-  const handleNext = async () => {
-    if (!validateStep(currentStep)) {
-      return;
-    }
-
-    if (currentStep < 4) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      saveToLocalStorage(formData, nextStep);
-
-      // Scroll to top for mobile
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      await handleComplete();
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      const prevStep = currentStep - 1;
-      setCurrentStep(prevStep);
-      saveToLocalStorage(formData, prevStep);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  const handleSkip = async () => {
-    saveToLocalStorage(formData, currentStep);
-    router.push("/dashboard");
-  };
-
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
     if (!userId || !validateStep(4)) return;
 
     setIsSaving(true);
@@ -300,6 +323,37 @@ export default function OnboardingPageContent() {
     } finally {
       setIsSaving(false);
     }
+  }, [userId, validateStep, formData, updateUser, router]);
+
+  const handleNext = useCallback(async () => {
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
+    if (currentStep < 4) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      saveToLocalStorage(formData, nextStep);
+
+      // Scroll to top for mobile
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      await handleComplete();
+    }
+  }, [currentStep, formData, saveToLocalStorage, validateStep, handleComplete]);
+
+  const handleBack = useCallback(() => {
+    if (currentStep > 1) {
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      saveToLocalStorage(formData, prevStep);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentStep, formData, saveToLocalStorage]);
+
+  const handleSkip = async () => {
+    saveToLocalStorage(formData, currentStep);
+    router.push("/dashboard");
   };
 
   const addSkill = (skill: string) => {
@@ -389,9 +443,102 @@ export default function OnboardingPageContent() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentStep, formData]);
+  }, [currentStep, formData, handleBack, handleNext]);
 
   const progressPercentage = (currentStep / 4) * 100;
+
+  // Auth gate: Show loading while auth is checking
+  if (!isLoaded) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Auth gate: Redirect to sign in if not authenticated
+  if (!isSignedIn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Redirecting to sign in...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Organization gate: Show loading while checking organizations
+  if (!orgsLoaded) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Setting up your workspace...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Organization gate: Prompt to create organization if needed (OAuth users)
+  if (needsOrganization) {
+    return (
+      <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="max-w-md mx-auto mt-20">
+          <Card>
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle>Create Your Organization</CardTitle>
+              <CardDescription>
+                Set up your organization to get started with NextStep. This helps us personalize your experience.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {orgError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {orgError}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="orgName">Organization Name *</Label>
+                <Input
+                  id="orgName"
+                  type="text"
+                  placeholder="e.g., My Company, Personal Workspace"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                  disabled={isCreatingOrg}
+                  className={orgError ? "border-destructive" : ""}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This can be your company name or a personal workspace name.
+                </p>
+              </div>
+              <Button
+                onClick={handleCreateOrganization}
+                disabled={isCreatingOrg || !organizationName.trim()}
+                className="w-full"
+              >
+                {isCreatingOrg ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -667,7 +814,7 @@ export default function OnboardingPageContent() {
                       placeholder="Add custom skill"
                       value={customSkill}
                       onChange={(e) => setCustomSkill(e.target.value)}
-                      onKeyPress={(e) => {
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           if (customSkill.trim()) {
@@ -733,7 +880,7 @@ export default function OnboardingPageContent() {
                       placeholder="Add custom interest"
                       value={customInterest}
                       onChange={(e) => setCustomInterest(e.target.value)}
-                      onKeyPress={(e) => {
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           if (customInterest.trim()) {
@@ -773,8 +920,8 @@ export default function OnboardingPageContent() {
                       <div key={style.value} className="flex items-center space-x-2">
                         <Checkbox
                           id={style.value}
-                          checked={formData.workStyles.includes(style.value as any)}
-                          onCheckedChange={() => toggleWorkStyle(style.value as any)}
+                          checked={formData.workStyles.includes(style.value as "remote" | "hybrid" | "onsite" | "flexible")}
+                          onCheckedChange={() => toggleWorkStyle(style.value as "remote" | "hybrid" | "onsite" | "flexible")}
                         />
                         <Label htmlFor={style.value}>{style.label}</Label>
                       </div>
@@ -841,7 +988,7 @@ export default function OnboardingPageContent() {
                       placeholder="Add custom industry"
                       value={customIndustry}
                       onChange={(e) => setCustomIndustry(e.target.value)}
-                      onKeyPress={(e) => {
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           if (customIndustry.trim()) {
@@ -905,7 +1052,7 @@ export default function OnboardingPageContent() {
                       placeholder="Add custom role"
                       value={customRole}
                       onChange={(e) => setCustomRole(e.target.value)}
-                      onKeyPress={(e) => {
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           if (customRole.trim()) {
@@ -946,7 +1093,9 @@ export default function OnboardingPageContent() {
                     <Label htmlFor="availability">Availability</Label>
                     <Select
                       value={formData.availability}
-                      onValueChange={(value: any) => setFormData(prev => ({ ...prev, availability: value }))}
+                      onValueChange={(value: "immediately" | "within_1_month" | "within_3_months" | "within_6_months" | "just_exploring") =>
+                        setFormData(prev => ({ ...prev, availability: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -972,7 +1121,7 @@ export default function OnboardingPageContent() {
             variant="outline"
             onClick={handleBack}
             disabled={currentStep === 1}
-            className="min-h-[48px] px-6"
+            className="min-h-12 px-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
@@ -981,7 +1130,7 @@ export default function OnboardingPageContent() {
           <Button
             onClick={handleNext}
             disabled={isSaving}
-            className="min-h-[48px] px-6"
+            className="min-h-12 px-6"
           >
             {isSaving ? (
               "Saving..."

@@ -19,7 +19,7 @@ export default function SSOCallbackPage() {
             {/* Clerk's OAuth callback handler */}
             <AuthenticateWithRedirectCallback
                 signInFallbackRedirectUrl="/dashboard"
-                signUpFallbackRedirectUrl="/welcome"
+                signUpFallbackRedirectUrl="/onboarding"
             />
         </div>
     );

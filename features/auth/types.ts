@@ -15,6 +15,7 @@ export type SignUpFormData = {
     email: string;
     password: string;
     confirmPassword: string;
+    organizationName: string; // Required for organization creation
 };
 
 // Auth error types

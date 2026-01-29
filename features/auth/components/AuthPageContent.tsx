@@ -7,21 +7,37 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useIsMobile } from "@/shared/components/ui/use-mobile";
 import { useIsTablet } from "@/shared/components/ui/use-tablet";
 import { LoginForm } from "./LoginForm";
 import { OAuthButtons } from "./OAuthButtons";
 import { AuthLoading } from "./AuthLoading";
+import Image from "next/image";
 
 export function AuthPageContent() {
-    const { isLoaded } = useAuth();
+    const { isLoaded, isSignedIn } = useAuth();
+    const router = useRouter();
     const isMobile = useIsMobile();
     const isTablet = useIsTablet();
+
+    // Redirect if already signed in
+    useEffect(() => {
+        if (isLoaded && isSignedIn) {
+            router.replace("/dashboard");
+        }
+    }, [isLoaded, isSignedIn, router]);
 
     // Show loading state while Clerk initializes
     if (!isLoaded) {
         return <AuthLoading message="Preparing login..." />;
+    }
+
+    // Don't render anything if already signed in (will redirect)
+    if (isSignedIn) {
+        return <AuthLoading message="Redirecting to dashboard..." />;
     }
 
     return (
@@ -34,9 +50,15 @@ export function AuthPageContent() {
 }
 
 function LoginSection() {
+    const { signOut } = useClerk();
+
     const handleForgotPassword = () => {
-        // TODO: Implement forgot password flow
-        console.log("Forgot password clicked");
+        // TODO: Implement forgot password flow using Clerk's password reset
+        // See: https://clerk.com/docs/custom-flows/forgot-password
+    };
+
+    const handleSignOut = async () => {
+        await signOut({ redirectUrl: '/' });
     };
 
     return (
@@ -52,9 +74,19 @@ function LoginSection() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 90, damping: 40 }}
             >
-                <h1 className="[font-family:'Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-green-600 mb-8 text-center">
+                <h1 className="font-['Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-green-600 mb-8 text-center">
                     Log In to NextStep
                 </h1>
+
+                {/* Sign Out Button - for clearing stale sessions */}
+                <div className="mb-4 text-center">
+                    <button
+                        onClick={handleSignOut}
+                        className="text-sm text-gray-500 underline hover:text-gray-700"
+                    >
+                        Having trouble logging in? Sign out and try again
+                    </button>
+                </div>
 
                 <LoginForm onForgotPassword={handleForgotPassword} />
             </motion.div>
@@ -75,7 +107,7 @@ function LoginSection() {
 
 function SignUpDirection() {
     return (
-        <div className="relative w-1/2 h-screen bg-gradient-to-b from-green-500 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="relative w-1/2 h-screen bg-linear-to-b from-green-500 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden">
             <motion.div
                 className="relative z-10 flex flex-col items-center"
                 initial={{ y: "7vh", opacity: 0 }}
@@ -83,12 +115,16 @@ function SignUpDirection() {
                 transition={{ type: "spring", stiffness: 90, damping: 40 }}
             >
                 <div className="relative z-10 flex flex-col items-center">
-                    <img
+                    <Image
                         className="w-16 sm:w-20 lg:w-24 h-auto mb-8"
                         src="/logo-white.png"
                         alt="NextStep logo"
+                        width={96}
+                        height={96}
+                        priority
+                        style={{ height: "auto" }}
                     />
-                    <h1 className="[font-family:'Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 text-center">
+                    <h1 className="font-['Antonio-Bold',Helvetica] text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 text-center">
                         Hello User!
                     </h1>
                 </div>
