@@ -134,7 +134,7 @@ export function useConvexAuth() {
         session: convexSession,
 
         // Role helpers
-        isStudent: convexUser?.role === "student",
+        isJobSeeker: convexUser?.role === "job_seeker",
         isMentor: convexUser?.role === "mentor",
         isEmployer: convexUser?.role === "employer",
     };

@@ -140,7 +140,7 @@ export type Message = {
 };
 
 // User Types
-export type UserRole = "student" | "mentor" | "employer";
+export type UserRole = "job_seeker" | "mentor" | "employer";
 
 export type User = {
     _id: Id<"users">;
@@ -169,6 +169,9 @@ export type User = {
     portfolioUrl?: string;
     profileCompletion?: number;
     isOnboardingComplete?: boolean;
+    onboardingStatus?: "not_started" | "in_progress" | "completed";
+    organizationName?: string;
+    goals?: string[];
     createdAt: number;
     updatedAt?: number;
     lastSeenAt?: number;

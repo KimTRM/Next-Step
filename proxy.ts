@@ -15,6 +15,7 @@ const isAuthRoute = createRouteMatcher([
 // Protected routes - require authentication
 const isProtectedRoute = createRouteMatcher([
     "/dashboard(.*)",
+    "/welcome",
     "/onboarding(.*)",
     "/applications(.*)",
     "/jobs(.*)",

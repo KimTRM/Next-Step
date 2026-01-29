@@ -2,7 +2,7 @@
  * TypeScript Type Definitions for NextStep Platform
  */
 
-export type UserRole = 'student' | 'mentor' | 'employer';
+export type UserRole = 'job_seeker' | 'mentor' | 'employer';
 
 export interface User {
   id: string;

@@ -111,6 +111,41 @@ export function useDeleteUser() {
     return useMutation(api.users.index.deleteUser);
 }
 
+/**
+ * Create user if missing (fallback after Clerk auth)
+ */
+export function useCreateUserIfMissing() {
+    return useMutation(api.users.index.createUserIfMissing);
+}
+
+/**
+ * Set onboarding status
+ */
+export function useSetOnboardingStatus() {
+    return useMutation(api.users.index.setOnboardingStatus);
+}
+
+/**
+ * Set user role during onboarding
+ */
+export function useSetRole() {
+    return useMutation(api.users.index.setRole);
+}
+
+/**
+ * Set user goals during onboarding
+ */
+export function useSetGoals() {
+    return useMutation(api.users.index.setGoals);
+}
+
+/**
+ * Save onboarding profile (role-based fields)
+ */
+export function useSaveOnboardingProfile() {
+    return useMutation(api.users.index.saveOnboardingProfile);
+}
+
 // ============================================
 // AUTH HELPER HOOK
 // ============================================
@@ -130,7 +165,7 @@ export function useAuth() {
         session,
         isLoading,
         isAuthenticated,
-        isStudent: user?.role === "student",
+        isJobSeeker: user?.role === "job_seeker",
         isMentor: user?.role === "mentor",
         isEmployer: user?.role === "employer",
     };
@@ -143,6 +178,7 @@ export function useAuth() {
 export type {
     User,
     UserRole,
+    OnboardingStatus,
     UserSession,
     PublicUserProfile,
     UserWithMatchScore,
