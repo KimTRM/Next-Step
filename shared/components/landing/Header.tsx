@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
   currentPage: string;
@@ -10,11 +10,11 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'jobs', label: 'Jobs' },
-    { id: 'applications', label: 'Applications' },
-    { id: 'mentors', label: 'Mentors' },
-    { id: 'profile', label: 'Profile' }
+    { id: "home", label: "Home" },
+    { id: "jobs", label: "Jobs" },
+    { id: "applications", label: "Applications" },
+    { id: "mentors", label: "Mentors" },
+    { id: "profile", label: "Profile" },
   ];
 
   const handleNavigate = (page: string) => {
@@ -27,8 +27,13 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <button onClick={() => handleNavigate('home')} className="flex items-center hover:opacity-80 transition-opacity">
-            <span className="text-2xl font-bold text-primary display-font">NextStep</span>
+          <button
+            onClick={() => handleNavigate("home")}
+            className="flex items-center hover:opacity-80 transition-opacity"
+          >
+            <span className="text-2xl font-bold text-primary display-font">
+              NextStep
+            </span>
           </button>
 
           {/* Desktop Navigation */}
@@ -37,10 +42,11 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.id)}
-                className={`transition-colors ${currentPage === item.id
-                    ? 'text-primary'
-                    : 'text-foreground hover:text-primary'
-                  }`}
+                className={`transition-colors ${
+                  currentPage === item.id
+                    ? "text-primary"
+                    : "text-foreground hover:text-primary"
+                }`}
               >
                 {item.label}
               </button>
@@ -62,7 +68,11 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
             className="md:hidden p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
 
@@ -74,10 +84,11 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
                 <button
                   key={item.id}
                   onClick={() => handleNavigate(item.id)}
-                  className={`transition-colors py-2 text-left ${currentPage === item.id
-                      ? 'text-primary'
-                      : 'text-foreground hover:text-primary'
-                    }`}
+                  className={`transition-colors py-2 text-left ${
+                    currentPage === item.id
+                      ? "text-primary"
+                      : "text-foreground hover:text-primary"
+                  }`}
                 >
                   {item.label}
                 </button>

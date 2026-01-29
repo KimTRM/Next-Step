@@ -8,8 +8,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/shared/components/layout";
-import { Footer } from "@/shared/components/landing/Footer";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -37,11 +35,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${playfairDisplay.variable}`} suppressHydrationWarning>
         <Providers>
-          <Header />
           <main className="min-h-screen bg-background">
             {children}
           </main>
-          <Footer />
         </Providers>
       </body>
     </html>
