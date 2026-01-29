@@ -6,6 +6,7 @@
  * Supports: Google, Apple, Facebook
  */
 
+import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useOAuthLogin, useOAuthSignUp } from "../api";
 
@@ -85,59 +86,113 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
         : null;
 
     return (
-        <div className="flex flex-col items-center gap-3">
+        <motion.div 
+            className="flex flex-col items-center gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
             {errorMessage && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm max-w-xs text-center">
+                <motion.div 
+                    className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm max-w-xs text-center"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
                     {errorMessage}
-                </div>
+                </motion.div>
             )}
 
-            <div className="flex gap-4 mt-2">
+            <motion.div 
+                className="flex gap-4 mt-2"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+            >
                 {/* Google Button */}
-                <button
+                <motion.button
                     onClick={handleGoogle}
                     disabled={isLoading || !isReady}
-                    className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
                     title="Continue with Google"
                     aria-label="Continue with Google"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", duration: 0.2 }}
                 >
                     {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        </motion.div>
                     ) : (
-                        <GoogleIcon className="w-5 h-5" />
+                        <motion.div
+                            whileHover={{ rotate: 15 }}
+                            transition={{ type: "spring", duration: 0.2 }}
+                        >
+                            <GoogleIcon className="w-5 h-5" />
+                        </motion.div>
                     )}
-                </button>
+                </motion.button>
 
                 {/* Apple Button */}
-                <button
+                <motion.button
                     onClick={handleApple}
                     disabled={isLoading || !isReady}
-                    className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
                     title="Continue with Apple"
                     aria-label="Continue with Apple"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", duration: 0.2, delay: 0.05 }}
                 >
                     {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        </motion.div>
                     ) : (
-                        <AppleIcon className="w-5 h-5" />
+                        <motion.div
+                            whileHover={{ rotate: -15 }}
+                            transition={{ type: "spring", duration: 0.2 }}
+                        >
+                            <AppleIcon className="w-5 h-5" />
+                        </motion.div>
                     )}
-                </button>
+                </motion.button>
 
                 {/* Facebook Button */}
-                <button
+                <motion.button
                     onClick={handleFacebook}
                     disabled={isLoading || !isReady}
-                    className="bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md"
                     title="Continue with Facebook"
                     aria-label="Continue with Facebook"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", duration: 0.2, delay: 0.1 }}
                 >
                     {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        </motion.div>
                     ) : (
-                        <FacebookIcon className="w-5 h-5 fill-white" />
+                        <motion.div
+                            whileHover={{ rotate: 15 }}
+                            transition={{ type: "spring", duration: 0.2 }}
+                        >
+                            <FacebookIcon className="w-5 h-5 fill-white" />
+                        </motion.div>
                     )}
-                </button>
-            </div>
-        </div>
+                </motion.button>
+            </motion.div>
+        </motion.div>
     );
 }

@@ -159,8 +159,13 @@ export function useLoginForm() {
                     errorCode = error.code;
                     errorMessage = error.longMessage || error.message;
 
+                    // Handle verification strategy error
+                    if (error.code === "verification_strategy_not_valid" || 
+                        errorMessage.includes("verification strategy is not valid")) {
+                        errorMessage = "This account requires a different verification method. Please try signing in with OAuth or contact support.";
+                    }
                     // Provide more specific messages for common errors
-                    if (error.code === "form_identifier_not_found") {
+                    else if (error.code === "form_identifier_not_found") {
                         errorMessage =
                             "No account found with this email address. Please sign up first.";
                     } else if (error.code === "form_password_incorrect") {
@@ -302,14 +307,37 @@ export function useSignUpForm() {
                     errors?: Array<{
                         code: string;
                         message: string;
+                        longMessage?: string;
                         meta?: { paramName?: string };
                     }>;
                 };
+                
+                let errorMessage = "An error occurred during sign up";
+                let errorCode = "unknown_error";
+                
+                if (clerkError.errors?.[0]) {
+                    const error = clerkError.errors[0];
+                    errorCode = error.code;
+                    errorMessage = error.longMessage || error.message;
+                    
+                    // Handle verification strategy error
+                    if (error.code === "verification_strategy_not_valid" || 
+                        errorMessage.includes("verification strategy is not valid")) {
+                        errorMessage = "Email verification is not available for this account. Please try signing up with OAuth or contact support.";
+                    }
+                    // Handle email already exists
+                    else if (error.code === "form_identifier_exists") {
+                        errorMessage = "An account with this email already exists. Please sign in instead.";
+                    }
+                    // Handle username already exists
+                    else if (error.code === "form_username_exists") {
+                        errorMessage = "This username is already taken. Please choose another one.";
+                    }
+                }
+                
                 const authError: AuthError = {
-                    code: clerkError.errors?.[0]?.code || "unknown_error",
-                    message:
-                        clerkError.errors?.[0]?.message ||
-                        "An error occurred during sign up",
+                    code: errorCode,
+                    message: errorMessage,
                     field: clerkError.errors?.[0]?.meta?.paramName,
                 };
                 setError(authError);
@@ -504,9 +532,14 @@ export function useSignUpForm() {
                     const error = clerkError.errors[0];
                     errorCode = error.code;
                     errorMessage = error.longMessage || error.message;
-
+                    
+                    // Handle verification strategy error
+                    if (error.code === "verification_strategy_not_valid" || 
+                        errorMessage.includes("verification strategy is not valid")) {
+                        errorMessage = "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
+                    }
                     // Handle case where verification is already completed
-                    if (
+                    else if (
                         error.message?.includes("already been verified") ||
                         error.longMessage?.includes("already been verified")
                     ) {
@@ -582,13 +615,31 @@ export function useSignUpForm() {
             return { success: true, error: null };
         } catch (err: unknown) {
             const clerkError = err as {
-                errors?: Array<{ code: string; message: string }>;
+                errors?: Array<{ 
+                    code: string; 
+                    message: string; 
+                    longMessage?: string;
+                }>;
             };
+            
+            let errorMessage = "Failed to resend verification code";
+            let errorCode = "resend_error";
+            
+            if (clerkError.errors?.[0]) {
+                const error = clerkError.errors[0];
+                errorCode = error.code;
+                errorMessage = error.longMessage || error.message;
+                
+                // Handle verification strategy error
+                if (error.code === "verification_strategy_not_valid" || 
+                    errorMessage.includes("verification strategy is not valid")) {
+                    errorMessage = "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
+                }
+            }
+            
             const authError: AuthError = {
-                code: clerkError.errors?.[0]?.code || "resend_error",
-                message:
-                    clerkError.errors?.[0]?.message ||
-                    "Failed to resend verification code",
+                code: errorCode,
+                message: errorMessage,
             };
             setError(authError);
             return { success: false, error: authError };
