@@ -10,6 +10,7 @@
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
+import { AuthSyncProvider } from "@/features/auth";
 
 // Validate required environment variables
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -53,7 +54,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             }}
         >
             <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-                {children}
+                <AuthSyncProvider>
+                    {children}
+                </AuthSyncProvider>
             </ConvexProviderWithClerk>
         </ClerkProvider>
     );
