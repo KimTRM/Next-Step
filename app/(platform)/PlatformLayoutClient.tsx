@@ -6,6 +6,7 @@
  */
 
 import { OnboardingGuard } from "@/features/onboarding";
+import { MobileBottomNav } from "@/shared/components/layout/MobileBottomNav";
 
 export function PlatformLayoutClient({
     children,
@@ -14,7 +15,10 @@ export function PlatformLayoutClient({
 }) {
     return (
         <OnboardingGuard>
-            {children}
+            <div className="pb-16 md:pb-0">
+                {children}
+            </div>
+            <MobileBottomNav />
         </OnboardingGuard>
     );
 }

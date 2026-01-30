@@ -5,6 +5,12 @@
 
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
+import { 
+  handleConvexAuthError, 
+  handleConvexAuthzError, 
+  validateConvexInput,
+  createConvexValidationError 
+} from "../../shared/lib/errors/convex";
 
 /**
  * Create a new job listing
@@ -63,28 +69,57 @@ export const createJob = mutation({
         postedBy: v.id("users"),
     },
     handler: async (ctx, args) => {
-        // Validation
-        if (!args.title || args.title.length < 3) {
-            throw new Error("Job title must be at least 3 characters");
+        // Authentication check
+        const identity = await ctx.auth.getUserIdentity();
+        const authError = handleConvexAuthError(identity);
+        if (authError) {
+            throw new Error(authError.message);
         }
 
-        if (!args.company || args.company.length < 2) {
-            throw new Error("Company name must be at least 2 characters");
+        // Get user for authorization
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
+            .unique();
+        
+        if (!user) {
+            throw new Error("User not found");
         }
 
-        if (!args.description || args.description.length < 50) {
-            throw new Error("Job description must be at least 50 characters");
+        // Authorization check - user can only create jobs for themselves
+        if (args.postedBy !== user._id) {
+            throw new Error("Unauthorized: You can only create jobs for yourself");
         }
 
-        if (args.description.length > 5000) {
-            throw new Error("Job description cannot exceed 5000 characters");
+        // Validation using standardized function
+        const validationError = validateConvexInput(args, {
+            title: { required: true, minLength: 3 },
+            company: { required: true, minLength: 2 },
+            description: { required: true, minLength: 50, maxLength: 5000 },
+            employmentType: { required: true },
+            location: { required: true },
+            locationType: { required: true },
+            requiredSkills: { required: true, custom: (value) => {
+                if (!Array.isArray(value) || value.length === 0) {
+                    return "At least one required skill must be specified";
+                }
+                return null;
+            }},
+            experienceLevel: { required: true },
+            applicationUrl: { 
+                custom: (value) => {
+                    if (value && typeof value === 'string' && !value.startsWith("http")) {
+                        return "Application URL must be a valid URL";
+                    }
+                    return null;
+                }
+            },
+        });
+        if (validationError) {
+            throw new Error(validationError.message);
         }
 
-        if (args.requiredSkills.length === 0) {
-            throw new Error("At least one required skill must be specified");
-        }
-
-        // Validate salary range if both provided
+        // Additional validation for salary range
         if (
             args.minSalary &&
             args.maxSalary &&
@@ -93,11 +128,6 @@ export const createJob = mutation({
             throw new Error(
                 "Minimum salary cannot be greater than maximum salary",
             );
-        }
-
-        // Validate application URL if provided
-        if (args.applicationUrl && !args.applicationUrl.startsWith("http")) {
-            throw new Error("Application URL must be a valid URL");
         }
 
         // Create job

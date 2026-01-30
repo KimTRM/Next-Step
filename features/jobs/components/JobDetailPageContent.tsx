@@ -188,25 +188,25 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
             {/* Breadcrumb Navigation */}
-            <nav className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                <button onClick={() => router.push('/')} className="hover:text-primary">
+            <nav className="flex items-center gap-2 text-sm text-gray-600 mb-4 overflow-x-auto">
+                <button onClick={() => router.push('/')} className="hover:text-primary whitespace-nowrap">
                     Home
                 </button>
-                <span>/</span>
-                <button onClick={() => router.push('/jobs')} className="hover:text-primary">
+                <span className="whitespace-nowrap">/</span>
+                <button onClick={() => router.push('/jobs')} className="hover:text-primary whitespace-nowrap">
                     Jobs
                 </button>
-                <span>/</span>
-                <span className="text-gray-900 font-medium truncate max-w-50">
+                <span className="whitespace-nowrap">/</span>
+                <span className="text-gray-900 font-medium truncate">
                     {job.title}
                 </span>
             </nav>
 
             {/* Action Buttons Row */}
-            <div className="flex items-center justify-between mb-6">
-                <Button variant="ghost" onClick={() => router.push('/jobs')}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <Button variant="ghost" onClick={() => router.push('/jobs')} className="justify-start">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Jobs
                 </Button>
@@ -218,51 +218,51 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                         className={isSaved ? 'bg-primary/10 text-primary' : ''}
                     >
                         <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current' : ''}`} />
-                        {isSaved ? 'Saved' : 'Save Job'}
+                        <span className="hidden sm:inline">{isSaved ? 'Saved' : 'Save Job'}</span>
+                        <span className="sm:hidden">{isSaved ? 'Saved' : 'Save'}</span>
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleShare}>
                         <Share2 className="h-4 w-4 mr-2" />
-                        Share
+                        <span className="hidden sm:inline">Share</span>
+                        <span className="sm:hidden">Share</span>
                     </Button>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Left Column - Job Details */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="xl:col-span-2 space-y-6">
                     {/* Header Card */}
                     <Card>
-                        <CardHeader>
-                            <div className="flex items-start justify-between">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <Badge
-                                            variant="outline"
-                                            className={job.employmentType ? typeColors[job.employmentType] || 'bg-gray-100 text-gray-800' : 'bg-gray-100 text-gray-800'}
-                                        >
-                                            {job.employmentType?.toUpperCase().replace('-', ' ') || 'NOT SPECIFIED'}
-                                        </Badge>
-                                        <Badge variant="secondary">{job.jobCategory || 'General'}</Badge>
-                                    </div>
-                                    <CardTitle className="text-3xl">{job.title}</CardTitle>
+                        <CardHeader className="pb-4">
+                            <div className="space-y-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Badge
+                                        variant="outline"
+                                        className={job.employmentType ? typeColors[job.employmentType] || 'bg-gray-100 text-gray-800' : 'bg-gray-100 text-gray-800'}
+                                    >
+                                        {job.employmentType?.toUpperCase().replace('-', ' ') || 'NOT SPECIFIED'}
+                                    </Badge>
+                                    <Badge variant="secondary">{job.jobCategory || 'General'}</Badge>
                                 </div>
+                                <CardTitle className="text-2xl sm:text-3xl leading-tight">{job.title}</CardTitle>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {/* Meta Information */}
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
                                 <div className="flex items-center gap-2">
-                                    <Building2 className="h-4 w-4" />
-                                    <span>{job.company}</span>
+                                    <Building2 className="h-4 w-4 flex-shrink-0" />
+                                    <span className="truncate">{job.company}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>{job.location} ({job.locationType || 'on-site'})</span>
+                                    <MapPin className="h-4 w-4 flex-shrink-0" />
+                                    <span className="truncate">{job.location} ({job.locationType || 'on-site'})</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4" />
-                                    <span>
+                                    <DollarSign className="h-4 w-4 flex-shrink-0" />
+                                    <span className="truncate">
                                         {job.minSalary && job.maxSalary
                                             ? `${job.salaryCurrency || '$'}${job.minSalary.toLocaleString()} - ${job.salaryCurrency || '$'}${job.maxSalary.toLocaleString()}/${job.salaryPeriod || 'year'}`
                                             : job.minSalary
@@ -271,7 +271,7 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Users className="h-4 w-4" />
+                                    <Users className="h-4 w-4 flex-shrink-0" />
                                     <span>{job.views || 0} views</span>
                                 </div>
                             </div>
@@ -393,18 +393,18 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                 </div>
 
                 {/* Right Column - Application */}
-                <div className="lg:col-span-1">
+                <div className="xl:col-span-1">
                     <Card className="sticky top-6">
                         <CardHeader>
-                            <CardTitle>
+                            <CardTitle className="text-lg">
                                 Apply for this Job
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {hasApplied ? (
-                                <div className="text-center py-8">
-                                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                                    <p className="text-gray-600 mb-4">
+                                <div className="text-center py-6 sm:py-8">
+                                    <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-4" />
+                                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
                                         You have already applied to this job
                                     </p>
                                     <Button
@@ -425,8 +425,8 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                                             placeholder="Add any additional notes or information..."
                                             value={notes}
                                             onChange={(e) => setNotes(e.target.value)}
-                                            rows={6}
-                                            className="resize-none"
+                                            rows={4}
+                                            className="resize-none text-base"
                                         />
                                         <p className="text-xs text-gray-500">
                                             Include any relevant details or questions
@@ -449,8 +449,8 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
 
             {/* Related Jobs Section */}
             {relatedJobs && Array.isArray(relatedJobs) && relatedJobs.length > 0 && (
-                <div className="mt-12">
-                    <h2 className="text-2xl font-bold mb-6">Related Jobs</h2>
+                <div className="mt-8 sm:mt-12">
+                    <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Related Jobs</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {relatedJobs.map((relatedJob) => (
                             <Card
@@ -458,24 +458,24 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                                 className="hover:shadow-lg transition-shadow cursor-pointer"
                                 onClick={() => router.push(`/jobs/${relatedJob._id}`)}
                             >
-                                <CardHeader>
-                                    <CardTitle className="text-lg">{relatedJob.title}</CardTitle>
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base sm:text-lg leading-tight">{relatedJob.title}</CardTitle>
                                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <Building2 className="h-4 w-4" />
-                                        <span>{relatedJob.company}</span>
+                                        <Building2 className="h-4 w-4 flex-shrink-0" />
+                                        <span className="truncate">{relatedJob.company}</span>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <MapPin className="h-4 w-4" />
-                                            <span>{relatedJob.location}</span>
+                                            <MapPin className="h-4 w-4 flex-shrink-0" />
+                                            <span className="truncate">{relatedJob.location}</span>
                                         </div>
                                         <div className="flex flex-wrap gap-2 mt-3">
                                             <Badge variant="secondary" className="text-xs">
                                                 {relatedJob.employmentType}
                                             </Badge>
-                                            {relatedJob.requiredSkills && relatedJob.requiredSkills.slice(0, 3).map((skill, idx) => (
+                                            {relatedJob.requiredSkills && relatedJob.requiredSkills.slice(0, 2).map((skill, idx) => (
                                                 <Badge key={idx} variant="outline" className="text-xs">
                                                     {skill}
                                                 </Badge>

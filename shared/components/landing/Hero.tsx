@@ -35,7 +35,7 @@ export function Hero() {
 
           {/* Main Heading */}
           <motion.h1
-            className="display-font text-5xl sm:text-6xl lg:text-7xl text-foreground mb-6"
+            className="display-font text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-6"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
@@ -47,7 +47,7 @@ export function Hero() {
               <motion.span
                 className="relative inline-block"
                 whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Next Step</span>
               </motion.span>{" "}
@@ -57,7 +57,7 @@ export function Hero() {
 
           {/* Subheading */}
           <motion.p
-            className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
             variants={slideInRight}
             initial="initial"
             animate="animate"
@@ -74,7 +74,7 @@ export function Hero() {
             animate="animate"
           >
             <motion.button
-              className="group w-full sm:w-auto px-8 py-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl"
+              className="group w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl"
               variants={staggerItem}
               whileHover={{
                 y: -4,
@@ -88,14 +88,14 @@ export function Hero() {
               <motion.span
                 initial={{ x: 0 }}
                 whileHover={{ x: 6 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
                 className="inline-flex"
               >
                 <ArrowRight className="h-5 w-5" />
               </motion.span>
             </motion.button>
             <motion.button
-              className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium shadow-lg hover:shadow-xl"
               variants={staggerItem}
               whileHover={{
                 y: -4,
@@ -119,7 +119,7 @@ export function Hero() {
             <motion.div
               variants={staggerItem}
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="text-center"
             >
               <CountUp end={5000} suffix="+" className="text-3xl sm:text-4xl text-primary mb-2 font-bold" />
@@ -128,7 +128,7 @@ export function Hero() {
             <motion.div
               variants={staggerItem}
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="text-center"
             >
               <CountUp end={800} suffix="+" className="text-3xl sm:text-4xl text-accent mb-2 font-bold" />
@@ -137,7 +137,7 @@ export function Hero() {
             <motion.div
               variants={staggerItem}
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="text-center"
             >
               <CountUp end={2000} suffix="+" className="text-3xl sm:text-4xl text-primary mb-2 font-bold" />

@@ -5,53 +5,88 @@
 :root {
   --font-size: 16px;
   
-  /* NextStep Brand Colors - Monochromatic Green */
-  --nextstep-green-dark: #0D5C3B;
-  --nextstep-green: #198754;
-  --nextstep-green-light: #28A745;
-  --nextstep-green-lighter: #D4EDDA;
-  --nextstep-green-pale: #F1F9F4;
-  --nextstep-text: #1a1a1a;
-  --nextstep-text-light: #666666;
+  /* Enhanced CSS Variables with Modern Design System */
   
+  /* NextStep Brand Colors - Enhanced Green Palette */
+  --nextstep-green-50: #f0fdf4;
+  --nextstep-green-100: #dcfce7;
+  --nextstep-green-200: #bbf7d0;
+  --nextstep-green-300: #86efac;
+  --nextstep-green-400: #4ade80;
+  --nextstep-green-500: #22c55e;
+  --nextstep-green-600: #16a34a;
+  --nextstep-green-700: #15803d;
+  --nextstep-green-800: #166534;
+  --nextstep-green-900: #14532d;
+  --nextstep-green-950: #052e16;
+  
+  /* Semantic Colors */
+  --nextstep-blue: #3b82f6;
+  --nextstep-purple: #8b5cf6;
+  --nextstep-orange: #f97316;
+  --nextstep-pink: #ec4899;
+  
+  /* Neutral Palette */
+  --nextstep-gray-50: #fafafa;
+  --nextstep-gray-100: #f5f5f5;
+  --nextstep-gray-200: #e5e5e5;
+  --nextstep-gray-300: #d4d4d4;
+  --nextstep-gray-400: #a3a3a3;
+  --nextstep-gray-500: #737373;
+  --nextstep-gray-600: #525252;
+  --nextstep-gray-700: #404040;
+  --nextstep-gray-800: #262626;
+  --nextstep-gray-900: #171717;
+  --nextstep-gray-950: #0a0a0a;
+  
+  /* Legacy Variables for Backward Compatibility */
+  --nextstep-green-dark: #15803d;
+  --nextstep-green: #16a34a;
+  --nextstep-green-light: #22c55e;
+  --nextstep-green-lighter: #86efac;
+  --nextstep-green-pale: #f0fdf4;
+  --nextstep-text: #171717;
+  --nextstep-text-light: #525252;
+  
+  /* Enhanced Design System Colors */
   --background: #ffffff;
-  --foreground: #1a1a1a;
+  --foreground: #171717;
   --card: #ffffff;
-  --card-foreground: #1a1a1a;
+  --card-foreground: #171717;
   --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-  --primary: #198754;
+  --popover-foreground: #171717;
+  --primary: #16a34a;
   --primary-foreground: #ffffff;
-  --secondary: #0D5C3B;
-  --secondary-foreground: #ffffff;
-  --muted: #F1F9F4;
-  --muted-foreground: #666666;
-  --accent: #28A745;
+  --secondary: #f0fdf4;
+  --secondary-foreground: #15803d;
+  --muted: #f5f5f5;
+  --muted-foreground: #525252;
+  --accent: #22c55e;
   --accent-foreground: #ffffff;
-  --destructive: #d4183d;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(25, 135, 84, 0.15);
-  --input: transparent;
-  --input-background: #F1F9F4;
-  --switch-background: #cbced4;
+  --border: #e5e5e5;
+  --input: #ffffff;
+  --input-background: #f0fdf4;
+  --switch-background: #e5e5e5;
   --font-weight-medium: 600;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
-  --ring: #198754;
-  --chart-1: #198754;
-  --chart-2: #28A745;
-  --chart-3: #0D5C3B;
-  --chart-4: #52C974;
-  --chart-5: #155A3C;
-  --radius: 0.5rem;
-  --sidebar: #F1F9F4;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #198754;
+  --ring: #16a34a;
+  --chart-1: #16a34a;
+  --chart-2: #22c55e;
+  --chart-3: #15803d;
+  --chart-4: #4ade80;
+  --chart-5: #86efac;
+  --radius: 0.75rem;
+  --sidebar: #f0fdf4;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #16a34a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #28A745;
+  --sidebar-accent: #22c55e;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(25, 135, 84, 0.15);
-  --sidebar-ring: #198754;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #16a34a;
 }
 
 .dark {
@@ -141,6 +176,7 @@
 
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
 }
 
@@ -201,12 +237,133 @@
 
 html {
   font-size: var(--font-size);
+  overflow-x: hidden;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
+/* Enhanced Typography */
 .display-font {
-  font-family: 'Placard Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', 'Placard Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Modern Button Styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-primary to-accent text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 hover:scale-105;
+}
+
+.btn-secondary {
+  @apply bg-white text-primary font-semibold py-3 px-6 rounded-xl border-2 border-primary shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 hover:scale-105;
+}
+
+/* Glass Morphism Effects */
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/20;
+}
+
+.glass-dark {
+  @apply bg-black/20 backdrop-blur-md border border-white/10;
+}
+
+/* Enhanced Shadows */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.shadow-colored {
+  box-shadow: 0 10px 40px rgba(34, 197, 94, 0.15);
+}
+
+/* Hide Scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox scrollbar hiding */
+* {
+  scrollbar-width: none;
+}
+
+/* IE/Edge scrollbar hiding */
+* {
+  -ms-overflow-style: none;
+}
+
+/* Selection Text */
+::selection {
+  background: #86efac;
+  color: #14532d;
+}
+
+/* Focus Styles */
+.focus-ring:focus {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+}
+
+/* Loading Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.pulse-subtle {
+  animation: pulse-subtle 2s infinite;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent horizontal scroll on wide content */
+  img, table, pre, video {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Better touch targets */
+  button, a, input, textarea, select {
+    min-height: 44px;
+  }
+  
+  /* Safe area insets for notched devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

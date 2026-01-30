@@ -118,7 +118,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     aria-label="Continue with Google"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", duration: 0.2 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
                 >
                     {isLoading ? (
                         <motion.div
@@ -130,7 +130,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     ) : (
                         <motion.div
                             whileHover={{ rotate: 15 }}
-                            transition={{ type: "spring", duration: 0.2 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
                         >
                             <GoogleIcon className="w-5 h-5" />
                         </motion.div>
@@ -146,7 +146,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     aria-label="Continue with Apple"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", duration: 0.2, delay: 0.05 }}
+                    transition={{ duration: 0.15, ease: "easeOut", delay: 0.05 }}
                 >
                     {isLoading ? (
                         <motion.div
@@ -158,7 +158,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     ) : (
                         <motion.div
                             whileHover={{ rotate: -15 }}
-                            transition={{ type: "spring", duration: 0.2 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
                         >
                             <AppleIcon className="w-5 h-5" />
                         </motion.div>
@@ -174,7 +174,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     aria-label="Continue with Facebook"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", duration: 0.2, delay: 0.1 }}
+                    transition={{ duration: 0.15, ease: "easeOut", delay: 0.1 }}
                 >
                     {isLoading ? (
                         <motion.div
@@ -186,7 +186,7 @@ export function OAuthButtons({ mode = "login" }: OAuthButtonsProps) {
                     ) : (
                         <motion.div
                             whileHover={{ rotate: 15 }}
-                            transition={{ type: "spring", duration: 0.2 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
                         >
                             <FacebookIcon className="w-5 h-5 fill-white" />
                         </motion.div>

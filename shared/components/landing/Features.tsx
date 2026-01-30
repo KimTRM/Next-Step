@@ -92,7 +92,7 @@ export function Features() {
                   scale: 1.02
                 }}
                 whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <motion.div
                   className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 ${feature.color}`}
@@ -101,7 +101,7 @@ export function Features() {
                     scale: 1.1,
                     backgroundColor: "rgba(34, 197, 94, 0.2)"
                   }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                 >
                   <feature.icon className="h-6 w-6" />
                 </motion.div>

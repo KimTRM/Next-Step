@@ -5,6 +5,12 @@
 
 import { mutation } from "../_generated/server";
 import { v } from "convex/values";
+import { 
+  handleConvexAuthError, 
+  handleConvexAuthzError, 
+  validateConvexInput,
+  createConvexValidationError 
+} from "../../shared/lib/errors/convex";
 
 /**
  * Create a new job application
@@ -15,14 +21,16 @@ export const createJobApplication = mutation({
         notes: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
+        // Authentication check
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Must be authenticated to apply");
+        const authError = handleConvexAuthError(identity);
+        if (authError) {
+            throw new Error(authError.message);
         }
 
         const user = await ctx.db
             .query("users")
-            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
             .unique();
 
         if (!user) {
@@ -38,6 +46,15 @@ export const createJobApplication = mutation({
 
         if (existing) {
             throw new Error("Already applied to this job");
+        }
+
+        // Validate input
+        const validationError = validateConvexInput(args, {
+            jobId: { required: true },
+            notes: { maxLength: 1000 },
+        });
+        if (validationError) {
+            throw new Error(validationError.message);
         }
 
         const applicationId = await ctx.db.insert("jobApplications", {
@@ -74,14 +91,35 @@ export const updateApplicationStatus = mutation({
     handler: async (ctx, args) => {
         const { applicationId, ...updates } = args;
 
+        // Authentication check
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Must be authenticated");
+        const authError = handleConvexAuthError(identity);
+        if (authError) {
+            throw new Error(authError.message);
         }
 
         const application = await ctx.db.get(applicationId);
         if (!application) {
             throw new Error("Application not found");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
+            .unique();
+        
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const authzError = handleConvexAuthzError(
+            application.userId,
+            user._id,
+            "jobApplication",
+            "update"
+        );
+        if (authzError) {
+            throw new Error(authzError.message);
         }
 
         await ctx.db.patch(applicationId, updates);
@@ -97,9 +135,11 @@ export const updateApplicationNotes = mutation({
         notes: v.string(),
     },
     handler: async (ctx, args) => {
+        // Authentication check
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Must be authenticated");
+        const authError = handleConvexAuthError(identity);
+        if (authError) {
+            throw new Error(authError.message);
         }
 
         const application = await ctx.db.get(args.applicationId);
@@ -107,13 +147,33 @@ export const updateApplicationNotes = mutation({
             throw new Error("Application not found");
         }
 
+        // Authorization check
         const user = await ctx.db
             .query("users")
-            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
             .unique();
 
-        if (!user || application.userId !== user._id) {
-            throw new Error("Not authorized to update this application");
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const authzError = handleConvexAuthzError(
+            application.userId,
+            user._id,
+            "jobApplication",
+            "update"
+        );
+        if (authzError) {
+            throw new Error(authzError.message);
+        }
+
+        // Validate input
+        const validationError = validateConvexInput(args, {
+            applicationId: { required: true },
+            notes: { required: true, maxLength: 1000 },
+        });
+        if (validationError) {
+            throw new Error(validationError.message);
         }
 
         await ctx.db.patch(args.applicationId, {
@@ -128,9 +188,11 @@ export const updateApplicationNotes = mutation({
 export const deleteApplication = mutation({
     args: { applicationId: v.id("jobApplications") },
     handler: async (ctx, args) => {
+        // Authentication check
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            throw new Error("Must be authenticated");
+        const authError = handleConvexAuthError(identity);
+        if (authError) {
+            throw new Error(authError.message);
         }
 
         const application = await ctx.db.get(args.applicationId);
@@ -138,13 +200,24 @@ export const deleteApplication = mutation({
             throw new Error("Application not found");
         }
 
+        // Authorization check
         const user = await ctx.db
             .query("users")
-            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
             .unique();
 
-        if (!user || application.userId !== user._id) {
-            throw new Error("Not authorized to delete this application");
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const authzError = handleConvexAuthzError(
+            application.userId,
+            user._id,
+            "jobApplication",
+            "delete"
+        );
+        if (authzError) {
+            throw new Error(authzError.message);
         }
 
         await ctx.db.delete(args.applicationId);

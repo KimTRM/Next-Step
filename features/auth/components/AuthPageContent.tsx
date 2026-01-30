@@ -123,8 +123,7 @@ function LoginSection() {
             initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ 
-                type: "spring", 
-                duration: 0.6, 
+                duration: 0.4, 
                 ease: [0.23, 1, 0.32, 1]
             }}
         >
@@ -136,8 +135,7 @@ function LoginSection() {
                 initial={{ y: "-5vh", opacity: 0, scale: 0.98 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 transition={{ 
-                    type: "spring", 
-                    duration: 0.4, 
+                    duration: 0.3, 
                     delay: 0.1,
                     ease: [0.23, 1, 0.32, 1]
                 }}
@@ -147,8 +145,7 @@ function LoginSection() {
                     initial={{ y: -15, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ 
-                        type: "spring", 
-                        duration: 0.3, 
+                        duration: 0.2, 
                         delay: 0.15,
                         ease: [0.23, 1, 0.32, 1]
                     }}
@@ -168,7 +165,7 @@ function LoginSection() {
                         className="text-sm text-gray-500 underline hover:text-gray-700 transition-all duration-200 hover:scale-105"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        transition={{ type: "spring", duration: 0.2 }}
+                        transition={{ duration: 0.15 }}
                     >
                         Having trouble logging in? Sign out and try again
                     </motion.button>
@@ -190,7 +187,7 @@ function LoginSection() {
                         className="bg-white rounded-xl p-6 w-full max-w-md relative"
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", duration: 0.3 }}
+                        transition={{ duration: 0.2 }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <motion.button
@@ -303,8 +300,7 @@ function LoginSection() {
                     initial={{ y: "3vh", opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ 
-                        type: "spring", 
-                        duration: 0.4, 
+                        duration: 0.3, 
                         delay: 0.25,
                         ease: [0.23, 1, 0.32, 1]
                     }}
@@ -340,8 +336,7 @@ function SignUpDirection() {
             initial={{ x: "-100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ 
-                type: "spring", 
-                duration: 0.6, 
+                duration: 0.4, 
                 delay: 0.1,
                 ease: [0.23, 1, 0.32, 1]
             }}
@@ -399,8 +394,7 @@ function SignUpDirection() {
                 initial={{ y: "5vh", opacity: 0, scale: 0.95 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 transition={{ 
-                    type: "spring", 
-                    duration: 0.4, 
+                    duration: 0.3, 
                     delay: 0.2,
                     ease: [0.23, 1, 0.32, 1]
                 }}
@@ -410,8 +404,7 @@ function SignUpDirection() {
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ 
-                        type: "spring", 
-                        duration: 0.3, 
+                        duration: 0.2, 
                         delay: 0.25,
                         ease: [0.23, 1, 0.32, 1]
                     }}
@@ -419,7 +412,7 @@ function SignUpDirection() {
                     <motion.div
                         className="mb-6 sm:mb-8"
                         whileHover={{ scale: 1.05, rotate: 5 }}
-                        transition={{ type: "spring", duration: 0.3 }}
+                        transition={{ duration: 0.2 }}
                     >
                         <Image
                             className="w-12 sm:w-16 lg:w-20 h-auto drop-shadow-lg"
@@ -436,8 +429,7 @@ function SignUpDirection() {
                         initial={{ y: -15, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ 
-                            type: "spring", 
-                            duration: 0.3, 
+                            duration: 0.2, 
                             delay: 0.3,
                             ease: [0.23, 1, 0.32, 1]
                         }}
@@ -450,8 +442,7 @@ function SignUpDirection() {
                     initial={{ y: 15, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ 
-                        type: "spring", 
-                        duration: 0.3, 
+                        duration: 0.2, 
                         delay: 0.35,
                         ease: [0.23, 1, 0.32, 1]
                     }}
@@ -467,7 +458,7 @@ function SignUpDirection() {
                     <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        transition={{ type: "spring", duration: 0.2 }}
+                        transition={{ duration: 0.15 }}
                     >
                         <Link href="/sign-up">
                             <button className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-white text-green-600 font-bold rounded-xl hover:bg-green-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
@@ -488,8 +479,7 @@ function MobileSignUpLink() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ 
-                type: "spring", 
-                duration: 0.6, 
+                duration: 0.5, 
                 delay: 0.8,
                 ease: [0.23, 1, 0.32, 1]
             }}
@@ -498,7 +488,7 @@ function MobileSignUpLink() {
             <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", duration: 0.2 }}
+                transition={{ duration: 0.15 }}
             >
                 <Link
                     href="/sign-up"
@@ -512,7 +502,7 @@ function MobileSignUpLink() {
                         viewBox="0 0 24 24"
                         initial={{ x: 0 }}
                         whileHover={{ x: 2 }}
-                        transition={{ type: "spring", duration: 0.2 }}
+                        transition={{ duration: 0.15 }}
                     >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </motion.svg>
