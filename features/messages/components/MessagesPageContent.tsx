@@ -102,14 +102,9 @@ export function MessagesPageContent() {
     // Auth check
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <Card className="p-12 text-center">
-                        <p className="text-lg text-muted-foreground">
-                            Please sign in to view messages
-                        </p>
-                    </Card>
-                </div>
+            <div className="p-4 space-y-3">
+                <Skeleton className="h-10 w-1/2" />
+                <Skeleton className="h-6 w-3/4" />
             </div>
         );
     }

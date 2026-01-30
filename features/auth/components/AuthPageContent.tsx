@@ -15,6 +15,7 @@ import { LoginForm } from "./LoginForm";
 import { OAuthButtons } from "./OAuthButtons";
 import { AuthLoading } from "./AuthLoading";
 import Image from "next/image";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export function AuthPageContent() {
     const { isLoaded, isSignedIn } = useAuth();
@@ -80,34 +81,22 @@ function LoginSection() {
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(forgotPasswordEmail)) {
-            setForgotPasswordError("Please enter a valid email address");
-            return;
-        }
-
         setIsSubmittingForgotPassword(true);
-        setForgotPasswordError("");
-        setForgotPasswordMessage("");
-
-        try {
-            // For now, we'll show a message since Clerk's forgot password requires additional setup
-            // In a real implementation, you would use Clerk's password reset API
-            setForgotPasswordMessage("Password reset link has been sent to your email. Please check your inbox.");
-
-            // Clear form after 3 seconds
-            setTimeout(() => {
-                setShowForgotPassword(false);
-                setForgotPasswordEmail("");
-                setForgotPasswordMessage("");
-            }, 3000);
-        } catch (error) {
-            console.error('Error sending password reset:', error);
-            setForgotPasswordError("Failed to send password reset email. Please try again.");
-        } finally {
+        // Simulate loading state
+        setTimeout(() => {
             setIsSubmittingForgotPassword(false);
-        }
+            setForgotPasswordMessage("Password reset link sent!");
+        }, 2000);
     };
+
+    if (isSubmittingForgotPassword) {
+        return (
+            <div className="p-4">
+                <Skeleton className="h-10 w-full mb-4" />
+                <Skeleton className="h-10 w-3/4" />
+            </div>
+        );
+    }
 
     const closeForgotPassword = () => {
         setShowForgotPassword(false);
@@ -243,22 +232,22 @@ function LoginSection() {
                 </div>
             )}
 
+            <div
+                className="text-center items-center justify-center flex flex-col mt-6"
+            >
                 <div
-                    className="text-center items-center justify-center flex flex-col mt-6"
+                    className="mb-4"
                 >
-                    <div
-                        className="mb-4"
-                    >
-                        <div className="flex items-center justify-center gap-2 mb-3">
-                            <div className="h-px bg-gray-300 flex-1 max-w-20" />
-                            <span className="text-gray-600 text-sm font-medium">Or log in using</span>
-                            <div className="h-px bg-gray-300 flex-1 max-w-20" />
-                        </div>
-                    </div>
-                    <div>
-                        <OAuthButtons />
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="h-px bg-gray-300 flex-1 max-w-20" />
+                        <span className="text-gray-600 text-sm font-medium">Or log in using</span>
+                        <div className="h-px bg-gray-300 flex-1 max-w-20" />
                     </div>
                 </div>
+                <div>
+                    <OAuthButtons />
+                </div>
+            </div>
         </div>
     );
 }

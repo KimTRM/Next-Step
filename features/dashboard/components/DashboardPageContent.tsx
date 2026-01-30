@@ -8,6 +8,7 @@ import { Button } from '@/shared/components/ui/button';
 import { useCurrentUser, useUserApplications, useUserMessages } from '@/features/dashboard/api';
 import { FileText, MessageCircle, Briefcase, Search, Edit, CheckCircle, XCircle, Clock, PartyPopper } from 'lucide-react';
 import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
     const resolvedSearchParams = use(searchParams);
@@ -34,10 +35,12 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
     return (
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
             {/* Welcome Alert for New Users */}
-            {justCompletedOnboarding && (
+            {justCompletedOnboarding ? (
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-200 rounded-lg animate-pulse h-20"></div>
+            ) : (
                 <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                             <PartyPopper className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mt-0.5" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -62,11 +65,10 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
             {/* Welcome Section */}
             <div className="mb-6 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-                    Welcome back,{" "}
-                    {currentUser?.name?.split(" ")[0] || 'User'}
+                    Welcome back, {isLoading ? <Skeleton className="h-6 w-24 inline-block" /> : currentUser?.name?.split(" ")[0] || 'User'}
                 </h1>
                 <p className="text-gray-600 mt-2 text-sm sm:text-base">
-                    Here's what's happening with your NextStep journey
+                    {isLoading ? <Skeleton className="h-4 w-48 inline-block" /> : "Here's what's happening with your NextStep journey"}
                 </p>
             </div>
 
@@ -152,22 +154,23 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {recentOpportunities.map((opp: any) => (
-                                <div key={opp._id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{opp.title}</h4>
-                                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                                        {opp.company || opp.mentor}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <span className="text-xs text-gray-500">
-                                            {opp.type.toUpperCase()}
-                                        </span>
-                                        <Link href={`/opportunities/${opp._id}`}>
-                                            <Button variant="outline" size="sm" className="text-xs sm:text-sm min-h-[36px]">View</Button>
-                                        </Link>
+                            {isLoading ? (
+                                Array.from({ length: 3 }).map((_, index) => (
+                                    <div key={index} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                        <Skeleton className="h-4 w-3/4 mb-2" />
+                                        <Skeleton className="h-4 w-1/2" />
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                recentOpportunities.map((opp: any) => (
+                                    <div key={opp._id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                        <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{opp.title}</h4>
+                                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                                            {opp.company || opp.mentor}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                         <Link href="/mentors">
                             <Button variant="ghost" className="w-full mt-4 text-sm sm:text-base">

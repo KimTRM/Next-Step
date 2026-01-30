@@ -1,4 +1,4 @@
-import { Header, Footer } from "@/shared/components/layout";
+import { Header } from "@/shared/components/layout";
 
 export default function ApplicationsLayout({
     children,
@@ -11,7 +11,6 @@ export default function ApplicationsLayout({
             <main className="min-h-screen bg-background">
                 {children}
             </main>
-            <Footer />
         </>
     );
 }

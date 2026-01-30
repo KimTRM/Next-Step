@@ -197,7 +197,14 @@ export function isRetryableError(error: AppError): boolean {
     ERROR_CODES.DATABASE_ERROR,
     ERROR_CODES.CONVEX_ERROR,
     ERROR_CODES.SERVICE_UNAVAILABLE,
-  ].includes(error.code);
+  ].includes(error.code as
+    | typeof ERROR_CODES.NETWORK_ERROR
+    | typeof ERROR_CODES.TIMEOUT_ERROR
+    | typeof ERROR_CODES.CONNECTION_FAILED
+    | typeof ERROR_CODES.DATABASE_ERROR
+    | typeof ERROR_CODES.CONVEX_ERROR
+    | typeof ERROR_CODES.SERVICE_UNAVAILABLE
+  );
 }
 
 /**

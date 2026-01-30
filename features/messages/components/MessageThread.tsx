@@ -63,16 +63,16 @@ export function MessageThread({
                     <Skeleton className="h-5 w-32" />
                 </div>
                 {/* Messages skeleton */}
-                <div className="flex-1 p-4 space-y-4">
-                    <div className="flex justify-start">
-                        <Skeleton className="h-16 w-2/3 rounded-2xl" />
-                    </div>
-                    <div className="flex justify-end">
-                        <Skeleton className="h-12 w-1/2 rounded-2xl" />
-                    </div>
-                    <div className="flex justify-start">
-                        <Skeleton className="h-20 w-3/4 rounded-2xl" />
-                    </div>
+                <div className="flex-1 p-4 space-y-3">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-start gap-3">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
@@ -126,21 +126,19 @@ export function MessageThread({
                                 className={`flex ${isSent ? "justify-end" : "justify-start"}`}
                             >
                                 <div
-                                    className={`max-w-[75%] p-3 rounded-2xl ${
-                                        isSent
+                                    className={`max-w-[75%] p-3 rounded-2xl ${isSent
                                             ? "bg-primary text-primary-foreground rounded-br-md"
                                             : "bg-muted text-foreground rounded-bl-md"
-                                    }`}
+                                        }`}
                                 >
                                     <p className="wrap-break-word whitespace-pre-wrap leading-relaxed">
                                         {message.content}
                                     </p>
                                     <div
-                                        className={`flex items-center gap-1 mt-1 text-xs ${
-                                            isSent
+                                        className={`flex items-center gap-1 mt-1 text-xs ${isSent
                                                 ? "text-primary-foreground/70"
                                                 : "text-muted-foreground"
-                                        }`}
+                                            }`}
                                     >
                                         <span>
                                             {formatDistanceToNow(message.timestamp, {
