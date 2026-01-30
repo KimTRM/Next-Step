@@ -18,7 +18,7 @@ export const upsertUser = mutation({
         email: v.string(),
         role: v.optional(
             v.union(
-                v.literal("student"),
+                v.literal("job_seeker"),
                 v.literal("mentor"),
                 v.literal("employer"),
             ),
@@ -33,7 +33,7 @@ export const upsertUser = mutation({
             .unique();
 
         if (existingUser) {
-            // Update existing user
+            // Update existing user (don't overwrite onboardingStatus)
             await ctx.db.patch(existingUser._id, {
                 name: args.name,
                 email: args.email,
@@ -41,17 +41,91 @@ export const upsertUser = mutation({
             });
             return existingUser._id;
         } else {
-            // Create new user
+            // Create new user with onboardingStatus = "not_started"
             const userId = await ctx.db.insert("users", {
                 clerkId: args.clerkId,
                 name: args.name,
                 email: args.email,
-                role: args.role || "student",
+                role: args.role || "job_seeker",
                 avatarUrl: args.avatarUrl,
+                onboardingStatus: "not_started",
                 createdAt: Date.now(),
             });
             return userId;
         }
+    },
+});
+
+/**
+ * Create user if not exists (called after Clerk sign-up/sign-in)
+ * This is the primary mutation for ensuring user exists in Convex after auth
+ */
+export const createUserIfMissing = mutation({
+    args: {
+        clerkId: v.string(),
+        name: v.string(),
+        email: v.string(),
+        avatarUrl: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        // Check if user already exists
+        const existingUser = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+            .unique();
+
+        if (existingUser) {
+            // User already exists, return their ID
+            return existingUser._id;
+        }
+
+        // Create new user with onboardingStatus = "not_started"
+        const userId = await ctx.db.insert("users", {
+            clerkId: args.clerkId,
+            name: args.name,
+            email: args.email,
+            role: "job_seeker", // Default role, will be set during onboarding
+            avatarUrl: args.avatarUrl,
+            onboardingStatus: "not_started",
+            createdAt: Date.now(),
+        });
+
+        return userId;
+    },
+});
+
+/**
+ * Set onboarding status
+ */
+export const setOnboardingStatus = mutation({
+    args: {
+        status: v.union(
+            v.literal("not_started"),
+            v.literal("in_progress"),
+            v.literal("completed"),
+        ),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        await ctx.db.patch(user._id, {
+            onboardingStatus: args.status,
+            updatedAt: Date.now(),
+        });
+
+        return user._id;
     },
 });
 
@@ -85,7 +159,7 @@ export const updateUserProfile = mutation({
         portfolioUrl: v.optional(v.string()),
         role: v.optional(
             v.union(
-                v.literal("student"),
+                v.literal("job_seeker"),
                 v.literal("mentor"),
                 v.literal("employer"),
             ),
@@ -239,5 +313,141 @@ export const deleteUser = mutation({
             await ctx.db.delete(user._id);
         }
         return true;
+    },
+});
+
+/**
+ * Set user role during onboarding
+ */
+export const setRole = mutation({
+    args: {
+        role: v.union(
+            v.literal("job_seeker"),
+            v.literal("mentor"),
+            v.literal("employer"),
+        ),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        await ctx.db.patch(user._id, {
+            role: args.role,
+            updatedAt: Date.now(),
+        });
+
+        return user._id;
+    },
+});
+
+/**
+ * Set user goals during onboarding
+ */
+export const setGoals = mutation({
+    args: {
+        goals: v.array(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        await ctx.db.patch(user._id, {
+            goals: args.goals,
+            updatedAt: Date.now(),
+        });
+
+        return user._id;
+    },
+});
+
+/**
+ * Save onboarding profile based on role
+ * Job Seeker: name, field (currentStatus), level (educationLevel), skills
+ * Mentor: expertise (skills), experience (bio), bio
+ * Employer: organizationName (REQUIRED)
+ */
+export const saveOnboardingProfile = mutation({
+    args: {
+        // Common fields
+        name: v.optional(v.string()),
+        bio: v.optional(v.string()),
+
+        // Job Seeker fields
+        currentStatus: v.optional(v.string()), // field
+        educationLevel: v.optional(
+            v.union(
+                v.literal("high_school"),
+                v.literal("undergraduate"),
+                v.literal("graduate"),
+                v.literal("phd"),
+                v.literal("bootcamp"),
+                v.literal("self_taught"),
+            ),
+        ),
+        skills: v.optional(v.array(v.string())),
+
+        // Employer field
+        organizationName: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Validate employer has organization name
+        if (user.role === "employer" && !args.organizationName) {
+            throw new Error("Organization name is required for employers");
+        }
+
+        // Build update object with only provided fields
+        const updateData: Record<string, unknown> = {
+            updatedAt: Date.now(),
+        };
+
+        if (args.name !== undefined) updateData.name = args.name;
+        if (args.bio !== undefined) updateData.bio = args.bio;
+        if (args.currentStatus !== undefined)
+            updateData.currentStatus = args.currentStatus;
+        if (args.educationLevel !== undefined)
+            updateData.educationLevel = args.educationLevel;
+        if (args.skills !== undefined) updateData.skills = args.skills;
+        if (args.organizationName !== undefined)
+            updateData.organizationName = args.organizationName;
+
+        await ctx.db.patch(user._id, updateData);
+
+        return user._id;
     },
 });

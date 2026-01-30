@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export type UserRole = "student" | "mentor" | "employer";
+export type UserRole = "job_seeker" | "mentor" | "employer";
 
 export type CurrentUser = {
     _id: Id<"users">;
@@ -72,7 +72,7 @@ export function useAuth() {
         session,
         isAuthenticated: user !== null && session !== null,
         isLoading: user === undefined || session === undefined,
-        isStudent: user?.role === "student",
+        isJobSeeker: user?.role === "job_seeker",
         isMentor: user?.role === "mentor",
         isEmployer: user?.role === "employer",
     };

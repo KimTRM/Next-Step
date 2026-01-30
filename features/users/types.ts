@@ -5,7 +5,10 @@
 import type { Id } from "@/convex/_generated/dataModel";
 
 // User role options
-export type UserRole = "student" | "mentor" | "employer";
+export type UserRole = "job_seeker" | "mentor" | "employer";
+
+// Onboarding status options
+export type OnboardingStatus = "not_started" | "in_progress" | "completed";
 
 // Education level options
 export type EducationLevel =
@@ -63,6 +66,9 @@ export type User = {
     portfolioUrl?: string;
     profileCompletion?: number;
     isOnboardingComplete?: boolean;
+    onboardingStatus?: OnboardingStatus;
+    organizationName?: string;
+    goals?: string[];
     createdAt: number;
     updatedAt?: number;
     lastSeenAt?: number;
@@ -109,6 +115,7 @@ export type UserSession = {
     role: UserRole;
     avatarUrl?: string;
     userId: Id<"users">;
+    onboardingStatus: OnboardingStatus;
 };
 
 // User with match score (from skill search)

@@ -10,6 +10,8 @@
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
+import { AuthSyncProvider } from "@/features/auth";
+import { useRouter } from "next/navigation";
 
 // Validate required environment variables
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -43,6 +45,8 @@ if (!CLERK_PUBLISHABLE_KEY.startsWith('pk_')) {
 const convex = new ConvexReactClient(CONVEX_URL);
 
 export function Providers({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
+
     return (
         <ClerkProvider
             publishableKey={CLERK_PUBLISHABLE_KEY}
@@ -51,9 +55,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     colorPrimary: "#10b981", // Green to match NextStep branding
                 },
             }}
+            routerPush={(to) => router.push(to)}
+            routerReplace={(to) => router.replace(to)}
+            taskUrls={{
+                // Map Clerk task routes we care about to app routes.
+                // Clerk's type only allows specific task keys (e.g. choose-organization, reset-password).
+                "choose-organization": "/onboarding",
+                "reset-password": "/auth",
+            }}
         >
             <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-                {children}
+                <AuthSyncProvider>
+                    {children}
+                </AuthSyncProvider>
             </ConvexProviderWithClerk>
         </ClerkProvider>
     );

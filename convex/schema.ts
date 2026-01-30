@@ -27,10 +27,26 @@ export default defineSchema({
 
         // Basic Profile
         role: v.union(
-            v.literal("student"),
+            v.literal("job_seeker"),
+            v.literal("student"), // Legacy - kept for backwards compatibility
             v.literal("mentor"),
             v.literal("employer"),
         ),
+
+        // Onboarding
+        onboardingStatus: v.optional(
+            v.union(
+                v.literal("not_started"),
+                v.literal("in_progress"),
+                v.literal("completed"),
+            ),
+        ),
+
+        // Organization (required for employers)
+        organizationName: v.optional(v.string()),
+
+        // Goals (selected during onboarding)
+        goals: v.optional(v.array(v.string())),
         age: v.optional(v.number()),
         location: v.optional(v.string()),
         bio: v.optional(v.string()),
@@ -261,7 +277,8 @@ export default defineSchema({
         receiverId: v.id("users"),
         content: v.string(),
         timestamp: v.number(), // Unix timestamp
-        read: v.boolean(),
+        read: v.optional(v.boolean()), // Optional for backwards compatibility with isRead field
+        isRead: v.optional(v.boolean()), // Legacy field name
     })
         .index("by_sender", ["senderId"])
         .index("by_receiver", ["receiverId"])

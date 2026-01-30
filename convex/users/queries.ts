@@ -106,6 +106,7 @@ export const getCurrentSession = query({
             role: user.role,
             avatarUrl: user.avatarUrl,
             userId: user._id,
+            onboardingStatus: user.onboardingStatus ?? "not_started",
         };
     },
 });
