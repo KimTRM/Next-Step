@@ -41,7 +41,7 @@ export function AuthPageContent() {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
             <LoginSection />
             {!isMobile && !isTablet && <SignUpDirection />}
             {(isMobile || isTablet) && <MobileSignUpLink />}
@@ -110,7 +110,7 @@ function LoginSection() {
             className="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8 min-h-screen lg:min-h-0 relative overflow-hidden"
         >
             {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-green-50/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-green-50/30 to-transparent pointer-events-none" />
 
             <div
                 className="w-full max-w-md px-4 sm:px-6 lg:px-8 relative z-10"
@@ -255,7 +255,7 @@ function LoginSection() {
 function SignUpDirection() {
     return (
         <div
-            className="relative w-1/2 h-screen bg-gradient-to-br from-green-500 via-green-600 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden"
+            className="relative w-1/2 h-screen bg-linear-to-br from-green-500 via-green-600 to-green-700 flex flex-col items-center justify-center gap-4 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden"
         >
             {/* Static background decorative elements */}
             <div className="absolute inset-0">

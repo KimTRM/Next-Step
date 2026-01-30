@@ -80,7 +80,7 @@ export function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-xl transition-all group h-full transition-transform hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.98]"
+              className="p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-xl transition-all group h-full hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div
                 className={`inline-flex p-3 rounded-lg bg-primary/10 mb-4 ${feature.color}`}

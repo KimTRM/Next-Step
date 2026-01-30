@@ -10,7 +10,7 @@ const stats = [
 
 export function Community() {
   return (
-    <section id="community" className="py-20 bg-gradient-to-br from-green-50/30 via-white to-green-100/20">
+    <section id="community" className="py-20 bg-linear-to-br from-green-50/30 via-white to-green-100/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
@@ -72,7 +72,7 @@ export function Community() {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all transition-transform hover:-translate-y-1.5 active:scale-[0.99]"
+                className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all hover:-translate-y-1.5 active:scale-[0.99]"
               >
                 <div className="inline-flex p-3 bg-primary/10 rounded-lg mb-4">
                   <stat.icon className="h-6 w-6 text-primary" />

@@ -21,7 +21,7 @@ export function Hero() {
             </span>
             <span className="block">
               <span className="relative inline-block">
-                <span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Next Step</span>
+                <span className="relative bg-linear-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Next Step</span>
               </span>{" "}
               in Life
             </span>
@@ -35,13 +35,13 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="group w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl transition-transform hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]">
+            <button className="group w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl transition-transform hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]">
               <span>Get Started Free</span>
               <span className="inline-flex">
                 <ArrowRight className="h-5 w-5" />
               </span>
             </button>
-            <button className="w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium shadow-lg hover:shadow-xl transition-transform hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]">
+            <button className="w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]">
               Find a Mentor
             </button>
           </div>

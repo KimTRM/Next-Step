@@ -35,7 +35,7 @@ export function SignUpPageContent() {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
             {!isMobile && !isTablet && <LoginDirection />}
             <SignUpSection />
             {(isMobile || isTablet) && <MobileLoginLink />}
@@ -46,7 +46,7 @@ export function SignUpPageContent() {
 function LoginDirection() {
     return (
         <div
-            className="relative w-1/2 h-screen bg-gradient-to-br from-primary via-accent to-emerald-600 flex flex-col items-center justify-center gap-6 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden"
+            className="relative w-1/2 h-screen bg-linear-to-br from-primary via-accent to-emerald-600 flex flex-col items-center justify-center gap-6 px-4 py-8 sm:px-6 lg:px-8 overflow-hidden"
         >
             {/* Static background decorative elements */}
             <div className="absolute inset-0">
@@ -129,7 +129,7 @@ function SignUpSection() {
             className="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8 min-h-screen lg:min-h-0 relative overflow-hidden"
         >
             {/* Enhanced Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-emerald-50/30 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-accent/5 to-emerald-50/30 pointer-events-none" />
 
             {/* Static decorative patterns */}
             <div className="absolute inset-0 opacity-30">
@@ -176,7 +176,7 @@ function SignUpSection() {
 function MobileLoginLink() {
     return (
         <div
-            className="py-6 sm:py-8 text-center bg-gradient-to-r from-gray-50 to-white border-t border-gray-200"
+            className="py-6 sm:py-8 text-center bg-linear-to-r from-gray-50 to-white border-t border-gray-200"
         >
             <p className="text-gray-600 mb-2 text-sm sm:text-base">Already have an account?</p>
             <div>

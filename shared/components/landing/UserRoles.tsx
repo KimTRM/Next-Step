@@ -43,9 +43,9 @@ export function UserRoles() {
           {roles.map((role, index) => (
             <div
               key={index}
-              className={`p-8 rounded-2xl border-2 transition-all transition-transform hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.99] ${role.highlight
-                  ? 'border-accent bg-accent/5 shadow-lg'
-                  : 'border-border bg-white hover:border-primary/50'
+              className={`p-8 rounded-2xl border-2 transition-all hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.99] ${role.highlight
+                ? 'border-accent bg-accent/5 shadow-lg'
+                : 'border-border bg-white hover:border-primary/50'
                 }`}
             >
               {role.highlight && (
@@ -67,7 +67,7 @@ export function UserRoles() {
                 {role.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start gap-2">
                     <svg
-                      className={`h-5 w-5 mt-0.5 flex-shrink-0 ${role.highlight ? 'text-accent' : 'text-primary'}`}
+                      className={`h-5 w-5 mt-0.5 shrink-0 ${role.highlight ? 'text-accent' : 'text-primary'}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >

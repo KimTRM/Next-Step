@@ -527,7 +527,7 @@ export function ProfilePageContent() {
     // Show loading while mounting or while Clerk and Convex are initializing
     if (!mounted || !clerkLoaded || currentUser === undefined) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                     <p className="text-lg text-muted-foreground">Loading profile...</p>
@@ -539,7 +539,7 @@ export function ProfilePageContent() {
     // Not signed in with Clerk
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
+            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
                 <p className="text-lg text-muted-foreground">Please sign in to view your profile</p>
                 <Button asChild>
                     <a href="/auth">Sign In</a>
@@ -551,7 +551,7 @@ export function ProfilePageContent() {
     // Signed in but no Convex user record yet
     if (currentUser === null) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
+            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                 <p className="text-lg text-muted-foreground">Setting up your profile...</p>
                 <p className="text-sm text-muted-foreground">Signed in as {clerkUser.emailAddresses[0]?.emailAddress}</p>
@@ -563,7 +563,7 @@ export function ProfilePageContent() {
     // EDIT MODE
     if (isEditing) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20">
+            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                     {/* Page Header */}
                     <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -719,7 +719,7 @@ export function ProfilePageContent() {
                                             maxLength: { value: 500, message: 'Bio must be 500 characters or less' }
                                         })}
                                         placeholder="Tell us about yourself, your background, and what you're passionate about..."
-                                        className={`min-h-[120px] ${errors.bio ? 'border-destructive' : ''}`}
+                                        className={`min-h-30 ${errors.bio ? 'border-destructive' : ''}`}
                                         aria-invalid={!!errors.bio}
                                     />
                                     <div className="flex justify-between text-sm">
@@ -908,7 +908,7 @@ export function ProfilePageContent() {
                                             maxLength: { value: 1000, message: 'Career goals must be 1000 characters or less' }
                                         })}
                                         placeholder="Describe your short-term and long-term career goals..."
-                                        className={`min-h-[120px] ${errors.careerGoals ? 'border-destructive' : ''}`}
+                                        className={`min-h-30rors.careerGoals ? 'border-destructive' : ''}`}
                                         aria-invalid={!!errors.careerGoals}
                                     />
                                     <div className="flex justify-between text-sm">
@@ -1033,7 +1033,7 @@ export function ProfilePageContent() {
 
     // VIEW MODE
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-green-100/20">
+        <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                 {/* Page Header */}
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

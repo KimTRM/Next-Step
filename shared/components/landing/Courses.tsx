@@ -53,7 +53,7 @@ const jobCategories = [
 
 export function Courses() {
   return (
-    <section id="courses" className="py-20 bg-gradient-to-br from-green-50/50 to-white">
+    <section id="courses" className="py-20 bg-linear-to-br from-green-50/50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -70,7 +70,7 @@ export function Courses() {
           {jobCategories.map((category, index) => (
             <div
               key={index}
-              className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all cursor-pointer group transition-transform hover:-translate-y-1.5 active:scale-[0.99]"
+              className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1.5 active:scale-[0.99]"
             >
               <div
                 className={`inline-flex p-3 rounded-lg ${category.color} mb-4 group-hover:scale-110 transition-transform`}

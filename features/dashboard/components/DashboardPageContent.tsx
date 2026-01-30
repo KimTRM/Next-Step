@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { use } from 'react';
-import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { useCurrentUser, useUserApplications, useUserMessages } from '@/features/dashboard/api';
-import { FileText, MessageCircle, Briefcase, Search, Edit, CheckCircle, XCircle, Clock, PartyPopper } from 'lucide-react';
+import { FileText, MessageCircle, Briefcase, Search, Edit, PartyPopper } from 'lucide-react';
 import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
@@ -20,14 +19,21 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
     const userMessages = useUserMessages();
 
     // For now, no opportunities feature yet
-    const opportunities = [] as any[];
+    type Opportunity = {
+        _id: string;
+        title: string;
+        company?: string;
+        mentor?: string;
+    };
+    const opportunities: Opportunity[] = [];
 
     // Show skeleton loading while data loads
     const isLoading = currentUser === undefined || opportunities === undefined;
 
     // Calculate stats
-    const unreadMessages = userMessages?.filter((msg: any) =>
-        !msg.read && msg.receiverId === currentUser?._id
+    const unreadMessages = userMessages?.filter(
+        (msg: { read?: boolean; receiverId: string }) =>
+            !msg.read && msg.receiverId === currentUser?._id
     ).length || 0;
 
     const recentOpportunities = opportunities?.slice(0, 3) || [];
@@ -87,7 +93,7 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                     )}
                                 </div>
                             </div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                                 <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                             </div>
                         </div>
@@ -110,7 +116,7 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                     )}
                                 </div>
                             </div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                                 <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                             </div>
                         </div>
@@ -133,7 +139,7 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                     )}
                                 </div>
                             </div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
                                 <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                             </div>
                         </div>
@@ -162,7 +168,7 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                     </div>
                                 ))
                             ) : (
-                                recentOpportunities.map((opp: any) => (
+                                recentOpportunities.map((opp: Opportunity) => (
                                     <div key={opp._id} className="border-b border-gray-200 pb-4 last:border-b-0">
                                         <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{opp.title}</h4>
                                         <p className="text-xs sm:text-sm text-gray-600 mt-1">
@@ -190,19 +196,19 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                         <CardContent>
                             <div className="space-y-3">
                                 <Link href="/mentors">
-                                    <Button variant="default" className="w-full min-h-[44px] text-sm sm:text-base">
+                                    <Button variant="default" className="w-full min-h-11 text-sm sm:text-base">
                                         <Search className="w-4 h-4 mr-2" />
                                         Browse Mentors
                                     </Button>
                                 </Link>
                                 <Link href="/profile">
-                                    <Button variant="outline" className="w-full min-h-[44px] text-sm sm:text-base">
+                                    <Button variant="outline" className="w-full min-h-11 text-sm sm:text-base">
                                         <Edit className="w-4 h-4 mr-2" />
                                         Update Profile
                                     </Button>
                                 </Link>
                                 <Link href="/messages">
-                                    <Button variant="outline" className="w-full min-h-[44px] text-sm sm:text-base">
+                                    <Button variant="outline" className="w-full min-h-11 text-sm sm:text-base">
                                         <MessageCircle className="w-4 h-4 mr-2" />
                                         Check Messages
                                     </Button>
@@ -221,19 +227,19 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Pending</span>
                                     <span className="font-semibold text-sm sm:text-base">
-                                        {userApplications?.filter((a: any) => a.status === 'pending').length || 0}
+                                        {userApplications?.filter((a: { status: string }) => a.status === 'pending').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Accepted</span>
                                     <span className="font-semibold text-green-600 text-sm sm:text-base">
-                                        {userApplications?.filter((a: any) => a.status === 'accepted').length || 0}
+                                        {userApplications?.filter((a: { status: string }) => a.status === 'accepted').length || 0}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-600">Rejected</span>
                                     <span className="font-semibold text-red-600 text-sm sm:text-base">
-                                        {userApplications?.filter((a: any) => a.status === 'rejected').length || 0}
+                                        {userApplications?.filter((a: { status: string }) => a.status === 'rejected').length || 0}
                                     </span>
                                 </div>
                             </div>

@@ -58,7 +58,7 @@ export function AIFeatures() {
           {aiFeatures.map((feature, index) => (
             <div
               key={index}
-              className="relative p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-xl transition-all group overflow-hidden transition-transform hover:-translate-y-1.5 active:scale-[0.99]"
+              className="relative p-6 rounded-xl bg-white border border-border hover:border-primary/50 hover:shadow-xl transition-all group overflow-hidden hover:-translate-y-1.5 active:scale-[0.99]"
             >
               {/* Gradient Background on Hover */}
               <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
