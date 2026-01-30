@@ -6,12 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { motion } from "framer-motion";
-import {
-  fadeInDown,
-  animationConfig,
-  animationConfigFast,
-} from "@/shared/lib/animations";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,12 +26,8 @@ export function Header() {
   };
 
   return (
-    <motion.header
+    <header
       className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-border shadow-sm"
-      variants={fadeInDown}
-      initial="initial"
-      animate="animate"
-      transition={animationConfig}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -68,15 +58,12 @@ export function Header() {
                 }`}
               >
                 {item.label}
-                <motion.span
-                  className="absolute -bottom-2 left-0 h-0.5 w-full bg-primary rounded-full"
-                  initial={false}
-                  animate={{
-                    opacity: isActive(item.href) ? 1 : 0,
-                    scaleX: isActive(item.href) ? 1 : 0,
-                  }}
-                  transition={animationConfigFast}
-                  style={{ transformOrigin: "left" }}
+                <span
+                  className={`${
+                    isActive(item.href)
+                      ? "opacity-100 scale-x-100"
+                      : "opacity-0 scale-x-0"
+                  } absolute -bottom-2 left-0 h-0.5 w-full bg-primary rounded-full transition-all duration-300 origin-left`}
                 />
               </Link>
             ))}
@@ -99,10 +86,7 @@ export function Header() {
               </Link>
             </SignedOut>
             <SignedIn>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={animationConfigFast}
-              >
+              <div>
                 <UserButton
                   appearance={{
                     elements: {
@@ -111,7 +95,7 @@ export function Header() {
                   }}
                   afterSignOutUrl="/"
                 />
-              </motion.div>
+              </div>
             </SignedIn>
           </div>
 
@@ -181,6 +165,6 @@ export function Header() {
           </div>
         )}
       </nav>
-    </motion.header>
+    </header>
   );
 }

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { Home, Briefcase, LayoutDashboard, MessageSquare, User } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 
@@ -34,37 +33,32 @@ export function MobileBottomNav() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
-          
+
           return (
             <Link
               key={item.id}
               href={item.href}
               className={cn(
                 'flex flex-col items-center justify-center h-full py-1 px-1 relative transition-colors',
-                isActive 
-                  ? 'text-green-600' 
+                isActive
+                  ? 'text-green-600'
                   : 'text-gray-500 hover:text-green-600'
               )}
               onClick={() => setActiveTab(item.id)}
             >
               {/* Active indicator */}
               {isActive && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-green-600 rounded-full"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
+                <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-1 bg-green-600 rounded-full" />
               )}
-              
-              <Icon 
+
+              <Icon
                 className={cn(
                   'h-5 w-5 mb-1 transition-all duration-200',
                   isActive && 'scale-110'
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              
+
               <span className={cn(
                 'text-xs transition-all duration-200',
                 isActive ? 'font-semibold' : 'font-normal'

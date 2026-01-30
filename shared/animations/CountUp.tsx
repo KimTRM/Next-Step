@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { animate, useInView } from "framer-motion";
-import { easePremium } from "@/shared/lib/animations";
 
 type CountUpProps = {
   end: number;
@@ -24,8 +22,8 @@ export function CountUp({
   startOnView = true,
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement | null>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.6 });
   const [value, setValue] = useState(0);
+  const [hasStarted, setHasStarted] = useState(!startOnView);
 
   const formatter = useMemo(() => {
     if (format) return format;
@@ -40,16 +38,45 @@ export function CountUp({
   }, [end, format]);
 
   useEffect(() => {
-    if (startOnView && !isInView) return;
+    if (!startOnView || hasStarted) return;
+    const el = ref.current;
+    if (!el) return;
 
-    const controls = animate(0, end, {
-      duration,
-      ease: easePremium,
-      onUpdate: (latest) => setValue(latest),
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.6 }
+    );
 
-    return () => controls.stop();
-  }, [duration, end, isInView, startOnView]);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [startOnView, hasStarted]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
+    const durationMs = duration * 1000;
+    const start = performance.now();
+    let rafId: number;
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(eased * end);
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [hasStarted, duration, end]);
 
   return (
     <span ref={ref} className={className}>

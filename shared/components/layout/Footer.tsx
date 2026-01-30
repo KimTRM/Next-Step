@@ -1,19 +1,10 @@
-"use client";
-
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
 import Image from 'next/image';
-import { motion } from "framer-motion";
-import { fadeInUp, animationConfig, animationConfigFast } from "@/shared/lib/animations";
 
 export function Footer() {
   return (
-    <motion.footer
+    <footer
       className="bg-linear-to-br from-gray-50 to-white border-t border-border"
-      initial="initial"
-      whileInView="animate"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={fadeInUp}
-      transition={animationConfig}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
@@ -27,42 +18,30 @@ export function Footer() {
               Helping you take your next step in life. Empowering youth through job discovery and mentorship.
             </p>
             <div className="flex gap-3">
-              <motion.a
+              <a
                 href="#"
                 className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
-                whileHover={{ y: -2, scale: 1.06 }}
-                whileTap={{ scale: 0.98 }}
-                transition={animationConfigFast}
               >
                 <Facebook className="h-5 w-5 text-primary" />
-              </motion.a>
-              <motion.a
+              </a>
+              <a
                 href="#"
                 className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
-                whileHover={{ y: -2, scale: 1.06 }}
-                whileTap={{ scale: 0.98 }}
-                transition={animationConfigFast}
               >
                 <Twitter className="h-5 w-5 text-primary" />
-              </motion.a>
-              <motion.a
+              </a>
+              <a
                 href="#"
                 className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
-                whileHover={{ y: -2, scale: 1.06 }}
-                whileTap={{ scale: 0.98 }}
-                transition={animationConfigFast}
               >
                 <Instagram className="h-5 w-5 text-primary" />
-              </motion.a>
-              <motion.a
+              </a>
+              <a
                 href="#"
                 className="p-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
-                whileHover={{ y: -2, scale: 1.06 }}
-                whileTap={{ scale: 0.98 }}
-                transition={animationConfigFast}
               >
                 <Linkedin className="h-5 w-5 text-primary" />
-              </motion.a>
+              </a>
             </div>
           </div>
 
@@ -163,6 +142,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </motion.footer>
+    </footer>
   );
 }

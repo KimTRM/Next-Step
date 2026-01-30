@@ -6,7 +6,6 @@
  */
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Lock, Mail, Loader2, Eye, EyeOff } from "lucide-react";
 import { useLoginForm } from "../api";
 import Link from "next/link";
@@ -26,7 +25,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
 
     const validateForm = (): boolean => {
         const errors: {[key: string]: string} = {};
-        
+
         if (!identifier.trim()) {
             errors.identifier = "Email or username is required";
         } else if (identifier.includes('@')) {
@@ -35,13 +34,13 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                 errors.identifier = "Please enter a valid email address";
             }
         }
-        
+
         if (!password) {
             errors.password = "Password is required";
         } else if (password.length < 1) {
             errors.password = "Password cannot be empty";
         }
-        
+
         setFieldErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -58,51 +57,38 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
     };
 
     const isSubmitDisabled = isLoading || !isReady || !identifier || !password;
-    
+
     // Check if error is related to verification strategy
-    const isVerificationStrategyError = error?.code === "verification_strategy_not_valid" || 
+    const isVerificationStrategyError = error?.code === "verification_strategy_not_valid" ||
         error?.message?.includes("verification strategy is not valid");
 
     return (
-        <motion.form 
-            onSubmit={handleSubmit} 
+        <form
+            onSubmit={handleSubmit}
             className="space-y-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
         >
             {/* Verification Strategy Error */}
             {isVerificationStrategyError && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <VerificationStrategyError 
+                <div>
+                    <VerificationStrategyError
                         message={error?.message}
                         onDismiss={() => setShowVerificationError(false)}
                     />
-                </motion.div>
+                </div>
             )}
 
             {/* General Error Display */}
             {error && !isVerificationStrategyError && (
-                <motion.div 
+                <div
                     className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
                 >
                     {error.message}
-                </motion.div>
+                </div>
             )}
 
             {/* Email/Username Input */}
-            <motion.div 
+            <div
                 className="relative"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.25 }}
             >
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
                 <input
@@ -117,8 +103,8 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     }}
                     disabled={isLoading}
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
-                        fieldErrors.identifier 
-                            ? 'border-red-300 focus:ring-red-500 bg-red-50' 
+                        fieldErrors.identifier
+                            ? 'border-red-300 focus:ring-red-500 bg-red-50'
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
                     }`}
                     autoComplete="email"
@@ -126,22 +112,19 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     aria-describedby={fieldErrors.identifier ? 'identifier-error' : undefined}
                 />
                 {fieldErrors.identifier && (
-                    <p 
-                        id="identifier-error" 
+                    <p
+                        id="identifier-error"
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.identifier}
                     </p>
                 )}
-            </motion.div>
+            </div>
 
             {/* Password Input */}
-            <motion.div 
+            <div
                 className="relative"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.3 }}
             >
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
                 <input
@@ -156,8 +139,8 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     }}
                     disabled={isLoading}
                     className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
-                        fieldErrors.password 
-                            ? 'border-red-300 focus:ring-red-500 bg-red-50' 
+                        fieldErrors.password
+                            ? 'border-red-300 focus:ring-red-500 bg-red-50'
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
                     }`}
                     autoComplete="current-password"
@@ -178,23 +161,20 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     )}
                 </button>
                 {fieldErrors.password && (
-                    <p 
-                        id="password-error" 
+                    <p
+                        id="password-error"
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.password}
                     </p>
                 )}
-            </motion.div>
+            </div>
 
             {/* Forgot Password Link */}
             {onForgotPassword && (
-                <motion.div 
+                <div
                     className="text-right"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: 0.35 }}
                 >
                     <button
                         type="button"
@@ -203,32 +183,29 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     >
                         Forgot your Password?
                     </button>
-                </motion.div>
+                </div>
             )}
 
             {/* Sign Up Link */}
-            <motion.div 
+            <div
                 className="text-center pt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2, delay: 0.4 }}
             >
                 <span className="text-gray-600 text-sm">Don&apos;t have an account? </span>
-                    <Link 
-                        href="/sign-up" 
+                    <Link
+                        href="/sign-up"
                         className="text-green-600 font-semibold text-sm hover:text-green-700 hover:underline transition-colors duration-200 inline-flex items-center gap-1"
                     >
                         Sign Up
-                        <svg 
-                            className="w-3 h-3 transition-transform duration-200" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            className="w-3 h-3 transition-transform duration-200"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </Link>
-            </motion.div>
+            </div>
 
             {/* Submit Button */}
             <button
@@ -244,10 +221,10 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                 ) : (
                     <span className="flex items-center gap-2">
                         Log In
-                        <svg 
-                            className="w-4 h-4" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -255,6 +232,6 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
                     </span>
                 )}
             </button>
-        </motion.form>
+        </form>
     );
 }
