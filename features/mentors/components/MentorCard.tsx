@@ -1,6 +1,7 @@
 import { MessageSquare, Briefcase, MapPin, Star, UserCheck, Calendar, Award, DollarSign } from 'lucide-react';
 import type { MentorWithUser } from '@/shared/lib/types/index';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface MentorCardProps {
     mentor: MentorWithUser;
@@ -14,9 +15,11 @@ export function MentorCard({ mentor, onConnect }: MentorCardProps) {
             <div className="flex items-start gap-4 mb-4">
                 <div className="shrink-0">
                     {mentor.avatarUrl ? (
-                        <img
+                        <Image
                             src={mentor.avatarUrl}
                             alt={mentor.name}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 rounded-full object-cover"
                         />
                     ) : (

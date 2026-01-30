@@ -5,8 +5,8 @@
  * Thin page wrapper that composes the Onboarding feature
  */
 
-import { OnboardingPageContent } from '@/features/onboarding/components';
+import { RoleSelectionContent } from '@/features/onboarding/components';
 
 export default function OnboardingPage() {
-  return <OnboardingPageContent />;
+  return <RoleSelectionContent />;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import type { JobWithPoster } from '@/shared/lib/types/index';
 import type { JobType } from '@/shared/lib/constants/jobs';
 import { JobCard } from './JobCard';
@@ -9,6 +10,7 @@ import { JobFilters } from './JobFilters';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useJobsList } from '../api';
+import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
 
 export function JobsPageContent() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -146,3 +148,13 @@ export function JobsPageContent() {
         </div>
     );
 }
+
+function JobsPageContentWrapper() {
+    return (
+        <LoadingBoundary type="jobs">
+            <JobsPageContent />
+        </LoadingBoundary>
+    );
+}
+
+export default JobsPageContentWrapper;

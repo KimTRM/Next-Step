@@ -6,8 +6,17 @@
  */
 
 import { useQuery } from "convex/react";
+import { cache } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+
+// ============================================
+// CACHED QUERY FUNCTIONS
+// ============================================
+
+const getCurrentUserCached = cache(() => useQuery(api.users.index.getCurrentUser, {}));
+const getUserJobApplicationsCached = cache(() => useQuery(api.applications.index.getUserJobApplications, {}));
+const getUserMessagesCached = cache(() => useQuery(api.messages.index.getUserMessages, {}));
 
 // ============================================
 // AGGREGATED QUERIES
@@ -17,21 +26,21 @@ import type { Id } from "@/convex/_generated/dataModel";
  * Get current user (for role-based dashboard)
  */
 export function useCurrentUser() {
-    return useQuery(api.users.index.getCurrentUser, {});
+    return getCurrentUserCached();
 }
 
 /**
  * Get user's job applications for dashboard stats
  */
 export function useUserApplications() {
-    return useQuery(api.applications.index.getUserJobApplications, {});
+    return getUserJobApplicationsCached();
 }
 
 /**
  * Get user's messages for dashboard
  */
 export function useUserMessages() {
-    return useQuery(api.messages.index.getUserMessages, {});
+    return getUserMessagesCached();
 }
 
 /**

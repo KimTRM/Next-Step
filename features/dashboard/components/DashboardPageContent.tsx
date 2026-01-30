@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { use } from 'react';
+import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { useCurrentUser, useUserApplications, useUserMessages } from '@/features/dashboard/api';
 import { FileText, MessageCircle, Briefcase, Search, Edit, CheckCircle, XCircle, Clock, PartyPopper } from 'lucide-react';
+import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
 
 function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
     const resolvedSearchParams = use(searchParams);
@@ -240,4 +242,10 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
     );
 }
 
-export default DashboardContent;
+export default function DashboardPageContent({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+    return (
+        <LoadingBoundary type="dashboard">
+            <DashboardContent searchParams={searchParams} />
+        </LoadingBoundary>
+    );
+}

@@ -18,14 +18,15 @@ export function BackgroundParticles() {
   useEffect(() => {
     const generateParticles = () => {
       const newParticles: Particle[] = [];
-      for (let i = 0; i < 20; i++) {
+      // Reduced from 20 to 8 particles for better performance
+      for (let i = 0; i < 8; i++) {
         newParticles.push({
           id: i,
           x: Math.random() * 100,
           y: Math.random() * 100,
-          size: Math.random() * 4 + 2,
-          duration: Math.random() * 20 + 10,
-          delay: Math.random() * 5,
+          size: Math.random() * 2 + 1, // Smaller particles
+          duration: Math.random() * 15 + 15, // Slower, longer animations
+          delay: Math.random() * 2,
         });
       }
       setParticles(newParticles);
@@ -47,9 +48,8 @@ export function BackgroundParticles() {
             height: particle.size,
           }}
           animate={{
-            y: [0, -30, 0],
-            opacity: [0.1, 0.3, 0.1],
-            scale: [1, 1.2, 1],
+            y: [0, -15, 0], // Reduced movement range
+            opacity: [0.1, 0.2, 0.1], // Reduced opacity range
           }}
           transition={{
             duration: particle.duration,
@@ -60,42 +60,14 @@ export function BackgroundParticles() {
         />
       ))}
       
-      {/* Gradient overlays */}
+      {/* Simplified gradient overlay - removed blur effects */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-t from-green-50/20 via-transparent to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-green-50/10 via-transparent to-transparent"
         animate={{
-          opacity: [0.3, 0.5, 0.3],
+          opacity: [0.2, 0.3, 0.2],
         }}
         transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      
-      <motion.div
-        className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 20, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      
-      <motion.div
-        className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          x: [0, -20, 0],
-          y: [0, 20, 0],
-        }}
-        transition={{
-          duration: 15,
+          duration: 10, // Slower animation
           repeat: Infinity,
           ease: "easeInOut",
         }}

@@ -51,8 +51,4 @@ export function useMarkMessageAsRead() {
 // ============================================
 // TYPES RE-EXPORT
 // ============================================
-
-// ============================================
-// TYPES RE-EXPORT
-// ============================================
 export type { Message, ConversationPartner, SendMessageInput } from "./types";

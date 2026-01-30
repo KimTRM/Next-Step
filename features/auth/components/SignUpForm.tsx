@@ -187,7 +187,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.25 }}
             >
                 <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type="text"
                     placeholder="First Name"
                     value={firstName}
@@ -196,7 +196,7 @@ export function SignUpForm() {
                         clearFieldError('firstName');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.firstName 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -204,20 +204,15 @@ export function SignUpForm() {
                     autoComplete="given-name"
                     aria-invalid={!!fieldErrors.firstName}
                     aria-describedby={fieldErrors.firstName ? 'firstName-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
                 {fieldErrors.firstName && (
-                    <motion.p 
+                    <p 
                         id="firstName-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.firstName}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -229,7 +224,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.3 }}
             >
                 <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type="text"
                     placeholder="Last Name"
                     value={lastName}
@@ -238,7 +233,7 @@ export function SignUpForm() {
                         clearFieldError('lastName');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.lastName 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -246,20 +241,15 @@ export function SignUpForm() {
                     autoComplete="family-name"
                     aria-invalid={!!fieldErrors.lastName}
                     aria-describedby={fieldErrors.lastName ? 'lastName-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
                 {fieldErrors.lastName && (
-                    <motion.p 
+                    <p 
                         id="lastName-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.lastName}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -271,7 +261,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.35 }}
             >
                 <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type="text"
                     placeholder="Username"
                     value={username}
@@ -280,7 +270,7 @@ export function SignUpForm() {
                         clearFieldError('username');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.username 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -288,20 +278,15 @@ export function SignUpForm() {
                     autoComplete="username"
                     aria-invalid={!!fieldErrors.username}
                     aria-describedby={fieldErrors.username ? 'username-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
                 {fieldErrors.username && (
-                    <motion.p 
+                    <p 
                         id="username-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.username}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -313,7 +298,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.4 }}
             >
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type="email"
                     placeholder="Email"
                     value={email}
@@ -322,7 +307,7 @@ export function SignUpForm() {
                         clearFieldError('email');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.email 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -330,20 +315,15 @@ export function SignUpForm() {
                     autoComplete="email"
                     aria-invalid={!!fieldErrors.email}
                     aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
                 {fieldErrors.email && (
-                    <motion.p 
+                    <p 
                         id="email-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.email}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -355,7 +335,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.45 }}
             >
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
@@ -364,7 +344,7 @@ export function SignUpForm() {
                         clearFieldError('password');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.password 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -372,36 +352,28 @@ export function SignUpForm() {
                     autoComplete="new-password"
                     aria-invalid={!!fieldErrors.password}
                     aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
-                <motion.button
+                <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", duration: 0.1 }}
                 >
                     {showPassword ? (
                         <EyeOff className="w-5 h-5" />
                     ) : (
                         <Eye className="w-5 h-5" />
                     )}
-                </motion.button>
+                </button>
                 {fieldErrors.password && (
-                    <motion.p 
+                    <p 
                         id="password-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.password}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -413,7 +385,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.5 }}
             >
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm Password"
                     value={confirmPassword}
@@ -422,7 +394,7 @@ export function SignUpForm() {
                         clearFieldError('confirmPassword');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.confirmPassword 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -430,36 +402,28 @@ export function SignUpForm() {
                     autoComplete="new-password"
                     aria-invalid={!!fieldErrors.confirmPassword}
                     aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
-                <motion.button
+                <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-all duration-200 hover:scale-110"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", duration: 0.1 }}
                 >
                     {showConfirmPassword ? (
                         <EyeOff className="w-5 h-5" />
                     ) : (
                         <Eye className="w-5 h-5" />
                     )}
-                </motion.button>
+                </button>
                 {fieldErrors.confirmPassword && (
-                    <motion.p 
+                    <p 
                         id="confirmPassword-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.confirmPassword}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -471,7 +435,7 @@ export function SignUpForm() {
                 transition={{ duration: 0.3, delay: 0.55 }}
             >
                 <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <motion.input
+                <input
                     type="text"
                     placeholder="Organization Name"
                     value={organizationName}
@@ -480,7 +444,7 @@ export function SignUpForm() {
                         clearFieldError('organizationName');
                     }}
                     disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
                         fieldErrors.organizationName 
                             ? 'border-red-300 focus:ring-red-500 bg-red-50' 
                             : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
@@ -488,20 +452,15 @@ export function SignUpForm() {
                     autoComplete="organization"
                     aria-invalid={!!fieldErrors.organizationName}
                     aria-describedby={fieldErrors.organizationName ? 'organizationName-error' : undefined}
-                    whileFocus={{ scale: 1.02 }}
-                    transition={{ type: "spring", duration: 0.2 }}
                 />
                 {fieldErrors.organizationName && (
-                    <motion.p 
+                    <p 
                         id="organizationName-error" 
                         className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
                     >
                         <span className="text-xs">●</span>
                         {fieldErrors.organizationName}
-                    </motion.p>
+                    </p>
                 )}
             </motion.div>
 
@@ -531,69 +490,47 @@ export function SignUpForm() {
                 transition={{ duration: 0.2, delay: 0.4 }}
             >
                 <span className="text-gray-600 text-sm">Already have an account? </span>
-                <motion.div
-                    className="inline-block"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", duration: 0.2 }}
-                >
                     <Link 
                         href="/auth" 
-                        className="text-green-600 font-semibold text-sm hover:text-green-700 hover:underline transition-all duration-200 inline-flex items-center gap-1"
+                        className="text-green-600 font-semibold text-sm hover:text-green-700 hover:underline transition-colors duration-200 inline-flex items-center gap-1"
                     >
                         Log In
-                        <motion.svg 
-                            className="w-3 h-3" 
+                        <svg 
+                            className="w-3 h-3 transition-transform duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            initial={{ x: 0 }}
-                            whileHover={{ x: 2 }}
-                            transition={{ type: "spring", duration: 0.2 }}
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </motion.svg>
+                        </svg>
                     </Link>
-                </motion.div>
             </motion.div>
 
             {/* Submit Button */}
-            <motion.button
+            <button
                 type="submit"
                 disabled={isSubmitDisabled}
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-lg hover:shadow-xl"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.45 }}
-                whileHover={{ scale: isSubmitDisabled ? 1 : 1.02, y: isSubmitDisabled ? 0 : -2 }}
-                whileTap={{ scale: isSubmitDisabled ? 1 : 0.98 }}
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-lg hover:shadow-xl"
             >
                 {isLoading ? (
-                    <motion.div 
-                        className="flex items-center gap-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                    >
+                    <div className="flex items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Creating account...
-                    </motion.div>
+                    </div>
                 ) : (
                     <span className="flex items-center gap-2">
                         Sign Up
-                        <motion.svg 
+                        <svg 
                             className="w-4 h-4" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            initial={{ x: 0 }}
-                            whileHover={{ x: 3 }}
-                            transition={{ type: "spring", duration: 0.2 }}
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </motion.svg>
+                        </svg>
                     </span>
                 )}
-            </motion.button>
+            </button>
         </motion.form>
     );
 }

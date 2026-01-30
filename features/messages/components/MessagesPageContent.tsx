@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 // FEATURE COMPONENTS
-import { ConversationList, type ConversationPartner } from './ConversationList';
+import { ConversationList } from './ConversationList';
 import { MessageThread } from './MessageThread';
 import { MessageInput } from './MessageInput';
 import { EmptyMessageState } from './EmptyMessageState';
@@ -20,17 +20,31 @@ import { EmptyMessageState } from './EmptyMessageState';
 import { useUserMessages, useConversation, useSendMessage, useMarkMessageAsRead } from '@/features/messages/api';
 // import { useCurrentUser } from '@/features/users/api';
 
-type Message = {
-    _id: Id<'messages'>;
+// Define local types to match component usage
+interface Message {
+    _id: Id<"messages">;
     _creationTime: number;
-    senderId: Id<'users'>;
-    receiverId: Id<'users'>;
     content: string;
     timestamp: number;
-    read: boolean;
-};
+    senderId: Id<"users">;
+    receiverId: Id<"users">;
+    read?: boolean;
+    isRead?: boolean;
+}
 
-// type User removed as it was unused
+interface User {
+    _id: Id<"users">;
+    name: string;
+    role: string;
+    clerkId: string;
+}
+
+interface ConversationPartner {
+    userId: Id<"users">;
+    user: User;
+    lastMessage: Message;
+    unreadCount: number;
+}
 
 export function MessagesPageContent() {
     const { user: clerkUser } = useUser();
@@ -59,7 +73,7 @@ export function MessagesPageContent() {
     // Mark messages as read when conversation opens
     useEffect(() => {
         if (conversation.length > 0 && selectedUserId && currentUser) {
-            conversation.forEach((msg: Message) => {
+            conversation.forEach((msg) => {
                 if (msg.receiverId === currentUser._id && !msg.read) {
                     markAsRead({ messageId: msg._id }).catch(err =>
                         console.error('Failed to mark as read:', err)
@@ -134,7 +148,7 @@ export function MessagesPageContent() {
             });
         } else {
             // Update to latest message
-            if (msg.timestamp > existing.lastMessage.timestamp) {
+            if (existing.lastMessage && typeof existing.lastMessage === 'object' && 'timestamp' in existing.lastMessage && msg.timestamp > existing.lastMessage.timestamp) {
                 existing.lastMessage = msg;
             }
         }
@@ -145,12 +159,16 @@ export function MessagesPageContent() {
     // Calculate unread counts
     conversationPartners.forEach((partner: ConversationPartner) => {
         partner.unreadCount = messages.filter(
-            (msg: Message) => msg.senderId === partner.userId && msg.receiverId === currentUser._id && !msg.read
+            (msg) => msg.senderId === partner.userId && msg.receiverId === currentUser._id && !msg.read
         ).length;
     });
 
     // Sort by latest message
-    conversationPartners.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
+    conversationPartners.sort((a, b) => {
+        const aTime = typeof a.lastMessage === 'object' && 'timestamp' in a.lastMessage ? a.lastMessage.timestamp : 0;
+        const bTime = typeof b.lastMessage === 'object' && 'timestamp' in b.lastMessage ? b.lastMessage.timestamp : 0;
+        return bTime - aTime;
+    });
 
     // Calculate total unread
     const totalUnread = conversationPartners.reduce((sum: number, p: ConversationPartner) => sum + p.unreadCount, 0);
@@ -217,7 +235,7 @@ export function MessagesPageContent() {
                                         </div>
                                     ) : (
                                         <MessageThread
-                                            conversation={conversation}
+                                            conversation={conversation as any}
                                             currentUserId={currentUser._id}
                                             selectedUser={{
                                                 _id: selectedUserId,

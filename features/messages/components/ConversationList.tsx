@@ -17,11 +17,13 @@ import { timeAgo } from '@/shared/lib/utils';
 
 interface Message {
     _id: Id<"messages">;
+    _creationTime: number;
     content: string;
     timestamp: number;
     senderId: Id<"users">;
     receiverId: Id<"users">;
-    read: boolean;
+    read?: boolean;
+    isRead?: boolean;
 }
 
 interface User {

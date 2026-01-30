@@ -1,20 +1,14 @@
-"use client";
-
 /**
  * Platform Layout
- * Wraps all protected platform routes with onboarding check
+ * Server component wrapper for platform routes
  */
 
-import { OnboardingGuard } from "@/features/onboarding";
+import { PlatformLayoutClient } from './PlatformLayoutClient';
 
 export default function PlatformLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return (
-        <OnboardingGuard>
-            {children}
-        </OnboardingGuard>
-    );
+    return <PlatformLayoutClient>{children}</PlatformLayoutClient>;
 }
