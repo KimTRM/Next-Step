@@ -13,12 +13,32 @@ export type Message = {
     receiverId: Id<"users">;
     content: string;
     timestamp: number;
-    read?: boolean;
-    isRead?: boolean;
-    [key: string]: any; // Allow additional properties from Convex
+    isRead: boolean;
+    relatedJobId?: Id<"jobs">;
 };
 
-// Conversation partner (for conversation list)
+// User info for conversations
+export type ConversationUser = {
+    _id: Id<"users">;
+    name: string;
+    avatarUrl?: string;
+};
+
+// Conversation summary (for conversation list)
+export type Conversation = {
+    otherUserId: Id<"users">;
+    otherUser: ConversationUser | null;
+    lastMessage: {
+        _id: Id<"messages">;
+        content: string;
+        timestamp: number;
+        senderId: Id<"users">;
+        isRead: boolean;
+    };
+    unreadCount: number;
+};
+
+// Legacy type for backwards compatibility
 export type ConversationPartner = {
     _id: Id<"users">;
     name: string;
@@ -32,5 +52,5 @@ export type ConversationPartner = {
 export type SendMessageInput = {
     receiverId: Id<"users">;
     content: string;
+    relatedJobId?: Id<"jobs">;
 };
-

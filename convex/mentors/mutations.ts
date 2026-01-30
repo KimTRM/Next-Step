@@ -270,7 +270,7 @@ export const sendConnectionRequest = mutation({
             receiverId: mentor.userId,
             content: args.message,
             timestamp: Date.now(),
-            read: false,
+            isRead: false,
         });
 
         return messageId;
