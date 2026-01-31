@@ -158,6 +158,7 @@ export const createJob = mutation({
             industry: args.industry,
             jobCategory: args.jobCategory,
             tags: args.tags,
+            applicants: 0,
         });
 
         return await ctx.db.get(jobId);

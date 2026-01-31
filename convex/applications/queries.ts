@@ -28,7 +28,7 @@ export const getUserJobApplications = query({
 
         const applications = await ctx.db
             .query("jobApplications")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .order("desc")
             .collect();
 
@@ -57,7 +57,7 @@ export const getJobApplications = query({
     handler: async (ctx, args) => {
         return await ctx.db
             .query("jobApplications")
-            .withIndex("by_job", (q) => q.eq("jobId", args.jobId))
+            .withIndex("by_jobId", (q) => q.eq("jobId", args.jobId))
             .collect();
     },
 });

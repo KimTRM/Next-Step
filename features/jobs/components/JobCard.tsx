@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from 'react';
-import { Briefcase, Building2, MapPin, DollarSign, Users, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Briefcase, Building2, MapPin, DollarSign, Users, Calendar, Check } from 'lucide-react';
 import type { Id } from '@/convex/_generated/dataModel';
 import { toast } from 'sonner';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 type JobType = 'full-time' | 'part-time' | 'internship' | 'contract' | 'temporary';
 
@@ -28,6 +31,19 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
     const [saved, setSaved] = useState(false);
+    const [isApplying, setIsApplying] = useState(false);
+    const { user } = useAuth();
+
+    // Real database mutations
+    const createApplication = useMutation(api.applications.createApplication);
+    const deleteApplication = useMutation(api.applications.deleteApplication);
+    const checkUserApplied = useQuery(api.applications.checkUserApplied, {
+        jobId: job._id,
+        userId: user?.id || "",
+    });
+
+    const hasApplied = checkUserApplied ?? false;
+    const applicantCount = job.applicants || 0;
 
     const handleSave = () => {
         setSaved((prev) => {
@@ -37,8 +53,79 @@ export function JobCard({ job }: JobCardProps) {
         });
     };
 
-    const handleApply = () => {
-        toast.success('Application submitted successfully!');
+    const handleApply = async () => {
+        console.log('Apply button clicked', { user, hasApplied, isApplying });
+        
+        if (!user) {
+            toast.error('Please login to apply for jobs');
+            return;
+        }
+
+        // Prevent multiple applications
+        if (hasApplied) {
+            toast.error('You have already applied for this position');
+            return;
+        }
+
+        // Prevent spam clicking
+        if (isApplying) {
+            return;
+        }
+
+        setIsApplying(true);
+
+        try {
+            // Create real application in database
+            await createApplication({
+                jobId: job._id,
+                userId: user.id,
+                coverLetter: "Application submitted via job listing",
+                resumeUrl: "",
+                status: "pending"
+            });
+            
+            toast.success('Application submitted successfully!');
+            console.log('Application submitted successfully');
+        } catch (error) {
+            console.error('Application error:', error);
+            toast.error(error instanceof Error ? error.message : 'Failed to submit application. Please try again.');
+        } finally {
+            setIsApplying(false);
+        }
+    };
+
+    const handleUnapply = async () => {
+        if (!user) {
+            toast.error('Please login to unapply from jobs');
+            return;
+        }
+
+        if (!hasApplied) {
+            toast.error('You have not applied to this position');
+            return;
+        }
+
+        if (isApplying) {
+            return;
+        }
+
+        setIsApplying(true);
+
+        try {
+            // Delete application from database
+            await deleteApplication({
+                jobId: job._id,
+                userId: user.id,
+            });
+            
+            toast.success('Application withdrawn successfully!');
+            console.log('Application withdrawn successfully');
+        } catch (error) {
+            console.error('Unapply error:', error);
+            toast.error(error instanceof Error ? error.message : 'Failed to withdraw application. Please try again.');
+        } finally {
+            setIsApplying(false);
+        }
     };
 
     const getTypeColor = (type?: JobType) => {
@@ -86,8 +173,6 @@ export function JobCard({ job }: JobCardProps) {
         if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
         return `${Math.floor(diffDays / 30)} months ago`;
     };
-
-    const applicantCount = job.applicants || Math.floor(Math.random() * 50) + 5;
 
     return (
         <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -148,12 +233,42 @@ export function JobCard({ job }: JobCardProps) {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-                <button
-                    onClick={handleApply}
-                    className="flex-1 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold"
-                >
-                    Apply Now
-                </button>
+                {hasApplied ? (
+                    <button
+                        onClick={handleUnapply}
+                        disabled={isApplying}
+                        className={`flex-1 h-11 rounded-xl transition-colors font-semibold flex items-center justify-center gap-2 ${
+                            isApplying
+                                ? 'bg-gray-300 text-gray-600 cursor-wait'
+                                : 'bg-red-600 text-white hover:bg-red-700'
+                        }`}
+                    >
+                        {isApplying ? (
+                            'Withdrawing...'
+                        ) : (
+                            <>
+                                <Check className="h-4 w-4" />
+                                Applied - Click to Unapply
+                            </>
+                        )}
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleApply}
+                        disabled={isApplying}
+                        className={`flex-1 h-11 rounded-xl transition-colors font-semibold flex items-center justify-center gap-2 ${
+                            isApplying
+                                ? 'bg-gray-300 text-gray-600 cursor-wait'
+                                : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                    >
+                        {isApplying ? (
+                            'Applying...'
+                        ) : (
+                            'Apply Now'
+                        )}
+                    </button>
+                )}
                 <button
                     type="button"
                     onClick={handleSave}

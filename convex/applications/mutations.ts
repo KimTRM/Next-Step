@@ -40,7 +40,7 @@ export const createJobApplication = mutation({
         // Check if already applied
         const existing = await ctx.db
             .query("jobApplications")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .filter((q) => q.eq(q.field("jobId"), args.jobId))
             .unique();
 

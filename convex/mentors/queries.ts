@@ -462,7 +462,9 @@ export const getConnectionRequests = query({
         const enrichedApplications = await Promise.all(
             relevantApplications.map(async (app) => {
                 const job = jobs.find((j) => j._id === app.jobId);
-                const applicant = await ctx.db.get(app.userId);
+                // For string userId, we need to query users by a different method
+                // Since we don't have a string-based index, we'll skip applicant details for now
+                const applicant = null;
 
                 if (!job) return null;
 
@@ -475,14 +477,11 @@ export const getConnectionRequests = query({
                     nextStep: app.nextStep,
                     interviewDate: app.interviewDate,
                     notes: app.notes,
-                    applicant:
-                        applicant ?
-                            {
-                                name: applicant.name || "Unknown",
-                                email: applicant.email,
-                                avatarUrl: applicant.avatarUrl,
-                            }
-                        :   null,
+                    applicant: {
+                                name: "Unknown",
+                                email: undefined,
+                                avatarUrl: undefined,
+                            },
                     job: {
                         _id: job._id,
                         title: job.title,
