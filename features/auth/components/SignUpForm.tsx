@@ -180,7 +180,7 @@ export function SignUpForm() {
 
       {/* Username Input */}
       <div className="relative">
-        <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
+        <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type="text"
           placeholder="Username"
@@ -190,7 +190,7 @@ export function SignUpForm() {
             clearFieldError("username");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.username
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -212,7 +212,7 @@ export function SignUpForm() {
 
       {/* Email Input */}
       <div className="relative">
-        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
+        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type="email"
           placeholder="Email"
@@ -222,7 +222,7 @@ export function SignUpForm() {
             clearFieldError("email");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.email
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -244,7 +244,7 @@ export function SignUpForm() {
 
       {/* Password Input */}
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Password"
@@ -254,7 +254,7 @@ export function SignUpForm() {
             clearFieldError("password");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.password
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -289,7 +289,7 @@ export function SignUpForm() {
 
       {/* Confirm Password Input */}
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type={showConfirmPassword ? "text" : "password"}
           placeholder="Confirm Password"
@@ -299,7 +299,7 @@ export function SignUpForm() {
             clearFieldError("confirmPassword");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.confirmPassword
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -318,9 +318,9 @@ export function SignUpForm() {
           aria-label={showConfirmPassword ? "Hide password" : "Show password"}
         >
           {showConfirmPassword ? (
-            <EyeOff className="w-5 h-5" />
+            <EyeOff className="w-5 h-5 text-[#828282]" />
           ) : (
-            <Eye className="w-5 h-5" />
+            <Eye className="w-5 h-5 text-[#828282]" />
           )}
         </button>
         {fieldErrors.confirmPassword && (
@@ -336,7 +336,7 @@ export function SignUpForm() {
 
       {/* Organization Name Input */}
       <div className="relative">
-        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
+        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type="text"
           placeholder="Organization Name"
@@ -346,7 +346,7 @@ export function SignUpForm() {
             clearFieldError("organizationName");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.organizationName
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"

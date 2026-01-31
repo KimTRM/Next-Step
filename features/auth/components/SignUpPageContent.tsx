@@ -10,6 +10,13 @@ import { useIsTablet } from "@/shared/components/ui/use-tablet";
 import { SignUpForm } from "./SignUpForm";
 import { OAuthButtons } from "./OAuthButtons";
 import { AuthLoading } from "./AuthLoading";
+import { Antonio } from "next/font/google";
+
+const antontioFont = Antonio({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 export function SignUpPageContent() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -65,20 +72,20 @@ function LoginDirection() {
 
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative z-10 flex flex-col items-center">
-          <div
-            className="mb-6 sm:mb-8"
-          >
+          <div className="mb-6 sm:mb-8">
             <Image
               className="w-16 sm:w-20 lg:w-24 h-auto drop-shadow-2xl relative z-10"
               src="/logo-white.png"
               alt="NextStep logo"
-              width={130}
-              height={130}
+              width={120}
+              height={120}
               style={{ height: "auto", width: "auto" }}
               priority
             />
           </div>
-          <h1 className="font-['Antonio-Bold',Helvetica] text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 text-center drop-shadow-lg">
+          <h1
+            className={`${antontioFont.className} tracking-tighter text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-3 sm:mb-4 text-center drop-shadow-lg`}
+          >
             Hello User!
           </h1>
         </div>
@@ -112,7 +119,9 @@ function SignUpSection() {
       </div>
 
       <div className="w-full max-w-md px-4 sm:px-6 lg:px-8 relative z-10">
-        <h1 className="font-['Antonio-Bold',Helvetica] text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-green-600 mb-6 sm:mb-8 text-center">
+        <h1
+          className={`${antontioFont.className} text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-green-600 mb-6 sm:mb-8 text-center tracking-tighter`}
+        >
           Create an Account
         </h1>
 

@@ -88,7 +88,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
 
       {/* Email/Username Input */}
       <div className="relative">
-        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#53A57E] transition-colors duration-200" />
+        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type="text"
           placeholder="Email or Username"
@@ -100,7 +100,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
             }
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 bg-[#DFEBE1] text-[#53A57E] disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.identifier
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -124,7 +124,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
 
       {/* Password Input */}
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#53A57E] transition-colors duration-200" />
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Password"
@@ -136,7 +136,7 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
             }
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 bg-[#DFEBE1] text-[#53A57E] disabled:cursor-not-allowed transition-colors duration-200 ${
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
             fieldErrors.password
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
@@ -153,9 +153,9 @@ export function LoginForm({ onForgotPassword }: LoginFormProps) {
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? (
-            <EyeOff className="w-5 h-5 text-[#53A57E]" />
+            <EyeOff className="w-5 h-5 text-[#828282]" />
           ) : (
-            <Eye className="w-5 h-5 text-[#53A57E]" />
+            <Eye className="w-5 h-5 text-[#828282]" />
           )}
         </button>
         {fieldErrors.password && (
