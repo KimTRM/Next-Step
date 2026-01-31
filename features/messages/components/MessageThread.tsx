@@ -81,26 +81,26 @@ export function MessageThread({
     return (
         <div className="flex flex-col h-full">
             {/* Chat Header */}
-            <div className="p-4 border-b bg-muted/30 flex items-center gap-3 shrink-0">
+            <div className="p-4 border-b bg-[#198754] flex items-center gap-3 shrink-0">
                 {showBackButton && (
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={onBack}
-                        className="shrink-0 lg:hidden"
+                        className="shrink-0 lg:hidden text-white"
                         aria-label="Back to conversations"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                 )}
-                <Avatar className="h-10 w-10">
+                <Avatar className="h-12 w-12">
                     <AvatarImage src={otherUser?.avatarUrl} alt={userName} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
                         {userInitial}
                     </AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="font-semibold text-foreground">{userName}</h2>
+                    <h2 className="font-semibold text-white">{userName}</h2>
                 </div>
             </div>
 
@@ -127,8 +127,8 @@ export function MessageThread({
                             >
                                 <div
                                     className={`max-w-[75%] p-3 rounded-2xl ${isSent
-                                            ? "bg-primary text-primary-foreground rounded-br-md"
-                                            : "bg-muted text-foreground rounded-bl-md"
+                                        ? "bg-primary text-primary-foreground rounded-br-md"
+                                        : "bg-muted text-foreground rounded-bl-md"
                                         }`}
                                 >
                                     <p className="wrap-break-word whitespace-pre-wrap leading-relaxed">
@@ -136,8 +136,8 @@ export function MessageThread({
                                     </p>
                                     <div
                                         className={`flex items-center gap-1 mt-1 text-xs ${isSent
-                                                ? "text-primary-foreground/70"
-                                                : "text-muted-foreground"
+                                            ? "text-primary-foreground/70"
+                                            : "text-muted-foreground"
                                             }`}
                                     >
                                         <span>

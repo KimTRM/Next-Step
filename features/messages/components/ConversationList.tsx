@@ -99,7 +99,7 @@ export function ConversationList({
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between gap-2">
-                                        <p className="text-sm text-muted-foreground truncate">
+                                        <p className="text-sm text-muted-foreground line-clamp-1 overflow-hidden text-ellipsis">
                                             {conv.lastMessage.content}
                                         </p>
                                         {conv.unreadCount > 0 && (
