@@ -1,122 +1,119 @@
 /**
  * ConversationList Component
- * 
+ *
  * Displays a list of conversation partners with:
  * - Last message preview
  * - Unread message badges
- * - User avatars with initials
+ * - User avatars
  * - Timestamp of last message
  */
 
-'use client';
+"use client";
 
-import { Badge } from '@/shared/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Id } from '@/convex/_generated/dataModel';
-import { timeAgo } from '@/shared/lib/utils';
-
-interface Message {
-    _id: Id<"messages">;
-    content: string;
-    timestamp: number;
-    senderId: Id<"users">;
-    receiverId: Id<"users">;
-    read: boolean;
-}
-
-interface User {
-    _id: Id<"users">;
-    name: string;
-    role: string;
-    clerkId: string;
-}
-
-export interface ConversationPartner {
-    userId: Id<"users">;
-    user: User;
-    lastMessage: Message;
-    unreadCount: number;
-}
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import type { Id } from "@/convex/_generated/dataModel";
+import type { Conversation } from "../types";
+import { formatDistanceToNow } from "date-fns";
 
 interface ConversationListProps {
-    conversations: ConversationPartner[];
+    conversations: Conversation[] | undefined;
     selectedUserId: Id<"users"> | null;
     onSelectConversation: (userId: Id<"users">) => void;
+    loading?: boolean;
 }
 
 export function ConversationList({
     conversations,
     selectedUserId,
     onSelectConversation,
+    loading = false,
 }: ConversationListProps) {
-    if (conversations.length === 0) {
+    if (loading) {
         return (
-            <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
-                <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
-                    <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 text-center text-gray-500">
-                    <div className="py-8">
-                        <div className="text-4xl mb-3">💬</div>
-                        <p className="text-base">No conversations yet.</p>
-                        <p className="text-sm mt-2">Send a message to start chatting!</p>
+            <div className="p-4 space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex items-center gap-3 p-3">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
+                ))}
+            </div>
+        );
+    }
+
+    if (!conversations || conversations.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                <div className="text-5xl mb-4">💬</div>
+                <h3 className="font-semibold text-foreground mb-1">No conversations yet</h3>
+                <p className="text-sm text-muted-foreground">
+                    Start a conversation with a mentor or employer
+                </p>
+            </div>
         );
     }
 
     return (
-        <Card className="lg:col-span-1 overflow-hidden flex flex-col shadow-lg">
-            <CardHeader className="border-b bg-linear-to-r from-blue-50 to-blue-100">
-                <CardTitle className="text-xl font-semibold">Conversations</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 overflow-y-auto flex-1">
-                {conversations.map((partner) => {
-                    const isSelected = selectedUserId === partner.userId;
-                    const userInitial = partner.user.name.charAt(0).toUpperCase();
+        <ScrollArea className="h-full">
+            <div className="divide-y">
+                {conversations.map((conv) => {
+                    const isSelected = selectedUserId === conv.otherUserId;
+                    const userName = conv.otherUser?.name || "Unknown User";
+                    const userInitial = userName.charAt(0).toUpperCase();
+                    const avatarUrl = conv.otherUser?.avatarUrl;
 
                     return (
                         <button
-                            key={partner.userId}
-                            onClick={() => onSelectConversation(partner.userId)}
-                            className={`w-full p-4 border-b hover:bg-blue-50 text-left transition-all duration-200 ${isSelected ? 'bg-blue-50 border-l-4 border-l-blue-600 shadow-sm' : ''
+                            key={conv.otherUserId}
+                            onClick={() => onSelectConversation(conv.otherUserId)}
+                            className={`w-full p-4 text-left transition-colors hover:bg-muted/50 ${isSelected ? "bg-muted border-l-2 border-l-primary" : ""
                                 }`}
-                            aria-label={`Conversation with ${partner.user.name}`}
+                            aria-label={`Conversation with ${userName}`}
+                            aria-current={isSelected ? "true" : undefined}
                         >
-                            <div className="flex items-center space-x-3">
-                                {/* User Avatar */}
-                                <div
-                                    className="w-12 h-12 bg-linear-to-br from-blue-400 to-blue-600 text-white rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-md"
-                                    aria-hidden="true"
-                                >
-                                    {userInitial}
-                                </div>
+                            <div className="flex items-start gap-3">
+                                {/* Avatar */}
+                                <Avatar className="h-12 w-12 shrink-0">
+                                    <AvatarImage src={avatarUrl} alt={userName} />
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
+                                        {userInitial}
+                                    </AvatarFallback>
+                                </Avatar>
 
-                                {/* Conversation Details */}
+                                {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <p className="font-semibold text-gray-900 truncate">
-                                            {partner.user.name}
+                                    <div className="flex items-center justify-between gap-2 mb-1">
+                                        <span className="font-medium text-foreground truncate">
+                                            {userName}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground shrink-0">
+                                            {formatDistanceToNow(conv.lastMessage.timestamp, {
+                                                addSuffix: true,
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="text-sm text-muted-foreground truncate">
+                                            {conv.lastMessage.content}
                                         </p>
-                                        {partner.unreadCount > 0 && (
-                                            <Badge variant="destructive" className="ml-2 text-xs">
-                                                {partner.unreadCount}
+                                        {conv.unreadCount > 0 && (
+                                            <Badge variant="destructive" className="shrink-0">
+                                                {conv.unreadCount}
                                             </Badge>
                                         )}
                                     </div>
-                                    <p className="text-sm text-gray-600 truncate">
-                                        {partner.lastMessage.content}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {timeAgo(new Date(partner.lastMessage.timestamp).toISOString())}
-                                    </p>
                                 </div>
                             </div>
                         </button>
                     );
                 })}
-            </CardContent>
-        </Card>
+            </div>
+        </ScrollArea>
     );
 }

@@ -1,8 +1,4 @@
-"use client";
-
 import { Code, TrendingUp, Megaphone, Users, HeartPulse, DollarSign, Wrench, GraduationCap } from 'lucide-react';
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainer, cardIn, animationConfig, easePremium } from "@/shared/lib/animations";
 
 const jobCategories = [
   {
@@ -57,59 +53,35 @@ const jobCategories = [
 
 export function Courses() {
   return (
-    <section id="courses" className="py-20 bg-gradient-to-br from-green-50/50 to-white">
+    <section id="courses" className="py-20 bg-linear-to-br from-green-50/50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={fadeInUp}
-        >
-          <motion.h2
-            className="display-font text-4xl sm:text-5xl text-foreground mb-4"
-            variants={fadeInUp}
-          >
+        <div className="text-center mb-16">
+          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
             Explore <span className="text-accent">Opportunities</span>
-          </motion.h2>
-          <motion.p
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
-            variants={fadeInUp}
-          >
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover entry-level positions across diverse industries tailored for fresh graduates and first-time jobseekers.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* Job Categories Grid */}
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={staggerContainer}
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {jobCategories.map((category, index) => (
-            <motion.div
+            <div
               key={index}
-              className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all cursor-pointer group"
-              variants={cardIn}
-              transition={animationConfig}
-              whileHover={{ y: -6, boxShadow: "0 18px 45px rgba(0, 0, 0, 0.08)" }}
-              whileTap={{ scale: 0.99 }}
+              className="p-6 rounded-xl bg-white border border-border hover:border-primary/70 hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1.5 active:scale-[0.99]"
             >
-              <motion.div
+              <div
                 className={`inline-flex p-3 rounded-lg ${category.color} mb-4 group-hover:scale-110 transition-transform`}
-                whileHover={{ scale: [1, 1.12, 1.06], rotate: index % 2 === 0 ? 3 : -3 }}
-                transition={{ duration: 0.35, ease: easePremium }}
               >
                 <category.icon className="h-6 w-6" />
-              </motion.div>
+              </div>
               <h4 className="mb-1">{category.name}</h4>
               <p className="text-sm text-muted-foreground">{category.count}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* CTA */}
         <div className="text-center mt-12">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import type { JobWithPoster } from '@/shared/lib/types/index';
 import type { JobType } from '@/shared/lib/constants/jobs';
 import { JobCard } from './JobCard';
@@ -9,6 +10,7 @@ import { JobFilters } from './JobFilters';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useJobsList } from '../api';
+import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
 
 export function JobsPageContent() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -41,11 +43,11 @@ export function JobsPageContent() {
 
     return (
         <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="display-font text-5xl mb-4">Job Opportunities</h1>
-                    <p className="text-lg text-muted-foreground">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="display-font text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4">Job Opportunities</h1>
+                    <p className="text-base sm:text-lg text-muted-foreground">
                         Discover entry-level positions and internships perfect for fresh graduates and first-time
                         jobseekers in Naga City.
                     </p>
@@ -65,8 +67,8 @@ export function JobsPageContent() {
                 <JobStats jobs={jobs} />
 
                 {/* Jobs List */}
-                <div className="mb-6 flex items-center justify-between">
-                    <h2>Available Positions ({jobs.length})</h2>
+                <div className="mb-4 sm:mb-6 flex items-center justify-between">
+                    <h2 className="text-lg sm:text-xl font-semibold">Available Positions ({jobs.length})</h2>
                 </div>
 
                 {loading ? (
@@ -104,8 +106,8 @@ export function JobsPageContent() {
                         ))}
                     </div>
                 ) : jobs.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-xl border border-border">
-                        <p className="text-muted-foreground">No jobs found matching your criteria.</p>
+                    <div className="text-center py-8 sm:py-12 bg-white rounded-xl border border-border">
+                        <p className="text-muted-foreground text-sm sm:text-base">No jobs found matching your criteria.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -117,32 +119,44 @@ export function JobsPageContent() {
 
                 {/* Pagination */}
                 {!loading && total > pageSize && (
-                    <Pagination className="mt-8">
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    href="#"
-                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }}
-                                    aria-disabled={page === 1}
-                                    className={page === 1 ? 'pointer-events-none opacity-50' : ''}
-                                />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        const maxPage = Math.ceil(total / pageSize) || 1;
-                                        setPage((p) => Math.min(maxPage, p + 1));
-                                    }}
-                                    aria-disabled={page * pageSize >= total}
-                                    className={page * pageSize >= total ? 'pointer-events-none opacity-50' : ''}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+                    <div className="mt-6 sm:mt-8">
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        href="#"
+                                        onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }}
+                                        aria-disabled={page === 1}
+                                        className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            const maxPage = Math.ceil(total / pageSize) || 1;
+                                            setPage((p) => Math.min(maxPage, p + 1));
+                                        }}
+                                        aria-disabled={page * pageSize >= total}
+                                        className={page * pageSize >= total ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 )}
             </div>
         </div>
     );
 }
+
+function JobsPageContentWrapper() {
+    return (
+        <LoadingBoundary type="jobs">
+            <JobsPageContent />
+        </LoadingBoundary>
+    );
+}
+
+export default JobsPageContentWrapper;

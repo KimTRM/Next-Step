@@ -1,236 +1,245 @@
-'use client';
+/**
+ * MessagesPageContent Component
+ *
+ * Main messages page with:
+ * - Two-column layout (desktop): conversations list + message thread
+ * - Stacked view (mobile): with back button navigation
+ * - Real-time message updates
+ * - Loading and empty states
+ */
 
-import { useState, useEffect, useMemo } from 'react';
-import { useUser } from '@clerk/nextjs';
+"use client";
 
-// eslint-disable-next-line no-restricted-imports
-import { Id } from '@/convex/_generated/dataModel';
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 
-import { toast } from 'sonner';
-// UI COMPONENTS
-import { Card, CardContent } from '@/shared/components/ui/card';
-import { Badge } from '@/shared/components/ui/badge';
-import { Skeleton } from '@/shared/components/ui/skeleton';
-// FEATURE COMPONENTS
-import { ConversationList, type ConversationPartner } from './ConversationList';
-import { MessageThread } from './MessageThread';
-import { MessageInput } from './MessageInput';
-import { EmptyMessageState } from './EmptyMessageState';
-// FEATURE API
-import { useUserMessages, useConversation, useSendMessage, useMarkMessageAsRead } from '@/features/messages/api';
-// import { useCurrentUser } from '@/features/users/api';
+import type { Id } from "@/convex/_generated/dataModel";
 
-type Message = {
-    _id: Id<'messages'>;
-    _creationTime: number;
-    senderId: Id<'users'>;
-    receiverId: Id<'users'>;
-    content: string;
-    timestamp: number;
-    read: boolean;
-};
+import { Card } from "@/shared/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
-// type User removed as it was unused
+import { ConversationList } from "./ConversationList";
+import { MessageThread } from "./MessageThread";
+import { MessageInput } from "./MessageInput";
+import { EmptyMessageState } from "./EmptyMessageState";
+
+import {
+    useUserConversations,
+    useConversation,
+    useUnreadCount,
+    useSendMessage,
+    useMarkAsRead,
+} from "@/features/messages/api";
+import { useCurrentUser } from "@/features/users/api";
 
 export function MessagesPageContent() {
     const { user: clerkUser } = useUser();
     const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(null);
 
     // Fetch data via feature APIs
-    const messages = useUserMessages() || [];
-    // const currentUser = useCurrentUser();
-    // For demonstration, using clerkUser as currentUser (replace with actual user logic as needed)
-    const currentUser = useMemo(() => (
-        clerkUser
-            ? { _id: clerkUser.id as Id<'users'>, clerkId: clerkUser.id, name: clerkUser.fullName ?? '', role: '' }
-            : undefined
-    ), [clerkUser]);
-    const rawConversation = useConversation(selectedUserId);
-    const conversation = useMemo(() => rawConversation || [], [rawConversation]);
+    const conversations = useUserConversations();
+    const currentUser = useCurrentUser();
+    const messages = useConversation(selectedUserId);
+    const unreadCount = useUnreadCount();
 
     // Mutations
     const sendMessage = useSendMessage();
-    const markAsRead = useMarkMessageAsRead();
+    const markAsRead = useMarkAsRead();
 
     // Loading states
-    const loading = messages === undefined || currentUser === undefined;
-    const conversationLoading = selectedUserId && conversation === undefined;
+    const isInitialLoading = conversations === undefined || currentUser === undefined;
+    const isConversationLoading = selectedUserId !== null && messages === undefined;
 
-    // Mark messages as read when conversation opens
+    // Get selected conversation's other user info
+    const selectedConversation = conversations?.find(
+        (c) => c.otherUserId === selectedUserId
+    );
+
+    // Mark messages as read when conversation opens or new messages arrive
     useEffect(() => {
-        if (conversation.length > 0 && selectedUserId && currentUser) {
-            conversation.forEach((msg: Message) => {
-                if (msg.receiverId === currentUser._id && !msg.read) {
-                    markAsRead({ messageId: msg._id }).catch(err =>
-                        console.error('Failed to mark as read:', err)
-                    );
-                }
-            });
-        }
-    }, [conversation, selectedUserId, currentUser, markAsRead]);
+        if (!selectedUserId || !currentUser?._id || !messages) return;
 
-    // Send message handler
+        // Check if there are any unread messages from the other user
+        const hasUnreadMessages = messages.some(
+            (msg) => msg.receiverId === currentUser._id && !msg.isRead
+        );
+
+        if (hasUnreadMessages) {
+            markAsRead({ otherUserId: selectedUserId }).catch((err) =>
+                console.error("Failed to mark as read:", err)
+            );
+        }
+    }, [selectedUserId, currentUser?._id, messages, markAsRead]);
+
+    // Handle selecting a conversation
+    const handleSelectConversation = (userId: Id<"users">) => {
+        setSelectedUserId(userId);
+    };
+
+    // Handle going back (mobile)
+    const handleBack = () => {
+        setSelectedUserId(null);
+    };
+
+    // Handle sending a message
     const handleSendMessage = async (content: string) => {
         if (!selectedUserId) return;
 
         try {
             await sendMessage({
                 receiverId: selectedUserId,
-                content: content.trim(),
+                content,
             });
-            toast.success('Message sent!');
         } catch (error) {
-            console.error('Failed to send message:', error);
-            toast.error('Failed to send message');
+            console.error("Failed to send message:", error);
+            toast.error("Failed to send message");
+            throw error;
         }
     };
 
     // Auth check
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
+            <div className="p-4 space-y-3">
+                <Skeleton className="h-10 w-1/2" />
+                <Skeleton className="h-6 w-3/4" />
+            </div>
+        );
+    }
+
+    // Initial loading state
+    if (isInitialLoading) {
+        return (
+            <div className="min-h-screen bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <Card className="shadow-lg">
-                        <CardContent className="text-center py-12">
-                            <p className="text-lg text-gray-600">Please sign in to view messages</p>
-                        </CardContent>
-                    </Card>
+                    {/* Header skeleton */}
+                    <div className="mb-8">
+                        <Skeleton className="h-10 w-48 mb-2" />
+                        <Skeleton className="h-5 w-72" />
+                    </div>
+
+                    {/* Content skeleton */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-150">
+                        <Card className="lg:col-span-1">
+                            <div className="p-4 border-b">
+                                <Skeleton className="h-6 w-32" />
+                            </div>
+                            <div className="p-4 space-y-4">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="flex gap-3">
+                                        <Skeleton className="h-12 w-12 rounded-full" />
+                                        <div className="flex-1 space-y-2">
+                                            <Skeleton className="h-4 w-24" />
+                                            <Skeleton className="h-3 w-full" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                        <Card className="lg:col-span-2">
+                            <div className="flex items-center justify-center h-full">
+                                <Skeleton className="h-12 w-48" />
+                            </div>
+                        </Card>
+                    </div>
                 </div>
             </div>
         );
     }
 
+    // User not found
     if (!currentUser) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
+            <div className="min-h-screen bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <Card className="shadow-lg">
-                        <CardContent className="text-center py-12">
-                            <p className="text-lg text-gray-600">User profile not found</p>
-                        </CardContent>
+                    <Card className="p-12 text-center">
+                        <p className="text-lg text-muted-foreground">
+                            User profile not found. Please complete onboarding.
+                        </p>
                     </Card>
                 </div>
             </div>
         );
     }
 
-    // Note: Building conversation partners list requires access to all users
-    // This is a limitation we'll address - for now, use the message history
-    const conversationPartners: ConversationPartner[] = messages.reduce((acc: ConversationPartner[], msg: Message) => {
-        const partnerId = msg.senderId === currentUser._id ? msg.receiverId : msg.senderId;
-        const existing = acc.find(p => p.userId === partnerId);
-
-        if (!existing) {
-            acc.push({
-                userId: partnerId,
-                user: {
-                    _id: partnerId,
-                    clerkId: '',
-                    name: 'User',
-                    role: '',
-                },
-                lastMessage: msg,
-                unreadCount: 0
-            });
-        } else {
-            // Update to latest message
-            if (msg.timestamp > existing.lastMessage.timestamp) {
-                existing.lastMessage = msg;
-            }
-        }
-
-        return acc;
-    }, [] as ConversationPartner[]);
-
-    // Calculate unread counts
-    conversationPartners.forEach((partner: ConversationPartner) => {
-        partner.unreadCount = messages.filter(
-            (msg: Message) => msg.senderId === partner.userId && msg.receiverId === currentUser._id && !msg.read
-        ).length;
-    });
-
-    // Sort by latest message
-    conversationPartners.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
-
-    // Calculate total unread
-    const totalUnread = conversationPartners.reduce((sum: number, p: ConversationPartner) => sum + p.unreadCount, 0);
-
     return (
-        <div className="min-h-screen bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Page Header */}
-                <div className="mb-8">
+        <div className="min-h-screen bg-background">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+                {/* Page Header - Hidden on mobile when conversation selected */}
+                <div className={`mb-6 lg:mb-8 ${selectedUserId ? "hidden lg:block" : ""}`}>
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-900">Messages</h1>
-                            <p className="text-gray-600 mt-2">Connect with mentors, employers, and peers</p>
+                            <h1 className="text-3xl lg:text-4xl font-bold text-foreground">
+                                Messages
+                            </h1>
+                            <p className="text-muted-foreground mt-1">
+                                Connect with mentors, employers, and peers
+                            </p>
                         </div>
-                        {totalUnread > 0 && (
-                            <Badge variant="destructive" className="text-lg px-4 py-2">
-                                {totalUnread} unread
+                        {(unreadCount ?? 0) > 0 && (
+                            <Badge variant="destructive" className="text-sm px-3 py-1">
+                                {unreadCount} unread
                             </Badge>
                         )}
                     </div>
                 </div>
 
                 {/* Messages Layout */}
-                <div className="grid grid-cols-12 gap-6">
-                    {/* Conversation List - Left Sidebar */}
-                    <Card className="col-span-12 lg:col-span-4 shadow-lg">
-                        <CardContent className="p-0">
-                            <div className="p-4 border-b">
-                                <h2 className="font-semibold text-lg">Conversations</h2>
-                                <Badge variant="secondary" className="mt-2">
-                                    {conversationPartners.length} {conversationPartners.length === 1 ? 'conversation' : 'conversations'}
-                                </Badge>
-                            </div>
-
-                            {loading ? (
-                                <div className="p-4 space-y-4">
-                                    {[1, 2, 3].map(i => (
-                                        <Skeleton key={i} className="h-20 w-full" />
-                                    ))}
-                                </div>
-                            ) : (
-                                <ConversationList
-                                    conversations={conversationPartners}
-                                    selectedUserId={selectedUserId}
-                                    onSelectConversation={setSelectedUserId}
-                                />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] lg:h-150">
+                    {/* Conversation List - Hidden on mobile when conversation selected */}
+                    <Card
+                        className={`lg:col-span-1 overflow-hidden ${selectedUserId ? "hidden lg:flex lg:flex-col" : "flex flex-col"
+                            }`}
+                    >
+                        <div className="p-4 border-b">
+                            <h2 className="font-semibold text-lg">Conversations</h2>
+                            {conversations && conversations.length > 0 && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    {conversations.length}{" "}
+                                    {conversations.length === 1 ? "conversation" : "conversations"}
+                                </p>
                             )}
-                        </CardContent>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <ConversationList
+                                conversations={conversations}
+                                selectedUserId={selectedUserId}
+                                onSelectConversation={handleSelectConversation}
+                                loading={false}
+                            />
+                        </div>
                     </Card>
 
-                    {/* Message Thread - Main Area */}
-                    <Card className="col-span-12 lg:col-span-8 shadow-lg flex flex-col" style={{ height: '600px' }}>
+                    {/* Message Thread - Full width on mobile when conversation selected */}
+                    <Card
+                        className={`lg:col-span-2 overflow-hidden flex flex-col ${selectedUserId ? "flex" : "hidden lg:flex"
+                            }`}
+                    >
                         {!selectedUserId ? (
                             <EmptyMessageState />
                         ) : (
                             <>
-                                {/* Message Thread */}
                                 <div className="flex-1 overflow-hidden">
-                                    {conversationLoading ? (
-                                        <div className="p-4 space-y-4">
-                                            {[1, 2, 3].map(i => (
-                                                <Skeleton key={i} className="h-16 w-3/4" />
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <MessageThread
-                                            conversation={conversation}
-                                            currentUserId={currentUser._id}
-                                            selectedUser={{
-                                                _id: selectedUserId,
-                                                name: 'User',
-                                                role: '',
-                                            }} />
-                                    )}
+                                    <MessageThread
+                                        messages={messages}
+                                        currentUserId={currentUser._id}
+                                        otherUser={
+                                            selectedConversation?.otherUser
+                                                ? {
+                                                    _id: selectedConversation.otherUser._id,
+                                                    name: selectedConversation.otherUser.name,
+                                                    avatarUrl: selectedConversation.otherUser.avatarUrl,
+                                                }
+                                                : null
+                                        }
+                                        loading={isConversationLoading}
+                                        onBack={handleBack}
+                                        showBackButton={true}
+                                    />
                                 </div>
-
-                                {/* Message Input */}
-                                <div className="border-t">
-                                    <MessageInput onSendMessage={handleSendMessage} />
-                                </div>
+                                <MessageInput onSendMessage={handleSendMessage} />
                             </>
                         )}
                     </Card>

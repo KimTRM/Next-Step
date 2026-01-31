@@ -1,6 +1,6 @@
 /**
  * MessageInput Component
- * 
+ *
  * Message composition area with:
  * - Text input field
  * - Send button
@@ -8,77 +8,86 @@
  * - Loading/disabled states
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { Send } from "lucide-react";
 
 interface MessageInputProps {
     onSendMessage: (content: string) => Promise<void>;
     disabled?: boolean;
+    placeholder?: string;
 }
 
-export function MessageInput({ onSendMessage, disabled = false }: MessageInputProps) {
-    const [messageText, setMessageText] = useState('');
+export function MessageInput({
+    onSendMessage,
+    disabled = false,
+    placeholder = "Type a message...",
+}: MessageInputProps) {
+    const [message, setMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+        }
+    }, [message]);
 
     const handleSend = async () => {
-        if (!messageText.trim() || isSending) return;
+        const trimmedMessage = message.trim();
+        if (!trimmedMessage || isSending || disabled) return;
 
         setIsSending(true);
         try {
-            await onSendMessage(messageText.trim());
-            setMessageText('');
+            await onSendMessage(trimmedMessage);
+            setMessage("");
         } catch (error) {
-            console.error('Failed to send message:', error);
+            console.error("Failed to send message:", error);
         } finally {
             setIsSending(false);
         }
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
         }
     };
 
-    const isSendDisabled = disabled || !messageText.trim() || isSending;
+    const isDisabled = disabled || isSending || !message.trim();
 
     return (
-        <div className="border-t p-4 bg-linear-to-r from-blue-50/50 to-white">
-            <div className="flex space-x-3">
-                <Input
-                    type="text"
-                    placeholder="Type your message..."
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyPress={handleKeyPress}
+        <div className="p-4 border-t bg-background">
+            <div className="flex items-end gap-2">
+                <Textarea
+                    ref={textareaRef}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={placeholder}
                     disabled={disabled || isSending}
-                    className="flex-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="min-h-11 max-h-30 resize-none"
+                    rows={1}
                     aria-label="Message input"
                 />
                 <Button
                     onClick={handleSend}
-                    disabled={isSendDisabled}
-                    className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 shadow-sm"
+                    disabled={isDisabled}
+                    size="icon"
+                    className="shrink-0 h-11 w-11"
+                    aria-label="Send message"
                 >
-                    {isSending ? (
-                        <>
-                            <span className="mr-2">⏳</span>
-                            Sending...
-                        </>
-                    ) : (
-                        <>
-                            <span className="mr-2">📤</span>
-                            Send
-                        </>
-                    )}
+                    <Send className={`h-5 w-5 ${isSending ? "animate-pulse" : ""}`} />
                 </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-                💡 Press Enter to send • Shift + Enter for new line
+            <p className="text-xs text-muted-foreground mt-2">
+                Press Enter to send, Shift + Enter for new line
             </p>
         </div>
     );

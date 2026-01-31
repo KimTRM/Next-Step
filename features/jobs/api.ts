@@ -6,6 +6,7 @@
  */
 
 import { useQuery, useMutation } from "convex/react";
+import { cache } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type {
@@ -15,6 +16,30 @@ import type {
     ExperienceLevel,
     LocationType,
 } from "./types";
+
+// ============================================
+// CACHED QUERY FUNCTIONS
+// ============================================
+
+const searchJobsCached = cache((filters: JobSearchFilters) => 
+    useQuery(api.jobs.queries.searchJobs, {
+        searchTerm: filters.searchTerm || undefined,
+        skills: filters.skills,
+        location: filters.location,
+        employmentType: filters.employmentType,
+        experienceLevel: filters.experienceLevel,
+        locationType: filters.locationType,
+        minSalary: filters.minSalary,
+        maxSalary: filters.maxSalary,
+        industry: filters.industry,
+        jobCategory: filters.jobCategory,
+        limit: filters.limit,
+    })
+);
+
+const getJobByIdCached = cache((jobId: Id<"jobs">) =>
+    useQuery(api.jobs.queries.getJobById, { jobId })
+);
 
 // ============================================
 // QUERIES
@@ -34,26 +59,14 @@ export function useAllJobs(paginationOpts?: {
  * Get a single job by ID with poster information
  */
 export function useJobById(jobId: Id<"jobs"> | null | undefined) {
-    return useQuery(api.jobs.queries.getJobById, jobId ? { jobId } : "skip");
+    return jobId ? getJobByIdCached(jobId) : undefined;
 }
 
 /**
  * Search jobs with filters
  */
 export function useSearchJobs(filters: JobSearchFilters) {
-    return useQuery(api.jobs.queries.searchJobs, {
-        searchTerm: filters.searchTerm || undefined,
-        skills: filters.skills,
-        location: filters.location,
-        employmentType: filters.employmentType,
-        experienceLevel: filters.experienceLevel,
-        locationType: filters.locationType,
-        minSalary: filters.minSalary,
-        maxSalary: filters.maxSalary,
-        industry: filters.industry,
-        jobCategory: filters.jobCategory,
-        limit: filters.limit,
-    });
+    return searchJobsCached(filters);
 }
 
 /**

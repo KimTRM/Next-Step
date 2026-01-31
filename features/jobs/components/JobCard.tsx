@@ -84,37 +84,37 @@ export function JobCard({ job }: JobCardProps) {
     };
 
     return (
-        <div className="bg-white rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all p-6">
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <div className="bg-white rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all p-4 sm:p-6">
+            <div className="flex flex-col gap-4">
                 {/* Job Info */}
                 <div className="flex-1">
-                    <div className="flex items-start gap-4 mb-3">
-                        <div className="p-3 bg-primary/10 rounded-lg">
-                            <Briefcase className="h-6 w-6 text-primary" />
+                    <div className="flex items-start gap-3 sm:gap-4 mb-3">
+                        <div className="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
+                            <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                         </div>
-                        <div className="flex-1">
-                            <h3 className="mb-2">{job.title}</h3>
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-3">
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-lg sm:text-xl font-semibold mb-2 line-clamp-2">{job.title}</h3>
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground mb-3">
                                 <div className="flex items-center gap-1">
-                                    <Building2 className="h-4 w-4" />
-                                    <span>{job.company}</span>
+                                    <Building2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                    <span className="truncate">{job.company}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>{job.location}</span>
+                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                    <span className="truncate">{job.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <DollarSign className="h-4 w-4" />
-                                    <span>{formatSalary()}</span>
+                                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                    <span className="truncate">{formatSalary()}</span>
                                 </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-3">{job.description.substring(0, 150)}...</p>
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs ${getTypeColor(job.employmentType)}`}>
+                            <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-3">{job.description.substring(0, 150)}...</p>
+                            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                                <span className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs ${getTypeColor(job.employmentType)}`}>
                                     {formatLabel(job.employmentType)}
                                 </span>
                                 {job.jobCategory && (
-                                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                                    <span className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                                         {formatLabel(job.jobCategory)}
                                     </span>
                                 )}
@@ -126,19 +126,22 @@ export function JobCard({ job }: JobCardProps) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex lg:flex-col gap-2">
-                    <Link href={`/jobs/${job._id}`} className="flex-1 lg:flex-none px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <Link 
+                        href={`/jobs/${job._id}`} 
+                        className="flex-1 px-4 py-3 sm:px-6 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2 min-h-[44px]"
+                    >
                         <Eye className="h-4 w-4" />
-                        View Details
+                        <span className="text-sm font-medium">View Details</span>
                     </Link>
                     <button
                         type="button"
                         onClick={handleSave}
                         aria-pressed={saved}
-                        className={`px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${saved ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        className={`px-4 py-3 sm:px-6 rounded-lg transition-all flex items-center justify-center gap-2 min-h-[44px] ${saved ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                     >
                         {saved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
-                        {saved ? 'Saved' : 'Save'}
+                        <span className="text-sm font-medium">{saved ? 'Saved' : 'Save'}</span>
                     </button>
                 </div>
             </div>

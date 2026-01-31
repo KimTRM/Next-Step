@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { LogOut, User, Settings, ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSignOut } from "../api";
 
 type UserMenuProps = {
@@ -69,9 +70,11 @@ export function UserMenu({ className = "" }: UserMenuProps) {
                 aria-haspopup="true"
             >
                 {user.imageUrl ? (
-                    <img
+                    <Image
                         src={user.imageUrl}
                         alt={user.fullName || "User"}
+                        width={36}
+                        height={36}
                         className="w-9 h-9 rounded-full object-cover border-2 border-gray-200"
                     />
                 ) : (

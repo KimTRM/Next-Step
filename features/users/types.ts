@@ -5,7 +5,7 @@
 import type { Id } from "@/convex/_generated/dataModel";
 
 // User role options
-export type UserRole = "job_seeker" | "mentor" | "employer";
+export type UserRole = "job_seeker" | "student" | "mentor" | "employer";
 
 // Onboarding status options
 export type OnboardingStatus = "not_started" | "in_progress" | "completed";

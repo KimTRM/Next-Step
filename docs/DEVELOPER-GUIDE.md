@@ -503,7 +503,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 </div>
 
 // Use gradients
-<div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/20">
+<div className="bg-linear-to-br from-white via-blue-50/30 to-blue-100/20">
   {/* Content */}
 </div>
 ```

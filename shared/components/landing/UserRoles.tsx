@@ -1,8 +1,4 @@
-"use client";
-
 import { User, UserCheck, Building2 } from 'lucide-react';
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainer, cardIn, animationConfig, animationConfigFast, scaleIn } from "@/shared/lib/animations";
 
 const roles = [
   {
@@ -33,64 +29,36 @@ export function UserRoles() {
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={fadeInUp}
-        >
-          <motion.h2
-            className="display-font text-4xl sm:text-5xl text-foreground mb-4"
-            variants={fadeInUp}
-          >
+        <div className="text-center mb-16">
+          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
             Built for <span className="text-primary">Everyone</span>
-          </motion.h2>
-          <motion.p
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
-            variants={fadeInUp}
-          >
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Whether you&apos;re seeking guidance, offering mentorship, or hiring talent, NextStep connects you.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* Roles Grid */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={staggerContainer}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {roles.map((role, index) => (
-            <motion.div
+            <div
               key={index}
-              className={`p-8 rounded-2xl border-2 transition-all ${role.highlight
-                  ? 'border-accent bg-accent/5 shadow-lg'
-                  : 'border-border bg-white hover:border-primary/50'
+              className={`p-8 rounded-2xl border-2 transition-all hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.99] ${role.highlight
+                ? 'border-accent bg-accent/5 shadow-lg'
+                : 'border-border bg-white hover:border-primary/50'
                 }`}
-              variants={cardIn}
-              transition={animationConfig}
-              whileHover={{ y: -6, boxShadow: "0 18px 45px rgba(0, 0, 0, 0.08)" }}
-              whileTap={{ scale: 0.99 }}
             >
               {role.highlight && (
-                <motion.div
-                  className="inline-block px-3 py-1 bg-accent text-white rounded-full text-sm mb-4"
-                  variants={scaleIn}
-                  transition={animationConfigFast}
-                >
+                <div className="inline-block px-3 py-1 bg-accent text-white rounded-full text-sm mb-4">
                   Most Popular
-                </motion.div>
+                </div>
               )}
 
-              <motion.div
+              <div
                 className={`inline-flex p-4 rounded-xl ${role.highlight ? 'bg-accent/10' : 'bg-primary/10'} mb-6`}
-                whileHover={{ rotate: index % 2 === 0 ? 3 : -3, scale: 1.06 }}
-                transition={animationConfigFast}
               >
                 <role.icon className={`h-8 w-8 ${role.highlight ? 'text-accent' : 'text-primary'}`} />
-              </motion.div>
+              </div>
 
               <h3 className="mb-3">{role.title}</h3>
               <p className="text-muted-foreground mb-6">{role.description}</p>
@@ -99,7 +67,7 @@ export function UserRoles() {
                 {role.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start gap-2">
                     <svg
-                      className={`h-5 w-5 mt-0.5 flex-shrink-0 ${role.highlight ? 'text-accent' : 'text-primary'}`}
+                      className={`h-5 w-5 mt-0.5 shrink-0 ${role.highlight ? 'text-accent' : 'text-primary'}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -113,9 +81,9 @@ export function UserRoles() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -271,18 +271,24 @@ export default defineSchema({
     /**
      * Messages Collection
      * Direct messages between users
+     *
+     * Indexes:
+     * - by_receiverId: Query messages received by a user (for unread counts)
+     * - by_sender_receiver: Query conversation from sender's perspective
+     * - by_receiver_sender: Query conversation from receiver's perspective
      */
     messages: defineTable({
         senderId: v.id("users"),
         receiverId: v.id("users"),
         content: v.string(),
-        timestamp: v.number(), // Unix timestamp
-        read: v.optional(v.boolean()), // Optional for backwards compatibility with isRead field
-        isRead: v.optional(v.boolean()), // Legacy field name
+        timestamp: v.number(), // Unix timestamp (Date.now())
+        isRead: v.boolean(),
+        read: v.optional(v.boolean()), // DEPRECATED: Legacy field from old schema
+        relatedJobId: v.optional(v.id("jobs")),
     })
-        .index("by_sender", ["senderId"])
-        .index("by_receiver", ["receiverId"])
-        .index("by_conversation", ["senderId", "receiverId"]),
+        .index("by_receiverId", ["receiverId"])
+        .index("by_sender_receiver", ["senderId", "receiverId"])
+        .index("by_receiver_sender", ["receiverId", "senderId"]),
 
     /**
      * Mentorship Sessions Collection
