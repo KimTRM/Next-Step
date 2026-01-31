@@ -10,228 +10,236 @@ import { Lock, Mail, Loader2, Eye, EyeOff } from "lucide-react";
 import { useLoginForm } from "../api";
 import Link from "next/link";
 import { VerificationStrategyError } from "./VerificationStrategyError";
+import { useIsMobile } from "@/shared/components/ui/use-mobile";
+import { useIsTablet } from "@/shared/components/ui/use-tablet";
 
 type LoginFormProps = {
-    onForgotPassword?: () => void;
+  onForgotPassword?: () => void;
 };
 
 export function LoginForm({ onForgotPassword }: LoginFormProps) {
-    const { login, isLoading, isReady, error, clearError } = useLoginForm();
-    const [identifier, setIdentifier] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
-    const [showVerificationError, setShowVerificationError] = useState(false);
+  const { login, isLoading, isReady, error, clearError } = useLoginForm();
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+  const [showVerificationError, setShowVerificationError] = useState(false);
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
 
-    const validateForm = (): boolean => {
-        const errors: {[key: string]: string} = {};
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
 
-        if (!identifier.trim()) {
-            errors.identifier = "Email or username is required";
-        } else if (identifier.includes('@')) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(identifier)) {
-                errors.identifier = "Please enter a valid email address";
+    if (!identifier.trim()) {
+      errors.identifier = "Email or username is required";
+    } else if (identifier.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(identifier)) {
+        errors.identifier = "Please enter a valid email address";
+      }
+    }
+
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 1) {
+      errors.password = "Password cannot be empty";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearError();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    await login({ identifier, password });
+  };
+
+  const isSubmitDisabled = isLoading || !isReady || !identifier || !password;
+
+  // Check if error is related to verification strategy
+  const isVerificationStrategyError =
+    error?.code === "verification_strategy_not_valid" ||
+    error?.message?.includes("verification strategy is not valid");
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Verification Strategy Error */}
+      {isVerificationStrategyError && (
+        <div>
+          <VerificationStrategyError
+            message={error?.message}
+            onDismiss={() => setShowVerificationError(false)}
+          />
+        </div>
+      )}
+
+      {/* General Error Display */}
+      {error && !isVerificationStrategyError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {error.message}
+        </div>
+      )}
+
+      {/* Email/Username Input */}
+      <div className="relative">
+        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
+        <input
+          type="text"
+          placeholder="Email or Username"
+          value={identifier}
+          onChange={(e) => {
+            setIdentifier(e.target.value);
+            if (fieldErrors.identifier) {
+              setFieldErrors((prev) => ({ ...prev, identifier: "" }));
             }
-        }
+          }}
+          disabled={isLoading}
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
+            fieldErrors.identifier
+              ? "border-red-300 focus:ring-red-500 bg-red-50"
+              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+          }`}
+          autoComplete="email"
+          aria-invalid={!!fieldErrors.identifier}
+          aria-describedby={
+            fieldErrors.identifier ? "identifier-error" : undefined
+          }
+        />
+        {fieldErrors.identifier && (
+          <p
+            id="identifier-error"
+            className="mt-1 text-sm text-red-600 flex items-center gap-1"
+          >
+            <span className="text-xs">●</span>
+            {fieldErrors.identifier}
+          </p>
+        )}
+      </div>
 
-        if (!password) {
-            errors.password = "Password is required";
-        } else if (password.length < 1) {
-            errors.password = "Password cannot be empty";
-        }
-
-        setFieldErrors(errors);
-        return Object.keys(errors).length === 0;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        clearError();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        await login({ identifier, password });
-    };
-
-    const isSubmitDisabled = isLoading || !isReady || !identifier || !password;
-
-    // Check if error is related to verification strategy
-    const isVerificationStrategyError = error?.code === "verification_strategy_not_valid" ||
-        error?.message?.includes("verification strategy is not valid");
-
-    return (
-        <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
+      {/* Password Input */}
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (fieldErrors.password) {
+              setFieldErrors((prev) => ({ ...prev, password: "" }));
+            }
+          }}
+          disabled={isLoading}
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
+            fieldErrors.password
+              ? "border-red-300 focus:ring-red-500 bg-red-50"
+              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+          }`}
+          autoComplete="current-password"
+          aria-invalid={!!fieldErrors.password}
+          aria-describedby={fieldErrors.password ? "password-error" : undefined}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          disabled={isLoading}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
+          aria-label={showPassword ? "Hide password" : "Show password"}
         >
-            {/* Verification Strategy Error */}
-            {isVerificationStrategyError && (
-                <div>
-                    <VerificationStrategyError
-                        message={error?.message}
-                        onDismiss={() => setShowVerificationError(false)}
-                    />
-                </div>
-            )}
+          {showPassword ? (
+            <EyeOff className="w-5 h-5 text-[#828282]" />
+          ) : (
+            <Eye className="w-5 h-5 text-[#828282]" />
+          )}
+        </button>
+        {fieldErrors.password && (
+          <p
+            id="password-error"
+            className="mt-1 text-sm text-red-600 flex items-center gap-1"
+          >
+            <span className="text-xs">●</span>
+            {fieldErrors.password}
+          </p>
+        )}
+      </div>
 
-            {/* General Error Display */}
-            {error && !isVerificationStrategyError && (
-                <div
-                    className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
-                >
-                    {error.message}
-                </div>
-            )}
+      {/* Forgot Password Link */}
+      {onForgotPassword && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="text-green-500 underline text-sm hover:text-green-600 transition-colors duration-200"
+          >
+            Forgot your Password?
+          </button>
+        </div>
+      )}
 
-            {/* Email/Username Input */}
-            <div
-                className="relative"
+      {/* Sign Up Link */}
+      {isMobile || isTablet ? (
+        <div className="text-center pt-2">
+          <span className="text-gray-600 text-sm">
+            Don&apos;t have an account?{" "}
+          </span>
+          <Link
+            href="/sign-up"
+            className="text-green-600 font-semibold text-sm hover:text-green-700 hover:underline transition-colors duration-200 inline-flex items-center gap-1"
+          >
+            Sign Up
+            <svg
+              className="w-3 h-3 transition-transform duration-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <input
-                    type="text"
-                    placeholder="Email or Username"
-                    value={identifier}
-                    onChange={(e) => {
-                        setIdentifier(e.target.value);
-                        if (fieldErrors.identifier) {
-                            setFieldErrors(prev => ({ ...prev, identifier: '' }));
-                        }
-                    }}
-                    disabled={isLoading}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
-                        fieldErrors.identifier
-                            ? 'border-red-300 focus:ring-red-500 bg-red-50'
-                            : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
-                    }`}
-                    autoComplete="email"
-                    aria-invalid={!!fieldErrors.identifier}
-                    aria-describedby={fieldErrors.identifier ? 'identifier-error' : undefined}
-                />
-                {fieldErrors.identifier && (
-                    <p
-                        id="identifier-error"
-                        className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                    >
-                        <span className="text-xs">●</span>
-                        {fieldErrors.identifier}
-                    </p>
-                )}
-            </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+        </div>
+      ) : null}
 
-            {/* Password Input */}
-            <div
-                className="relative"
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={isSubmitDisabled}
+        className="w-1/2 mx-auto bg-[#FAFAFA] hover:bg-green-600 hover:text-[#FAFAFA] text-[#198754] font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 border-1 border-[#DFEBE1] focus:ring-inset-2 shadow-lg hover:shadow-xl"
+      >
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Logging in...
+          </div>
+        ) : (
+          <span className="flex items-center gap-2">
+            Log In
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200" />
-                <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => {
-                        setPassword(e.target.value);
-                        if (fieldErrors.password) {
-                            setFieldErrors(prev => ({ ...prev, password: '' }));
-                        }
-                    }}
-                    disabled={isLoading}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 ${
-                        fieldErrors.password
-                            ? 'border-red-300 focus:ring-red-500 bg-red-50'
-                            : 'border-gray-300 focus:border-green-500 hover:border-gray-400'
-                    }`}
-                    autoComplete="current-password"
-                    aria-invalid={!!fieldErrors.password}
-                    aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                />
-                <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                    {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                    ) : (
-                        <Eye className="w-5 h-5" />
-                    )}
-                </button>
-                {fieldErrors.password && (
-                    <p
-                        id="password-error"
-                        className="mt-1 text-sm text-red-600 flex items-center gap-1"
-                    >
-                        <span className="text-xs">●</span>
-                        {fieldErrors.password}
-                    </p>
-                )}
-            </div>
-
-            {/* Forgot Password Link */}
-            {onForgotPassword && (
-                <div
-                    className="text-right"
-                >
-                    <button
-                        type="button"
-                        onClick={onForgotPassword}
-                        className="text-green-500 underline text-sm hover:text-green-600 transition-colors duration-200"
-                    >
-                        Forgot your Password?
-                    </button>
-                </div>
-            )}
-
-            {/* Sign Up Link */}
-            <div
-                className="text-center pt-2"
-            >
-                <span className="text-gray-600 text-sm">Don&apos;t have an account? </span>
-                    <Link
-                        href="/sign-up"
-                        className="text-green-600 font-semibold text-sm hover:text-green-700 hover:underline transition-colors duration-200 inline-flex items-center gap-1"
-                    >
-                        Sign Up
-                        <svg
-                            className="w-3 h-3 transition-transform duration-200"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Link>
-            </div>
-
-            {/* Submit Button */}
-            <button
-                type="submit"
-                disabled={isSubmitDisabled}
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-lg hover:shadow-xl"
-            >
-                {isLoading ? (
-                    <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Logging in...
-                    </div>
-                ) : (
-                    <span className="flex items-center gap-2">
-                        Log In
-                        <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </span>
-                )}
-            </button>
-        </form>
-    );
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </span>
+        )}
+      </button>
+    </form>
+  );
 }

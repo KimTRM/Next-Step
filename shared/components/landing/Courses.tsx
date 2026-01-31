@@ -1,67 +1,89 @@
-import { Code, TrendingUp, Megaphone, Users, HeartPulse, DollarSign, Wrench, GraduationCap } from 'lucide-react';
+import {
+  Code,
+  TrendingUp,
+  Megaphone,
+  Users,
+  HeartPulse,
+  DollarSign,
+  Wrench,
+  GraduationCap,
+} from "lucide-react";
+import { Antonio } from "next/font/google";
+
+const antontioFont = Antonio({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 const jobCategories = [
   {
     icon: Code,
-    name: 'Technology',
-    count: '340+ openings',
-    color: 'bg-green-100 text-green-600'
+    name: "Technology",
+    count: "340+ openings",
+    color: "bg-green-100 text-green-600",
   },
   {
     icon: TrendingUp,
-    name: 'Business',
-    count: '520+ openings',
-    color: 'bg-green-200 text-green-700'
+    name: "Business",
+    count: "520+ openings",
+    color: "bg-green-200 text-green-700",
   },
   {
     icon: Megaphone,
-    name: 'Marketing',
-    count: '280+ openings',
-    color: 'bg-green-100 text-green-600'
+    name: "Marketing",
+    count: "280+ openings",
+    color: "bg-green-100 text-green-600",
   },
   {
     icon: Users,
-    name: 'Customer Service',
-    count: '450+ openings',
-    color: 'bg-green-200 text-green-700'
+    name: "Customer Service",
+    count: "450+ openings",
+    color: "bg-green-200 text-green-700",
   },
   {
     icon: HeartPulse,
-    name: 'Healthcare',
-    count: '190+ openings',
-    color: 'bg-green-100 text-green-600'
+    name: "Healthcare",
+    count: "190+ openings",
+    color: "bg-green-100 text-green-600",
   },
   {
     icon: DollarSign,
-    name: 'Finance',
-    count: '220+ openings',
-    color: 'bg-green-200 text-green-700'
+    name: "Finance",
+    count: "220+ openings",
+    color: "bg-green-200 text-green-700",
   },
   {
     icon: Wrench,
-    name: 'Operations',
-    count: '310+ openings',
-    color: 'bg-green-100 text-green-600'
+    name: "Operations",
+    count: "310+ openings",
+    color: "bg-green-100 text-green-600",
   },
   {
     icon: GraduationCap,
-    name: 'Education',
-    count: '180+ openings',
-    color: 'bg-green-200 text-green-700'
-  }
+    name: "Education",
+    count: "180+ openings",
+    color: "bg-green-200 text-green-700",
+  },
 ];
 
 export function Courses() {
   return (
-    <section id="courses" className="py-20 bg-linear-to-br from-green-50/50 to-white">
+    <section
+      id="courses"
+      className="py-20 bg-linear-to-br from-green-50/50 to-white"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
+          <h2
+            className={`${antontioFont.className} display-font text-4xl sm:text-5xl text-foreground mb-4`}
+          >
             Explore <span className="text-accent">Opportunities</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover entry-level positions across diverse industries tailored for fresh graduates and first-time jobseekers.
+            Discover entry-level positions across diverse industries tailored
+            for fresh graduates and first-time jobseekers.
           </p>
         </div>
 

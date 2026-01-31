@@ -1,26 +1,40 @@
-import { MessageSquare, Users, ThumbsUp, Award } from 'lucide-react';
+import { MessageSquare, Users, ThumbsUp, Award } from "lucide-react";
 import { CountUp } from "@/shared/animations/CountUp";
+import { Antonio } from "next/font/google";
+
+const antontioFont = Antonio({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 const stats = [
-  { icon: MessageSquare, end: 3000, suffix: "+", label: 'Active Mentors' },
-  { icon: Users, end: 5000, suffix: "+", label: 'Job Seekers' },
-  { icon: ThumbsUp, end: 12000, suffix: "+", label: 'Success Stories' },
-  { icon: Award, end: 800, suffix: "+", label: 'Partner Companies' }
+  { icon: MessageSquare, end: 3000, suffix: "+", label: "Active Mentors" },
+  { icon: Users, end: 5000, suffix: "+", label: "Job Seekers" },
+  { icon: ThumbsUp, end: 12000, suffix: "+", label: "Success Stories" },
+  { icon: Award, end: 800, suffix: "+", label: "Partner Companies" },
 ];
 
 export function Community() {
   return (
-    <section id="community" className="py-20 bg-linear-to-br from-green-50/30 via-white to-green-100/20">
+    <section
+      id="community"
+      className="py-20 bg-linear-to-br from-green-50/30 via-white to-green-100/20"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div>
-            <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-6">
-              Join a Supportive <span className="text-accent">Network</span>
+            <h2
+              className={`${antontioFont.className} display-font text-4xl sm:text-5xl text-foreground mb-6`}
+            >
+              Join a Supportive <br />
+              <span className="text-accent">Network</span>
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Connect with mentors, professionals, and fellow jobseekers. Get guidance, share experiences,
-              and navigate your career journey with confidence and support.
+              Connect with mentors, professionals, and fellow jobseekers. Get
+              guidance, share experiences, and navigate your career journey with
+              confidence and support.
             </p>
 
             {/* Features List */}
@@ -32,7 +46,8 @@ export function Community() {
                 <div>
                   <h4>One-on-One Mentorship</h4>
                   <p className="text-sm text-muted-foreground">
-                    Get personalized guidance from experienced professionals who understand your journey.
+                    Get personalized guidance from experienced professionals who
+                    understand your journey.
                   </p>
                 </div>
               </div>
@@ -44,7 +59,8 @@ export function Community() {
                 <div>
                   <h4>Community Forums</h4>
                   <p className="text-sm text-muted-foreground">
-                    Share tips, ask questions, and learn from peers in the same career transition phase.
+                    Share tips, ask questions, and learn from peers in the same
+                    career transition phase.
                   </p>
                 </div>
               </div>
@@ -56,7 +72,8 @@ export function Community() {
                 <div>
                   <h4>Verified Professionals</h4>
                   <p className="text-sm text-muted-foreground">
-                    Connect with verified mentors and companies committed to youth development.
+                    Connect with verified mentors and companies committed to
+                    youth development.
                   </p>
                 </div>
               </div>
@@ -77,8 +94,14 @@ export function Community() {
                 <div className="inline-flex p-3 bg-primary/10 rounded-lg mb-4">
                   <stat.icon className="h-6 w-6 text-primary" />
                 </div>
-                <CountUp end={stat.end} suffix={stat.suffix} className="text-3xl text-foreground mb-1" />
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <CountUp
+                  end={stat.end}
+                  suffix={stat.suffix}
+                  className="text-3xl text-foreground mb-1"
+                />
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>

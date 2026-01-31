@@ -1,5 +1,12 @@
-import { ArrowRight, Target } from 'lucide-react';
+import { ArrowRight, Target } from "lucide-react";
 import { CountUp } from "@/shared/animations/CountUp";
+import { Antonio } from "next/font/google";
+
+const antontioFont = Antonio({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 export function Hero() {
   return (
@@ -11,17 +18,21 @@ export function Hero() {
             <div>
               <Target className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-sm text-primary font-medium">Your Career Journey Starts Here</span>
+            <span className="text-sm text-primary font-medium">
+              Your Career Journey Starts Here
+            </span>
           </div>
 
           {/* Main Heading */}
-          <h1 className="display-font text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-6">
-            <span className="block">
-              Helping You Take Your
-            </span>
+          <h1
+            className={`${antontioFont.className} tracking-tighter text-3xl sm:text-4xl lg:text-5xl xl:text-6xl text-foreground mb-6`}
+          >
+            <span className="block">Helping You Take Your</span>
             <span className="block">
               <span className="relative inline-block">
-                <span className="relative bg-linear-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Next Step</span>
+                <span className="relative bg-linear-to-r from-primary to-accent bg-clip-text text-transparent font-bold">
+                  Next Step
+                </span>
               </span>{" "}
               in Life
             </span>
@@ -29,8 +40,9 @@ export function Hero() {
 
           {/* Subheading */}
           <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            A jobseeker and mentorship hub designed for youth. Discover opportunities,
-            track applications, and connect with mentors who guide you from campus to career.
+            A jobseeker and mentorship hub designed for youth. Discover
+            opportunities, track applications, and connect with mentors who
+            guide you from campus to career.
           </p>
 
           {/* CTA Buttons */}
@@ -49,16 +61,34 @@ export function Hero() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 mt-20 pt-16 border-t border-border/50">
             <div className="text-center">
-              <CountUp end={5000} suffix="+" className="text-3xl sm:text-4xl text-primary mb-2 font-bold" />
-              <div className="text-sm text-muted-foreground font-medium">Job Seekers</div>
+              <CountUp
+                end={5000}
+                suffix="+"
+                className="text-3xl sm:text-4xl text-primary mb-2 font-bold"
+              />
+              <div className="text-sm text-muted-foreground font-medium">
+                Job Seekers
+              </div>
             </div>
             <div className="text-center">
-              <CountUp end={800} suffix="+" className="text-3xl sm:text-4xl text-accent mb-2 font-bold" />
-              <div className="text-sm text-muted-foreground font-medium">Mentors</div>
+              <CountUp
+                end={800}
+                suffix="+"
+                className="text-3xl sm:text-4xl text-accent mb-2 font-bold"
+              />
+              <div className="text-sm text-muted-foreground font-medium">
+                Mentors
+              </div>
             </div>
             <div className="text-center">
-              <CountUp end={2000} suffix="+" className="text-3xl sm:text-4xl text-primary mb-2 font-bold" />
-              <div className="text-sm text-muted-foreground font-medium">Success Stories</div>
+              <CountUp
+                end={2000}
+                suffix="+"
+                className="text-3xl sm:text-4xl text-primary mb-2 font-bold"
+              />
+              <div className="text-sm text-muted-foreground font-medium">
+                Success Stories
+              </div>
             </div>
           </div>
         </div>
