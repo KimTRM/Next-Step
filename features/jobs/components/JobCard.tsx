@@ -174,8 +174,6 @@ export function JobCard({ job }: JobCardProps) {
         return `${Math.floor(diffDays / 30)} months ago`;
     };
 
-    const applicantCount = job.applicants || Math.floor(Math.random() * 50) + 5;
-
     return (
         <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             {/* Job Header */}
