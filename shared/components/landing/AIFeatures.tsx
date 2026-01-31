@@ -1,36 +1,55 @@
-import { Sparkles, FileText, Brain, Briefcase, TrendingUp, MessageCircle } from 'lucide-react';
+import {
+  Sparkles,
+  FileText,
+  Brain,
+  Briefcase,
+  TrendingUp,
+  MessageCircle,
+} from "lucide-react";
+import { Antonio } from "next/font/google";
+const antontioFont = Antonio({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 const aiFeatures = [
   {
     icon: FileText,
-    title: 'Smart Resume Builder',
-    description: 'AI helps you create professional resumes tailored to specific job requirements and industries.'
+    title: "Smart Resume Builder",
+    description:
+      "AI helps you create professional resumes tailored to specific job requirements and industries.",
   },
   {
     icon: Brain,
-    title: 'Interview Preparation',
-    description: 'Get AI-generated interview questions and personalized tips based on the role you\'re applying for.'
+    title: "Interview Preparation",
+    description:
+      "Get AI-generated interview questions and personalized tips based on the role you're applying for.",
   },
   {
     icon: Briefcase,
-    title: 'Job Recommendations',
-    description: 'AI matches you with opportunities that fit your skills, interests, and career goals.'
+    title: "Job Recommendations",
+    description:
+      "AI matches you with opportunities that fit your skills, interests, and career goals.",
   },
   {
     icon: TrendingUp,
-    title: 'Skills Gap Analysis',
-    description: 'Identify skills you need to develop and get personalized learning recommendations.'
+    title: "Skills Gap Analysis",
+    description:
+      "Identify skills you need to develop and get personalized learning recommendations.",
   },
   {
     icon: MessageCircle,
-    title: 'Application Insights',
-    description: 'AI analyzes your applications and provides suggestions to improve your success rate.'
+    title: "Application Insights",
+    description:
+      "AI analyzes your applications and provides suggestions to improve your success rate.",
   },
   {
     icon: Brain,
-    title: 'Career Path Guidance',
-    description: 'Get AI-powered recommendations on career paths based on your profile and market trends.'
-  }
+    title: "Career Path Guidance",
+    description:
+      "Get AI-powered recommendations on career paths based on your profile and market trends.",
+  },
 ];
 
 export function AIFeatures() {
@@ -44,12 +63,15 @@ export function AIFeatures() {
             <span className="text-sm text-primary">Powered by Advanced AI</span>
           </div>
 
-          <h2 className="display-font text-4xl sm:text-5xl text-foreground mb-4">
+          <h2
+            className={`${antontioFont.className} tracking-tighter font-bold display-font text-4xl sm:text-5xl text-foreground mb-4`}
+          >
             Job Search Made <span className="text-primary">Smarter</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Harness the power of artificial intelligence to accelerate your career journey.
-            From resume optimization to personalized job matching.
+            Harness the power of artificial intelligence to accelerate your
+            career journey. From resume optimization to personalized job
+            matching.
           </p>
         </div>
 
@@ -68,7 +90,9 @@ export function AIFeatures() {
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))}
@@ -78,7 +102,8 @@ export function AIFeatures() {
         <div className="mt-16 text-center p-8 rounded-2xl bg-linear-to-br from-primary/10 to-accent/10 border border-primary/20">
           <h3 className="mb-4">Ready to accelerate your career search?</h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Join thousands of young professionals who are already using AI to land their dream jobs.
+            Join thousands of young professionals who are already using AI to
+            land their dream jobs.
           </p>
           <button className="px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all">
             Try AI Features Free
