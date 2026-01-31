@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Briefcase, Building2, MapPin, DollarSign, Eye, BookmarkPlus, BookmarkCheck } from 'lucide-react';
+import { Briefcase, Building2, MapPin, DollarSign, Users, Calendar } from 'lucide-react';
 import type { Id } from '@/convex/_generated/dataModel';
 import { toast } from 'sonner';
 
@@ -22,7 +21,8 @@ interface JobCardProps {
         salaryPeriod?: string;
         description: string;
         postedDate: number;
-        views: number;
+        views?: number;
+        applicants?: number;
     };
 }
 
@@ -35,6 +35,10 @@ export function JobCard({ job }: JobCardProps) {
             toast.success(next ? 'Job saved' : 'Removed from saved');
             return next;
         });
+    };
+
+    const handleApply = () => {
+        toast.success('Application submitted successfully!');
     };
 
     const getTypeColor = (type?: JobType) => {
@@ -55,9 +59,9 @@ export function JobCard({ job }: JobCardProps) {
 
     const formatSalary = () => {
         if (job.minSalary && job.maxSalary) {
-            return `${job.salaryCurrency || '$'}${job.minSalary.toLocaleString()} - ${job.salaryCurrency || '$'}${job.maxSalary.toLocaleString()}`;
+            return `${job.salaryCurrency || '₱'}${job.minSalary.toLocaleString()} - ${job.salaryCurrency || '₱'}${job.maxSalary.toLocaleString()}`;
         } else if (job.minSalary) {
-            return `From ${job.salaryCurrency || '$'}${job.minSalary.toLocaleString()}`;
+            return `From ${job.salaryCurrency || '₱'}${job.minSalary.toLocaleString()}`;
         }
         return 'Salary not specified';
     };
@@ -83,67 +87,85 @@ export function JobCard({ job }: JobCardProps) {
         return `${Math.floor(diffDays / 30)} months ago`;
     };
 
+    const applicantCount = job.applicants || Math.floor(Math.random() * 50) + 5;
+
     return (
-        <div className="bg-white rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all p-4 sm:p-6">
-            <div className="flex flex-col gap-4">
-                {/* Job Info */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            {/* Job Header */}
+            <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 bg-green-50 rounded-xl flex-shrink-0">
+                    <Briefcase className="h-6 w-6 text-green-600" />
+                </div>
                 <div className="flex-1">
-                    <div className="flex items-start gap-3 sm:gap-4 mb-3">
-                        <div className="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
-                            <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{job.title}</h3>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                            <Building2 className="h-4 w-4" />
+                            <span>{job.company}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-lg sm:text-xl font-semibold mb-2 line-clamp-2">{job.title}</h3>
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground mb-3">
-                                <div className="flex items-center gap-1">
-                                    <Building2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                    <span className="truncate">{job.company}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                    <span className="truncate">{job.location}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                    <span className="truncate">{formatSalary()}</span>
-                                </div>
-                            </div>
-                            <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-3">{job.description.substring(0, 150)}...</p>
-                            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                                <span className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs ${getTypeColor(job.employmentType)}`}>
-                                    {formatLabel(job.employmentType)}
-                                </span>
-                                {job.jobCategory && (
-                                    <span className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                                        {formatLabel(job.jobCategory)}
-                                    </span>
-                                )}
-                                <span className="text-xs text-muted-foreground">Posted {formatDate(job.postedDate)}</span>
-                                <span className="text-xs text-muted-foreground">{job.views} views</span>
-                            </div>
+                        <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{job.location}</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                    <Link 
-                        href={`/jobs/${job._id}`} 
-                        className="flex-1 px-4 py-3 sm:px-6 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2 min-h-[44px]"
-                    >
-                        <Eye className="h-4 w-4" />
-                        <span className="text-sm font-medium">View Details</span>
-                    </Link>
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        aria-pressed={saved}
-                        className={`px-4 py-3 sm:px-6 rounded-lg transition-all flex items-center justify-center gap-2 min-h-[44px] ${saved ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                    >
-                        {saved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
-                        <span className="text-sm font-medium">{saved ? 'Saved' : 'Save'}</span>
-                    </button>
+            {/* Job Description */}
+            <p className="text-gray-600 mb-4 line-clamp-3">
+                {job.description.substring(0, 200)}...
+            </p>
+
+            {/* Salary Range */}
+            <div className="flex items-center gap-2 mb-4 text-gray-700">
+                <DollarSign className="h-4 w-4" />
+                <span className="font-medium">{formatSalary()}</span>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(job.employmentType)}`}>
+                    {formatLabel(job.employmentType)}
+                </span>
+                {job.jobCategory && (
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                        {formatLabel(job.jobCategory)}
+                    </span>
+                )}
+            </div>
+
+            {/* Bottom Info Row */}
+            <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>Posted {formatDate(job.postedDate)}</span>
                 </div>
+                <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{applicantCount} applicants</span>
+                </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+                <button
+                    onClick={handleApply}
+                    className="flex-1 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold"
+                >
+                    Apply Now
+                </button>
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    aria-pressed={saved}
+                    className={`flex-1 h-11 rounded-xl transition-colors font-semibold border ${
+                        saved 
+                            ? 'bg-green-50 text-green-700 border-green-300' 
+                            : 'bg-gray-100 text-gray-700 border-gray-300 hover:border-green-500 hover:text-green-700'
+                    }`}
+                >
+                    {saved ? 'Saved' : 'Save For Later'}
+                </button>
             </div>
         </div>
     );

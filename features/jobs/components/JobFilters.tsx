@@ -27,52 +27,45 @@ export function JobFilters({
     };
 
     return (
-        <div className="mb-6 sm:mb-8 space-y-4">
-            <div className="relative">
-                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+        <div className="mb-8 space-y-6">
+            {/* Centered Search Bar */}
+            <div className="relative w-[70%] mx-auto">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                     type="text"
-                    placeholder="Search jobs by title, company, or location..."
+                    placeholder="Search for job title, company, or keywords..."
                     value={searchTerm}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                    className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-base shadow-sm"
                 />
             </div>
 
-            <div className="space-y-4">
-                {/* Type Filter */}
-                <div>
-                    <label className="block text-sm font-medium mb-2">Job Type</label>
-                    <div className="flex gap-2 flex-wrap">
-                        {(['all', ...JOB_TYPES] as const).map((type) => (
-                            <button
-                                key={type}
-                                onClick={() => onTypeChange(type)}
-                                className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-all text-sm font-medium min-h-[44px] ${selectedType === type
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-white text-foreground border border-border hover:border-primary'
-                                    }`}
-                            >
-                                {type === 'all' ? 'All' : formatLabel(type)}
-                            </button>
-                        ))}
-                    </div>
+            {/* Horizontal Layout: Filter Pills on Left, Category on Right */}
+            <div className="flex items-center justify-between gap-6">
+                {/* Filter Pills - Left Side */}
+                <div className="flex items-center gap-3 flex-1">
+                    {(['all', 'full-time', 'part-time', 'internship', 'contract'] as const).map((type) => (
+                        <button
+                            key={type}
+                            onClick={() => onTypeChange(type)}
+                            className={`px-5 py-2.5 rounded-xl transition-all text-sm font-semibold min-h-[44px] shadow-sm ${selectedType === type
+                                ? 'bg-green-600 text-white shadow-md'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-500 hover:shadow-md'
+                                }`}
+                        >
+                            {type === 'all' ? 'All' : formatLabel(type)}
+                        </button>
+                    ))}
                 </div>
 
-                {/* Category Filter */}
-                <div>
-                    <label className="block text-sm font-medium mb-2">Category</label>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => onCategoryChange(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-base min-h-[44px]"
+                {/* Category Input - Right Side */}
+                <div className="w-32">
+                    <button
+                        onClick={() => onCategoryChange('all')}
+                        className="w-full px-5 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-base min-h-[44px] shadow-sm cursor-pointer text-left text-gray-700"
                     >
-                        {JOB_CATEGORIES.map((category) => (
-                            <option key={category} value={category}>
-                                {formatLabel(category)}
-                            </option>
-                        ))}
-                    </select>
+                        Category
+                    </button>
                 </div>
             </div>
         </div>
