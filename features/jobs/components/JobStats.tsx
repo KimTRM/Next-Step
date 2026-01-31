@@ -13,51 +13,51 @@ export function JobStats({ jobs }: JobStatsProps) {
     const internships = jobs.filter((job) => job.employmentType === 'internship').length;
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-6 border border-border">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <Briefcase className="h-5 w-5 text-primary" />
+        <div className="grid grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-50 rounded-xl">
+                        <Briefcase className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                        <div className="text-2xl text-foreground">{jobs.length}</div>
-                        <div className="text-sm text-muted-foreground">Total Jobs</div>
+                        <div className="text-2xl font-bold text-gray-900">{jobs.length}</div>
+                        <div className="text-sm text-gray-600">Total Jobs</div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border border-border">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-accent/10 rounded-lg">
-                        <Building2 className="h-5 w-5 text-accent" />
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-purple-50 rounded-xl">
+                        <Building2 className="h-6 w-6 text-purple-600" />
                     </div>
                     <div>
-                        <div className="text-2xl text-foreground">{totalCompanies}</div>
-                        <div className="text-sm text-muted-foreground">Companies</div>
+                        <div className="text-2xl font-bold text-gray-900">{totalCompanies}</div>
+                        <div className="text-sm text-gray-600">Companies</div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border border-border">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-green-50 rounded-xl">
+                        <TrendingUp className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                        <div className="text-2xl text-foreground">{fullTimeJobs}</div>
-                        <div className="text-sm text-muted-foreground">Full-Time</div>
+                        <div className="text-2xl font-bold text-gray-900">{fullTimeJobs}</div>
+                        <div className="text-sm text-gray-600">Full-Time</div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border border-border">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-accent/10 rounded-lg">
-                        <Clock className="h-5 w-5 text-accent" />
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-orange-50 rounded-xl">
+                        <Clock className="h-6 w-6 text-orange-600" />
                     </div>
                     <div>
-                        <div className="text-2xl text-foreground">{internships}</div>
-                        <div className="text-sm text-muted-foreground">Internships</div>
+                        <div className="text-2xl font-bold text-gray-900">{internships}</div>
+                        <div className="text-sm text-gray-600">Internships</div>
                     </div>
                 </div>
             </div>
