@@ -280,27 +280,23 @@ function SignUpDirection() {
                         className="mb-6 sm:mb-8"
                     >
                         <Image
-                            className="w-12 sm:w-16 lg:w-20 h-auto drop-shadow-lg"
+                            className="w-16 sm:w-20 lg:w-24 h-auto drop-shadow-2xl relative z-10"
                             src="/logo-white.png"
                             alt="NextStep logo"
-                            width={96}
-                            height={96}
+                            width={130}
+                            height={130}
+                            style={{ height: "auto", width: "auto" }}
                             priority
-                            style={{ height: "auto" }}
                         />
                     </div>
-                    <h1
-                        className="font-['Antonio-Bold',Helvetica] text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 text-center drop-shadow-lg"
-                    >
-                        Hello User!
+                    <h1 className="font-['Antonio-Bold',Helvetica] text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 text-center drop-shadow-lg">
+                        Welcome Back!
                     </h1>
                 </div>
                 <div
                     className="flex flex-col items-center"
                 >
-                    <p
-                        className="text-white text-base sm:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 text-center max-w-md leading-relaxed drop-shadow"
-                    >
+                    <p className="text-white text-base sm:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 text-center max-w-md leading-relaxed drop-shadow">
                         Enter your personal details and start your journey with us!
                     </p>
                     <div>

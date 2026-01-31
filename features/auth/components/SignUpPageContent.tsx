@@ -65,22 +65,21 @@ function LoginDirection() {
 
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative z-10 flex flex-col items-center">
-          <div className="mb-8 sm:mb-10">
-            <div className="relative">
-              <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl" />
-              <Image
-                className="w-16 sm:w-20 lg:w-24 h-auto drop-shadow-2xl relative z-10"
-                src="/logo-white.png"
-                alt="NextStep logo"
-                width={120}
-                height={120}
-                style={{ height: "auto", width: "auto" }}
-                priority
-              />
-            </div>
+          <div
+            className="mb-6 sm:mb-8"
+          >
+            <Image
+              className="w-16 sm:w-20 lg:w-24 h-auto drop-shadow-2xl relative z-10"
+              src="/logo-white.png"
+              alt="NextStep logo"
+              width={130}
+              height={130}
+              style={{ height: "auto", width: "auto" }}
+              priority
+            />
           </div>
           <h1 className="font-['Antonio-Bold',Helvetica] text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 sm:mb-4 text-center drop-shadow-lg">
-            Welcome Back!
+            Hello User!
           </h1>
         </div>
         <div className="flex flex-col items-center">
