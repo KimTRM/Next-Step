@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Briefcase, LayoutDashboard, MessageSquare, User } from 'lucide-react';
+import { Home, Briefcase, LayoutDashboard, MessageSquare, User, Sparkles } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 
 export function MobileBottomNav() {
@@ -13,6 +13,7 @@ export function MobileBottomNav() {
   useEffect(() => {
     // Update active tab based on current pathname
     if (pathname === '/') setActiveTab('home');
+    else if (pathname.startsWith('/match-jobs')) setActiveTab('match-jobs');
     else if (pathname.startsWith('/jobs')) setActiveTab('jobs');
     else if (pathname.startsWith('/dashboard')) setActiveTab('dashboard');
     else if (pathname.startsWith('/messages')) setActiveTab('messages');
@@ -22,8 +23,8 @@ export function MobileBottomNav() {
   const navItems = [
     { id: 'home', href: '/', label: 'Home', icon: Home },
     { id: 'jobs', href: '/jobs', label: 'Jobs', icon: Briefcase },
+    { id: 'match-jobs', href: '/match-jobs', label: 'Match', icon: Sparkles },
     { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'messages', href: '/messages', label: 'Messages', icon: MessageSquare },
     { id: 'profile', href: '/profile', label: 'Profile', icon: User },
   ];
 
