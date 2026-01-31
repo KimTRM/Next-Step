@@ -187,11 +187,11 @@ export default function ProfileEssentialsContent() {
     const skillLabel = role === "mentor" ? "Areas of Expertise" : "Skills";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl w-full">
                 {/* Header */}
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
                         {role === "employer"
                             ? "Tell us about your organization"
                             : "Tell us about yourself"}
@@ -204,7 +204,7 @@ export default function ProfileEssentialsContent() {
                 </div>
 
                 {/* Progress indicator */}
-                <div className="flex items-center justify-center gap-2 mb-10">
+                <div className="flex items-center justify-center gap-2 mb-12">
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-gray-300" />
@@ -212,16 +212,16 @@ export default function ProfileEssentialsContent() {
                 </div>
 
                 {/* Form */}
-                <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
+                <div className="bg-white rounded-xl shadow-sm p-8 space-y-6 mb-12">
                     {/* Name - All roles */}
                     <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
+                        <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
                         <Input
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Enter your full name"
-                            className={errors.name ? "border-red-500" : ""}
+                            className={errors.name ? "border-red-500" : "border-gray-300"}
                         />
                         {errors.name && (
                             <p className="text-sm text-red-500">{errors.name}</p>
@@ -231,13 +231,13 @@ export default function ProfileEssentialsContent() {
                     {/* Job Seeker: Current Status (Field) */}
                     {role === "job_seeker" && (
                         <div className="space-y-2">
-                            <Label htmlFor="currentStatus">Current Status</Label>
+                            <Label htmlFor="currentStatus" className="text-gray-700 font-medium">Current Situation</Label>
                             <Input
                                 id="currentStatus"
                                 value={currentStatus}
                                 onChange={(e) => setCurrentStatus(e.target.value)}
-                                placeholder="e.g., Fresh CS Graduate, 3rd Year Engineering Student"
-                                className={errors.currentStatus ? "border-red-500" : ""}
+                                placeholder="e.g., Freshman, 3rd Year Engineering Student"
+                                className={errors.currentStatus ? "border-red-500" : "border-gray-300"}
                             />
                             {errors.currentStatus && (
                                 <p className="text-sm text-red-500">{errors.currentStatus}</p>
@@ -248,9 +248,9 @@ export default function ProfileEssentialsContent() {
                     {/* Job Seeker: Education Level */}
                     {role === "job_seeker" && (
                         <div className="space-y-2">
-                            <Label htmlFor="educationLevel">Education Level</Label>
+                            <Label htmlFor="educationLevel" className="text-gray-700 font-medium">Education Level</Label>
                             <Select value={educationLevel} onValueChange={setEducationLevel}>
-                                <SelectTrigger className={errors.educationLevel ? "border-red-500" : ""}>
+                                <SelectTrigger className={errors.educationLevel ? "border-red-500" : "border-gray-300"}>
                                     <SelectValue placeholder="Select your education level" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -270,7 +270,7 @@ export default function ProfileEssentialsContent() {
                     {/* Employer: Organization Name */}
                     {role === "employer" && (
                         <div className="space-y-2">
-                            <Label htmlFor="organizationName">
+                            <Label htmlFor="organizationName" className="text-gray-700 font-medium">
                                 Organization Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -278,7 +278,7 @@ export default function ProfileEssentialsContent() {
                                 value={organizationName}
                                 onChange={(e) => setOrganizationName(e.target.value)}
                                 placeholder="Enter your company or organization name"
-                                className={errors.organizationName ? "border-red-500" : ""}
+                                className={errors.organizationName ? "border-red-500" : "border-gray-300"}
                             />
                             {errors.organizationName && (
                                 <p className="text-sm text-red-500">{errors.organizationName}</p>
@@ -289,14 +289,14 @@ export default function ProfileEssentialsContent() {
                     {/* Mentor: Bio */}
                     {role === "mentor" && (
                         <div className="space-y-2">
-                            <Label htmlFor="bio">Short Bio</Label>
+                            <Label htmlFor="bio" className="text-gray-700 font-medium">Short Bio</Label>
                             <Textarea
                                 id="bio"
                                 value={bio}
                                 onChange={(e) => setBio(e.target.value)}
                                 placeholder="Tell mentees about your background and what you can help with..."
                                 rows={4}
-                                className={errors.bio ? "border-red-500" : ""}
+                                className={errors.bio ? "border-red-500" : "border-gray-300"}
                             />
                             {errors.bio && (
                                 <p className="text-sm text-red-500">{errors.bio}</p>
@@ -307,7 +307,7 @@ export default function ProfileEssentialsContent() {
                     {/* Skills/Expertise - Job Seeker & Mentor */}
                     {(role === "job_seeker" || role === "mentor") && (
                         <div className="space-y-2">
-                            <Label>{skillLabel}</Label>
+                            <Label className="text-gray-700 font-medium">{skillLabel}</Label>
 
                             {/* Selected skills */}
                             {skills.length > 0 && (
@@ -342,12 +342,14 @@ export default function ProfileEssentialsContent() {
                                             addSkill(customSkill);
                                         }
                                     }}
+                                    className="border-gray-300"
                                 />
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => addSkill(customSkill)}
                                     disabled={!customSkill.trim()}
+                                    className="border-gray-300"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </Button>
@@ -364,10 +366,10 @@ export default function ProfileEssentialsContent() {
                                             <Badge
                                                 key={skill}
                                                 variant="outline"
-                                                className="cursor-pointer hover:bg-gray-100"
+                                                className="cursor-pointer hover:bg-gray-100 border-gray-300"
                                                 onClick={() => addSkill(skill)}
                                             >
-                                                + {skill}
+                                                {skill}
                                             </Badge>
                                         ))}
                                 </div>
@@ -381,11 +383,11 @@ export default function ProfileEssentialsContent() {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="mt-10 flex justify-between">
+                <div className="flex justify-between">
                     <Button
                         variant="outline"
                         onClick={handleBack}
-                        className="px-6"
+                        className="px-6 border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back

@@ -75,7 +75,8 @@ export function JobFilterModal({ isOpen, onClose, onApplyFilters, currentFilters
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    // palitan nalang ang color ng bg-black/40 
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex">
                 {/* Sidebar */}
                 <div className="w-64 bg-gray-50 p-6 border-r border-gray-200">

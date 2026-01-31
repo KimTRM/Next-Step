@@ -9,6 +9,7 @@ import { JobCard } from './JobCard';
 import { JobStats } from './JobStats';
 import { JobFilters } from './JobFilters';
 import type { JobFilters as JobFiltersType } from './JobFilterModal';
+import type { ExperienceLevel, LocationType } from '../types';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useJobsList } from '../api';
@@ -23,8 +24,8 @@ export function JobsPageContent() {
     const [advancedFilters, setAdvancedFilters] = useState({
         minSalary: 0,
         maxSalary: 500000,
-        experienceLevel: 'all' as const,
-        locationType: 'all' as const,
+        experienceLevel: 'all' as 'all' | ExperienceLevel,
+        locationType: 'all' as 'all' | LocationType,
     });
     const pageSize = 12;
 

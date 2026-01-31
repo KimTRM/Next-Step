@@ -70,11 +70,11 @@ export default function RoleSelectionContent() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl w-full">
                 {/* Header */}
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
                         What brings you here?
                     </h1>
                     <p className="text-lg text-gray-600">
@@ -83,7 +83,7 @@ export default function RoleSelectionContent() {
                 </div>
 
                 {/* Progress indicator */}
-                <div className="flex items-center justify-center gap-2 mb-10">
+                <div className="flex items-center justify-center gap-2 mb-12">
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-gray-300" />
                     <div className="h-2 w-16 rounded-full bg-gray-300" />
@@ -91,22 +91,22 @@ export default function RoleSelectionContent() {
                 </div>
 
                 {/* Role Options */}
-                <div className="grid gap-4 sm:gap-6">
+                <div className="space-y-4 mb-12">
                     {ROLE_OPTIONS.map((option) => (
                         <Card
                             key={option.value}
                             className={cn(
-                                "cursor-pointer transition-all duration-200 hover:shadow-md",
+                                "cursor-pointer transition-all duration-200 hover:shadow-lg border-2",
                                 selectedRole === option.value
-                                    ? "ring-2 ring-green-600 bg-green-50 border-green-200"
-                                    : "hover:border-gray-300"
+                                    ? "border-green-600 bg-white shadow-lg"
+                                    : "border-gray-200 bg-white hover:border-gray-300"
                             )}
                             onClick={() => setSelectedRole(option.value)}
                         >
-                            <CardHeader className="flex flex-row items-center gap-4 pb-2">
+                            <CardHeader className="flex flex-row items-center gap-6 pb-4">
                                 <div
                                     className={cn(
-                                        "p-3 rounded-lg",
+                                        "p-4 rounded-xl flex-shrink-0",
                                         selectedRole === option.value
                                             ? "bg-green-600 text-white"
                                             : "bg-gray-100 text-gray-600"
@@ -115,15 +115,17 @@ export default function RoleSelectionContent() {
                                     {option.icon}
                                 </div>
                                 <div className="flex-1">
-                                    <CardTitle className="text-xl">{option.title}</CardTitle>
-                                    <CardDescription className="text-base mt-1">
+                                    <CardTitle className="text-2xl font-semibold text-gray-900">
+                                        {option.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-base mt-2 text-gray-600">
                                         {option.description}
                                     </CardDescription>
                                 </div>
                                 {/* Radio indicator */}
                                 <div
                                     className={cn(
-                                        "h-6 w-6 rounded-full border-2 flex items-center justify-center",
+                                        "h-6 w-6 rounded-full border-2 flex items-center justify-center flex-shrink-0",
                                         selectedRole === option.value
                                             ? "border-green-600 bg-green-600"
                                             : "border-gray-300"
@@ -139,12 +141,12 @@ export default function RoleSelectionContent() {
                 </div>
 
                 {/* Continue Button */}
-                <div className="mt-10 flex justify-center">
+                <div className="flex justify-center">
                     <Button
                         onClick={handleContinue}
                         disabled={!selectedRole || isSaving}
                         size="lg"
-                        className="bg-green-600 hover:bg-green-700 text-white font-semibold text-lg px-8 py-6 rounded-xl"
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold text-lg px-12 py-4 rounded-xl h-14"
                     >
                         {isSaving ? (
                             <>
@@ -152,16 +154,13 @@ export default function RoleSelectionContent() {
                                 Saving...
                             </>
                         ) : (
-                            <>
-                                Continue
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </>
+                            "Continue"
                         )}
                     </Button>
                 </div>
 
                 {/* Helper text */}
-                <p className="text-center text-sm text-gray-500 mt-6">
+                <p className="text-center text-sm text-gray-500 mt-8">
                     You can always change this later in your settings.
                 </p>
             </div>

@@ -2,11 +2,11 @@
  * =========================================================================
  * FRONTEND - Onboarding Page
  * =========================================================================
- * Thin page wrapper that composes the Onboarding feature
+ * Thin page wrapper that composes the New Onboarding Flow
  */
 
-import { RoleSelectionContent } from '@/features/onboarding/components';
+import { NewOnboardingFlow } from '@/features/onboarding/components';
 
 export default function OnboardingPage() {
-  return <RoleSelectionContent />;
+  return <NewOnboardingFlow />;
 }
