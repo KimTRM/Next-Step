@@ -12,7 +12,7 @@ export function EmptyMessageState() {
     return (
         <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="rounded-full bg-muted p-6 mb-4">
-                <MessageSquare className="h-12 w-12 text-muted-foreground" />
+                <MessageSquare className="h-12 w-12 text-[#198754]" />
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
                 Select a conversation
