@@ -16,22 +16,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/shared/components/ui/dialog";
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { ArrowLeft, Check, CheckCheck, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, ShieldOff, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, Trash2 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Message } from "../types";
 import { formatDistanceToNow } from "date-fns";
@@ -72,10 +63,27 @@ export function MessageThread({
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const [isBlockListOpen, setIsBlockListOpen] = useState(false);
-    const [mutedUsers, setMutedUsers] = useState<Set<string>>(new Set());
-    const [pinnedUsers, setPinnedUsers] = useState<Set<string>>(new Set());
-    const [blockedUsers, setBlockedUsers] = useState<Set<string>>(new Set());
+    const [mutedUsers, setMutedUsers] = useState<Set<string>>(() => {
+        if (typeof window !== "undefined") {
+            const s = getSettings();
+            return new Set(s.muted);
+        }
+        return new Set();
+    });
+    const [pinnedUsers, setPinnedUsers] = useState<Set<string>>(() => {
+        if (typeof window !== "undefined") {
+            const s = getSettings();
+            return new Set(s.pinned);
+        }
+        return new Set();
+    });
+    const [blockedUsers, setBlockedUsers] = useState<Set<string>>(() => {
+        if (typeof window !== "undefined") {
+            const s = getSettings();
+            return new Set(s.blocked);
+        }
+        return new Set();
+    });
 
     // Auto-scroll to bottom on new messages
     useEffect(() => {
@@ -84,13 +92,9 @@ export function MessageThread({
         }
     }, [messages]);
 
-    // Load persisted settings and listen for changes
+    // Listen for settings changes
     useEffect(() => {
         if (typeof window === "undefined") return;
-        const s = getSettings();
-        setMutedUsers(new Set(s.muted));
-        setPinnedUsers(new Set(s.pinned));
-        setBlockedUsers(new Set(s.blocked));
 
         const onChange = () => {
             const ss = getSettings();
@@ -221,7 +225,7 @@ export function MessageThread({
                     <Ban className="h-16 w-16 text-muted-foreground mb-4" />
                     <h3 className="font-semibold text-lg mb-2">User Blocked</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                        You've blocked this user. Unblock them to resume messaging.
+                        You&apos;ve blocked this user. Unblock them to resume messaging.
                     </p>
                     <Button onClick={() => otherUser && handleUnblock(otherUser._id)}>
                         Unblock {userName}

@@ -10,7 +10,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, UserRoundSearch, SearchX } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -96,7 +96,7 @@ export function UserSearchModal({
                     </div>
 
                     {/* Search Results */}
-                    <ScrollArea className="max-h-[50vh] sm:max-h-[300px]">
+                    <ScrollArea className="max-h-[50vh] sm:max-h-75">
                         {/* Loading State */}
                         {isLoading && hasSearchQuery && (
                             <div className="flex items-center justify-center py-6 sm:py-8">
@@ -107,7 +107,7 @@ export function UserSearchModal({
                         {/* No Search Query */}
                         {!hasSearchQuery && (
                             <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center px-2">
-                                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🔍</div>
+                                <UserRoundSearch className="h-12 w-12 text-muted-foreground mb-3" />
                                 <p className="text-xs sm:text-sm text-muted-foreground">
                                     Type a name to search for users
                                 </p>
@@ -117,7 +117,7 @@ export function UserSearchModal({
                         {/* No Results */}
                         {showNoResults && (
                             <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center px-2">
-                                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">😕</div>
+                                <SearchX className="h-12 w-12 text-muted-foreground mb-3" />
                                 <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base">No users found</h3>
                                 <p className="text-xs sm:text-sm text-muted-foreground">
                                     Try searching with a different name

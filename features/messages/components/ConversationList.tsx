@@ -20,8 +20,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import type { Conversation } from "../types";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useMemo } from "react";
-import { Search, Pin, BellOff } from "lucide-react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
+import { Search, Pin, BellOff, MessageCircleDashed } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
 import {
     getSettings,
     removeBlocked,
@@ -48,7 +48,7 @@ export function ConversationList({
     const [blockedUsers, setBlockedUsers] = useState<Set<string>>(new Set());
     const [deletedUsers, setDeletedUsers] = useState<Set<string>>(new Set());
     const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
-    
+
     // Track last seen message IDs to detect new incoming messages
     const lastSeenMessageIds = useRef<Map<string, string>>(new Map());
 
@@ -78,13 +78,13 @@ export function ConversationList({
         if (!conversations) return;
         const settings = getSettings();
         const deleted = new Set(settings.deleted || []);
-        
+
         conversations.forEach((conv) => {
             const otherUserId = String(conv.otherUserId);
             const lastMessageId = String(conv.lastMessage._id);
             const lastSenderId = String(conv.lastMessage.senderId);
             const previousMessageId = lastSeenMessageIds.current.get(otherUserId);
-            
+
             // If this user was deleted AND the last message is from them (not us)
             // AND this is a new message we haven't seen before, restore the conversation
             if (deleted.has(otherUserId) && lastSenderId === otherUserId) {
@@ -93,7 +93,7 @@ export function ConversationList({
                     removeDeleted(otherUserId);
                 }
             }
-            
+
             // Update the last seen message ID for this conversation
             lastSeenMessageIds.current.set(otherUserId, lastMessageId);
         });
@@ -144,7 +144,7 @@ export function ConversationList({
     if (!conversations || conversations.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <div className="text-5xl mb-4">💬</div>
+                <MessageCircleDashed className="h-12 w-12 text-muted-foreground mb-3" />
                 <h3 className="font-semibold text-foreground mb-1">No conversations yet</h3>
                 <p className="text-sm text-muted-foreground">
                     Start a conversation with a mentor or employer
@@ -191,7 +191,7 @@ export function ConversationList({
                                 <button
                                     key={conv.otherUserId}
                                     onClick={() => onSelectConversation(conv.otherUserId)}
-                                    className={`w-full p-4 m-1 text-left transition-colors rounded-md hover:bg-muted/100 ${isSelected ? "bg-muted border-l-2 border-l-primary" : ""
+                                    className={`w-full p-4 m-1 text-left transition-colors rounded-md hover:bg-muted ${isSelected ? "bg-muted border-l-2 border-l-primary" : ""
                                         }`}
                                     aria-label={`Conversation with ${userName}`}
                                     aria-current={isSelected ? "true" : undefined}
