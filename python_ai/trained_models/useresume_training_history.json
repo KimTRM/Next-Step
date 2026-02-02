@@ -1,0 +1,439 @@
+{
+  "iterations": [
+    {
+      "timestamp": "2026-01-31T03:38:17.935839",
+      "samples_processed": 5,
+      "average_accuracy": 67.44444444444444,
+      "new_skills_learned": 18,
+      "total_skills_added": 18
+    },
+    {
+      "timestamp": "2026-01-31T03:38:44.209827",
+      "samples_processed": 10,
+      "average_accuracy": 65.77777777777777,
+      "new_skills_learned": 32,
+      "total_skills_added": 35
+    },
+    {
+      "timestamp": "2026-01-31T03:41:34.964670",
+      "samples_processed": 50,
+      "average_accuracy": 65.47777777777777,
+      "new_skills_learned": 48,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:41:51.512280",
+      "samples_processed": 50,
+      "average_accuracy": 64.35555555555555,
+      "new_skills_learned": 45,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:42:07.989804",
+      "samples_processed": 50,
+      "average_accuracy": 64.04444444444444,
+      "new_skills_learned": 46,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:42:13.563238",
+      "samples_processed": 50,
+      "average_accuracy": 99.06666666666668,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:19.253218",
+      "samples_processed": 50,
+      "average_accuracy": 99.33333333333331,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:25.054366",
+      "samples_processed": 50,
+      "average_accuracy": 99.2,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:30.935188",
+      "samples_processed": 50,
+      "average_accuracy": 98.66666666666666,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:37.237381",
+      "samples_processed": 50,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:43.591720",
+      "samples_processed": 50,
+      "average_accuracy": 98.53333333333335,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:49.738541",
+      "samples_processed": 50,
+      "average_accuracy": 99.33333333333331,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:42:55.913151",
+      "samples_processed": 50,
+      "average_accuracy": 99.2,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:43:02.145142",
+      "samples_processed": 50,
+      "average_accuracy": 98.53333333333335,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:43:08.578738",
+      "samples_processed": 50,
+      "average_accuracy": 98.80000000000001,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:43:15.030384",
+      "samples_processed": 50,
+      "average_accuracy": 98.93333333333332,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:44:08.050150",
+      "samples_processed": 20,
+      "average_accuracy": 65.19444444444446,
+      "new_skills_learned": 43,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:44:56.771841",
+      "samples_processed": 3,
+      "average_accuracy": 66.1111111111111,
+      "new_skills_learned": 13,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:46:10.491492",
+      "samples_processed": 3,
+      "average_accuracy": 71.11111111111111,
+      "new_skills_learned": 11,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:46:29.936563",
+      "samples_processed": 3,
+      "average_accuracy": 72.22222222222221,
+      "new_skills_learned": 11,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:49:50.869491",
+      "samples_processed": 3,
+      "average_accuracy": 68.33333333333333,
+      "new_skills_learned": 12,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:50:39.326919",
+      "samples_processed": 50,
+      "average_accuracy": 62.52222222222222,
+      "new_skills_learned": 47,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:50:46.057138",
+      "samples_processed": 50,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:50:52.934745",
+      "samples_processed": 50,
+      "average_accuracy": 98.66666666666669,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:50:59.683715",
+      "samples_processed": 50,
+      "average_accuracy": 98.80000000000001,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:06.986258",
+      "samples_processed": 50,
+      "average_accuracy": 99.20000000000002,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:15.524370",
+      "samples_processed": 50,
+      "average_accuracy": 99.06666666666668,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:23.048847",
+      "samples_processed": 50,
+      "average_accuracy": 99.06666666666666,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:30.648204",
+      "samples_processed": 50,
+      "average_accuracy": 98.79999999999998,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:38.284739",
+      "samples_processed": 50,
+      "average_accuracy": 98.93333333333334,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:51:46.662339",
+      "samples_processed": 50,
+      "average_accuracy": 99.2,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:53:26.690165",
+      "samples_processed": 10,
+      "average_accuracy": 65.61111111111111,
+      "new_skills_learned": 29,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:54:53.757770",
+      "samples_processed": 10,
+      "average_accuracy": 60.722222222222214,
+      "new_skills_learned": 31,
+      "total_skills_added": 45
+    },
+    {
+      "timestamp": "2026-01-31T03:55:12.802417",
+      "samples_processed": 10,
+      "average_accuracy": 98.0,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:55:32.093990",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:55:52.293708",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:56:12.249775",
+      "samples_processed": 10,
+      "average_accuracy": 98.66666666666666,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:56:32.043264",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:56:51.604728",
+      "samples_processed": 10,
+      "average_accuracy": 100.0,
+      "new_skills_learned": 0,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:57:11.362442",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:57:30.846727",
+      "samples_processed": 10,
+      "average_accuracy": 98.0,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:57:50.893939",
+      "samples_processed": 10,
+      "average_accuracy": 100.0,
+      "new_skills_learned": 0,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:58:11.667901",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:58:32.763340",
+      "samples_processed": 10,
+      "average_accuracy": 100.0,
+      "new_skills_learned": 0,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:58:53.347083",
+      "samples_processed": 10,
+      "average_accuracy": 98.66666666666666,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:59:13.734081",
+      "samples_processed": 10,
+      "average_accuracy": 98.0,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:59:34.317864",
+      "samples_processed": 10,
+      "average_accuracy": 97.33333333333334,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T03:59:54.590680",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:00:15.279184",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:00:35.644123",
+      "samples_processed": 10,
+      "average_accuracy": 97.33333333333334,
+      "new_skills_learned": 3,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:00:55.918269",
+      "samples_processed": 10,
+      "average_accuracy": 100.0,
+      "new_skills_learned": 0,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:01:15.998858",
+      "samples_processed": 10,
+      "average_accuracy": 98.0,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:01:35.624540",
+      "samples_processed": 10,
+      "average_accuracy": 98.66666666666667,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:01:55.676854",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:02:15.181070",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:02:34.900185",
+      "samples_processed": 10,
+      "average_accuracy": 98.66666666666666,
+      "new_skills_learned": 2,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:02:54.692967",
+      "samples_processed": 10,
+      "average_accuracy": 100.0,
+      "new_skills_learned": 0,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:03:14.489081",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333333,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:03:34.226027",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:03:54.251394",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:04:14.264487",
+      "samples_processed": 10,
+      "average_accuracy": 98.66666666666666,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    },
+    {
+      "timestamp": "2026-01-31T04:04:34.200034",
+      "samples_processed": 10,
+      "average_accuracy": 99.33333333333334,
+      "new_skills_learned": 1,
+      "total_skills_added": 0
+    }
+  ],
+  "total_comparisons": 1557
+}

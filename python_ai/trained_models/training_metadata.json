@@ -1,0 +1,31 @@
+{
+  "trained_at": "2026-01-31T01:55:23.200295",
+  "training_type": "intensive",
+  "total_jobs_used": 1593,
+  "training_samples": 100000,
+  "hire_rate": 0.46417,
+  "vocabulary_size": 357,
+  "industries_covered": [
+    "Technology",
+    "Finance",
+    "Fine Arts & Design",
+    "Retail",
+    "Healthcare",
+    "Marketing"
+  ],
+  "skills_per_industry": {
+    "Technology": 313,
+    "Finance": 155,
+    "Fine Arts & Design": 124,
+    "Retail": 92,
+    "Healthcare": 82,
+    "Marketing": 35
+  },
+  "model_weights": {
+    "skill_semantic": 0.2,
+    "skill_exact": 0.4,
+    "experience": 0.25,
+    "education": 0.10050000000000002,
+    "industry": 0.04950000000000001
+  }
+}

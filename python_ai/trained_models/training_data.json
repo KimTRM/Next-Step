@@ -1,0 +1,3669 @@
+[
+  {
+    "candidate_skills": [
+      "figma",
+      "adobe",
+      "ux design",
+      "canva"
+    ],
+    "job_skills": [
+      "rust",
+      "figma",
+      "adobe",
+      "ux design",
+      "graphic design"
+    ],
+    "candidate_experience": 9,
+    "job_min_experience": 6,
+    "job_max_experience": 6,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "elk stack",
+      "point of sale",
+      "medical terminology",
+      "vue",
+      "lead generation",
+      "emr"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "point of sale",
+      "go",
+      "strategic thinking",
+      "sqlite",
+      "lead generation",
+      "teamwork",
+      "c++",
+      "video editing",
+      "cockroachdb"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "conflict resolution",
+      "ai",
+      "redis",
+      "wireframing",
+      "scala",
+      "html",
+      "typography"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 17,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "conflict resolution",
+      "go",
+      "sqlite",
+      "spring boot",
+      "coreldraw",
+      "teamwork",
+      "haskell"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "mailchimp",
+      "conflict resolution",
+      "elixir",
+      "pyspark",
+      "html",
+      "canva",
+      "maya",
+      "teamwork"
+    ],
+    "job_skills": [],
+    "candidate_experience": 14,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "pyspark",
+      "helm",
+      "medical billing",
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "android",
+      "graphic design",
+      "vagrant",
+      "assembly",
+      "clinical",
+      "coreldraw"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 1,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "node.js"
+    ],
+    "job_skills": [
+      "aws",
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 2,
+    "job_max_experience": 4,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "shell",
+      "go"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "communication",
+      "auditing",
+      "decision making",
+      "jupyter",
+      "sql",
+      "html",
+      "teamwork",
+      "typescript",
+      "java"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "sql",
+      "docker"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "stakeholder management",
+      "go"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 6,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "animation",
+      "serverless",
+      "symfony",
+      "strategic thinking",
+      "opencv",
+      "team leadership",
+      "sql"
+    ],
+    "job_skills": [
+      "python",
+      "javascript",
+      "java",
+      "node.js",
+      "sql"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 2,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "cassandra",
+      "go"
+    ],
+    "job_skills": [
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "data analysis",
+      "php",
+      "flask",
+      "swift",
+      "prometheus",
+      "pos",
+      "tax preparation"
+    ],
+    "job_skills": [
+      "aws",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "salesforce",
+      "go",
+      "sap"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "sketch",
+      "sales forecasting",
+      "spark",
+      "leadership",
+      "interpersonal skills",
+      "resource management",
+      "dart",
+      "java",
+      "teamwork"
+    ],
+    "job_skills": [
+      "python",
+      "javascript",
+      "java",
+      "react",
+      "aws"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "pnpm",
+      "jquery",
+      "leadership",
+      "graphql",
+      "apache",
+      "spark"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 19,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "kanban",
+      "php",
+      "accounts payable",
+      "java"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "fastapi",
+      "conflict resolution",
+      "rust",
+      "azure",
+      "wireframing",
+      "pytorch",
+      "emr"
+    ],
+    "job_skills": [
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "figma",
+      "php",
+      "assembly",
+      "problem solving",
+      "ehr",
+      "brand management",
+      "typescript"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "firebase",
+      "c#",
+      "git",
+      "leadership",
+      "postgres",
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [
+      "sql",
+      "agile",
+      "postgresql",
+      "c#"
+    ],
+    "candidate_experience": 14,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "time management",
+      "go",
+      "communication"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "animation",
+      "microsoft azure",
+      "react",
+      "sales",
+      "excel",
+      "video editing"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "aws",
+      "git"
+    ],
+    "candidate_experience": 13,
+    "job_min_experience": 5,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "rust",
+      "sap",
+      "vagrant",
+      "problem solving",
+      "medical billing",
+      "css",
+      "time management",
+      "lightroom",
+      "quickbooks"
+    ],
+    "job_skills": [
+      "php",
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "spring",
+      "java android",
+      "flutter",
+      "leadership",
+      "pytorch",
+      "jenkins",
+      "teamwork"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "problem solving",
+      "organization",
+      "leadership",
+      "phlebotomy",
+      "time management"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      ".net",
+      "problem solving",
+      "leadership",
+      "sql"
+    ],
+    "job_skills": [
+      "sql",
+      ".net",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "go",
+      "merchandising",
+      "problem solving",
+      "agile",
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [
+      "agile",
+      "scrum",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 10,
+    "job_max_experience": 10,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "kubernetes",
+      "computer vision",
+      "problem solving",
+      "compliance",
+      "jenkins",
+      "dotnet",
+      "grafana"
+    ],
+    "job_skills": [],
+    "candidate_experience": 14,
+    "job_min_experience": 2,
+    "job_max_experience": 3,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "leadership",
+      "communication",
+      "teamwork"
+    ],
+    "job_skills": [
+      "git"
+    ],
+    "candidate_experience": 9,
+    "job_min_experience": 7,
+    "job_max_experience": 7,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "problem solving",
+      "adaptability",
+      "travis ci",
+      "interaction design",
+      "spring boot",
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [
+      "git"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "spark",
+      "problem solving",
+      "go"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "problem solving",
+      "cost accounting",
+      "dotnet"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "after effects",
+      "decision making",
+      "interpersonal skills",
+      "product owner",
+      "nursing",
+      "aws",
+      "kanban"
+    ],
+    "job_skills": [
+      "aws",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "problem solving",
+      "go",
+      "communication"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "app development",
+      "problem solving",
+      "confluence",
+      "time management",
+      "artificial intelligence"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "3ds max",
+      "go",
+      "devops",
+      "multitasking",
+      "leadership",
+      "classification",
+      "ruby",
+      "couchdb",
+      "dynamodb",
+      "financial reporting"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "flutter",
+      "communication skills",
+      "maya"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 10,
+    "job_max_experience": 10,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "kubernetes",
+      "python",
+      "leadership",
+      "aws",
+      "java"
+    ],
+    "job_skills": [
+      "python",
+      "javascript",
+      "java",
+      "react",
+      "sql"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "kotlin",
+      "go",
+      "communication",
+      "numpy",
+      "leadership",
+      "hipaa",
+      "nursing",
+      "teamwork",
+      "icd-10"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "problem solving",
+      "excel",
+      "time management",
+      "presentation"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "node.js",
+      "javascript",
+      "php",
+      "python",
+      "flutter",
+      "helm",
+      "compliance",
+      "html"
+    ],
+    "job_skills": [
+      "python",
+      "javascript",
+      "java",
+      "node.js",
+      "html"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "financial modeling",
+      "negotiation",
+      "grafana",
+      "dart",
+      "aws",
+      "apache"
+    ],
+    "job_skills": [
+      "aws",
+      "git"
+    ],
+    "candidate_experience": 20,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "after effects",
+      "php",
+      "tableau",
+      "vue",
+      "nursing"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "go",
+      "nginx",
+      "xamarin",
+      "illustrator"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 16,
+    "job_min_experience": 1,
+    "job_max_experience": 3,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "ansible",
+      "communication",
+      "java android",
+      "leadership",
+      "hubspot",
+      "aws",
+      "time management"
+    ],
+    "job_skills": [
+      "agile",
+      "go"
+    ],
+    "candidate_experience": 9,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "first aid",
+      "emr",
+      "communication",
+      "sass"
+    ],
+    "job_skills": [],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "analytics",
+      "problem solving",
+      "scrum master",
+      "scrum"
+    ],
+    "job_skills": [
+      "agile",
+      "scrum",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 4,
+    "job_max_experience": 4,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 1,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "organization"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "numpy",
+      "problem solving",
+      "jupyter",
+      "grafana"
+    ],
+    "job_skills": [
+      "react",
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "payroll",
+      "websocket",
+      "communication",
+      "pyspark",
+      "opencv",
+      "svelte"
+    ],
+    "job_skills": [],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "analytical",
+      "problem solving",
+      "organization",
+      "teamwork"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "leadership",
+      "sass",
+      "matplotlib",
+      "teamwork"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "3ds max",
+      "websocket",
+      "compliance",
+      "medical billing",
+      "blender",
+      "typescript",
+      "apache"
+    ],
+    "job_skills": [],
+    "candidate_experience": 13,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "email marketing",
+      "go",
+      "app development",
+      "critical thinking",
+      "data visualization",
+      "graphql",
+      "keras",
+      "visual basic"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "problem solving",
+      "leadership"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "time management",
+      "rust"
+    ],
+    "job_skills": [
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "kubernetes",
+      "python",
+      "problem solving"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "plotly",
+      "neo4j",
+      "self-motivated",
+      "accounting"
+    ],
+    "job_skills": [
+      "agile"
+    ],
+    "candidate_experience": 17,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "problem solving",
+      "leadership",
+      "crm"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "ui/ux",
+      "git",
+      "mariadb",
+      "erp",
+      "leadership",
+      "hipaa",
+      "scrum"
+    ],
+    "job_skills": [
+      "git"
+    ],
+    "candidate_experience": 14,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "accounts payable",
+      "leadership",
+      "neural networks",
+      "risk assessment"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "jquery",
+      "java",
+      "upselling"
+    ],
+    "job_skills": [
+      "python",
+      "javascript",
+      "java",
+      "react",
+      "node.js"
+    ],
+    "candidate_experience": 13,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "leadership",
+      "digital marketing",
+      "scrum",
+      "aws",
+      "agile",
+      "docker"
+    ],
+    "job_skills": [
+      "aws",
+      "docker",
+      "kubernetes",
+      "agile",
+      "scrum"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "websocket",
+      "go",
+      "indesign",
+      "asana",
+      "scrum master",
+      "b2c sales",
+      "apache",
+      "time management",
+      "deep learning"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 17,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "android",
+      "communication",
+      "tableau",
+      "vb.net",
+      "typography",
+      "b2c sales",
+      "lightroom"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 18,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "3ds max",
+      "ui/ux",
+      "communication",
+      "problem solving",
+      "decision making",
+      "azure",
+      "leadership",
+      "graphql",
+      "aws"
+    ],
+    "job_skills": [
+      "python",
+      "java",
+      "aws",
+      "docker",
+      "kubernetes"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "merchandising",
+      "facebook ads",
+      "data engineering",
+      "oracle",
+      "leadership"
+    ],
+    "job_skills": [],
+    "candidate_experience": 6,
+    "job_min_experience": 7,
+    "job_max_experience": 7,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "pmp",
+      "communication",
+      "problem solving",
+      "travis ci",
+      "forecasting",
+      "teamwork"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "nginx",
+      "vagrant",
+      "cordova",
+      "terraform",
+      "sql server"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "leadership",
+      "risk management",
+      "ec2"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "healthcare management",
+      "go",
+      "communication",
+      "problem solving",
+      "sql",
+      "power bi"
+    ],
+    "job_skills": [
+      "git",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "hadoop",
+      "php",
+      "problem solving",
+      "vite"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      ".net",
+      "c#",
+      "git",
+      "sql",
+      "angular",
+      "xamarin"
+    ],
+    "job_skills": [
+      "react",
+      "sql",
+      "git",
+      "angular",
+      "c#"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "content marketing",
+      "communication",
+      "git",
+      "indesign",
+      "terraform",
+      "leadership",
+      "objective-c",
+      "phlebotomy",
+      "time management",
+      "affiliate marketing"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "cpr",
+      "python",
+      "asana",
+      "leadership",
+      "time management",
+      "pharmacy"
+    ],
+    "job_skills": [
+      "python",
+      "sql",
+      "aws",
+      "git",
+      "mongodb"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "lua",
+      "communication",
+      "git",
+      "problem solving",
+      "hive",
+      "marketing automation",
+      "excel",
+      "matplotlib"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "ai",
+      "pandas",
+      "communication",
+      "customer service",
+      "keras",
+      "leadership",
+      "couchdb",
+      "teamwork"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 16,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "adobe",
+      "sales forecasting",
+      "first aid",
+      "mariadb",
+      "elixir",
+      "cobol",
+      "teamwork",
+      "elasticsearch",
+      "groovy"
+    ],
+    "job_skills": [
+      "photoshop",
+      "adobe",
+      "canva"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "b2b sales",
+      "php",
+      "oracle"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      ".net",
+      "budgeting",
+      "git",
+      "confluence",
+      "b2b sales",
+      "leadership",
+      "rails",
+      "attention to detail"
+    ],
+    "job_skills": [
+      "react",
+      "node.js",
+      "git",
+      "typescript",
+      ".net"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "graphic design",
+      "leadership",
+      "accounting",
+      "retail",
+      "etl",
+      "datadog"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "elk stack",
+      "facebook ads",
+      "fortran",
+      "medical terminology",
+      "negotiation",
+      "shell",
+      "premiere"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "compliance",
+      "emr",
+      "agile",
+      "time management"
+    ],
+    "job_skills": [],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "sales",
+      "tensorflow",
+      "ux design"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "medical records",
+      "communication",
+      "computer vision",
+      "problem solving",
+      "leadership",
+      "expressjs"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "account management",
+      "angularjs",
+      "pos",
+      "problem solving",
+      "leadership",
+      "blender",
+      "time management",
+      "linux"
+    ],
+    "job_skills": [],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "medical terminology",
+      "medical billing",
+      "go"
+    ],
+    "job_skills": [],
+    "candidate_experience": 3,
+    "job_min_experience": 2,
+    "job_max_experience": 3,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [],
+    "candidate_experience": 5,
+    "job_min_experience": 1,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "golang",
+      "communication",
+      "git",
+      "customer service",
+      "plsql",
+      "nodejs",
+      "time management"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "leadership",
+      "php",
+      "go",
+      "attention to detail"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Marketing",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "less",
+      "communication",
+      "babel",
+      "oracle",
+      "sqlite",
+      "leadership",
+      "metabase",
+      "natural language processing",
+      "time management",
+      "julia"
+    ],
+    "job_skills": [],
+    "candidate_experience": 0,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "git",
+      "python",
+      "jupyter",
+      "leadership",
+      "sql",
+      "aws",
+      "time management",
+      "teamwork"
+    ],
+    "job_skills": [
+      "python",
+      "sql",
+      "aws",
+      "git",
+      "php"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "bash",
+      "leadership"
+    ],
+    "job_skills": [
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "dbt",
+      "content marketing",
+      "communication"
+    ],
+    "job_skills": [
+      "python",
+      "aws",
+      "docker",
+      "kubernetes",
+      "php"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "patient care",
+      "php",
+      "ai",
+      "communication",
+      "interaction design"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 18,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "graphic design",
+      "communication",
+      "flask",
+      "python",
+      "problem solving",
+      "oracle",
+      "team leadership",
+      "cost accounting",
+      "layout design",
+      "video editing"
+    ],
+    "job_skills": [
+      "python"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "gatsby",
+      "c#",
+      "problem solving",
+      "teamwork",
+      "a/b testing",
+      "cockroachdb"
+    ],
+    "job_skills": [],
+    "candidate_experience": 9,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "merchandising",
+      "python",
+      "bootstrap",
+      "app development",
+      "leadership",
+      "agile",
+      "time management",
+      "css",
+      "teamwork"
+    ],
+    "job_skills": [
+      "python",
+      "agile",
+      "css",
+      "php",
+      "laravel"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "medical billing",
+      "leadership",
+      "dbt"
+    ],
+    "job_skills": [
+      "git"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "ajax",
+      "communication",
+      "powerpoint",
+      "problem solving",
+      "cassandra"
+    ],
+    "job_skills": [],
+    "candidate_experience": 15,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "content marketing",
+      "go",
+      "communication",
+      "express",
+      "ppc",
+      "leadership",
+      "ifrs"
+    ],
+    "job_skills": [
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "google analytics"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "spring",
+      "time management",
+      "problem solving"
+    ],
+    "job_skills": [
+      "kubernetes"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "vital signs",
+      "k8s",
+      "multitasking",
+      "communication",
+      "vite",
+      "stakeholder management",
+      "time management",
+      "google cloud"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 19,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "ui/ux",
+      "git",
+      "yarn",
+      "accounts payable",
+      "tax preparation",
+      "teamwork",
+      "time management"
+    ],
+    "job_skills": [
+      "git",
+      "php"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Marketing",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "git",
+      "leadership",
+      "six sigma"
+    ],
+    "job_skills": [
+      "git",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "phlebotomy",
+      "retail",
+      "teamwork"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 2,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "prince2",
+      "cinema 4d",
+      "go",
+      "web design",
+      "communication",
+      "problem solving",
+      "nursing"
+    ],
+    "job_skills": [
+      "python",
+      "sql",
+      "go"
+    ],
+    "candidate_experience": 19,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "patient care",
+      "go",
+      "communication",
+      "gitlab ci",
+      "leadership",
+      "team leadership",
+      "hubspot",
+      "time management"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "creative",
+      "php",
+      "graphic design",
+      "adobe",
+      "communication",
+      "indesign",
+      "leadership",
+      "communication skills",
+      "sales",
+      "illustrator",
+      "photoshop"
+    ],
+    "job_skills": [
+      "photoshop",
+      "illustrator",
+      "adobe",
+      "indesign",
+      "graphic design"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "user interface",
+      "fortran",
+      "data visualization",
+      "perl"
+    ],
+    "job_skills": [],
+    "candidate_experience": 4,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "problem solving",
+      "time management",
+      "go",
+      "presentation"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "agile",
+      "leadership",
+      "teamwork"
+    ],
+    "job_skills": [
+      "sql",
+      "agile",
+      "rust"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 7,
+    "job_max_experience": 7,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "leadership",
+      "bash",
+      "go",
+      "communication"
+    ],
+    "job_skills": [],
+    "candidate_experience": 7,
+    "job_min_experience": 7,
+    "job_max_experience": 7,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "git",
+      "problem solving",
+      "vue.js",
+      "ruby",
+      "deep learning"
+    ],
+    "job_skills": [
+      "python",
+      "git",
+      "go"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 5,
+    "job_max_experience": 15,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "python",
+      "sass",
+      "cobol",
+      "coreldraw"
+    ],
+    "job_skills": [
+      "python",
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "creative",
+      "javascript",
+      "ux design",
+      "leadership",
+      "pytorch",
+      "sql",
+      "stakeholder management"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "node.js",
+      "sql"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "leadership",
+      "metabase",
+      "time management",
+      "spark",
+      "docker"
+    ],
+    "job_skills": [],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "microsoft office",
+      "go",
+      "adobe xd",
+      "communication",
+      "auditing",
+      "python",
+      "pos",
+      "perl"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 17,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "fastapi",
+      "adobe",
+      "merchandising",
+      "time management",
+      "retail",
+      "teamwork"
+    ],
+    "job_skills": [
+      "sketch",
+      "adobe"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "sql",
+      "medical terminology"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "sql",
+      "postgresql",
+      "php"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "time management",
+      "go",
+      "metabase"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "pos",
+      "go",
+      "leadership",
+      "supabase"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "rust",
+      "problem solving",
+      "java"
+    ],
+    "job_skills": [
+      "python",
+      "java",
+      "git",
+      "go",
+      "rust"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "communication",
+      "problem solving",
+      "accounts payable",
+      "leadership",
+      "deno",
+      "agile",
+      "a/b testing"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "sql",
+      "php",
+      "sql server"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "facebook ads",
+      "leadership",
+      "opencv"
+    ],
+    "job_skills": [
+      "agile",
+      "go"
+    ],
+    "candidate_experience": 7,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "inventory management",
+      "problem solving",
+      "leadership",
+      "ci/cd",
+      "risk management"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "hadoop",
+      "leadership",
+      "time management"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 6,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "after effects",
+      "adobe",
+      "ux design",
+      "powerpoint",
+      "leadership",
+      "illustrator",
+      "time management",
+      "photoshop",
+      "motion graphics"
+    ],
+    "job_skills": [
+      "photoshop",
+      "illustrator",
+      "adobe",
+      "indesign",
+      "after effects"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Fine Arts & Design",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "ifrs",
+      "php",
+      "azure",
+      "mobile development"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 20,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "c#",
+      "crm",
+      "sql",
+      "objective-c",
+      "hubspot"
+    ],
+    "job_skills": [
+      "sql",
+      "agile",
+      "php",
+      "c#",
+      ".net"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "javascript",
+      "git",
+      "react",
+      "scrum",
+      "metabase",
+      "java"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "sql",
+      "git"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "less",
+      "hubspot",
+      "leadership"
+    ],
+    "job_skills": [],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "ruby on rails",
+      "data engineering",
+      "go",
+      "circleci"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "canva"
+    ],
+    "job_skills": [],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "svelte",
+      "vagrant",
+      "problem solving",
+      "accounts payable",
+      "accounting",
+      "powershell",
+      "treasury",
+      "copywriting"
+    ],
+    "job_skills": [],
+    "candidate_experience": 0,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "merchandising",
+      "jupyter",
+      "postgresql"
+    ],
+    "job_skills": [
+      "sql",
+      "postgresql",
+      ".net"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 1,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "after effects",
+      "php",
+      "illustration",
+      "sketch",
+      "communication",
+      "problem solving",
+      "nuxtjs",
+      "teamwork"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "ui/ux",
+      "go",
+      "ionic",
+      "computer vision",
+      "leadership",
+      "typography",
+      "nursing"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "problem solving",
+      "classification",
+      "django",
+      "ruby",
+      "cash handling",
+      "time management",
+      "julia"
+    ],
+    "job_skills": [
+      "sql",
+      "git",
+      "agile",
+      "scrum",
+      "go"
+    ],
+    "candidate_experience": 12,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "node.js",
+      "problem solving",
+      "leadership",
+      "postgresql",
+      "sql"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "node.js",
+      "sql",
+      "docker"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "statistics"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "problem solving",
+      "sql",
+      "laravel"
+    ],
+    "job_skills": [
+      "sql",
+      "php",
+      "laravel",
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "animation",
+      "git",
+      "jquery",
+      "leadership",
+      "agile"
+    ],
+    "job_skills": [
+      "java",
+      "react",
+      "sql",
+      "git",
+      "agile"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "symfony",
+      "tailwind",
+      "artificial intelligence"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "creative design",
+      "communication",
+      "b2b sales",
+      "nuxt.js",
+      "problem solving",
+      "leadership"
+    ],
+    "job_skills": [],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "content marketing",
+      "go",
+      "user interface",
+      "unix",
+      "f#",
+      "risk management",
+      "teamwork"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 17,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "dart",
+      "scrum",
+      "pharmacy",
+      "microservices",
+      "motion graphics"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 13,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "email marketing",
+      "go",
+      "groovy"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "firebase",
+      "lean",
+      "problem solving",
+      "leadership",
+      "r"
+    ],
+    "job_skills": [],
+    "candidate_experience": 18,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "gatsby",
+      "spring",
+      "npm"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "upselling",
+      "communication",
+      "problem solving",
+      "sales",
+      "cost accounting",
+      "aws"
+    ],
+    "job_skills": [
+      "aws",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "leadership",
+      "six sigma",
+      "clinical"
+    ],
+    "job_skills": [
+      "git"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "tableau",
+      "blender",
+      "aws",
+      "teamwork"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 13,
+    "job_min_experience": 5,
+    "job_max_experience": 7,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "patient care",
+      ".net"
+    ],
+    "job_skills": [],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "problem solving",
+      "go",
+      "communication"
+    ],
+    "job_skills": [
+      "aws",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "healthcare management",
+      "ml",
+      "illustration",
+      "ux design",
+      "negotiation",
+      "quickbooks",
+      "julia",
+      "social media marketing"
+    ],
+    "job_skills": [],
+    "candidate_experience": 6,
+    "job_min_experience": 8,
+    "job_max_experience": 8,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "communication",
+      "decision making",
+      "rails"
+    ],
+    "job_skills": [],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Finance",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "k8s",
+      "communication",
+      "problem solving"
+    ],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "lambda",
+      "communication",
+      "creativity",
+      "problem solving",
+      "leadership",
+      "microsoft azure",
+      "time management",
+      "cockroachdb"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 16,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "angularjs",
+      "communication",
+      "gitlab ci",
+      "problem solving",
+      "fortran",
+      "leadership",
+      "seo",
+      "visual design",
+      "css"
+    ],
+    "job_skills": [],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "email marketing",
+      "communication",
+      "lean",
+      "problem solving",
+      "laravel",
+      "objective-c",
+      "data visualization",
+      "time management"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 2,
+    "job_max_experience": 4,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "aws",
+      "ai",
+      "pos",
+      "problem solving",
+      "sql",
+      "scrum",
+      "typescript",
+      "agile",
+      "tailwind",
+      "css"
+    ],
+    "job_skills": [
+      "sql",
+      "aws",
+      "docker",
+      "agile",
+      "scrum"
+    ],
+    "candidate_experience": 6,
+    "job_min_experience": 6,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "microsoft office",
+      "go",
+      "multitasking",
+      "problem solving",
+      "pyspark",
+      "compliance",
+      "user experience",
+      "dart",
+      "risk assessment"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 2,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "monday.com",
+      "go",
+      "erp",
+      "laravel",
+      "unix",
+      "agile",
+      "time management"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "golang",
+      "problem solving",
+      "interaction design",
+      "emotional intelligence",
+      "seo",
+      "unix",
+      "shell",
+      "ruby on rails",
+      "kotlin"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "problem solving"
+    ],
+    "job_skills": [],
+    "candidate_experience": 1,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Retail",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "statistics",
+      "emotional intelligence",
+      "webpack",
+      "lambda"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "sql",
+      "aws"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "ui/ux",
+      "user interface",
+      "babel",
+      "typescript",
+      "time management",
+      "vuejs",
+      "teamwork"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "sql",
+      "typescript"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "git",
+      "time management",
+      "problem solving",
+      "communication"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 2,
+    "job_max_experience": 3,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "dbt",
+      "mongodb",
+      "account management",
+      "go",
+      "babel",
+      "postgresql"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 16,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "figma",
+      "go",
+      "communication",
+      "matlab",
+      "inventory management",
+      "aws"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "lua",
+      "seo"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 7,
+    "job_industry": "Retail",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "mailchimp",
+      "communication",
+      "swift",
+      "leadership",
+      "stakeholder management",
+      "time management",
+      "jira"
+    ],
+    "job_skills": [
+      "swift"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "php",
+      "go",
+      "communication",
+      "html",
+      "canva",
+      "ui design",
+      "agile"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "agile",
+      "html",
+      "css"
+    ],
+    "candidate_experience": 3,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "microsoft office",
+      "android",
+      "budgeting",
+      "sketch",
+      "classification",
+      "time management"
+    ],
+    "job_skills": [
+      "aws",
+      "php",
+      "go"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 1,
+    "job_max_experience": 1,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "payroll",
+      "git",
+      "problem solving",
+      "jquery",
+      "flutter",
+      "leadership",
+      "airflow",
+      "teamwork"
+    ],
+    "job_skills": [
+      "git",
+      "go"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "php",
+      "medical records",
+      "graphic design",
+      "c++",
+      "maya"
+    ],
+    "job_skills": [
+      "php"
+    ],
+    "candidate_experience": 8,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Finance",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "data analysis",
+      "jupyter",
+      "amazon web services",
+      "teamwork",
+      "plotly"
+    ],
+    "job_skills": [],
+    "candidate_experience": 6,
+    "job_min_experience": 5,
+    "job_max_experience": 6,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "figma",
+      "go",
+      "communication",
+      "matlab",
+      "inventory management",
+      "aws"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 0,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Healthcare",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "excel",
+      "hive",
+      "reactjs"
+    ],
+    "job_skills": [
+      "aws",
+      "go"
+    ],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "javascript",
+      "git",
+      "sql",
+      "vue",
+      "typescript",
+      "css"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "sql",
+      "git"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "go",
+      "symfony",
+      "python",
+      "leadership",
+      "vue",
+      "ruby",
+      "java",
+      "scikit-learn"
+    ],
+    "job_skills": [
+      "python",
+      "java",
+      "react",
+      "aws",
+      "ruby"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 5,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [],
+    "job_skills": [
+      "php",
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "pmp",
+      "go",
+      "firebase",
+      "communication",
+      "user interface",
+      "opencv",
+      "b2c sales",
+      "time management",
+      "scikit-learn",
+      "teamwork"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "customer service",
+      "mariadb",
+      "go"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 5,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "time management",
+      "leadership",
+      "swift"
+    ],
+    "job_skills": [],
+    "candidate_experience": 4,
+    "job_min_experience": 3,
+    "job_max_experience": 5,
+    "job_industry": "Technology",
+    "was_hired": true
+  },
+  {
+    "candidate_skills": [
+      "email marketing",
+      "serverless",
+      "go",
+      "adobe",
+      "communication",
+      "problem solving"
+    ],
+    "job_skills": [
+      "go"
+    ],
+    "candidate_experience": 10,
+    "job_min_experience": 2,
+    "job_max_experience": 2,
+    "job_industry": "Technology",
+    "was_hired": false
+  },
+  {
+    "candidate_skills": [
+      "communication",
+      "assembly",
+      "c#",
+      "problem solving",
+      "scipy",
+      "waterfall",
+      "motion graphics",
+      "teamwork"
+    ],
+    "job_skills": [
+      "javascript",
+      "java",
+      "react",
+      "angular",
+      "c#"
+    ],
+    "candidate_experience": 11,
+    "job_min_experience": 5,
+    "job_max_experience": 8,
+    "job_industry": "Technology",
+    "was_hired": false
+  }
+]
