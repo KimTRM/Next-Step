@@ -153,39 +153,41 @@ export function ApplicationFlowLayout({
             job={job}
             applicant={user}
         >
-            <div className="min-h-screen bg-gray-50/50">
-                <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
-                    {/* Job Header - Centered */}
-                    <div className="flex flex-col items-center text-center mb-8 sm:mb-10">
-                        {/* Avatar Circle */}
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-primary flex items-center justify-center bg-primary/10 mb-4">
-                            <User className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            <div className="min-h-screen bg-white">
+                <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+                    {/* Job Header - Left aligned with avatar */}
+                    <div className="flex items-start gap-4 sm:gap-6 mb-8">
+                        {/* Large Avatar Circle with green border */}
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-primary flex items-center justify-center bg-primary/5 shrink-0">
+                            <User className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
                         </div>
 
                         {/* Job Info */}
-                        <p className="text-sm text-muted-foreground mb-1">
-                            Applying For
-                        </p>
-                        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
-                            {job.title}
-                        </h1>
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-                            <Building2 className="w-4 h-4" />
-                            <span>{job.company}</span>
+                        <div className="flex-1 min-w-0 pt-1">
+                            <p className="text-sm text-gray-500 mb-1">
+                                Applying For
+                            </p>
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                                {job.title}
+                            </h1>
+                            <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
+                                <Building2 className="w-4 h-4" />
+                                <span>{job.company}</span>
+                            </div>
+                            <button
+                                onClick={() => router.push(`/jobs/${jobId}`)}
+                                className="text-primary text-sm hover:underline"
+                            >
+                                View Description
+                            </button>
                         </div>
-                        <button
-                            onClick={() => router.push(`/jobs/${jobId}`)}
-                            className="text-primary text-sm hover:underline font-medium"
-                        >
-                            View Description
-                        </button>
                     </div>
 
                     {/* Stepper */}
-                    <ApplicationPageStepper jobId={jobId} className="mb-8 sm:mb-10" />
+                    <ApplicationPageStepper jobId={jobId} className="mb-8" />
 
-                    {/* Step Content */}
-                    <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6">
+                    {/* Step Content - No card wrapper */}
+                    <div>
                         {children}
                     </div>
                 </div>

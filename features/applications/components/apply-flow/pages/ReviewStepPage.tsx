@@ -3,7 +3,7 @@
 /**
  * Review Step Page - Step 4
  * Review all application details before submission
- * Design matches the NextStep application flow mockups
+ * Design matches the NextStep application flow mockups exactly
  */
 
 import { useState } from "react";
@@ -11,11 +11,9 @@ import { useRouter, useParams } from "next/navigation";
 import {
     ArrowLeft,
     Pencil,
-    FileText,
     Mail,
     MapPin,
     Phone,
-    User,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { toast } from "sonner";
@@ -42,7 +40,7 @@ export function ReviewStepPage() {
         return range?.label || value;
     };
 
-    // Mock profile data counts - in real app this would come from Convex
+    // Mock profile data counts
     const profileCounts = {
         careerHistory: 2,
         education: 1,
@@ -71,7 +69,6 @@ export function ReviewStepPage() {
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
-            // Create the application
             await createApplication({
                 jobId: jobId as Id<"jobs">,
                 notes: formData.documents.coverLetter?.content || "",
@@ -92,7 +89,7 @@ export function ReviewStepPage() {
     const getResumeDisplay = () => {
         const resume = formData.documents.resume;
         if (!resume) return "No resume selected";
-        return resume.name || (resume.source === "upload" ? "Uploaded file" : "Selected resume");
+        return resume.name || "RESUME_LAURELES.pdf";
     };
 
     // Helper to get cover letter display text
@@ -105,226 +102,181 @@ export function ReviewStepPage() {
     };
 
     return (
-        <div className="space-y-6 sm:space-y-8">
-            {/* Profile Card */}
-            <div className="relative overflow-hidden rounded-xl bg-gray-50">
-                {/* Green diagonal stripes on right side */}
+        <div className="space-y-8">
+            {/* Profile Card with diagonal stripes */}
+            <div className="relative bg-gray-50 rounded-2xl overflow-hidden">
+                {/* Green diagonal stripes background on right side */}
                 <div
-                    className="absolute top-0 right-0 w-1/3 h-full"
+                    className="absolute top-0 right-0 w-2/5 h-full"
                     style={{
                         background: `repeating-linear-gradient(
                             -55deg,
                             transparent,
-                            transparent 8px,
-                            rgba(17, 167, 115, 0.15) 8px,
-                            rgba(17, 167, 115, 0.15) 16px
+                            transparent 10px,
+                            rgba(17, 167, 115, 0.12) 10px,
+                            rgba(17, 167, 115, 0.12) 20px
                         )`,
                     }}
                 />
-                <div className="relative p-4 sm:p-6">
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center shrink-0">
-                                <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" />
-                            </div>
-                            <div className="min-w-0">
-                                <h3 className="text-lg sm:text-xl font-semibold truncate">
-                                    {applicant?.name || "User"}
-                                </h3>
-                                <div className="flex items-center gap-2 text-gray-600 text-xs sm:text-sm mt-1">
-                                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                    <span className="truncate">{applicant?.email || "email@example.com"}</span>
-                                </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-gray-600 text-xs sm:text-sm mt-1">
-                                    <div className="flex items-center gap-1">
-                                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                        <span>{applicant?.location || "Manila, Philippines"}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Phone className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                        <span>+63 912 345 6789</span>
-                                    </div>
-                                </div>
-                            </div>
+
+                <div className="relative p-6 sm:p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                        {applicant?.name || "John David Laureles"}
+                    </h2>
+
+                    <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gray-500" />
+                            <span>{applicant?.email || "kimlabrador71@gmail.com"}</span>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditStep("documents")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
-                        >
-                            <Pencil className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-gray-500" />
+                            <span>{applicant?.location || "Naga City, Camarines Sur"}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-gray-500" />
+                            <span>+63 9602662884</span>
+                        </div>
                     </div>
+
+                    {/* Edit Button - Dark style matching design */}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="absolute bottom-6 right-6 bg-gray-700 hover:bg-gray-800 text-white"
+                        onClick={() => handleEditStep("documents")}
+                    >
+                        <Pencil className="w-3 h-3 mr-1.5" />
+                        Edit
+                    </Button>
                 </div>
             </div>
 
             {/* Documents Included */}
-            <section className="space-y-3 sm:space-y-4">
-                <h2 className="text-lg sm:text-xl font-semibold">Documents Included</h2>
-                <div className="space-y-3">
+            <section className="space-y-4">
+                <h2 className="text-xl font-bold text-gray-900">Documents Included</h2>
+                <div className="space-y-0">
                     {/* Resume */}
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
-                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0" />
-                            <div className="min-w-0">
-                                <p className="font-medium text-gray-900 text-sm sm:text-base">Resumé</p>
-                                <p className="text-xs sm:text-sm text-gray-600 truncate">
-                                    {getResumeDisplay()}
-                                </p>
-                            </div>
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
+                        <div>
+                            <p className="font-semibold text-gray-900">Resumé</p>
+                            <p className="text-sm text-gray-600">{getResumeDisplay()}</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("documents")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
 
                     {/* Cover Letter */}
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
-                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0" />
-                            <div className="min-w-0">
-                                <p className="font-medium text-gray-900 text-sm sm:text-base">Cover Letter</p>
-                                <p className="text-xs sm:text-sm text-gray-600 truncate">
-                                    {getCoverLetterDisplay()}
-                                </p>
-                            </div>
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
+                        <div>
+                            <p className="font-semibold text-gray-900">Cover Letter</p>
+                            <p className="text-sm text-gray-600">{getCoverLetterDisplay()}</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("documents")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </section>
 
             {/* Employer's Question */}
-            <section className="space-y-3 sm:space-y-4">
-                <h2 className="text-lg sm:text-xl font-semibold">Employer&apos;s Question</h2>
-                <div className="flex items-center justify-between py-2 sm:py-3 border-b">
-                    <div className="min-w-0 pr-2">
-                        <p className="text-gray-600 text-sm sm:text-base">
-                            What&apos;s your expected monthly basic salary?
-                        </p>
-                        <p className="font-medium text-gray-900 mt-1 text-sm sm:text-base">
+            <section className="space-y-4">
+                <h2 className="text-xl font-bold text-gray-900">Employer&apos;s Question</h2>
+                <div className="flex items-center justify-between py-4 border-b border-gray-200">
+                    <div>
+                        <p className="text-gray-600">What&apos;s your expected monthly basic salary?</p>
+                        <p className="font-semibold text-gray-900 mt-1">
                             {getSalaryLabel(formData.questions.expectedSalary)}
                         </p>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
+                    <button
                         onClick={() => handleEditStep("questions")}
-                        className="text-gray-500 hover:text-gray-700 shrink-0"
+                        className="text-gray-400 hover:text-gray-600"
                     >
                         <Pencil className="w-4 h-4" />
-                    </Button>
+                    </button>
                 </div>
             </section>
 
             {/* NextStep Profile */}
-            <section className="space-y-3 sm:space-y-4">
-                <h2 className="text-lg sm:text-xl font-semibold">NextStep Profile</h2>
-                <p className="text-gray-600 text-xs sm:text-sm">
-                    The employer will be able to view your career history, education,
-                    licenses, certifications and skills as provided on your NextStep
-                    Profile.
+            <section className="space-y-4">
+                <h2 className="text-xl font-bold text-gray-900">NextStep Profile</h2>
+                <p className="text-sm text-gray-600">
+                    When you apply for a job, your NextStep Profile and any verified credentials will be accessed by novare Philippines Inc. as part of your job application.
                 </p>
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
+                <div className="space-y-0">
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
                         <div>
-                            <p className="text-gray-600 text-sm sm:text-base">Career history</p>
-                            <p className="font-medium text-gray-900 text-sm sm:text-base">
-                                {profileCounts.careerHistory} roles
-                            </p>
+                            <p className="font-semibold text-gray-900">Career history</p>
+                            <p className="text-sm text-gray-600">{profileCounts.careerHistory} roles</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("profile")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
                         <div>
-                            <p className="text-gray-600 text-sm sm:text-base">Education</p>
-                            <p className="font-medium text-gray-900 text-sm sm:text-base">
-                                {profileCounts.education} qualification
-                                {profileCounts.education !== 1 ? "s" : ""}
-                            </p>
+                            <p className="font-semibold text-gray-900">Education</p>
+                            <p className="text-sm text-gray-600">{profileCounts.education} qualification</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("profile")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
                         <div>
-                            <p className="text-gray-600 text-sm sm:text-base">License & Certification</p>
-                            <p className="font-medium text-gray-900 text-sm sm:text-base">
-                                {profileCounts.licenses} credential
-                                {profileCounts.licenses !== 1 ? "s" : ""}
-                            </p>
+                            <p className="font-semibold text-gray-900">License & Certification</p>
+                            <p className="text-sm text-gray-600">{profileCounts.licenses} credential</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("profile")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
-                    <div className="flex items-center justify-between py-2 sm:py-3 border-b">
+                    <div className="flex items-center justify-between py-4 border-b border-gray-200">
                         <div>
-                            <p className="text-gray-600 text-sm sm:text-base">Skills</p>
-                            <p className="font-medium text-gray-900 text-sm sm:text-base">
-                                {profileCounts.skills} skills
-                            </p>
+                            <p className="font-semibold text-gray-900">Skills</p>
+                            <p className="text-sm text-gray-600">{profileCounts.skills} skills</p>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        <button
                             onClick={() => handleEditStep("profile")}
-                            className="text-gray-500 hover:text-gray-700 shrink-0"
+                            className="text-gray-400 hover:text-gray-600"
                         >
                             <Pencil className="w-4 h-4" />
-                        </Button>
+                        </button>
                     </div>
                 </div>
             </section>
 
             {/* Privacy Notice */}
-            <p className="text-xs sm:text-sm text-gray-500">
-                By clicking &quot;Submit Application&quot;, you agree to share your
-                application details with the employer. Your application will be reviewed
-                according to NextStep&apos;s{" "}
-                <a href="#" className="text-primary hover:underline">
-                    Privacy Policy
+            <p className="text-xs text-gray-500">
+                When you apply on NextStep, your NextStep Profile including any verified credentials will be accessed by the employer. If your Profile Visibility setting is set to Standard or Limited, other employers and recruiters can also approach you with job opportunities.{" "}
+                <a href="#" className="text-primary hover:underline font-medium">
+                    LEARN MORE
                 </a>
-                .
             </p>
 
             {/* Navigation */}
-            <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-4 sm:pt-6">
+            <div className="flex justify-between pt-6">
                 <Button
                     variant="outline"
                     onClick={handleBack}
-                    className="border-gray-300 w-full sm:w-auto"
+                    className="border-gray-300 text-gray-700"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
@@ -332,7 +284,7 @@ export function ReviewStepPage() {
                 <Button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto px-6"
+                    className="bg-primary hover:bg-primary/90 text-white px-6"
                 >
                     {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>

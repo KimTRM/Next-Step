@@ -3,7 +3,7 @@
 /**
  * Documents Step Page - Step 1
  * Choose documents: Resume and Cover Letter
- * Design matches the NextStep application flow mockups
+ * Design matches the NextStep application flow mockups exactly
  */
 
 import { useState, useCallback } from "react";
@@ -126,51 +126,51 @@ export function DocumentsStepPage() {
     const canContinue = isStepValid(1);
 
     return (
-        <div className="space-y-6 sm:space-y-8">
-            {/* Profile Card */}
-            <div className="relative bg-gray-50 rounded-xl overflow-hidden">
+        <div className="space-y-8">
+            {/* Profile Card with diagonal stripes */}
+            <div className="relative bg-gray-50 rounded-2xl overflow-hidden">
                 {/* Green diagonal stripes background on right side */}
                 <div
-                    className="absolute top-0 right-0 w-1/3 h-full"
+                    className="absolute top-0 right-0 w-2/5 h-full"
                     style={{
                         background: `repeating-linear-gradient(
                             -55deg,
                             transparent,
-                            transparent 8px,
-                            rgba(17, 167, 115, 0.15) 8px,
-                            rgba(17, 167, 115, 0.15) 16px
+                            transparent 10px,
+                            rgba(17, 167, 115, 0.12) 10px,
+                            rgba(17, 167, 115, 0.12) 20px
                         )`,
                     }}
                 />
 
-                <div className="relative p-4 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-3 sm:mb-4">
-                        {applicant?.name || "Your Name"}
+                <div className="relative p-6 sm:p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                        {applicant?.name || "John David Laureles"}
                     </h2>
 
                     <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 shrink-0" />
-                            <span className="truncate">{applicant?.email || "email@example.com"}</span>
+                            <Mail className="w-4 h-4 text-gray-500" />
+                            <span>{applicant?.email || "kimlabrador71@gmail.com"}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 shrink-0" />
-                            <span>{applicant?.location || "Manila, Philippines"}</span>
+                            <MapPin className="w-4 h-4 text-gray-500" />
+                            <span>{applicant?.location || "Naga City, Camarines Sur"}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 shrink-0" />
-                            <span>+63 912 345 6789</span>
+                            <Phone className="w-4 h-4 text-gray-500" />
+                            <span>+63 9602662884</span>
                         </div>
                     </div>
 
-                    {/* Edit Button */}
+                    {/* Edit Button - Dark style matching design */}
                     <Button
                         variant="secondary"
                         size="sm"
-                        className="absolute bottom-4 right-4"
+                        className="absolute bottom-6 right-6 bg-gray-700 hover:bg-gray-800 text-white"
                         onClick={() => window.open("/profile", "_blank")}
                     >
-                        <Pencil className="w-3 h-3 mr-1" />
+                        <Pencil className="w-3 h-3 mr-1.5" />
                         Edit
                     </Button>
                 </div>
@@ -178,21 +178,21 @@ export function DocumentsStepPage() {
 
             {/* Resume Section */}
             <div className="space-y-3">
-                <h3 className="text-lg font-semibold">Resumé</h3>
+                <h3 className="text-lg font-bold text-gray-900">Resumé</h3>
                 <RadioGroup
                     value={resumeOption}
                     onValueChange={(v) => setResumeOption(v as ResumeOption)}
                     className="space-y-2"
                 >
                     <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="upload" id="resume-upload" />
-                        <Label htmlFor="resume-upload" className="font-normal cursor-pointer">
+                        <RadioGroupItem value="upload" id="resume-upload" className="border-gray-400" />
+                        <Label htmlFor="resume-upload" className="font-normal text-gray-700 cursor-pointer">
                             Upload a resumé
                         </Label>
                     </div>
                     <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="select" id="resume-select" />
-                        <Label htmlFor="resume-select" className="font-normal cursor-pointer">
+                        <RadioGroupItem value="select" id="resume-select" className="border-gray-400" />
+                        <Label htmlFor="resume-select" className="font-normal text-gray-700 cursor-pointer">
                             Select a resumé
                         </Label>
                     </div>
@@ -217,8 +217,8 @@ export function DocumentsStepPage() {
 
                 {/* Select existing resume */}
                 {resumeOption === "select" && (
-                    <div className="mt-3 p-4 border rounded-lg bg-muted/30">
-                        <p className="text-sm text-muted-foreground">
+                    <div className="mt-3 p-4 border rounded-lg bg-gray-50">
+                        <p className="text-sm text-gray-500">
                             Your saved resumes will appear here. Upload a new one or select from your profile.
                         </p>
                     </div>
@@ -227,7 +227,7 @@ export function DocumentsStepPage() {
 
             {/* Cover Letter Section */}
             <div className="space-y-3">
-                <h3 className="text-lg font-semibold">Cover Letter</h3>
+                <h3 className="text-lg font-bold text-gray-900">Cover Letter</h3>
                 <RadioGroup
                     value={coverLetterOption}
                     onValueChange={(v) =>
@@ -236,67 +236,73 @@ export function DocumentsStepPage() {
                     className="space-y-2"
                 >
                     <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="upload" id="cover-upload" />
-                        <Label htmlFor="cover-upload" className="font-normal cursor-pointer">
+                        <RadioGroupItem value="upload" id="cover-upload" className="border-gray-400" />
+                        <Label htmlFor="cover-upload" className="font-normal text-gray-700 cursor-pointer">
                             Upload a cover letter
                         </Label>
                     </div>
                     <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="write" id="cover-write" />
-                        <Label htmlFor="cover-write" className="font-normal cursor-pointer">
+                        <RadioGroupItem value="write" id="cover-write" className="border-gray-400" />
+                        <Label htmlFor="cover-write" className="font-normal text-gray-700 cursor-pointer">
                             Write a cover letter
                         </Label>
                     </div>
-                    <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="skip" id="cover-skip" />
-                        <Label htmlFor="cover-skip" className="font-normal cursor-pointer">
+
+                    {/* Write cover letter textarea - shown when write is selected */}
+                    {coverLetterOption === "write" && (
+                        <div className="mt-3 space-y-3 pl-6">
+                            <p className="text-sm text-gray-500">
+                                Introduce yourself and briefly explain why you are suitable for
+                                this role. Consider your relevant skills, qualifications and
+                                related experience.
+                            </p>
+                            <Textarea
+                                placeholder="Enter your Cover Letter here..."
+                                value={coverLetterText}
+                                onChange={(e) => handleCoverLetterTextChange(e.target.value)}
+                                rows={6}
+                                className="resize-none bg-gray-50 border-gray-200"
+                            />
+                        </div>
+                    )}
+
+                    {/* Upload input for cover letter */}
+                    {coverLetterOption === "upload" && (
+                        <div className="mt-3 pl-6">
+                            <input
+                                type="file"
+                                accept=".pdf,.doc,.docx"
+                                onChange={handleCoverLetterUpload}
+                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                            />
+                            {formData.documents.coverLetter?.option === "upload" && (
+                                <p className="mt-2 text-sm text-primary">
+                                    Selected: {formData.documents.coverLetter.name}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Don't include option */}
+                    <div className="flex items-center space-x-3 pt-2">
+                        <RadioGroupItem
+                            value="skip"
+                            id="cover-skip"
+                            className="border-gray-400"
+                        />
+                        <Label htmlFor="cover-skip" className="font-normal text-gray-700 cursor-pointer">
                             Don&apos;t include a cover letter
                         </Label>
                     </div>
                 </RadioGroup>
-
-                {/* Upload input for cover letter */}
-                {coverLetterOption === "upload" && (
-                    <div className="mt-3">
-                        <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            onChange={handleCoverLetterUpload}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                        />
-                        {formData.documents.coverLetter?.option === "upload" && (
-                            <p className="mt-2 text-sm text-primary">
-                                Selected: {formData.documents.coverLetter.name}
-                            </p>
-                        )}
-                    </div>
-                )}
-
-                {/* Write cover letter textarea */}
-                {coverLetterOption === "write" && (
-                    <div className="mt-3 space-y-2">
-                        <p className="text-sm text-muted-foreground">
-                            Introduce yourself and briefly explain why you are suitable for
-                            this role. Consider your relevant skills, qualifications and
-                            related experience.
-                        </p>
-                        <Textarea
-                            placeholder="Enter your Cover Letter here..."
-                            value={coverLetterText}
-                            onChange={(e) => handleCoverLetterTextChange(e.target.value)}
-                            rows={6}
-                            className="resize-none"
-                        />
-                    </div>
-                )}
             </div>
 
-            {/* Navigation */}
-            <div className="flex justify-end pt-4 sm:pt-6">
+            {/* Navigation - Right aligned */}
+            <div className="flex justify-end pt-6">
                 <Button
                     onClick={handleContinue}
                     disabled={!canContinue}
-                    className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto px-6"
+                    className="bg-primary hover:bg-primary/90 text-white px-6"
                 >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />

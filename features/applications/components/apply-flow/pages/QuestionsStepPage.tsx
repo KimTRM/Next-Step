@@ -3,11 +3,11 @@
 /**
  * Questions Step Page - Step 2
  * Answer employer questions - salary expectations
- * Design matches the NextStep application flow mockups
+ * Design matches the NextStep application flow mockups exactly
  */
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
     Select,
@@ -40,10 +40,10 @@ export function QuestionsStepPage() {
     const canContinue = isStepValid(2);
 
     return (
-        <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-8">
             {/* Question */}
             <div className="space-y-4">
-                <h2 className="text-lg sm:text-xl font-semibold">
+                <h2 className="text-xl font-bold text-gray-900">
                     What&apos;s your expected monthly basic salary?
                 </h2>
 
@@ -51,7 +51,7 @@ export function QuestionsStepPage() {
                     value={formData.questions.expectedSalary || ""}
                     onValueChange={(value) => updateQuestions({ expectedSalary: value })}
                 >
-                    <SelectTrigger className="w-full sm:max-w-md bg-gray-100 border-0 h-12">
+                    <SelectTrigger className="w-full max-w-md bg-gray-100 border-0 h-12 text-gray-700">
                         <SelectValue placeholder="Select salary range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -64,12 +64,12 @@ export function QuestionsStepPage() {
                 </Select>
             </div>
 
-            {/* Navigation */}
-            <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-4 sm:pt-6">
+            {/* Navigation - Spread apart at bottom */}
+            <div className="flex justify-between pt-8">
                 <Button
                     variant="outline"
                     onClick={handleBack}
-                    className="border-gray-300 w-full sm:w-auto"
+                    className="border-gray-300 text-gray-700"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
@@ -77,7 +77,7 @@ export function QuestionsStepPage() {
                 <Button
                     onClick={handleContinue}
                     disabled={!canContinue}
-                    className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto px-6"
+                    className="bg-primary hover:bg-primary/90 text-white px-6"
                 >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />

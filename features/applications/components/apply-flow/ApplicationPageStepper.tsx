@@ -75,71 +75,65 @@ export function ApplicationPageStepper({
         <nav aria-label="Application progress" className={cn("w-full", className)}>
             {/* Desktop Stepper */}
             <div className="hidden sm:block">
-                {/* Dots and Lines - Centered */}
-                <div className="flex items-center justify-center mb-4">
+                {/* Dots, Lines, and Labels in one row */}
+                <div className="flex items-start justify-between">
                     {STEPS.map((step, index) => {
                         const status = getStepStatus(step);
                         const isClickable = canNavigateToStep(step) || step < currentStep;
+                        const isCompleted = status === "completed" || status === "active";
 
                         return (
-                            <div key={step} className="flex items-center">
-                                {/* Dot */}
+                            <div key={step} className="flex flex-col items-center flex-1">
+                                {/* Dot and Line Row */}
+                                <div className="flex items-center w-full justify-center">
+                                    {/* Left Line (except first) */}
+                                    {index > 0 && (
+                                        <div className="flex-1 h-0 border-t-2 border-dashed border-gray-300"
+                                            style={{
+                                                borderColor: step <= currentStep ? '#11A773' : '#D1D5DB'
+                                            }}
+                                        />
+                                    )}
+
+                                    {/* Dot */}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleStepClick(step)}
+                                        disabled={!isClickable}
+                                        className={cn(
+                                            "w-3 h-3 rounded-full transition-all duration-200 shrink-0",
+                                            isCompleted ? "bg-primary" : "bg-gray-300",
+                                            isClickable && "cursor-pointer hover:scale-125",
+                                            !isClickable && "cursor-not-allowed"
+                                        )}
+                                        aria-current={status === "active" ? "step" : undefined}
+                                    />
+
+                                    {/* Right Line (except last) */}
+                                    {index < STEPS.length - 1 && (
+                                        <div className="flex-1 h-0 border-t-2 border-dashed border-gray-300"
+                                            style={{
+                                                borderColor: step < currentStep ? '#11A773' : '#D1D5DB'
+                                            }}
+                                        />
+                                    )}
+                                </div>
+
+                                {/* Label */}
                                 <button
                                     type="button"
                                     onClick={() => handleStepClick(step)}
                                     disabled={!isClickable}
                                     className={cn(
-                                        "w-3 h-3 rounded-full transition-all duration-200 shrink-0",
-                                        status === "completed" && "bg-primary",
-                                        status === "active" && "bg-primary",
-                                        status === "upcoming" && "bg-gray-300",
-                                        isClickable && "cursor-pointer hover:scale-125",
+                                        "text-xs text-center leading-tight mt-2 px-1",
+                                        isCompleted ? "text-primary font-medium" : "text-gray-500",
+                                        isClickable && "cursor-pointer hover:text-primary",
                                         !isClickable && "cursor-not-allowed"
                                     )}
-                                    aria-current={status === "active" ? "step" : undefined}
-                                />
-
-                                {/* Dashed Line */}
-                                {index < STEPS.length - 1 && (
-                                    <div className="w-20 lg:w-28 mx-1">
-                                        <div
-                                            className={cn(
-                                                "border-t-2 border-dashed",
-                                                step < currentStep
-                                                    ? "border-primary"
-                                                    : "border-gray-300"
-                                            )}
-                                        />
-                                    </div>
-                                )}
+                                >
+                                    {STEP_LABELS[step]}
+                                </button>
                             </div>
-                        );
-                    })}
-                </div>
-
-                {/* Labels - Centered */}
-                <div className="flex justify-center gap-4 lg:gap-8">
-                    {STEPS.map((step) => {
-                        const status = getStepStatus(step);
-                        const isClickable = canNavigateToStep(step) || step < currentStep;
-
-                        return (
-                            <button
-                                key={step}
-                                type="button"
-                                onClick={() => handleStepClick(step)}
-                                disabled={!isClickable}
-                                className={cn(
-                                    "text-xs text-center leading-tight w-24 lg:w-28",
-                                    status === "completed" && "text-primary font-medium",
-                                    status === "active" && "text-primary font-medium",
-                                    status === "upcoming" && "text-muted-foreground",
-                                    isClickable && "cursor-pointer hover:text-primary",
-                                    !isClickable && "cursor-not-allowed"
-                                )}
-                            >
-                                {STEP_LABELS[step]}
-                            </button>
                         );
                     })}
                 </div>
@@ -147,25 +141,39 @@ export function ApplicationPageStepper({
 
             {/* Mobile Stepper */}
             <div className="sm:hidden">
-                <div className="text-center mb-3">
-                    <span className="text-sm font-medium text-gray-900">
-                        Step {currentStep} of {STEPS.length}
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        {STEP_LABELS[currentStep]}
-                    </p>
+                {/* Dots and lines */}
+                <div className="flex items-center justify-center mb-3">
+                    {STEPS.map((step, index) => {
+                        const isCompleted = step <= currentStep;
+
+                        return (
+                            <div key={step} className="flex items-center">
+                                {/* Dot */}
+                                <div
+                                    className={cn(
+                                        "w-2.5 h-2.5 rounded-full",
+                                        isCompleted ? "bg-primary" : "bg-gray-300"
+                                    )}
+                                />
+
+                                {/* Line (except last) */}
+                                {index < STEPS.length - 1 && (
+                                    <div
+                                        className="w-16 h-0 border-t-2 border-dashed mx-1"
+                                        style={{
+                                            borderColor: step < currentStep ? '#11A773' : '#D1D5DB'
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
-                <div className="flex gap-2 justify-center">
-                    {STEPS.map((step) => (
-                        <div
-                            key={step}
-                            className={cn(
-                                "w-12 h-1.5 rounded-full transition-colors duration-200",
-                                step <= currentStep ? "bg-primary" : "bg-gray-200"
-                            )}
-                        />
-                    ))}
-                </div>
+
+                {/* Current step label */}
+                <p className="text-center text-sm text-primary font-medium">
+                    {STEP_LABELS[currentStep]}
+                </p>
             </div>
         </nav>
     );
