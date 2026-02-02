@@ -2,23 +2,29 @@
 
 /**
  * Application Page Stepper - URL-based navigation stepper
+ * Matches the NextStep design with dashed lines and labeled steps
  */
 
 import { usePathname, useRouter } from "next/navigation";
-import { Check } from "lucide-react";
 import { cn } from "@/shared/components/ui/utils";
 import type { ApplicationStep } from "../../types/apply-flow";
-import { STEP_LABELS } from "../../types/apply-flow";
 import { useApplicationFlow } from "../../contexts/ApplicationFlowContext";
 
 const STEPS: ApplicationStep[] = [1, 2, 3, 4];
 
+const STEP_LABELS: Record<ApplicationStep, string> = {
+    1: "Choose documents",
+    2: "Answer employer questions",
+    3: "Update NextStep Profile",
+    4: "Review and submit",
+};
+
 // Map steps to URL paths
 const STEP_PATHS: Record<ApplicationStep, string> = {
-    1: "",           // /jobs/[id]/apply
-    2: "/questions", // /jobs/[id]/apply/questions
-    3: "/profile",   // /jobs/[id]/apply/profile
-    4: "/review",    // /jobs/[id]/apply/review
+    1: "",
+    2: "/questions",
+    3: "/profile",
+    4: "/review",
 };
 
 interface ApplicationPageStepperProps {
@@ -26,7 +32,10 @@ interface ApplicationPageStepperProps {
     className?: string;
 }
 
-export function ApplicationPageStepper({ jobId, className }: ApplicationPageStepperProps) {
+export function ApplicationPageStepper({
+    jobId,
+    className,
+}: ApplicationPageStepperProps) {
     const router = useRouter();
     const pathname = usePathname();
     const { isStepValid } = useApplicationFlow();
@@ -48,11 +57,8 @@ export function ApplicationPageStepper({ jobId, className }: ApplicationPageStep
     };
 
     const canNavigateToStep = (step: ApplicationStep): boolean => {
-        // Can always go back
         if (step < currentStep) return true;
-        // Can't skip ahead more than one step
         if (step > currentStep + 1) return false;
-        // Can proceed if current step is valid
         if (step === currentStep + 1) return isStepValid(currentStep);
         return false;
     };
@@ -68,90 +74,94 @@ export function ApplicationPageStepper({ jobId, className }: ApplicationPageStep
     return (
         <nav aria-label="Application progress" className={cn("w-full", className)}>
             {/* Desktop Stepper */}
-            <ol className="hidden sm:flex items-center justify-between">
-                {STEPS.map((step, index) => {
-                    const status = getStepStatus(step);
-                    const isClickable = canNavigateToStep(step) || step < currentStep;
+            <div className="hidden sm:block">
+                {/* Dots and Lines - Centered */}
+                <div className="flex items-center justify-center mb-4">
+                    {STEPS.map((step, index) => {
+                        const status = getStepStatus(step);
+                        const isClickable = canNavigateToStep(step) || step < currentStep;
 
-                    return (
-                        <li key={step} className="flex-1 flex items-center">
+                        return (
+                            <div key={step} className="flex items-center">
+                                {/* Dot */}
+                                <button
+                                    type="button"
+                                    onClick={() => handleStepClick(step)}
+                                    disabled={!isClickable}
+                                    className={cn(
+                                        "w-3 h-3 rounded-full transition-all duration-200 shrink-0",
+                                        status === "completed" && "bg-primary",
+                                        status === "active" && "bg-primary",
+                                        status === "upcoming" && "bg-gray-300",
+                                        isClickable && "cursor-pointer hover:scale-125",
+                                        !isClickable && "cursor-not-allowed"
+                                    )}
+                                    aria-current={status === "active" ? "step" : undefined}
+                                />
+
+                                {/* Dashed Line */}
+                                {index < STEPS.length - 1 && (
+                                    <div className="w-20 lg:w-28 mx-1">
+                                        <div
+                                            className={cn(
+                                                "border-t-2 border-dashed",
+                                                step < currentStep
+                                                    ? "border-primary"
+                                                    : "border-gray-300"
+                                            )}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Labels - Centered */}
+                <div className="flex justify-center gap-4 lg:gap-8">
+                    {STEPS.map((step) => {
+                        const status = getStepStatus(step);
+                        const isClickable = canNavigateToStep(step) || step < currentStep;
+
+                        return (
                             <button
+                                key={step}
                                 type="button"
                                 onClick={() => handleStepClick(step)}
                                 disabled={!isClickable}
                                 className={cn(
-                                    "flex items-center gap-3 group w-full",
-                                    isClickable && "cursor-pointer",
+                                    "text-xs text-center leading-tight w-24 lg:w-28",
+                                    status === "completed" && "text-primary font-medium",
+                                    status === "active" && "text-primary font-medium",
+                                    status === "upcoming" && "text-muted-foreground",
+                                    isClickable && "cursor-pointer hover:text-primary",
                                     !isClickable && "cursor-not-allowed"
                                 )}
-                                aria-current={status === "active" ? "step" : undefined}
                             >
-                                {/* Step Circle */}
-                                <div
-                                    className={cn(
-                                        "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 shrink-0",
-                                        status === "completed" && "bg-primary border-primary text-primary-foreground",
-                                        status === "active" && "border-primary bg-primary/10 text-primary",
-                                        status === "upcoming" && "border-muted-foreground/30 text-muted-foreground/50",
-                                        isClickable && status !== "active" && "group-hover:border-primary/70"
-                                    )}
-                                >
-                                    {status === "completed" ? (
-                                        <Check className="w-5 h-5" aria-hidden="true" />
-                                    ) : (
-                                        <span className="text-sm font-semibold">{step}</span>
-                                    )}
-                                </div>
-
-                                {/* Step Label */}
-                                <div className="flex flex-col items-start min-w-0">
-                                    <span
-                                        className={cn(
-                                            "text-sm font-medium truncate",
-                                            status === "completed" && "text-primary",
-                                            status === "active" && "text-foreground",
-                                            status === "upcoming" && "text-muted-foreground/60"
-                                        )}
-                                    >
-                                        {STEP_LABELS[step]}
-                                    </span>
-                                </div>
+                                {STEP_LABELS[step]}
                             </button>
-
-                            {/* Connector Line */}
-                            {index < STEPS.length - 1 && (
-                                <div
-                                    className={cn(
-                                        "flex-1 h-0.5 mx-4 transition-colors duration-200",
-                                        step < currentStep ? "bg-primary" : "bg-muted"
-                                    )}
-                                    aria-hidden="true"
-                                />
-                            )}
-                        </li>
-                    );
-                })}
-            </ol>
+                        );
+                    })}
+                </div>
+            </div>
 
             {/* Mobile Stepper */}
             <div className="sm:hidden">
-                <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">
+                <div className="text-center mb-3">
+                    <span className="text-sm font-medium text-gray-900">
                         Step {currentStep} of {STEPS.length}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-1">
                         {STEP_LABELS[currentStep]}
-                    </span>
+                    </p>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2 justify-center">
                     {STEPS.map((step) => (
                         <div
                             key={step}
                             className={cn(
-                                "flex-1 h-2 rounded-full transition-colors duration-200",
-                                step < currentStep && "bg-primary",
-                                step === currentStep && "bg-primary/50",
-                                step > currentStep && "bg-muted"
+                                "w-12 h-1.5 rounded-full transition-colors duration-200",
+                                step <= currentStep ? "bg-primary" : "bg-gray-200"
                             )}
                         />
                     ))}

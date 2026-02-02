@@ -2,24 +2,92 @@
 
 /**
  * Profile Step Page - Step 3
- * Review and update profile information
+ * Update NextStep Profile before submitting application
+ * Design matches the NextStep application flow mockups
  */
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, ExternalLink, User } from "lucide-react";
+import {
+    ArrowLeft,
+    ArrowRight,
+    Pencil,
+    Plus,
+    Building2,
+    GraduationCap,
+    Award,
+    ChevronDown,
+} from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { useApplicationFlow } from "../../../contexts/ApplicationFlowContext";
+
+// Mock profile data - in real app this would come from Convex
+const mockProfileData = {
+    careerHistory: [
+        {
+            id: "1",
+            title: "Front End Developer",
+            company: "Clink",
+            startDate: "Jun 2022",
+            endDate: "Present",
+            duration: "2 years 10 months",
+            description:
+                "Developed and maintained responsive web applications using React, TypeScript, and Tailwind CSS. Collaborated with design team...",
+        },
+        {
+            id: "2",
+            title: "Junior Developer",
+            company: "TechStart Inc.",
+            startDate: "Jan 2021",
+            endDate: "May 2022",
+            duration: "1 year 5 months",
+            description:
+                "Built internal tools and contributed to client projects. Learned agile methodologies and best practices...",
+        },
+    ],
+    education: [
+        {
+            id: "1",
+            degree: "Bachelor of Science in Computer Science",
+            institution: "University of Technology",
+            year: "2020",
+        },
+    ],
+    licenses: [
+        {
+            id: "1",
+            name: "AWS Certified Cloud Practitioner",
+            issuer: "Amazon Web Services",
+            year: "2023",
+        },
+    ],
+    skills: [
+        "React",
+        "TypeScript",
+        "JavaScript",
+        "Next.js",
+        "Node.js",
+        "Tailwind CSS",
+        "Git",
+        "REST APIs",
+        "GraphQL",
+        "PostgreSQL",
+        "MongoDB",
+        "AWS",
+        "Docker",
+        "Figma",
+        "Agile",
+        "CI/CD",
+    ],
+};
 
 export function ProfileStepPage() {
     const router = useRouter();
     const params = useParams();
     const jobId = params.id as string;
 
-    const { state } = useApplicationFlow();
-    const { applicant, formData } = state;
+    const { } = useApplicationFlow();
 
     const handleBack = () => {
         router.push(`/jobs/${jobId}/apply/questions`);
@@ -29,145 +97,168 @@ export function ProfileStepPage() {
         router.push(`/jobs/${jobId}/apply/review`);
     };
 
-    const handleEditProfile = () => {
-        window.open("/profile", "_blank");
-    };
-
-    if (!applicant) {
-        return null;
-    }
-
-    // Format date for display
-    const formatDate = (timestamp?: number) => {
-        if (!timestamp) return "";
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-        });
-    };
-
     return (
-        <div className="space-y-6">
-            <div className="flex items-start justify-between">
-                <div>
-                    <h2 className="text-2xl font-semibold mb-2">Review Your Profile</h2>
-                    <p className="text-muted-foreground">
-                        This information will be shared with the employer.
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleEditProfile}>
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Edit Profile
-                </Button>
-            </div>
+        <div className="space-y-6 sm:space-y-8">
+            {/* Info Banner */}
+            <Alert className="bg-primary/5 border-primary/20">
+                <AlertDescription className="text-sm sm:text-base text-gray-700">
+                    Your NextStep Profile is part of your application. Make sure it&apos;s
+                    up-to-date.
+                </AlertDescription>
+            </Alert>
 
-            {/* Profile Header */}
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="w-16 h-16">
-                            <AvatarImage src={applicant.avatarUrl || undefined} alt={applicant.name} />
-                            <AvatarFallback>
-                                <User className="w-8 h-8" />
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h3 className="text-lg font-semibold">{applicant.name}</h3>
-                            <p className="text-muted-foreground">{applicant.email}</p>
-                            {applicant.location && (
-                                <p className="text-sm text-muted-foreground">{applicant.location}</p>
-                            )}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Skills */}
-            {formData.profile.skills && formData.profile.skills.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Skills</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-wrap gap-2">
-                            {formData.profile.skills.map((skill, index) => (
-                                <Badge key={index} variant="secondary">
-                                    {skill}
-                                </Badge>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Experience */}
-            {formData.profile.experience && formData.profile.experience.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Experience</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {formData.profile.experience.map((exp, index) => (
-                            <div key={index} className="border-l-2 border-primary/30 pl-4">
-                                <h4 className="font-medium">{exp.title}</h4>
-                                <p className="text-sm text-muted-foreground">{exp.company}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {formatDate(exp.startDate)} - {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
-                                </p>
-                                {exp.description && (
-                                    <p className="text-sm mt-2">{exp.description}</p>
-                                )}
+            {/* Career History */}
+            <section className="space-y-3 sm:space-y-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Career History</h2>
+                <div className="space-y-3 sm:space-y-4">
+                    {mockProfileData.careerHistory.map((job) => (
+                        <div
+                            key={job.id}
+                            className="border rounded-lg p-3 sm:p-4 bg-gray-50 relative group"
+                        >
+                            <button className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <Pencil className="w-4 h-4" />
+                            </button>
+                            <div className="flex items-start gap-3">
+                                <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+                                    <Building2 className="w-5 h-5 text-gray-500" />
+                                </div>
+                                <div className="flex-1 min-w-0 pr-6 sm:pr-8">
+                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{job.title}</h3>
+                                    <p className="text-gray-600 text-sm">{job.company}</p>
+                                    <p className="text-xs sm:text-sm text-gray-500">
+                                        {job.startDate} – {job.endDate} · {job.duration}
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">
+                                        {job.description}
+                                    </p>
+                                    <button className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 mt-1 flex items-center gap-1">
+                                        More <ChevronDown className="w-3 h-3" />
+                                    </button>
+                                </div>
                             </div>
-                        ))}
-                    </CardContent>
-                </Card>
-            )}
+                        </div>
+                    ))}
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-primary text-primary hover:bg-primary/5"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Role
+                </Button>
+            </section>
 
             {/* Education */}
-            {formData.profile.education && formData.profile.education.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Education</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {formData.profile.education.map((edu, index) => (
-                            <div key={index} className="border-l-2 border-primary/30 pl-4">
-                                <h4 className="font-medium">{edu.degree}</h4>
-                                <p className="text-sm text-muted-foreground">{edu.institution}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {formatDate(edu.startDate)} - {edu.isCurrent ? "Present" : formatDate(edu.endDate)}
-                                </p>
+            <section className="space-y-3 sm:space-y-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Education</h2>
+                <div className="space-y-3 sm:space-y-4">
+                    {mockProfileData.education.map((edu) => (
+                        <div
+                            key={edu.id}
+                            className="border rounded-lg p-3 sm:p-4 bg-white relative group"
+                        >
+                            <button className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <Pencil className="w-4 h-4" />
+                            </button>
+                            <div className="flex items-start gap-2 sm:gap-3">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                                </div>
+                                <div className="flex-1 min-w-0 pr-6 sm:pr-8">
+                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{edu.degree}</h3>
+                                    <p className="text-gray-600 text-sm sm:text-base">{edu.institution}</p>
+                                    <p className="text-xs sm:text-sm text-gray-500">{edu.year}</p>
+                                </div>
                             </div>
-                        ))}
-                    </CardContent>
-                </Card>
-            )}
+                        </div>
+                    ))}
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-primary text-primary hover:bg-primary/5 w-full sm:w-auto"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Education
+                </Button>
+            </section>
 
-            {/* Empty State */}
-            {(!formData.profile.skills || formData.profile.skills.length === 0) &&
-                (!formData.profile.experience || formData.profile.experience.length === 0) &&
-                (!formData.profile.education || formData.profile.education.length === 0) && (
-                    <Card>
-                        <CardContent className="pt-6 text-center">
-                            <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                            <p className="text-muted-foreground mb-4">
-                                Your profile appears to be incomplete. A complete profile helps employers understand your qualifications.
-                            </p>
-                            <Button variant="outline" onClick={handleEditProfile}>
-                                Complete Your Profile
-                            </Button>
-                        </CardContent>
-                    </Card>
-                )}
+            {/* Licenses & Certifications */}
+            <section className="space-y-3 sm:space-y-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Licences & certifications</h2>
+                <div className="space-y-3 sm:space-y-4">
+                    {mockProfileData.licenses.map((license) => (
+                        <div
+                            key={license.id}
+                            className="border rounded-lg p-3 sm:p-4 bg-white relative group"
+                        >
+                            <button className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <Pencil className="w-4 h-4" />
+                            </button>
+                            <div className="flex items-start gap-2 sm:gap-3">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                                </div>
+                                <div className="flex-1 min-w-0 pr-6 sm:pr-8">
+                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{license.name}</h3>
+                                    <p className="text-gray-600 text-sm sm:text-base">{license.issuer}</p>
+                                    <p className="text-xs sm:text-sm text-gray-500">{license.year}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-primary text-primary hover:bg-primary/5 w-full sm:w-auto"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add License or Certification
+                </Button>
+            </section>
+
+            {/* Skills */}
+            <section className="space-y-3 sm:space-y-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Skills</h2>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    {mockProfileData.skills.map((skill) => (
+                        <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-normal"
+                        >
+                            {skill}
+                        </Badge>
+                    ))}
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-primary text-primary hover:bg-primary/5 w-full sm:w-auto"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Skill
+                </Button>
+            </section>
 
             {/* Navigation */}
-            <div className="flex justify-between pt-4 border-t">
-                <Button variant="outline" onClick={handleBack}>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-4 sm:pt-6">
+                <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="border-gray-300 w-full sm:w-auto"
+                >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                 </Button>
-                <Button onClick={handleContinue}>
-                    Continue to Review
+                <Button
+                    onClick={handleContinue}
+                    className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto px-6"
+                >
+                    Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
             </div>

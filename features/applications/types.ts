@@ -4,6 +4,9 @@
 
 import type { Id } from "@/convex/_generated/dataModel";
 
+// Re-export Id type for components
+export type { Id };
+
 // Application status options
 export type ApplicationStatus =
     | "pending"
