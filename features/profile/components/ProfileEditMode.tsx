@@ -98,8 +98,6 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     // Include education and experience arrays without client-side IDs
                     education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
                     experience: cleanedExperience.length > 0 ? cleanedExperience : undefined,
-                    specialization: data.specialization || undefined,
-                    technology: data.technology.length > 0 ? data.technology : undefined,
                 });
 
                 toast.success("Profile updated successfully!");

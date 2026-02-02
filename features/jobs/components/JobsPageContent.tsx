@@ -10,6 +10,7 @@ import { JobStats } from './JobStats';
 import { JobFilters } from './JobFilters';
 import { JobApplyPanel } from './JobApplyPanel';
 import type { JobFilters as JobFiltersType } from './JobFilterModal';
+import type { ExperienceLevel, LocationType } from '../types';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useJobsList } from '../api';
@@ -21,11 +22,16 @@ export function JobsPageContent() {
     const [selectedType, setSelectedType] = useState<'all' | JobType>('all');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [page, setPage] = useState(1);
-    const [advancedFilters, setAdvancedFilters] = useState({
+    const [advancedFilters, setAdvancedFilters] = useState<{
+        minSalary: number;
+        maxSalary: number;
+        experienceLevel: 'all' | ExperienceLevel;
+        locationType: 'all' | LocationType;
+    }>({
         minSalary: 0,
         maxSalary: 500000,
-        experienceLevel: 'all' as const,
-        locationType: 'all' as const,
+        experienceLevel: 'all',
+        locationType: 'all',
     });
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);

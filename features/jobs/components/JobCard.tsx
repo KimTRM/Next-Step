@@ -6,7 +6,6 @@ import type { Id } from '@/convex/_generated/dataModel';
 import { toast } from 'sonner';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
 
 type JobType = 'full-time' | 'part-time' | 'internship' | 'contract' | 'temporary';
 
@@ -33,14 +32,16 @@ interface JobCardProps {
 export function JobCard({ job, onOpenPanel }: JobCardProps) {
     const [saved, setSaved] = useState(false);
     const [isApplying, setIsApplying] = useState(false);
-    const { user } = useAuth();
+
+    // Get current Convex user (has _id which is Id<"users">)
+    const currentUser = useQuery(api.users.index.getCurrentUser, {});
 
     // Real database mutations
     const createApplication = useMutation(api.applications.createApplication);
     const deleteApplication = useMutation(api.applications.deleteApplication);
     const checkUserApplied = useQuery(api.applications.checkUserApplied, {
         jobId: job._id,
-        userId: user?.id || "",
+        userId: currentUser?._id || ("" as Id<"users">),
     });
 
     const hasApplied = checkUserApplied ?? false;
@@ -61,9 +62,9 @@ export function JobCard({ job, onOpenPanel }: JobCardProps) {
     };
 
     const handleApply = async () => {
-        console.log('Apply button clicked', { user, hasApplied, isApplying });
+        console.log('Apply button clicked', { currentUser, hasApplied, isApplying });
 
-        if (!user) {
+        if (!currentUser) {
             toast.error('Please login to apply for jobs');
             return;
         }
@@ -85,7 +86,7 @@ export function JobCard({ job, onOpenPanel }: JobCardProps) {
             // Create real application in database
             await createApplication({
                 jobId: job._id,
-                userId: user.id,
+                userId: currentUser._id,
                 coverLetter: "Application submitted via job listing",
                 resumeUrl: "",
                 status: "pending"
@@ -102,7 +103,7 @@ export function JobCard({ job, onOpenPanel }: JobCardProps) {
     };
 
     const handleUnapply = async () => {
-        if (!user) {
+        if (!currentUser) {
             toast.error('Please login to unapply from jobs');
             return;
         }
@@ -122,7 +123,7 @@ export function JobCard({ job, onOpenPanel }: JobCardProps) {
             // Delete application from database
             await deleteApplication({
                 jobId: job._id,
-                userId: user.id,
+                userId: currentUser._id,
             });
 
             toast.success('Application withdrawn successfully!');
