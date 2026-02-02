@@ -1,0 +1,210 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
+import { Briefcase } from 'lucide-react';
+import type { JobWithPoster } from '@/shared/lib/types/index';
+import type { JobType } from '@/shared/lib/constants/jobs';
+import { JobCard } from './JobCard';
+import { JobStats } from './JobStats';
+import { JobFilters } from './JobFilters';
+import { JobApplyPanel } from './JobApplyPanel';
+import type { JobFilters as JobFiltersType } from './JobFilterModal';
+import type { ExperienceLevel, LocationType } from '../types';
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useJobsList } from '../api';
+import { LoadingBoundary } from '@/shared/components/loading/LoadingBoundary';
+
+export function JobsPageContent() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+    const [selectedType, setSelectedType] = useState<'all' | JobType>('all');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [page, setPage] = useState(1);
+    const [advancedFilters, setAdvancedFilters] = useState<{
+        minSalary: number;
+        maxSalary: number;
+        experienceLevel: 'all' | ExperienceLevel;
+        locationType: 'all' | LocationType;
+    }>({
+        minSalary: 0,
+        maxSalary: 500000,
+        experienceLevel: 'all',
+        locationType: 'all',
+    });
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+    const pageSize = 12;
+
+    // Debounce search term
+    useEffect(() => {
+        const id = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+            setPage(1);
+        }, 300);
+        return () => clearTimeout(id);
+    }, [searchTerm]);
+
+    // Handle advanced filters change
+    const handleAdvancedFiltersChange = (filters: JobFiltersType) => {
+        setAdvancedFilters({
+            minSalary: filters.minSalary,
+            maxSalary: filters.maxSalary,
+            experienceLevel: filters.experienceLevel,
+            locationType: filters.locationType,
+        });
+        setPage(1);
+    };
+
+    // Handle opening job panel
+    const handleOpenJobPanel = (jobId: string) => {
+        setSelectedJobId(jobId);
+        setIsPanelOpen(true);
+    };
+
+    // Handle closing job panel
+    const handleCloseJobPanel = () => {
+        setIsPanelOpen(false);
+        // Delay clearing selected job to allow closing animation
+        setTimeout(() => setSelectedJobId(null), 300);
+    };
+
+    // Fetch jobs via feature API
+    const jobsData = useJobsList({
+        searchTerm: debouncedSearchTerm.trim() || undefined,
+        employmentType: selectedType !== 'all' ? selectedType : undefined,
+        jobCategory: selectedCategory !== 'all' ? selectedCategory : undefined,
+        minSalary: advancedFilters.minSalary > 0 ? advancedFilters.minSalary : undefined,
+        maxSalary: advancedFilters.maxSalary < 500000 ? advancedFilters.maxSalary : undefined,
+        experienceLevel: advancedFilters.experienceLevel !== 'all' ? advancedFilters.experienceLevel : undefined,
+        locationType: advancedFilters.locationType !== 'all' ? advancedFilters.locationType : undefined,
+        limit: pageSize * 3, // Fetch more for better pagination
+    });
+
+    const jobs = (jobsData as JobWithPoster[] | undefined) || [];
+    const loading = jobsData === undefined;
+
+    // Get the selected job data (must be after jobs is defined)
+    const selectedJob = jobs.find(job => job._id === selectedJobId);
+
+    // For pagination, we'll use the current page to slice the results
+    // In a real implementation, you'd get total count from the API
+    const paginatedJobs = jobs.slice((page - 1) * pageSize, page * pageSize);
+    const total = jobs.length;
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-[#D6E7E4]/10 via-[#99D34D]/10 to-[#279341]/20">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-8">
+                {/* Search and Filters */}
+                <JobFilters
+                    searchTerm={searchTerm}
+                    selectedType={selectedType}
+                    selectedCategory={selectedCategory}
+                    onSearchChange={setSearchTerm}
+                    onTypeChange={setSelectedType}
+                    onCategoryChange={setSelectedCategory}
+                    onAdvancedFiltersChange={handleAdvancedFiltersChange}
+                />
+
+                {/* Stats */}
+                <JobStats jobs={jobs} />
+
+                {/* Jobs List - Two Column Grid */}
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Positions ({total})</h2>
+                </div>
+
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        {Array.from({ length: 6 }).map((_, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-4">
+                                        <Skeleton className="h-12 w-12 rounded-xl" />
+                                        <div className="flex-1 space-y-3">
+                                            <Skeleton className="h-6 w-3/4" />
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <Skeleton className="h-4 w-28" />
+                                                <Skeleton className="h-4 w-24" />
+                                            </div>
+                                            <Skeleton className="h-4 w-full" />
+                                            <Skeleton className="h-4 w-2/3" />
+                                            <div className="flex items-center gap-2">
+                                                <Skeleton className="h-6 w-20 rounded-full" />
+                                                <Skeleton className="h-6 w-24 rounded-full" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <Skeleton className="h-11 flex-1 rounded-xl" />
+                                        <Skeleton className="h-11 flex-1 rounded-xl" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : paginatedJobs.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+                        <div className="max-w-md mx-auto">
+                            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Briefcase className="h-10 w-10 text-gray-400" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+                            <p className="text-gray-600">Try adjusting your search criteria or browse all available positions.</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        {paginatedJobs.map((job) => (
+                            <JobCard key={job._id} job={job} onOpenPanel={handleOpenJobPanel} />
+                        ))}
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && total > pageSize && (
+                    <div className="mt-8">
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        href="#"
+                                        onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }}
+                                        aria-disabled={page === 1}
+                                        className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            const maxPage = Math.ceil(total / pageSize) || 1;
+                                            setPage((p) => Math.min(maxPage, p + 1));
+                                        }}
+                                        aria-disabled={page * pageSize >= total}
+                                        className={page * pageSize >= total ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
+                )}
+
+                {/* Job Apply Panel */}
+                <JobApplyPanel isOpen={isPanelOpen} onClose={handleCloseJobPanel} job={selectedJob} />
+            </div>
+        </div>
+    );
+}
+
+function JobsPageContentWrapper() {
+    return (
+        <LoadingBoundary type="jobs">
+            <JobsPageContent />
+        </LoadingBoundary>
+    );
+}
+
+export default JobsPageContentWrapper;

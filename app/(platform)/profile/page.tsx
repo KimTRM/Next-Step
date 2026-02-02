@@ -4,7 +4,7 @@
  * User profile management and personal information
  */
 
-import { ProfilePageContent } from '@/components/features/profile/ProfilePageContent';
+import { ProfilePage as ProfilePageContent } from '@/features/profile';
 
 export default function ProfilePage() {
     return <ProfilePageContent />;

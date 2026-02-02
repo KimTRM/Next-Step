@@ -1,53 +1,26 @@
 /**
  * Clerk Webhook Handler
- *
- * Syncs user creation/updates/deletions from Clerk to Convex
- *
- * Setup instructions:
- * 1. Go to Clerk Dashboard → Webhooks
- * 2. Add endpoint: https://yourdomain.com/api/webhooks/clerk
- * 3. Subscribe to: user.created, user.updated, user.deleted
- * 4. Copy webhook secret to CLERK_WEBHOOK_SECRET env var
- *
- * Testing locally:
- * 1. Use ngrok: `ngrok http 3000`
- * 2. Set webhook URL to: https://your-ngrok-url.ngrok.io/api/webhooks/clerk
- * 3. Watch terminal logs for sync messages
+ * Syncs user data from Clerk to Convex
  */
 
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
-import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function POST(req: Request) {
-    // Get webhook secret from env
+    // Get the webhook secret from environment variables
     const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
     if (!WEBHOOK_SECRET) {
-        console.error(
-            "❌ CLERK_WEBHOOK_SECRET is not set in environment variables"
-        );
-        console.error(
-            "ℹ️  Add it to .env.local to enable webhook functionality"
-        );
-        return new Response(
-            JSON.stringify({
-                error: "Webhook secret not configured",
-                message:
-                    "Set CLERK_WEBHOOK_SECRET in your environment variables",
-            }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            }
-        );
+        console.error("Missing CLERK_WEBHOOK_SECRET environment variable");
+        return new Response("Webhook secret not configured", { status: 500 });
     }
 
-    // Get headers
+    // Get the headers
     const headerPayload = await headers();
     const svix_id = headerPayload.get("svix-id");
     const svix_timestamp = headerPayload.get("svix-timestamp");
@@ -55,23 +28,19 @@ export async function POST(req: Request) {
 
     // If there are no headers, error out
     if (!svix_id || !svix_timestamp || !svix_signature) {
-        console.error("❌ Missing svix headers in webhook request");
-        return new Response(JSON.stringify({ error: "Missing svix headers" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-        });
+        return new Response("Missing svix headers", { status: 400 });
     }
 
-    // Get body
+    // Get the body
     const payload = await req.json();
     const body = JSON.stringify(payload);
 
-    // Create webhook instance
+    // Create a new Svix instance with the secret
     const wh = new Webhook(WEBHOOK_SECRET);
 
     let evt: WebhookEvent;
 
-    // Verify webhook signature
+    // Verify the payload with the headers
     try {
         evt = wh.verify(body, {
             "svix-id": svix_id,
@@ -79,123 +48,52 @@ export async function POST(req: Request) {
             "svix-signature": svix_signature,
         }) as WebhookEvent;
     } catch (err) {
-        console.error("❌ Error verifying webhook signature:", err);
-        console.error(
-            "ℹ️  Check that CLERK_WEBHOOK_SECRET matches the secret in Clerk Dashboard"
-        );
-        return new Response(JSON.stringify({ error: "Verification failed" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-        });
+        console.error("Error verifying webhook:", err);
+        return new Response("Error verifying webhook", { status: 400 });
     }
 
-    // Handle the webhook
+    // Handle the webhook event
     const eventType = evt.type;
-    console.log(`📨 Received webhook event: ${eventType}`);
 
-    if (evt.type === "user.created" || evt.type === "user.updated") {
-        const { id, email_addresses, first_name, last_name, image_url } =
-            evt.data;
+    try {
+        if (eventType === "user.created" || eventType === "user.updated") {
+            const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
-        const userData = {
-            clerkId: id,
-            email: email_addresses[0]?.email_address || "",
-            name: `${first_name || ""} ${last_name || ""}`.trim() || "User",
-            avatarUrl: image_url,
-        };
+            const email = email_addresses?.[0]?.email_address;
+            const name = [first_name, last_name].filter(Boolean).join(" ") || email?.split("@")[0] || "User";
 
-        console.log(`📝 Syncing user to Convex:`, {
-            clerkId: userData.clerkId,
-            email: userData.email,
-            name: userData.name,
-        });
+            if (!email) {
+                console.error("No email found for user:", id);
+                return new Response("No email found", { status: 400 });
+            }
 
-        try {
-            await convex.mutation(api.userMutations.upsertUser, userData);
-
-            console.log(`✅ Successfully synced user ${id} to Convex`);
-            return new Response(
-                JSON.stringify({
-                    success: true,
-                    message: `User ${evt.type === "user.created" ? "created" : "updated"}`,
-                    userId: id,
-                }),
-                {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-        } catch (error) {
-            console.error("❌ Error syncing user to Convex:", error);
-            return new Response(
-                JSON.stringify({
-                    error: "Failed to sync user",
-                    details:
-                        error instanceof Error ?
-                            error.message
-                        :   "Unknown error",
-                }),
-                {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-        }
-    }
-
-    if (evt.type === "user.deleted") {
-        const { id } = evt.data;
-
-        console.log(`🗑️  Deleting user ${id} from Convex`);
-
-        try {
-            await convex.mutation(api.userMutations.deleteUser, {
-                clerkId: id!,
+            // Upsert user in Convex
+            await convex.mutation(api.users.index.upsertUser, {
+                clerkId: id,
+                email,
+                name,
+                avatarUrl: image_url,
             });
 
-            console.log(`✅ Successfully deleted user ${id} from Convex`);
-            return new Response(
-                JSON.stringify({
-                    success: true,
-                    message: "User deleted",
-                    userId: id,
-                }),
-                {
-                    status: 200,
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-        } catch (error) {
-            console.error("❌ Error deleting user from Convex:", error);
-            return new Response(
-                JSON.stringify({
-                    error: "Failed to delete user",
-                    details:
-                        error instanceof Error ?
-                            error.message
-                        :   "Unknown error",
-                }),
-                {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
+            console.log(`User ${eventType === "user.created" ? "created" : "updated"}:`, id);
         }
+
+        if (eventType === "user.deleted") {
+            const { id } = evt.data;
+
+            if (id) {
+                // Delete user from Convex
+                await convex.mutation(api.users.index.deleteUser, {
+                    clerkId: id,
+                });
+
+                console.log("User deleted:", id);
+            }
+        }
+
+        return new Response("Webhook processed", { status: 200 });
+    } catch (error) {
+        console.error("Error processing webhook:", error);
+        return new Response("Error processing webhook", { status: 500 });
     }
-
-    // Unhandled event type
-    console.log(`ℹ️  Unhandled event type: ${eventType}`);
-    return new Response(
-        JSON.stringify({
-            success: true,
-            message: "Event received but not processed",
-            eventType,
-        }),
-        {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        }
-    );
-
-    return new Response("Webhook processed", { status: 200 });
 }

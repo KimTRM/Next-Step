@@ -27,14 +27,31 @@ export default defineSchema({
 
         // Basic Profile
         role: v.union(
-            v.literal("student"),
+            v.literal("job_seeker"),
+            v.literal("student"), // Legacy - kept for backwards compatibility
             v.literal("mentor"),
             v.literal("employer"),
         ),
+
+        // Onboarding
+        onboardingStatus: v.optional(
+            v.union(
+                v.literal("not_started"),
+                v.literal("in_progress"),
+                v.literal("completed"),
+            ),
+        ),
+
+        // Organization (required for employers)
+        organizationName: v.optional(v.string()),
+
+        // Goals (selected during onboarding)
+        goals: v.optional(v.array(v.string())),
         age: v.optional(v.number()),
         location: v.optional(v.string()),
         bio: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
+        coverPhotoUrl: v.optional(v.string()),
 
         // Education
         educationLevel: v.optional(
@@ -60,6 +77,14 @@ export default defineSchema({
         linkedInUrl: v.optional(v.string()),
         githubUrl: v.optional(v.string()),
         portfolioUrl: v.optional(v.string()),
+        socialLinks: v.optional(
+            v.array(
+                v.object({
+                    label: v.string(),
+                    url: v.string(),
+                }),
+            ),
+        ),
 
         // Profile Tracking
         profileCompletion: v.optional(v.number()), // 0-100 percentage
@@ -90,12 +115,30 @@ export default defineSchema({
         education: v.optional(
             v.array(
                 v.object({
+                    id: v.optional(v.string()), // Client-side temporary ID
                     institution: v.string(),
                     degree: v.string(),
-                    field: v.string(),
+                    field: v.optional(v.string()), // Keep for backwards compatibility
                     startDate: v.number(), // Unix timestamp
                     endDate: v.optional(v.number()), // Unix timestamp, null if current
                     isCurrent: v.boolean(),
+                    description: v.optional(v.string()), // Additional description
+                }),
+            ),
+        ),
+
+        // Work Experience
+        experience: v.optional(
+            v.array(
+                v.object({
+                    id: v.optional(v.string()), // Client-side temporary ID
+                    title: v.string(),
+                    company: v.string(),
+                    location: v.optional(v.string()),
+                    startDate: v.number(), // Unix timestamp
+                    endDate: v.optional(v.number()), // Unix timestamp, null if current
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
                 }),
             ),
         ),
@@ -210,6 +253,7 @@ export default defineSchema({
         expiresDate: v.optional(v.number()), // Unix timestamp
         isActive: v.boolean(),
         views: v.number(), // View count
+        applicants: v.optional(v.number()), // Application count
 
         // Poster Information
         postedBy: v.id("users"),
@@ -232,32 +276,6 @@ export default defineSchema({
         .index("by_experienceLevel", ["experienceLevel"]),
 
     /**
-     * Opportunities Collection
-     * Jobs, internships, and mentorship opportunities
-     */
-    opportunities: defineTable({
-        title: v.string(),
-        type: v.union(
-            v.literal("job"),
-            v.literal("internship"),
-            v.literal("mentorship"),
-        ),
-        description: v.string(),
-        company: v.optional(v.string()),
-        mentor: v.optional(v.string()),
-        location: v.string(),
-        skills: v.array(v.string()),
-        postedBy: v.id("users"), // Reference to user who posted
-        postedDate: v.number(), // Unix timestamp
-        deadline: v.optional(v.number()), // Unix timestamp
-        isRemote: v.boolean(),
-        salary: v.optional(v.string()),
-    })
-        .index("by_type", ["type"])
-        .index("by_posted_by", ["postedBy"])
-        .index("by_posted_date", ["postedDate"]),
-
-    /**
      * Applications Collection
      * User applications to opportunities
      */
@@ -266,6 +284,8 @@ export default defineSchema({
         userId: v.id("users"),
         status: v.union(
             v.literal("pending"),
+            v.literal("reviewing"),
+            v.literal("interview"),
             v.literal("accepted"),
             v.literal("rejected"),
         ),
@@ -279,17 +299,24 @@ export default defineSchema({
     /**
      * Messages Collection
      * Direct messages between users
+     *
+     * Indexes:
+     * - by_receiverId: Query messages received by a user (for unread counts)
+     * - by_sender_receiver: Query conversation from sender's perspective
+     * - by_receiver_sender: Query conversation from receiver's perspective
      */
     messages: defineTable({
         senderId: v.id("users"),
         receiverId: v.id("users"),
         content: v.string(),
-        timestamp: v.number(), // Unix timestamp
-        read: v.boolean(),
+        timestamp: v.number(), // Unix timestamp (Date.now())
+        isRead: v.boolean(),
+        read: v.optional(v.boolean()), // DEPRECATED: Legacy field from old schema
+        relatedJobId: v.optional(v.id("jobs")),
     })
-        .index("by_sender", ["senderId"])
-        .index("by_receiver", ["receiverId"])
-        .index("by_conversation", ["senderId", "receiverId"]),
+        .index("by_receiverId", ["receiverId"])
+        .index("by_sender_receiver", ["senderId", "receiverId"])
+        .index("by_receiver_sender", ["receiverId", "senderId"]),
 
     /**
      * Mentorship Sessions Collection
@@ -403,7 +430,7 @@ export default defineSchema({
      */
     jobApplications: defineTable({
         jobId: v.id("jobs"),
-        userId: v.id("users"),
+        userId: v.id("users"), // User who applied
         status: v.union(
             v.literal("pending"),
             v.literal("reviewing"),
@@ -415,8 +442,91 @@ export default defineSchema({
         nextStep: v.optional(v.string()),
         interviewDate: v.optional(v.number()),
         notes: v.optional(v.string()),
+        coverLetter: v.optional(v.string()),
+        resumeUrl: v.optional(v.string()),
     })
-        .index("by_job", ["jobId"])
-        .index("by_user", ["userId"])
+        .index("by_jobId", ["jobId"])
+        .index("by_userId", ["userId"])
+        .index("by_jobId_userId", ["jobId", "userId"])
         .index("by_status", ["status"]),
+
+    /**
+     * Connections Collection
+     * User-to-user connections (friends/network)
+     *
+     * Indexes:
+     * - by_requester: Query connections initiated by a user
+     * - by_receiver: Query connections received by a user
+     * - by_requester_receiver: Query specific connection between two users
+     * - by_status: Filter connections by status
+     * - by_receiver_status: Query pending requests for a user
+     */
+    connections: defineTable({
+        // Connection participants
+        requesterId: v.id("users"), // User who sent the request
+        receiverId: v.id("users"), // User who received the request
+
+        // Connection status
+        status: v.union(
+            v.literal("pending"),
+            v.literal("accepted"),
+            v.literal("rejected"),
+        ),
+
+        // Request message (optional)
+        message: v.optional(v.string()),
+
+        // Timestamps
+        createdAt: v.number(), // When request was sent
+        respondedAt: v.optional(v.number()), // When request was accepted/rejected
+    })
+        .index("by_requester", ["requesterId"])
+        .index("by_receiver", ["receiverId"])
+        .index("by_requester_receiver", ["requesterId", "receiverId"])
+        .index("by_status", ["status"])
+        .index("by_receiver_status", ["receiverId", "status"]),
+
+    /**
+     * Notifications Collection
+     * User notifications for messages and connections
+     *
+     * Indexes:
+     * - by_user: Get all notifications for a user
+     * - by_user_read: Get read/unread notifications for a user
+     * - by_user_starred: Get starred notifications for a user
+     * - by_type: Filter notifications by type
+     */
+    notifications: defineTable({
+        // Recipient
+        userId: v.id("users"), // User who receives the notification
+
+        // Notification type
+        type: v.union(
+            v.literal("message"),
+            v.literal("connection_request"),
+            v.literal("connection_accepted"),
+            v.literal("connection_removed"),
+        ),
+
+        // Related entities
+        fromUserId: v.id("users"), // User who triggered the notification
+        relatedMessageId: v.optional(v.id("messages")), // For message notifications
+        relatedConnectionId: v.optional(v.id("connections")), // For connection notifications
+
+        // Notification content (preview/summary)
+        title: v.string(),
+        body: v.optional(v.string()),
+
+        // Status
+        isRead: v.boolean(),
+        isStarred: v.boolean(),
+
+        // Timestamps
+        createdAt: v.number(),
+        readAt: v.optional(v.number()),
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_read", ["userId", "isRead"])
+        .index("by_user_starred", ["userId", "isStarred"])
+        .index("by_type", ["type"]),
 });
