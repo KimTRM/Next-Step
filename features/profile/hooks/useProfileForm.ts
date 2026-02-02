@@ -34,6 +34,8 @@ interface UseProfileFormReturn {
     setCareerGoals: (value: string) => void;
     setSkills: (value: string[]) => void;
     setInterests: (value: string[]) => void;
+    setSpecialization: (value: string) => void;
+    setTechnology: (value: string[]) => void;
     setLinkedInUrl: (value: string) => void;
     setGithubUrl: (value: string) => void;
     setPortfolioUrl: (value: string) => void;
@@ -117,6 +119,8 @@ function getDefaultFormData(user: User | null): ProfileFormData {
         avatarUrl: user?.avatarUrl || "",
         education: user?.education || [],
         experience: user?.experience || [],
+        specialization: user?.specialization || "",
+        technology: user?.technology || [],
     };
 }
 
@@ -209,6 +213,14 @@ export function useProfileForm({
 
     const setInterests = useCallback((value: string[]) => {
         setFormData((prev) => ({ ...prev, interests: value }));
+    }, []);
+
+    const setSpecialization = useCallback((value: string) => {
+        setFormData((prev) => ({ ...prev, specialization: value }));
+    }, []);
+
+    const setTechnology = useCallback((value: string[]) => {
+        setFormData((prev) => ({ ...prev, technology: value }));
     }, []);
 
     const setLinkedInUrl = useCallback((value: string) => {
@@ -330,6 +342,8 @@ export function useProfileForm({
         setCareerGoals,
         setSkills,
         setInterests,
+        setSpecialization,
+        setTechnology,
         setLinkedInUrl,
         setGithubUrl,
         setPortfolioUrl,

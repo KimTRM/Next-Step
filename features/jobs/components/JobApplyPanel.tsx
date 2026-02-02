@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from 'react';
-import { X, Briefcase, Building2, MapPin, DollarSign, Calendar, Users, Clock, Award, Globe } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { X, MapPin, Clock, Users, Bookmark, Globe, Calendar, Briefcase, Building2, DollarSign, CheckCircle, User, ArrowLeft, Eye, FileText, Award, TrendingUp } from 'lucide-react';
 import type { JobWithPoster } from '../types';
 
 interface JobApplyPanelProps {
@@ -11,6 +11,8 @@ interface JobApplyPanelProps {
 }
 
 export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
+    const [isSaved, setIsSaved] = useState(false);
+    
     // Handle ESC key press
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -23,16 +25,56 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
         return () => document.removeEventListener('keydown', handleEscape);
     }, [isOpen, onClose]);
 
+    // Handle save job
+    const handleSaveJob = () => {
+        setIsSaved(!isSaved);
+    };
+
     // Prevent body scroll when panel is open
     useEffect(() => {
+        let originalScrollY = 0;
+        
         if (isOpen) {
+            // Save current scroll position
+            originalScrollY = window.scrollY;
+            
+            // Store scroll position in a data attribute
+            document.body.dataset.scrollY = originalScrollY.toString();
+            
+            // Prevent body scroll
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${originalScrollY}px`;
+            document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = 'unset';
+            // Restore body scroll
+            const savedScrollY = document.body.dataset.scrollY;
+            
+            // First restore body styles
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            
+            // Then restore scroll position
+            if (savedScrollY) {
+                const scrollValue = parseInt(savedScrollY, 10);
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, scrollValue);
+                });
+            }
+            
+            // Clean up data attribute
+            delete document.body.dataset.scrollY;
         }
 
         return () => {
-            document.body.style.overflow = 'unset';
+            // Cleanup on unmount
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            delete document.body.dataset.scrollY;
         };
     }, [isOpen]);
 
@@ -89,35 +131,39 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
         <>
             {/* Backdrop */}
             <div
-                className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                    }`}
+                className={`fixed inset-0 bg-black/20 transition-all duration-500 ease-in-out z-40 ${
+                    isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                }`}
                 onClick={onClose}
                 aria-hidden="true"
+                style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
             />
 
             {/* Slide-in Panel */}
             <div
-                className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[95%] md:w-[85%] lg:w-[60%] xl:w-[45%] 2xl:w-[40%] bg-white shadow-2xl
-                           flex flex-col transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[95%] md:w-[85%] lg:w-[60%] xl:w-[45%] 2xl:w-[40%] bg-white
+                           flex flex-col transition-all duration-500 ease-in-out ${
+                               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
                     }`}
                 role="dialog"
                 aria-modal="true"
                 aria-hidden={!isOpen}
             >
                 {/* Panel Header */}
-                <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shadow-sm">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900">Job Details</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                        aria-label="Close panel"
-                    >
-                        <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
-                    </button>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+                            aria-label="Go back"
+                        >
+                            <ArrowLeft className="h-5 w-5 transition-transform duration-300" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Panel Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto bg-gray-50">
                     {!job && (
                         <div className="flex items-center justify-center h-full p-8 animate-in fade-in duration-300">
                             <div className="text-center">
@@ -137,204 +183,197 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
                             </div>
                         </div>
                     ) : (
-                        <div className="p-4 sm:p-6">
-                            {/* Job Header */}
-                            <div className="mb-6">
-                                <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                                    <div className="p-3 sm:p-4 bg-[#11A773]/10 rounded-xl shrink-0">
-                                        <Briefcase className="h-6 w-6 sm:h-8 sm:w-8 text-[#11A773]" />
+                        <div className="space-y-0">
+                            {/* Header Section with Cover Banner */}
+                            <div className="relative">
+                                {/* Cover Banner with enhanced design */}
+                                <div className="h-52 bg-gradient-to-br from-emerald-700 via-teal-600 to-cyan-800 relative overflow-hidden">
+                                    {/* Animated geometric pattern overlay */}
+                                    <div className="absolute inset-0">
+                                        <div className="absolute top-0 left-0 w-40 h-40 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
+                                        <div className="absolute top-16 right-8 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-75"></div>
+                                        <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl animate-pulse delay-150"></div>
+                                        <div className="absolute bottom-12 left-16 w-36 h-36 bg-white/5 rounded-full blur-2xl animate-pulse delay-300"></div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight break-words">{job.title}</h1>
-                                        <div className="space-y-2">
-                                            <div className="flex flex-wrap items-center gap-4 text-gray-700">
-                                                <div className="flex items-center gap-2">
-                                                    <Building2 className="h-5 w-5 text-gray-500" />
-                                                    <span className="font-semibold text-base">{job.company}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <MapPin className="h-5 w-5 text-gray-500" />
-                                                    <span className="text-base">{job.location}</span>
+                                    {/* Subtle grid pattern */}
+                                    <div className="absolute inset-0 opacity-20">
+                                        <div className="h-full w-full" style={{
+                                            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+                                            backgroundSize: '25px 25px'
+                                        }}></div>
+                                    </div>
+                                    {/* Gradient overlays */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+                                </div>
+                                
+                                {/* Company Avatar - Overlapping */}
+                                <div className="absolute -bottom-12 left-6">
+                                    <div className="w-28 h-28 rounded-full border-4 border-white flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600">
+                                        {job.companyLogo ? (
+                                            <img src={job.companyLogo} alt={job.company} className="w-24 h-24 rounded-full object-cover" />
+                                        ) : (
+                                            <User className="h-14 w-14 text-white" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Job Title and Status */}
+                            <div className="px-6 pt-16 pb-6 bg-white">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
+                                    <div className="flex items-center gap-1 px-2 py-1 text-green-700 rounded-full text-sm font-medium">
+                                        Verified
+                                    </div>
+                                </div>
+                                <p className="text-lg font-semibold text-gray-900 mb-1">{job.company}</p>
+                                <p className="text-gray-600 text-sm mb-4">
+                                    Join our team and make an impact in this exciting role.
+                                </p>
+
+                                {/* Meta Information */}
+                                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                    <div className="flex items-center gap-2">
+                                        <span>{job.location}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span>{formatDate(job.postedDate)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span>{job.views || 0} views</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Meta Information */}
+                            <div className="px-6 py-6 bg-white border-t border-gray-100">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Location</p>
+                                        <p className="text-sm font-semibold text-gray-900">{job.location}</p>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Posted</p>
+                                        <p className="text-sm font-semibold text-gray-900">{formatDate(job.postedDate)}</p>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Views</p>
+                                        <p className="text-sm font-semibold text-gray-900">{job.views || 0}</p>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Type</p>
+                                        <p className="text-sm font-semibold text-gray-900">{formatLabel(job.employmentType) || 'Full-time'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Information Sections */}
+                            <div className="px-6 py-6 space-y-6">
+                                {/* Top Section - Languages with Expertise and Specialization on right */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    {/* Languages - Left side */}
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Languages</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">English</span>
+                                            <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">Filipino</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Right side container */}
+                                    <div className="lg:col-span-2">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Expertise - Left */}
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Expertise</h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">
+                                                        {formatLabel(job.employmentType) || 'Full Time'}
+                                                    </span>
+                                                    <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">
+                                                        {formatLabel(job.locationType) || 'Hybrid'}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            {job.industry && (
-                                                <div className="flex items-center gap-2 text-gray-600">
-                                                    <Globe className="h-4 w-4 text-gray-500" />
-                                                    <span className="text-sm">{job.industry}</span>
+
+                                            {/* Specialization - Right */}
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Specialization</h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200">
+                                                        {job.jobCategory || 'Technology'}
+                                                    </span>
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Tags */}
-                                <div className="flex flex-wrap gap-2" role="list" aria-label="Job attributes">
-                                    {job.employmentType && (
-                                        <span
-                                            className={`px-3 py-1.5 rounded-full text-sm font-medium ${getTypeColor(job.employmentType)}`}
-                                            role="listitem"
-                                        >
-                                            {formatLabel(job.employmentType)}
-                                        </span>
-                                    )}
-                                    {job.jobCategory && (
-                                        <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium" role="listitem">
-                                            {formatLabel(job.jobCategory)}
-                                        </span>
-                                    )}
-                                    {job.locationType && (
-                                        <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium" role="listitem">
-                                            {formatLabel(job.locationType)}
-                                        </span>
-                                    )}
-                                    {job.experienceLevel && (
-                                        <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-medium" role="listitem">
-                                            {formatLabel(job.experienceLevel)} Level
-                                        </span>
-                                    )}
+                                {/* Performance Stats */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Performance Stats</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                            <p className="text-2xl font-bold text-gray-900 mb-1">1</p>
+                                            <p className="text-xs text-gray-500 uppercase tracking-wide">Applicants</p>
+                                        </div>
+                                        <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                            <p className="text-2xl font-bold text-gray-900 mb-1">{job.views || 23}</p>
+                                            <p className="text-xs text-gray-500 uppercase tracking-wide">Views / Days</p>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Job Description */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Job Description</h3>
+                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                                            {job.description || 'Looking for fresh graduates with strong programming fundamentals and eagerness to learn.'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Required Skills */}
+                                {job.requiredSkills && job.requiredSkills.length > 0 && (
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Required Skills</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {job.requiredSkills.map((skill, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm border border-green-200"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Salary & Stats */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8" role="group" aria-label="Job statistics">
-                                <div className="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-xl transition-transform duration-200 hover:scale-105">
-                                    <div className="flex items-center gap-2 text-gray-700 mb-1 sm:mb-2">
-                                        <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-[#11A773]" />
-                                        <span className="text-xs sm:text-sm font-semibold">Salary Range</span>
-                                    </div>
-                                    <p className="text-base sm:text-lg font-bold text-gray-900">{formatSalary(job)}</p>
-                                    {job.salaryPeriod && (
-                                        <p className="text-xs text-gray-600 mt-1">per {job.salaryPeriod}</p>
-                                    )}
-                                </div>
-                                <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-xl transition-transform duration-200 hover:scale-105">
-                                    <div className="flex items-center gap-2 text-gray-700 mb-2">
-                                        <Calendar className="h-5 w-5 text-blue-600" />
-                                        <span className="text-sm font-semibold">Posted</span>
-                                    </div>
-                                    <p className="text-lg font-bold text-gray-900">{formatDate(job.postedDate)}</p>
-                                </div>
-                                <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-xl transition-transform duration-200 hover:scale-105">
-                                    <div className="flex items-center gap-2 text-gray-700 mb-2">
-                                        <Users className="h-5 w-5 text-purple-600" />
-                                        <span className="text-sm font-semibold">Views</span>
-                                    </div>
-                                    <p className="text-lg font-bold text-gray-900">{job.views || 0}</p>
-                                </div>
-                            </div>
-
-                            {/* Job Description */}
-                            <div className="mb-8">
-                                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <div className="w-1 h-6 bg-[#11A773] rounded-full"></div>
-                                    About this position
-                                </h2>
-                                <div className="prose prose-gray max-w-none">
-                                    <div
-                                        className="text-gray-700 leading-relaxed text-base whitespace-pre-line"
-                                        style={{ lineHeight: '1.75' }}
+                            {/* Action Footer */}
+                            <div className="border-t border-gray-200 px-6 py-6 bg-white">
+                                <div className="flex gap-4">
+                                    <button
+                                        className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
                                     >
-                                        {job.description}
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* Requirements Section */}
-                            {job.requiredSkills && job.requiredSkills.length > 0 && (
-                                <div className="mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <div className="w-1 h-6 bg-[#11A773] rounded-full"></div>
-                                        Required Skills
-                                    </h2>
-                                    <div className="flex flex-wrap gap-2">
-                                        {job.requiredSkills.map((skill, index) => (
-                                            <span
-                                                key={index}
-                                                className="px-4 py-2 bg-[#11A773]/10 text-[#11A773] rounded-lg text-sm font-semibold border border-[#11A773]/20 hover:bg-[#11A773]/20 transition-colors"
-                                            >
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
+                                        Quick Apply
+                                    </button>
+                                    <button
+                                        onClick={handleSaveJob}
+                                        className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg flex items-center gap-3 ${
+                                            isSaved
+                                                ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-2 border-green-300'
+                                                : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-gray-400'
+                                        }`}
+                                    >
+                                        <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-current' : ''}`} />
+                                        {isSaved ? 'Saved' : 'Save'}
+                                    </button>
                                 </div>
-                            )}
-
-                            {/* Education Requirements */}
-                            {job.education && (
-                                <div className="mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <div className="w-1 h-6 bg-[#11A773] rounded-full"></div>
-                                        Education
-                                    </h2>
-                                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                                        <Award className="h-5 w-5 text-[#11A773]" />
-                                        <span className="text-gray-900 font-medium">{formatLabel(job.education)}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Application Details */}
-                            {(job.applicationDeadline || job.howToApply) && (
-                                <div className="mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <div className="w-1 h-6 bg-[#11A773] rounded-full"></div>
-                                        Application Information
-                                    </h2>
-                                    <div className="space-y-3">
-                                        {job.applicationDeadline && (
-                                            <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                                                <Clock className="h-5 w-5 text-amber-600" />
-                                                <div>
-                                                    <p className="text-sm text-gray-600">Application Deadline</p>
-                                                    <p className="text-base font-semibold text-gray-900">
-                                                        {new Date(job.applicationDeadline).toLocaleDateString('en-US', {
-                                                            year: 'numeric',
-                                                            month: 'long',
-                                                            day: 'numeric'
-                                                        })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {job.howToApply && (
-                                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                                <p className="text-sm text-gray-600 mb-2">How to Apply</p>
-                                                <p className="text-base text-gray-900 whitespace-pre-line">{job.howToApply}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Company Website */}
-                            {job.companyWebsite && (
-                                <div className="mb-8">
-                                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                                        <p className="text-sm text-gray-600 mb-2">Company Website</p>
-                                        <a
-                                            href={job.companyWebsite}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-[#11A773] hover:text-[#0F9563] font-medium flex items-center gap-2 transition-colors"
-                                        >
-                                            <Globe className="h-4 w-4" />
-                                            {job.companyWebsite}
-                                        </a>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Apply Button - Sticky at bottom */}
-                            <div className="sticky bottom-0 bg-white pt-4 sm:pt-6 pb-2 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 shadow-lg">
-                                <button
-                                    className="w-full py-3 sm:py-4 bg-[#11A773] text-white rounded-xl font-bold text-base sm:text-lg hover:bg-[#0F9563] active:bg-[#0D7F51] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 touch-manipulation"
-                                    aria-label={`Apply for ${job.title} position at ${job.company}`}
-                                >
-                                    Apply for this position
-                                </button>
-                                <p className="text-center text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3">
-                                    By applying, you agree to our terms and conditions
-                                </p>
                             </div>
                         </div>
                     )}

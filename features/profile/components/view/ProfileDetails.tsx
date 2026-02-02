@@ -35,6 +35,31 @@ export function ProfileDetails({ user }: ProfileDetailsProps) {
                         </p>
                     </div>
                 )}
+                {user.specialization && (
+                    <div>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            Specialization
+                        </p>
+                        <p className="text-sm text-gray-700 mt-0.5">{user.specialization}</p>
+                    </div>
+                )}
+                {user.technology && user.technology.length > 0 && (
+                    <div>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                            Technologies
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                            {user.technology.map((tech, index) => (
+                                <span
+                                    key={index}
+                                    className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-md"
+                                >
+                                    {tech}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

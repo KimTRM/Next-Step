@@ -14,6 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { ImageUpload } from "@/shared/components/ui/ImageUpload";
 import { EDUCATION_LEVELS } from "../../constants";
 import type { EducationLevel } from "../../types";
+import { Badge } from "@/shared/components/ui/badge";
+import { X } from "lucide-react";
 
 interface BasicInfoSectionProps {
     formData: {
@@ -23,6 +25,8 @@ interface BasicInfoSectionProps {
         educationLevel: string;
         coverPhotoUrl?: string;
         avatarUrl?: string;
+        specialization: string;
+        technology: string[];
     };
     setName: (value: string) => void;
     setLocation: (value: string) => void;
@@ -30,6 +34,8 @@ interface BasicInfoSectionProps {
     setEducationLevel: (value: EducationLevel | "") => void;
     setCoverPhotoUrl: (value: string) => void;
     setAvatarUrl: (value: string) => void;
+    setSpecialization: (value: string) => void;
+    setTechnology: (value: string[]) => void;
     getBasicError: (field: string) => string | undefined;
 }
 
@@ -41,6 +47,8 @@ export function BasicInfoSection({
     setEducationLevel,
     setCoverPhotoUrl,
     setAvatarUrl,
+    setSpecialization,
+    setTechnology,
     getBasicError,
 }: BasicInfoSectionProps) {
     return (
@@ -146,6 +154,58 @@ export function BasicInfoSection({
                                 {getBasicError("educationLevel")}
                             </p>
                         )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="specialization">Specialization</Label>
+                        <Input
+                            id="specialization"
+                            value={formData.specialization || ""}
+                            onChange={(e) => setSpecialization(e.target.value)}
+                            placeholder="e.g., Frontend Development, Data Science"
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="technology">Technologies</Label>
+                    <div className="space-y-2">
+                        <Input
+                            id="technology"
+                            placeholder="Add a technology (e.g., React, Python, AWS)"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                                    e.preventDefault();
+                                    const newTech = e.currentTarget.value.trim();
+                                    if (!formData.technology.includes(newTech)) {
+                                        setTechnology([...formData.technology, newTech]);
+                                    }
+                                    e.currentTarget.value = "";
+                                }
+                            }}
+                        />
+                        {formData.technology.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {formData.technology.map((tech, index) => (
+                                    <Badge
+                                        key={index}
+                                        variant="secondary"
+                                        className="flex items-center gap-1"
+                                    >
+                                        {tech}
+                                        <X
+                                            className="h-3 w-3 cursor-pointer hover:text-red-500"
+                                            onClick={() => {
+                                                setTechnology(formData.technology.filter((_, i) => i !== index));
+                                            }}
+                                        />
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                        <p className="text-xs text-gray-500">
+                            Press Enter to add technologies. Click X to remove.
+                        </p>
                     </div>
                 </div>
             </CardContent>
