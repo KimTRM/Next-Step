@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from "@/shared/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { ImageUpload } from "@/shared/components/ui/ImageUpload";
 import { EDUCATION_LEVELS } from "../../constants";
 import type { EducationLevel } from "@/features/users/types";
 
@@ -20,11 +21,15 @@ interface BasicInfoSectionProps {
         location: string;
         bio: string;
         educationLevel: string;
+        coverPhotoUrl?: string;
+        avatarUrl?: string;
     };
     setName: (value: string) => void;
     setLocation: (value: string) => void;
     setBio: (value: string) => void;
     setEducationLevel: (value: EducationLevel | "") => void;
+    setCoverPhotoUrl: (value: string) => void;
+    setAvatarUrl: (value: string) => void;
     getBasicError: (field: string) => string | undefined;
 }
 
@@ -34,6 +39,8 @@ export function BasicInfoSection({
     setLocation,
     setBio,
     setEducationLevel,
+    setCoverPhotoUrl,
+    setAvatarUrl,
     getBasicError,
 }: BasicInfoSectionProps) {
     return (
@@ -42,6 +49,38 @@ export function BasicInfoSection({
                 <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+                {/* Profile Photo Upload */}
+                <div className="space-y-2">
+                    <Label>Profile Photo</Label>
+                    <ImageUpload
+                        currentImage={formData.avatarUrl}
+                        onImageChange={setAvatarUrl}
+                        onImageRemove={() => setAvatarUrl("")}
+                        label="Upload Profile Photo"
+                        aspectRatio="square"
+                        maxSizeMB={5}
+                    />
+                    <p className="text-xs text-gray-500">
+                        Recommended: Square image, at least 400x400px
+                    </p>
+                </div>
+
+                {/* Cover Photo Upload */}
+                <div className="space-y-2">
+                    <Label>Cover Photo</Label>
+                    <ImageUpload
+                        currentImage={formData.coverPhotoUrl}
+                        onImageChange={setCoverPhotoUrl}
+                        onImageRemove={() => setCoverPhotoUrl("")}
+                        label="Upload Cover Photo"
+                        aspectRatio="cover"
+                        maxSizeMB={5}
+                    />
+                    <p className="text-xs text-gray-500">
+                        Recommended: 1200x400px or 3:1 aspect ratio
+                    </p>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="name">

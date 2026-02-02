@@ -68,6 +68,7 @@ export type User = {
     bio?: string;
     location?: string;
     avatarUrl?: string;
+    coverPhotoUrl?: string;
     educationLevel?: EducationLevel;
     currentStatus?: string;
     skills?: string[];
@@ -96,6 +97,8 @@ export type ProfileFormData = {
     linkedInUrl: string;
     githubUrl: string;
     portfolioUrl: string;
+    coverPhotoUrl: string;
+    avatarUrl: string;
     education: EducationEntry[];
     experience: ExperienceEntry[];
 };

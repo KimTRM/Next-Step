@@ -58,6 +58,8 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
         setLinkedInUrl,
         setGithubUrl,
         setPortfolioUrl,
+        setCoverPhotoUrl,
+        setAvatarUrl,
         educationManager,
         experienceManager,
         errors,
@@ -82,6 +84,8 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     linkedInUrl: data.linkedInUrl || undefined,
                     githubUrl: data.githubUrl || undefined,
                     portfolioUrl: data.portfolioUrl || undefined,
+                    coverPhotoUrl: data.coverPhotoUrl || undefined,
+                    avatarUrl: data.avatarUrl || undefined,
                     // Include education and experience arrays
                     education: data.education.length > 0 ? data.education : undefined,
                     experience: data.experience.length > 0 ? data.experience : undefined,
@@ -321,11 +325,15 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                         location: formData.location,
                         bio: formData.bio,
                         educationLevel: formData.educationLevel,
+                        coverPhotoUrl: formData.coverPhotoUrl,
+                        avatarUrl: formData.avatarUrl,
                     }}
                     setName={setName}
                     setLocation={setLocation}
                     setBio={setBio}
                     setEducationLevel={setEducationLevel}
+                    setCoverPhotoUrl={setCoverPhotoUrl}
+                    setAvatarUrl={setAvatarUrl}
                     getBasicError={getBasicError}
                 />
             )}

@@ -51,6 +51,7 @@ export default defineSchema({
         location: v.optional(v.string()),
         bio: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
+        coverPhotoUrl: v.optional(v.string()),
 
         // Education
         educationLevel: v.optional(

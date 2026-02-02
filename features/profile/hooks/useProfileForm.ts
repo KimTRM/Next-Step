@@ -36,6 +36,8 @@ interface UseProfileFormReturn {
     setLinkedInUrl: (value: string) => void;
     setGithubUrl: (value: string) => void;
     setPortfolioUrl: (value: string) => void;
+    setCoverPhotoUrl: (value: string) => void;
+    setAvatarUrl: (value: string) => void;
 
     // Education management
     educationManager: ReturnType<typeof useEducationManager>;
@@ -68,6 +70,8 @@ function getDefaultFormData(user: User | null): ProfileFormData {
         linkedInUrl: user?.linkedInUrl || "",
         githubUrl: user?.githubUrl || "",
         portfolioUrl: user?.portfolioUrl || "",
+        coverPhotoUrl: user?.coverPhotoUrl || "",
+        avatarUrl: user?.avatarUrl || "",
         education: user?.education || [],
         experience: user?.experience || [],
     };
@@ -167,6 +171,14 @@ export function useProfileForm({
         setFormData((prev) => ({ ...prev, portfolioUrl: value }));
     }, []);
 
+    const setCoverPhotoUrl = useCallback((value: string) => {
+        setFormData((prev) => ({ ...prev, coverPhotoUrl: value }));
+    }, []);
+
+    const setAvatarUrl = useCallback((value: string) => {
+        setFormData((prev) => ({ ...prev, avatarUrl: value }));
+    }, []);
+
     // Validate form
     const validate = useCallback((): boolean => {
         const allErrors: ProfileValidationError[] = [];
@@ -259,6 +271,8 @@ export function useProfileForm({
         setLinkedInUrl,
         setGithubUrl,
         setPortfolioUrl,
+        setCoverPhotoUrl,
+        setAvatarUrl,
         educationManager,
         experienceManager,
         errors,

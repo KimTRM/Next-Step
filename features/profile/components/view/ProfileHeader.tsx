@@ -14,10 +14,16 @@ export function ProfileHeader({ user, onEditClick }: ProfileHeaderProps) {
     return (
         <>
             {/* Cover Banner */}
-            <div className="relative rounded-t-xl overflow-hidden h-48 bg-gradient-to-br from-green-400 via-green-300 to-emerald-200">
-                <button className="absolute top-4 right-4 bg-white/80 hover:bg-white rounded-full p-2 shadow transition-colors">
-                    <Camera className="h-5 w-5 text-gray-600" />
-                </button>
+            <div className="relative rounded-t-xl overflow-hidden h-48">
+                {user.coverPhotoUrl ? (
+                    <img
+                        src={user.coverPhotoUrl}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-300 to-emerald-200" />
+                )}
             </div>
 
             {/* Profile Header (overlapping) */}
