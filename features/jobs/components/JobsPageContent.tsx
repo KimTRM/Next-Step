@@ -8,6 +8,7 @@ import type { JobType } from '@/shared/lib/constants/jobs';
 import { JobCard } from './JobCard';
 import { JobStats } from './JobStats';
 import { JobFilters } from './JobFilters';
+import { JobApplyPanel } from './JobApplyPanel';
 import type { JobFilters as JobFiltersType } from './JobFilterModal';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
@@ -26,6 +27,8 @@ export function JobsPageContent() {
         experienceLevel: 'all' as const,
         locationType: 'all' as const,
     });
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
     const pageSize = 12;
 
     // Debounce search term
@@ -48,6 +51,19 @@ export function JobsPageContent() {
         setPage(1);
     };
 
+    // Handle opening job panel
+    const handleOpenJobPanel = (jobId: string) => {
+        setSelectedJobId(jobId);
+        setIsPanelOpen(true);
+    };
+
+    // Handle closing job panel
+    const handleCloseJobPanel = () => {
+        setIsPanelOpen(false);
+        // Delay clearing selected job to allow closing animation
+        setTimeout(() => setSelectedJobId(null), 300);
+    };
+
     // Fetch jobs via feature API
     const jobsData = useJobsList({
         searchTerm: debouncedSearchTerm.trim() || undefined,
@@ -62,7 +78,10 @@ export function JobsPageContent() {
 
     const jobs = (jobsData as JobWithPoster[] | undefined) || [];
     const loading = jobsData === undefined;
-    
+
+    // Get the selected job data (must be after jobs is defined)
+    const selectedJob = jobs.find(job => job._id === selectedJobId);
+
     // For pagination, we'll use the current page to slice the results
     // In a real implementation, you'd get total count from the API
     const paginatedJobs = jobs.slice((page - 1) * pageSize, page * pageSize);
@@ -70,7 +89,7 @@ export function JobsPageContent() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#D6E7E4]/10 via-[#99D34D]/10 to-[#279341]/20">
-            <div className="max-w-[1200px] mx-auto px-6 py-8">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-8">
                 {/* Search and Filters */}
                 <JobFilters
                     searchTerm={searchTerm}
@@ -91,9 +110,9 @@ export function JobsPageContent() {
                 </div>
 
                 {loading ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         {Array.from({ length: 6 }).map((_, idx) => (
-                            <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div key={idx} className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm">
                                 <div className="space-y-4">
                                     <div className="flex items-start gap-4">
                                         <Skeleton className="h-12 w-12 rounded-xl" />
@@ -130,9 +149,9 @@ export function JobsPageContent() {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         {paginatedJobs.map((job) => (
-                            <JobCard key={job._id} job={job} />
+                            <JobCard key={job._id} job={job} onOpenPanel={handleOpenJobPanel} />
                         ))}
                     </div>
                 )}
@@ -166,6 +185,9 @@ export function JobsPageContent() {
                         </Pagination>
                     </div>
                 )}
+
+                {/* Job Apply Panel */}
+                <JobApplyPanel isOpen={isPanelOpen} onClose={handleCloseJobPanel} job={selectedJob} />
             </div>
         </div>
     );
