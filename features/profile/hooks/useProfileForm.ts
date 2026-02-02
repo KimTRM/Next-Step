@@ -13,6 +13,7 @@ import {
 } from "../helpers/validation";
 import { useEducationManager } from "./useEducationManager";
 import { useExperienceManager } from "./useExperienceManager";
+import { useSocialLinksManager } from "./useSocialLinksManager";
 
 interface UseProfileFormProps {
     user: User | null;
@@ -45,6 +46,9 @@ interface UseProfileFormReturn {
     // Experience management
     experienceManager: ReturnType<typeof useExperienceManager>;
 
+    // Social links management
+    socialLinksManager: ReturnType<typeof useSocialLinksManager>;
+
     // Validation
     errors: ProfileValidationError[];
     validate: () => boolean;
@@ -59,6 +63,44 @@ interface UseProfileFormReturn {
  * Get default form values from user
  */
 function getDefaultFormData(user: User | null): ProfileFormData {
+    // Migrate legacy social links to new format if no socialLinks exist
+    const socialLinks =
+        user?.socialLinks && user.socialLinks.length > 0 ?
+            user.socialLinks.map((link, index) => ({
+                ...link,
+                // Ensure each link has a client-side ID for drag-and-drop
+                id: link.id || `social_loaded_${index}_${Date.now()}`,
+            }))
+        :   [
+                ...(user?.linkedInUrl ?
+                    [
+                        {
+                            id: `social_linkedin_${Date.now()}`,
+                            label: "LinkedIn",
+                            url: user.linkedInUrl,
+                        },
+                    ]
+                :   []),
+                ...(user?.githubUrl ?
+                    [
+                        {
+                            id: `social_github_${Date.now()}`,
+                            label: "GitHub",
+                            url: user.githubUrl,
+                        },
+                    ]
+                :   []),
+                ...(user?.portfolioUrl ?
+                    [
+                        {
+                            id: `social_portfolio_${Date.now()}`,
+                            label: "Portfolio",
+                            url: user.portfolioUrl,
+                        },
+                    ]
+                :   []),
+            ];
+
     return {
         name: user?.name || "",
         location: user?.location || "",
@@ -70,6 +112,7 @@ function getDefaultFormData(user: User | null): ProfileFormData {
         linkedInUrl: user?.linkedInUrl || "",
         githubUrl: user?.githubUrl || "",
         portfolioUrl: user?.portfolioUrl || "",
+        socialLinks: socialLinks,
         coverPhotoUrl: user?.coverPhotoUrl || "",
         avatarUrl: user?.avatarUrl || "",
         education: user?.education || [],
@@ -111,6 +154,15 @@ export function useProfileForm({
             setIsDirty(true);
         },
     });
+
+    // Social links manager
+    const socialLinksManager = useSocialLinksManager(
+        formData.socialLinks,
+        (entries) => {
+            setFormData((prev) => ({ ...prev, socialLinks: entries }));
+            setIsDirty(true);
+        },
+    );
 
     // Reset form when user changes
     useEffect(() => {
@@ -218,16 +270,26 @@ export function useProfileForm({
             });
         }
 
+        // Validate social links entries
+        const socialLinksValid = socialLinksManager.validateAll();
+        if (!socialLinksValid) {
+            allErrors.push({
+                field: "socialLinks",
+                message: "Please fix social links entry errors",
+            });
+        }
+
         setErrors(allErrors);
         return allErrors.length === 0;
-    }, [formData, educationManager, experienceManager]);
+    }, [formData, educationManager, experienceManager, socialLinksManager]);
 
     // Clear errors
     const clearErrors = useCallback(() => {
         setErrors([]);
         educationManager.clearErrors();
         experienceManager.clearErrors();
-    }, [educationManager, experienceManager]);
+        socialLinksManager.clearErrors();
+    }, [educationManager, experienceManager, socialLinksManager]);
 
     // Submit form
     const submit = useCallback(async () => {
@@ -275,6 +337,7 @@ export function useProfileForm({
         setAvatarUrl,
         educationManager,
         experienceManager,
+        socialLinksManager,
         errors,
         validate,
         clearErrors,

@@ -26,7 +26,7 @@ interface ProfileViewModeProps {
 export function ProfileViewMode({ user, profileCompletion, onEditClick }: ProfileViewModeProps) {
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 to-white">
+        <div className="min-h-screen bg-linear-to-br from-green-100 to-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <ProfileHeader user={user} onEditClick={onEditClick} />
 
@@ -84,6 +84,7 @@ export function ProfileViewMode({ user, profileCompletion, onEditClick }: Profil
                         <Separator />
 
                         <SocialLinks
+                            socialLinks={user.socialLinks}
                             linkedInUrl={user.linkedInUrl}
                             githubUrl={user.githubUrl}
                             portfolioUrl={user.portfolioUrl}

@@ -158,6 +158,14 @@ export const updateUserProfile = mutation({
         linkedInUrl: v.optional(v.string()),
         githubUrl: v.optional(v.string()),
         portfolioUrl: v.optional(v.string()),
+        socialLinks: v.optional(
+            v.array(
+                v.object({
+                    label: v.string(),
+                    url: v.string(),
+                }),
+            ),
+        ),
         coverPhotoUrl: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
         role: v.optional(

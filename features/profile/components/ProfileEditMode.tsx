@@ -55,13 +55,11 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
         setCareerGoals,
         setSkills,
         setInterests,
-        setLinkedInUrl,
-        setGithubUrl,
-        setPortfolioUrl,
         setCoverPhotoUrl,
         setAvatarUrl,
         educationManager,
         experienceManager,
+        socialLinksManager,
         errors,
         validate,
         submit,
@@ -73,8 +71,12 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                 setSaveError(null);
 
                 // Transform education entries - remove client-side IDs
-                const cleanedEducation = data.education.map(({ id, ...rest }) => rest);
-                const cleanedExperience = data.experience.map(({ id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedEducation = data.education.map(({ id: _id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedExperience = data.experience.map(({ id: _id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedSocialLinks = data.socialLinks.map(({ id: _id, ...rest }) => rest);
 
                 // Transform data for Convex mutation
                 await updateProfile({
@@ -88,6 +90,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     linkedInUrl: data.linkedInUrl || undefined,
                     githubUrl: data.githubUrl || undefined,
                     portfolioUrl: data.portfolioUrl || undefined,
+                    socialLinks: cleanedSocialLinks.length > 0 ? cleanedSocialLinks : undefined,
                     coverPhotoUrl: data.coverPhotoUrl || undefined,
                     avatarUrl: data.avatarUrl || undefined,
                     // Include education and experience arrays without client-side IDs
@@ -120,6 +123,8 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
         hasInitializedRef.current = true;
     }, []);
 
+    // Auto-save disabled - users must manually save changes
+    /*
     // Auto-save when form data changes (after debounce)
     useEffect(() => {
         const performAutoSave = async () => {
@@ -149,8 +154,12 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                 setIsAutoSaving(true);
 
                 // Transform education and experience - remove client-side IDs
-                const cleanedEducation = formData.education.map(({ id, ...rest }) => rest);
-                const cleanedExperience = formData.experience.map(({ id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedEducation = formData.education.map(({ id: _id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedExperience = formData.experience.map(({ id: _id, ...rest }) => rest);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const cleanedSocialLinks = formData.socialLinks.map(({ id: _id, ...rest }) => rest);
 
                 await updateProfile({
                     name: formData.name || undefined,
@@ -163,6 +172,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     linkedInUrl: formData.linkedInUrl || undefined,
                     githubUrl: formData.githubUrl || undefined,
                     portfolioUrl: formData.portfolioUrl || undefined,
+                    socialLinks: cleanedSocialLinks.length > 0 ? cleanedSocialLinks : undefined,
                     coverPhotoUrl: formData.coverPhotoUrl || undefined,
                     avatarUrl: formData.avatarUrl || undefined,
                     education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
@@ -187,6 +197,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
         performAutoSave();
     }, [debouncedFormData]); // eslint-disable-line react-hooks/exhaustive-deps
+    */
 
     // Navigation guard - warn about unsaved changes
     useEffect(() => {
@@ -204,10 +215,6 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
     // Helper functions to get errors from flat array
     const getBasicError = (field: string) => {
-        return errors.find((e) => e.field === field)?.message;
-    };
-
-    const getSocialLinksError = (field: string) => {
         return errors.find((e) => e.field === field)?.message;
     };
 
@@ -259,19 +266,8 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
-                        {isDirty && !isAutoSaving && !lastAutoSaveTime && (
+                        {isDirty && (
                             <p className="text-xs sm:text-sm text-amber-600 transition-opacity">You have unsaved changes</p>
-                        )}
-                        {isAutoSaving && (
-                            <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 animate-in fade-in">
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                Auto-saving...
-                            </p>
-                        )}
-                        {lastAutoSaveTime && !isAutoSaving && (
-                            <p className="text-xs sm:text-sm text-emerald-600 animate-in fade-in">
-                                Auto-saved at {lastAutoSaveTime.toLocaleTimeString()}
-                            </p>
                         )}
                     </div>
                 </div>
@@ -398,13 +394,12 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
             {/* Social Links Section */}
             {activeSection === "links" && (
                 <SocialLinksSection
-                    linkedInUrl={formData.linkedInUrl}
-                    githubUrl={formData.githubUrl}
-                    portfolioUrl={formData.portfolioUrl}
-                    onLinkedInChange={setLinkedInUrl}
-                    onGithubChange={setGithubUrl}
-                    onPortfolioChange={setPortfolioUrl}
-                    getSocialLinksError={getSocialLinksError}
+                    entries={socialLinksManager.entries}
+                    errors={socialLinksManager.errors}
+                    onAddEntry={socialLinksManager.addEntry}
+                    onUpdateEntry={socialLinksManager.updateEntry}
+                    onRemoveEntry={socialLinksManager.removeEntry}
+                    onReorder={socialLinksManager.reorderEntries}
                 />
             )}
 

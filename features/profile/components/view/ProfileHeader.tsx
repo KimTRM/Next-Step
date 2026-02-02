@@ -1,9 +1,10 @@
 "use client";
 
-import { Camera, Edit3, User } from "lucide-react";
+import { Edit3, User } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import type { User as UserType } from "../../types";
+import Image from "next/image";
 
 interface ProfileHeaderProps {
     user: UserType;
@@ -16,13 +17,14 @@ export function ProfileHeader({ user, onEditClick }: ProfileHeaderProps) {
             {/* Cover Banner */}
             <div className="relative rounded-t-xl overflow-hidden h-48">
                 {user.coverPhotoUrl ? (
-                    <img
+                    <Image
                         src={user.coverPhotoUrl}
                         alt="Cover"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                     />
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-300 to-emerald-200" />
+                    <div className="w-full h-full bg-linear-to-br from-green-400 via-green-300 to-emerald-200" />
                 )}
             </div>
 

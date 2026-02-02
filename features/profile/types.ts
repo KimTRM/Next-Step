@@ -46,6 +46,15 @@ export type ExperienceEntry = {
 };
 
 /**
+ * Social link entry
+ */
+export type SocialLinkEntry = {
+    id?: string; // Temporary ID for form management (client-side only)
+    label: string; // e.g., "LinkedIn", "GitHub", "Portfolio", "Twitter"
+    url: string;
+};
+
+/**
  * Document/attachment entry
  */
 export type DocumentEntry = {
@@ -75,9 +84,10 @@ export type User = {
     interests?: string[];
     goals?: string[];
     careerGoals?: string;
-    linkedInUrl?: string;
-    githubUrl?: string;
-    portfolioUrl?: string;
+    linkedInUrl?: string; // Deprecated - keeping for backward compatibility
+    githubUrl?: string; // Deprecated - keeping for backward compatibility
+    portfolioUrl?: string; // Deprecated - keeping for backward compatibility
+    socialLinks?: SocialLinkEntry[]; // New dynamic social links
     profileCompletion?: number;
     education?: EducationEntry[]; // Detailed education history
     experience?: ExperienceEntry[]; // Work experience
@@ -94,9 +104,10 @@ export type ProfileFormData = {
     careerGoals: string;
     skills: string[];
     interests: string[];
-    linkedInUrl: string;
-    githubUrl: string;
-    portfolioUrl: string;
+    linkedInUrl: string; // Deprecated - keeping for migration
+    githubUrl: string; // Deprecated - keeping for migration
+    portfolioUrl: string; // Deprecated - keeping for migration
+    socialLinks: SocialLinkEntry[];
     coverPhotoUrl: string;
     avatarUrl: string;
     education: EducationEntry[];

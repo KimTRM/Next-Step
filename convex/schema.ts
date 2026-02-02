@@ -77,6 +77,14 @@ export default defineSchema({
         linkedInUrl: v.optional(v.string()),
         githubUrl: v.optional(v.string()),
         portfolioUrl: v.optional(v.string()),
+        socialLinks: v.optional(
+            v.array(
+                v.object({
+                    label: v.string(),
+                    url: v.string(),
+                }),
+            ),
+        ),
 
         // Profile Tracking
         profileCompletion: v.optional(v.number()), // 0-100 percentage
