@@ -81,13 +81,13 @@ export function MessageThread({
     return (
         <div className="flex flex-col h-full">
             {/* Chat Header */}
-            <div className="p-4 border-b bg-[#198754] flex items-center gap-3 shrink-0">
+            <div className="p-4 border-b bg-white h-21 flex items-center gap-3 shrink-0">
                 {showBackButton && (
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={onBack}
-                        className="shrink-0 lg:hidden text-white"
+                        className="shrink-0 lg:hidden text-[#198754]"
                         aria-label="Back to conversations"
                     >
                         <ArrowLeft className="h-5 w-5" />
@@ -100,7 +100,7 @@ export function MessageThread({
                     </AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="font-semibold text-white">{userName}</h2>
+                    <h2 className="font-semibold text-black">{userName}</h2>
                 </div>
             </div>
 

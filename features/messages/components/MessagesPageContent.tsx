@@ -19,6 +19,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { SquarePen } from "lucide-react";
 
 import { ConversationList } from "./ConversationList";
 import { MessageThread } from "./MessageThread";
@@ -125,8 +126,8 @@ export function MessagesPageContent() {
           </div>
 
           {/* Content skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-150">
-            <Card className="lg:col-span-1">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 h-150">
+            <Card className="lg:col-span-3">
               <div className="p-4 border-b">
                 <Skeleton className="h-6 w-32" />
               </div>
@@ -142,7 +143,7 @@ export function MessagesPageContent() {
                 ))}
               </div>
             </Card>
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-7">
               <div className="flex items-center justify-center h-full">
                 <Skeleton className="h-12 w-48" />
               </div>
@@ -170,16 +171,16 @@ export function MessagesPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
-      <div className="w-10/12 mx-auto px-2 sm:px-4 lg:px-6 py-4 lg:py-7">
+      <div className="w-full mx-auto">
 
         {/* Messages Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[87vh]">
-          {/* Conversation List - Hidden on mobile when conversation selected */}
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-2 h-[90vh]">
+          {/* Conversation List - 30% width on desktop */}
           <Card
-            className={`lg:col-span-1 h-full overflow-hidden ${selectedUserId ? "hidden lg:flex lg:flex-col h-full" : "flex flex-col h-full"
+            className={`lg:col-span-2 h-full rounded-none border-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 ${selectedUserId ? "hidden lg:flex lg:flex-col" : "flex flex-col"
               }`}
           >
-            <div className="p-4 bg-[#198754]">
+            <div className="p-4 bg-[#198754] sticky top-0 z-10">
               <h2 className="font-semibold text-lg text-white">
                 CONVERSATIONS
               </h2>
@@ -191,8 +192,11 @@ export function MessagesPageContent() {
                     : "conversations"}
                 </p>
               )}
+              <button className="absolute top-4 right-4">
+                <SquarePen className="h-7 w-7 text-white mt-2" />
+              </button>
             </div>
-            <div className="flex-1 overflow-hidden h-full">
+            <div className="flex-1 overflow-hidden">
               <ConversationList
                 conversations={conversations}
                 selectedUserId={selectedUserId}
@@ -202,16 +206,16 @@ export function MessagesPageContent() {
             </div>
           </Card>
 
-          {/* Message Thread - Full width on mobile when conversation selected */}
+          {/* Message Thread - 80% width on desktop */}
           <Card
-            className={`lg:col-span-2 h-full overflow-hidden flex flex-col ${selectedUserId ? "flex h-full" : "hidden lg:flex h-full"
+            className={`lg:col-span-8 h-full rounded-none border-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 flex flex-col ${selectedUserId ? "flex" : "hidden lg:flex"
               }`}
           >
             {!selectedUserId ? (
               <EmptyMessageState />
             ) : (
               <>
-                <div className="flex-1 overflow-hidden h-full">
+                <div className="flex-1 overflow-hidden">
                   <MessageThread
                     messages={messages}
                     currentUserId={currentUser._id}
