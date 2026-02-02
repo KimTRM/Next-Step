@@ -30,6 +30,25 @@ export function useJobApplications(jobId: Id<"jobs"> | null | undefined) {
     );
 }
 
+/**
+ * Get job data by ID for application flow
+ */
+export function useJobForApplication(
+    jobId: Id<"jobs"> | string | null | undefined,
+) {
+    return useQuery(
+        api.jobs.index.getJobById,
+        jobId ? { jobId: jobId as Id<"jobs"> } : "skip",
+    );
+}
+
+/**
+ * Get current user for application flow
+ */
+export function useCurrentUserForApplication() {
+    return useQuery(api.users.index.getCurrentUser, {});
+}
+
 // ============================================
 // MUTATIONS
 // ============================================
