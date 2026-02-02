@@ -10,7 +10,13 @@ features/profile/
 │   ├── ProfilePage.tsx          # Main orchestrator component
 │   └── ProfileViewMode.tsx      # Read-only profile view
 ├── hooks/
-│   └── useProfileCompletion.ts  # Profile completion calculation
+│   ├── useProfileCompletion.ts  # Profile completion calculation
+│   ├── useEducationManager.ts   # Education entries management
+│   ├── useExperienceManager.ts  # Experience entries management
+│   └── useProfileForm.ts        # Main form state management
+├── helpers/
+│   ├── validation.ts            # Validation functions
+│   └── profile.ts               # Profile utility helpers
 ├── api.ts                       # Convex API hooks
 ├── constants.ts                 # Shared constants (skills, education levels)
 ├── types.ts                     # Type definitions
@@ -44,13 +50,77 @@ Read-only profile display with:
 
 ### useProfileCompletion
 
-Calculates profile completion percentage based on filled fields.
+Calculates profile completion percentage based on filled fields (including education and experience).
 
 **Usage:**
 
 ```tsx
 const completion = useProfileCompletion(user, formData, isEditing);
 // Returns: { percentage: number, incomplete: string[] }
+```
+
+### useEducationManager
+
+Manages education entries with add, update, remove, reorder, and validation.
+
+**Usage:**
+
+```tsx
+const {
+    entries,
+    errors,
+    addEntry,
+    updateEntry,
+    removeEntry,
+    reorderEntries,
+    validateEntry,
+    validateAll,
+    clearErrors,
+} = useEducationManager({ initialEntries, onChange });
+```
+
+### useExperienceManager
+
+Manages work experience entries with add, update, remove, reorder, and validation.
+
+**Usage:**
+
+```tsx
+const {
+    entries,
+    errors,
+    addEntry,
+    updateEntry,
+    removeEntry,
+    reorderEntries,
+    validateEntry,
+    validateAll,
+    clearErrors,
+} = useExperienceManager({ initialEntries, onChange });
+```
+
+### useProfileForm
+
+Main form state management hook combining all profile sections.
+
+**Usage:**
+
+```tsx
+const {
+    formData,
+    isDirty,
+    isSubmitting,
+    setName,
+    setBio,
+    setSkills,
+    // ... other setters
+    educationManager,
+    experienceManager,
+    errors,
+    validate,
+    submit,
+    reset,
+} = useProfileForm({ user, onSubmit });
 ```
 
 ## API Layer
@@ -85,6 +155,47 @@ Reusable multi-select component for skills, interests, or tags.
 - `disabled`: Disable editing
 - `error`: Error message
 
+## Helpers
+
+### Validation (`helpers/validation.ts`)
+
+- `validateUrl(url: string)` - Validate URL format
+- `validateRequired(value, fieldName)` - Required field validation
+- `validateMaxLength(value, max, fieldName)` - Max length validation
+- `validateMinLength(value, min, fieldName)` - Min length validation
+- `validateDateRange(start, end)` - Date range validation
+- `validateEducationEntry(entry)` - Complete education entry validation
+- `validateExperienceEntry(entry)` - Complete experience entry validation
+- `validateSocialLinks(linkedin, github, portfolio)` - Social links validation
+- `validateBasicProfile(data)` - Basic profile fields validation
+
+### Profile Utilities (`helpers/profile.ts`)
+
+- `detectIncompleteSections(user)` - Identify incomplete profile sections
+- `getProfileStrengthMessage(percentage)` - Get motivational message
+- `sortEducationByDate(entries)` - Sort education entries (most recent first)
+- `sortExperienceByDate(entries)` - Sort experience entries (most recent first)
+- `formatDateRange(start, end, isCurrent)` - Format date range for display
+- `hasMinimumProfile(user)` - Check if profile meets minimum requirements
+- `getNextRecommendedAction(user)` - Get next action to improve profile
+
+## Types
+
+### Core Types
+
+- `User` - User profile data
+- `ProfileFormData` - Form data structure
+- `EducationEntry` - Education history entry
+- `ExperienceEntry` - Work experience entry
+- `DocumentEntry` - Document/attachment entry
+
+### Validation & State
+
+- `ProfileCompletion` - Completion percentage and incomplete fields
+- `ProfileValidationError` - Validation error structure
+- `IncompleteSection` - Incomplete section info with priority
+- `ProfileField` - Field configuration for completion calculation
+
 ## Phase 1 Status ✅
 
 - ✅ Feature directory structure created
@@ -96,13 +207,19 @@ Reusable multi-select component for skills, interests, or tags.
 - ✅ ProfilePage orchestrator created
 - ✅ Page route updated to use new structure
 
+## Phase 2 Status ✅
+
+- ✅ Extended types (EducationEntry, ExperienceEntry, DocumentEntry)
+- ✅ Validation helpers created (URLs, dates, required fields)
+- ✅ useEducationManager hook (add/edit/remove/validate)
+- ✅ useExperienceManager hook (add/edit/remove/validate)
+- ✅ useProfileForm hook (comprehensive state management)
+- ✅ Profile completion updated to include education/experience
+- ✅ Profile utility helpers (sort, format, detect incomplete)
+- ✅ Form state management with dirty tracking
+- ✅ Validation errors handling
+
 ## Next Phases
-
-### Phase 2: Profile Feature Structure + State
-
-- [ ] Education entry management
-- [ ] Experience entry management
-- [ ] Document upload handling
 
 ### Phase 3: Edit Mode Form
 

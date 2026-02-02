@@ -9,9 +9,19 @@ export { ProfileViewMode } from "./components/ProfileViewMode";
 
 // Hooks
 export { useProfileCompletion } from "./hooks/useProfileCompletion";
+export { useEducationManager } from "./hooks/useEducationManager";
+export { useExperienceManager } from "./hooks/useExperienceManager";
+export { useProfileForm } from "./hooks/useProfileForm";
 
 // API
 export { useProfile, useUpdateProfile, useUpsertProfile } from "./api";
+
+// Helpers
+export * from "./helpers/validation";
+export * from "./helpers/profile";
+
+// Constants
+export * from "./constants";
 
 // Types
 export type {
@@ -20,4 +30,9 @@ export type {
     ProfileField,
     User,
     EducationLevel,
+    EducationEntry,
+    ExperienceEntry,
+    DocumentEntry,
+    ProfileValidationError,
+    IncompleteSection,
 } from "./types";

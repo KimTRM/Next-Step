@@ -17,13 +17,15 @@ import type {
  * Profile fields with weights for completion calculation
  */
 const PROFILE_FIELDS: ProfileField[] = [
-    { key: "name", label: "Name", weight: 15 },
-    { key: "educationLevel", label: "Education Level", weight: 15 },
-    { key: "bio", label: "Bio", weight: 15 },
-    { key: "skills", label: "Skills", weight: 15, isArray: true },
-    { key: "interests", label: "Interests", weight: 10, isArray: true },
-    { key: "goals", label: "Goals", weight: 10, isArray: true },
-    { key: "careerGoals", label: "Career Goals", weight: 10 },
+    { key: "name", label: "Name", weight: 12 },
+    { key: "educationLevel", label: "Education Level", weight: 10 },
+    { key: "bio", label: "Bio", weight: 12 },
+    { key: "skills", label: "Skills", weight: 12, isArray: true },
+    { key: "interests", label: "Interests", weight: 8, isArray: true },
+    { key: "goals", label: "Goals", weight: 8, isArray: true },
+    { key: "careerGoals", label: "Career Goals", weight: 8 },
+    { key: "education", label: "Education Details", weight: 10, isArray: true },
+    { key: "experience", label: "Work Experience", weight: 10, isArray: true },
     { key: "linkedInUrl", label: "LinkedIn", weight: 5 },
     { key: "githubUrl", label: "GitHub", weight: 3 },
     { key: "portfolioUrl", label: "Portfolio", weight: 2 },
@@ -69,33 +71,47 @@ function calculateUserCompletion(user: User | null): ProfileCompletion {
  */
 function calculateFormCompletion(data: ProfileFormData): ProfileCompletion {
     const fields = [
-        { key: "name", value: data.name, label: "Name", weight: 15 },
+        { key: "name", value: data.name, label: "Name", weight: 12 },
         {
             key: "educationLevel",
             value: data.educationLevel,
             label: "Education Level",
-            weight: 15,
+            weight: 10,
         },
-        { key: "bio", value: data.bio, label: "Bio", weight: 15 },
+        { key: "bio", value: data.bio, label: "Bio", weight: 12 },
         {
             key: "skills",
             value: data.skills,
             label: "Skills",
-            weight: 15,
+            weight: 12,
             isArray: true,
         },
         {
             key: "interests",
             value: data.interests,
             label: "Interests",
-            weight: 10,
+            weight: 8,
             isArray: true,
         },
         {
             key: "careerGoals",
             value: data.careerGoals,
             label: "Career Goals",
+            weight: 8,
+        },
+        {
+            key: "education",
+            value: data.education,
+            label: "Education Details",
             weight: 10,
+            isArray: true,
+        },
+        {
+            key: "experience",
+            value: data.experience,
+            label: "Work Experience",
+            weight: 10,
+            isArray: true,
         },
         {
             key: "linkedInUrl",

@@ -21,7 +21,7 @@ export type EducationLevel =
  * Education entry for detailed education history
  */
 export type EducationEntry = {
-    id: string; // Temporary ID for form management
+    id?: string; // Temporary ID for form management (client-side only)
     institution: string;
     degree: string;
     field: string;
@@ -35,7 +35,7 @@ export type EducationEntry = {
  * Work experience entry
  */
 export type ExperienceEntry = {
-    id: string; // Temporary ID for form management
+    id?: string; // Temporary ID for form management (client-side only)
     title: string;
     company: string;
     location?: string;
@@ -116,4 +116,21 @@ export type ProfileField = {
     label: string;
     weight: number;
     isArray?: boolean;
+};
+
+/**
+ * Validation error for profile fields
+ */
+export type ProfileValidationError = {
+    field: string;
+    message: string;
+};
+
+/**
+ * Incomplete section information
+ */
+export type IncompleteSection = {
+    section: string;
+    fields: string[];
+    priority: "high" | "medium" | "low";
 };
