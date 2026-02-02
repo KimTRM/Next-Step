@@ -168,11 +168,11 @@ export default function GoalsSelectionContent() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl w-full">
                 {/* Header */}
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
                         What are your goals?
                     </h1>
                     <p className="text-lg text-gray-600">
@@ -181,39 +181,34 @@ export default function GoalsSelectionContent() {
                 </div>
 
                 {/* Progress indicator */}
-                <div className="flex items-center justify-center gap-2 mb-10">
+                <div className="flex items-center justify-center gap-2 mb-12">
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-gray-300" />
                 </div>
 
-                {/* Selection counter */}
-                <div className="text-center mb-6">
-                    <span className="text-sm text-gray-500">
-                        Selected: {selectedGoals.length}/3
-                    </span>
-                </div>
-
                 {/* Goal Options */}
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-4 mb-12">
                     {availableGoals.map((goal) => {
                         const isSelected = selectedGoals.includes(goal.id);
                         return (
                             <Card
                                 key={goal.id}
                                 className={cn(
-                                    "cursor-pointer transition-all duration-200 hover:shadow-md",
+                                    "cursor-pointer transition-all duration-200 hover:shadow-lg border-2",
                                     isSelected
-                                        ? "ring-2 ring-green-600 bg-green-50 border-green-200"
-                                        : "hover:border-gray-300"
+                                        ? "border-green-600 bg-white shadow-lg"
+                                        : "border-gray-200 bg-white hover:border-gray-300"
                                 )}
                                 onClick={() => toggleGoal(goal.id)}
                             >
-                                <CardHeader className="flex flex-row items-start gap-4 p-4">
+                                <CardHeader className="flex flex-row items-start gap-6 p-6">
                                     <div className="flex-1">
-                                        <CardTitle className="text-lg">{goal.title}</CardTitle>
-                                        <CardDescription className="text-sm mt-1">
+                                        <CardTitle className="text-xl font-semibold text-gray-900">
+                                            {goal.title}
+                                        </CardTitle>
+                                        <CardDescription className="text-base mt-2 text-gray-600">
                                             {goal.description}
                                         </CardDescription>
                                     </div>
@@ -238,15 +233,15 @@ export default function GoalsSelectionContent() {
 
                 {/* Error message */}
                 {error && (
-                    <p className="text-center text-red-500 mt-6">{error}</p>
+                    <p className="text-center text-red-500 mb-8">{error}</p>
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="mt-10 flex justify-between">
+                <div className="flex justify-between">
                     <Button
                         variant="outline"
                         onClick={handleBack}
-                        className="px-6"
+                        className="px-6 border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back
@@ -272,7 +267,7 @@ export default function GoalsSelectionContent() {
                 </div>
 
                 {/* Helper text */}
-                <p className="text-center text-sm text-gray-500 mt-6">
+                <p className="text-center text-sm text-gray-500 mt-8">
                     Your goals help us personalize your experience.
                 </p>
             </div>

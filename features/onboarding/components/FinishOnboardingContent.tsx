@@ -97,14 +97,14 @@ export default function FinishOnboardingContent() {
     const goals = user?.goals || [];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl w-full">
                 {/* Header */}
-                <div className="text-center mb-10">
+                <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                         <Sparkles className="h-8 w-8 text-green-600" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
                         You&apos;re all set!
                     </h1>
                     <p className="text-lg text-gray-600">
@@ -113,7 +113,7 @@ export default function FinishOnboardingContent() {
                 </div>
 
                 {/* Progress indicator - all complete */}
-                <div className="flex items-center justify-center gap-2 mb-10">
+                <div className="flex items-center justify-center gap-2 mb-12">
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-green-600" />
                     <div className="h-2 w-16 rounded-full bg-green-600" />
@@ -121,7 +121,7 @@ export default function FinishOnboardingContent() {
                 </div>
 
                 {/* Summary Card */}
-                <Card className="shadow-lg">
+                <Card className="shadow-lg mb-12">
                     <CardHeader className="pb-4">
                         <CardTitle className="flex items-center gap-2 text-xl">
                             <User className="h-5 w-5 text-green-600" />
@@ -227,11 +227,11 @@ export default function FinishOnboardingContent() {
                 </Card>
 
                 {/* Navigation Buttons */}
-                <div className="mt-10 flex justify-between">
+                <div className="flex justify-between">
                     <Button
                         variant="outline"
                         onClick={handleBack}
-                        className="px-6"
+                        className="px-6 border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back
@@ -258,7 +258,7 @@ export default function FinishOnboardingContent() {
                 </div>
 
                 {/* Helper text */}
-                <p className="text-center text-sm text-gray-500 mt-6">
+                <p className="text-center text-sm text-gray-500 mt-8">
                     You can update your profile anytime from settings.
                 </p>
             </div>
