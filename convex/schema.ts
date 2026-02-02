@@ -51,6 +51,7 @@ export default defineSchema({
         location: v.optional(v.string()),
         bio: v.optional(v.string()),
         avatarUrl: v.optional(v.string()),
+        coverPhotoUrl: v.optional(v.string()),
 
         // Education
         educationLevel: v.optional(
@@ -106,6 +107,7 @@ export default defineSchema({
         education: v.optional(
             v.array(
                 v.object({
+                    id: v.string(),
                     institution: v.string(),
                     degree: v.string(),
                     field: v.string(),
