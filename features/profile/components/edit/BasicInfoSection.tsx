@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ImageUpload } from "@/shared/components/ui/ImageUpload";
 import { EDUCATION_LEVELS } from "../../constants";
-import type { EducationLevel } from "@/features/users/types";
+import type { EducationLevel } from "../../types";
 
 interface BasicInfoSectionProps {
     formData: {
