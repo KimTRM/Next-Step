@@ -137,6 +137,22 @@ const {
 } = useProfileForm({ user, onSubmit });
 ```
 
+### useDebounce
+
+Generic debounce hook that delays value updates until after a specified delay period.
+
+**Usage:**
+
+```tsx
+const debouncedValue = useDebounce(value, 2000); // 2 second delay
+
+// Use in effect to trigger actions after user stops typing
+useEffect(() => {
+    // This will only run 2 seconds after value stops changing
+    performAction(debouncedValue);
+}, [debouncedValue]);
+```
+
 ## API Layer
 
 ### useProfile()
@@ -235,7 +251,7 @@ Reusable multi-select component for skills, interests, or tags.
 
 ## Phase 3 Status ✅
 
-- ✅ ProfileEditMode component created (670 lines)
+- ✅ ProfileEditMode component created (790 lines with dialogs)
 - ✅ Six tabbed sections (Basic, Education, Experience, Skills, Goals, Links)
 - ✅ EducationEntryCard sub-component with full CRUD
 - ✅ ExperienceEntryCard sub-component with full CRUD
@@ -245,23 +261,32 @@ Reusable multi-select component for skills, interests, or tags.
 - ✅ Unsaved changes indicator
 - ✅ Proper form integration with useProfileForm hook
 
+## Phase 4 Status ✅
+
+- ✅ Connected Save button to Convex updateUserProfile mutation
+- ✅ Cancel confirmation dialog when unsaved changes exist
+- ✅ Navigation guard (beforeunload) for unsaved changes
+- ✅ Success toast notification after save
+- ✅ Error handling with retry dialog
+- ✅ Proper data transformation for Convex
+- ✅ Loading states during save operation
+
+## Phase 5 Status ✅
+
+- ✅ Implemented debounced auto-save with 2-second delay
+- ✅ Created useDebounce custom hook
+- ✅ Auto-save triggers after form changes (with debounce)
+- ✅ Prevents auto-save on initial mount
+- ✅ Subtle "Auto-saving..." indicator in header
+- ✅ "Auto-saved at [time]" confirmation message
+- ✅ No UI blocking during auto-save
+- ✅ Validation check before auto-save
+- ✅ Manual save flag prevents auto-save conflicts
+- ✅ Silent failure for auto-save (doesn't show error dialogs)
+
 ## Next Phases
 
-### Phase 4: Save, Cancel, Unsaved Changes
-
-- [ ] Connect Save button to Convex mutation
-- [ ] Implement Cancel button with confirmation
-- [ ] Add navigation guard for unsaved changes
-- [ ] Show success toast after save
-- [ ] Handle save failures with retry option
-
-### Phase 5: Auto-save
-
-- [ ] Debounced auto-save
-- [ ] Save indicators
-- [ ] Error handling
-
-### Phase 6: Polish
+### Phase 6: Polish & Responsive Design
 
 - [ ] Mobile responsive
 - [ ] Loading states

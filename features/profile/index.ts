@@ -13,6 +13,7 @@ export { useProfileCompletion } from "./hooks/useProfileCompletion";
 export { useEducationManager } from "./hooks/useEducationManager";
 export { useExperienceManager } from "./hooks/useExperienceManager";
 export { useProfileForm } from "./hooks/useProfileForm";
+export { useDebounce } from "./hooks/useDebounce";
 
 // API
 export { useProfile, useUpdateProfile, useUpsertProfile } from "./api";

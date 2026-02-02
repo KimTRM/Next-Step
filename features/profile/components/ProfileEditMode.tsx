@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User } from "../types";
 import { useProfileForm } from "../hooks/useProfileForm";
+import { useUpdateProfile } from "../api";
+import { useDebounce } from "../hooks/useDebounce";
 import { SkillsSelector } from "@/shared/components/ui/SkillsSelector";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -15,10 +17,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/shared/components/ui/select";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { EDUCATION_LEVELS, SKILL_SUGGESTIONS, INTEREST_SUGGESTIONS } from "../constants";
-import { Loader2, Plus, Trash2, GripVertical, Save, X } from "lucide-react";
+import { Loader2, Plus, Trash2, GripVertical, Save, X, AlertCircle } from "lucide-react";
 import { EducationEntry, ExperienceEntry } from "../types";
+import { toast } from "sonner";
 
 interface ProfileEditModeProps {
     user: User;
@@ -27,6 +40,15 @@ interface ProfileEditModeProps {
 }
 
 export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps) {
+    const updateProfile = useUpdateProfile();
+    const [showCancelDialog, setShowCancelDialog] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [showRetryDialog, setShowRetryDialog] = useState(false);
+    const [isAutoSaving, setIsAutoSaving] = useState(false);
+    const [lastAutoSaveTime, setLastAutoSaveTime] = useState<Date | null>(null);
+    const hasInitializedRef = useRef(false);
+    const isManualSaveRef = useRef(false);
+
     const {
         formData,
         isDirty,
@@ -49,13 +71,123 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
     } = useProfileForm({
         user,
         onSubmit: async (data) => {
-            console.log("Submitting profile data:", data);
-            // Actual save logic will be in Phase 4
-            onSave?.();
+            try {
+                setSaveError(null);
+
+                // Transform data for Convex mutation
+                // Note: updateUserProfile doesn't currently support education/experience arrays
+                // We'll save what we can and log a warning for now
+                await updateProfile({
+                    bio: data.bio || undefined,
+                    location: data.location || undefined,
+                    skills: data.skills.length > 0 ? data.skills : undefined,
+                    interests: data.interests.length > 0 ? data.interests : undefined,
+                    careerGoals: data.careerGoals || undefined,
+                    educationLevel: data.educationLevel || undefined,
+                    linkedInUrl: data.linkedInUrl || undefined,
+                    githubUrl: data.githubUrl || undefined,
+                    portfolioUrl: data.portfolioUrl || undefined,
+                });
+
+                // TODO: Once backend supports education/experience, save those too
+                if (data.education.length > 0 || data.experience.length > 0) {
+                    console.warn("Education and experience data not yet persisted to backend");
+                }
+
+                toast.success("Profile updated successfully!");
+                onSave?.();
+            } catch (error) {
+                console.error("Failed to save profile:", error);
+                setSaveError(
+                    error instanceof Error ? error.message : "Failed to save profile"
+                );
+                setShowRetryDialog(true);
+            }
         },
     });
 
     const [activeSection, setActiveSection] = useState<string>("basic");
+
+    // Debounce form data for auto-save (2 second delay)
+    const debouncedFormData = useDebounce(formData, 2000);
+
+    // Mark as initialized after first render to prevent auto-save on mount
+    useEffect(() => {
+        hasInitializedRef.current = true;
+    }, []);
+
+    // Auto-save when form data changes (after debounce)
+    useEffect(() => {
+        const performAutoSave = async () => {
+            // Don't auto-save if:
+            // - Not initialized yet (first mount)
+            // - No changes made
+            // - Currently doing manual save
+            // - Already auto-saving
+            // - Form has validation errors
+            if (
+                !hasInitializedRef.current ||
+                !isDirty ||
+                isManualSaveRef.current ||
+                isAutoSaving ||
+                isSubmitting
+            ) {
+                return;
+            }
+
+            // Validate before auto-saving
+            const isValid = validate();
+            if (!isValid) {
+                return;
+            }
+
+            try {
+                setIsAutoSaving(true);
+
+                await updateProfile({
+                    bio: formData.bio || undefined,
+                    location: formData.location || undefined,
+                    skills: formData.skills.length > 0 ? formData.skills : undefined,
+                    interests: formData.interests.length > 0 ? formData.interests : undefined,
+                    careerGoals: formData.careerGoals || undefined,
+                    educationLevel: formData.educationLevel || undefined,
+                    linkedInUrl: formData.linkedInUrl || undefined,
+                    githubUrl: formData.githubUrl || undefined,
+                    portfolioUrl: formData.portfolioUrl || undefined,
+                });
+
+                setLastAutoSaveTime(new Date());
+
+                // Show subtle success message
+                toast.success("Auto-saved", {
+                    duration: 2000,
+                    position: "bottom-right",
+                });
+            } catch (error) {
+                console.error("Auto-save failed:", error);
+                // Don't show error dialog for auto-save failures
+                // User can still manually save
+            } finally {
+                setIsAutoSaving(false);
+            }
+        };
+
+        performAutoSave();
+    }, [debouncedFormData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Navigation guard - warn about unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = "";
+                return "";
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [isDirty]);
 
     // Helper functions to get errors from flat array
     const getBasicError = (field: string) => {
@@ -69,13 +201,31 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
     const handleSave = async () => {
         const isValid = validate();
         if (isValid) {
+            isManualSaveRef.current = true;
             await submit();
+            isManualSaveRef.current = false;
+        } else {
+            toast.error("Please fix validation errors before saving");
         }
     };
 
     const handleCancel = () => {
+        if (isDirty) {
+            setShowCancelDialog(true);
+        } else {
+            onCancel?.();
+        }
+    };
+
+    const confirmCancel = () => {
         reset();
+        setShowCancelDialog(false);
         onCancel?.();
+    };
+
+    const retrySubmit = async () => {
+        setShowRetryDialog(false);
+        await handleSave();
     };
 
     return (
@@ -84,9 +234,22 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
             <div className="flex items-center justify-between bg-white rounded-xl shadow-sm px-6 py-4 sticky top-0 z-10">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
-                    {isDirty && (
-                        <p className="text-sm text-amber-600 mt-1">You have unsaved changes</p>
-                    )}
+                    <div className="flex items-center gap-3 mt-1">
+                        {isDirty && !isAutoSaving && !lastAutoSaveTime && (
+                            <p className="text-sm text-amber-600">You have unsaved changes</p>
+                        )}
+                        {isAutoSaving && (
+                            <p className="text-sm text-gray-500 flex items-center gap-2">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Auto-saving...
+                            </p>
+                        )}
+                        {lastAutoSaveTime && !isAutoSaving && (
+                            <p className="text-sm text-emerald-600">
+                                Auto-saved at {lastAutoSaveTime.toLocaleTimeString()}
+                            </p>
+                        )}
+                    </div>
                 </div>
                 <div className="flex gap-3">
                     <Button
@@ -404,6 +567,48 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     </CardContent>
                 </Card>
             )}
+
+            {/* Cancel Confirmation Dialog */}
+            <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You have unsaved changes. Are you sure you want to cancel? All changes will be lost.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmCancel} className="bg-red-600 hover:bg-red-700">
+                            Discard Changes
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Retry Save Dialog */}
+            <AlertDialog open={showRetryDialog} onOpenChange={setShowRetryDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5 text-red-600" />
+                            Failed to Save Profile
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {saveError || "An error occurred while saving your profile. Please try again."}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setSaveError(null)}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={retrySubmit}>
+                            <Loader2 className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : "hidden"}`} />
+                            Retry
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
