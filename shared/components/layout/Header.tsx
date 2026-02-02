@@ -22,6 +22,7 @@ export function Header() {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/jobs", label: "Jobs" },
+    { href: "/match-jobs", label: "Match Jobs" },
     { href: "/applications", label: "Applications" },
     { href: "/mentors", label: "Mentors" },
     { href: "/messages", label: "Messages" },

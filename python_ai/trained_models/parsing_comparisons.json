@@ -1,0 +1,1028 @@
+{
+  "comparisons": [
+    {
+      "resume_id": "8e983a4d",
+      "local_skills": [
+        "graphic design",
+        "artificial intelligence",
+        "after effects",
+        "indesign"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "graphic design",
+        "artificial intelligence",
+        "after effects",
+        "indesign"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:33:34.294613"
+    },
+    {
+      "resume_id": "35b0da73",
+      "local_skills": [
+        "digital marketing",
+        "seo",
+        "artificial intelligence",
+        "hubspot"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "digital marketing",
+        "seo",
+        "artificial intelligence",
+        "hubspot"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Mba"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:33:37.230415"
+    },
+    {
+      "resume_id": "42e6c156",
+      "local_skills": [
+        "artificial intelligence",
+        "css",
+        "graphic design",
+        "machine learning",
+        "html",
+        "prototyping",
+        "ui design",
+        "ux design"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "artificial intelligence",
+        "css",
+        "graphic design",
+        "machine learning",
+        "html",
+        "prototyping",
+        "ui design",
+        "ux design"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Associates",
+          "field": null
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:33:40.794777"
+    },
+    {
+      "resume_id": "4dd8c741",
+      "local_skills": [
+        "figma",
+        "user research",
+        "photoshop",
+        "sketch",
+        "artificial intelligence",
+        "adobe xd",
+        "wireframing",
+        "illustrator"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "figma",
+        "user research",
+        "photoshop",
+        "sketch",
+        "artificial intelligence",
+        "adobe xd",
+        "wireframing",
+        "illustrator"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": null
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:20.189390"
+    },
+    {
+      "resume_id": "28943a6d",
+      "local_skills": [
+        "project management",
+        "agile",
+        "scrum",
+        "artificial intelligence",
+        "confluence",
+        "jira",
+        "salesforce",
+        "stakeholder management"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "project management",
+        "agile",
+        "scrum",
+        "artificial intelligence",
+        "confluence",
+        "jira",
+        "salesforce",
+        "stakeholder management"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": "Business Administration"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:23.270506"
+    },
+    {
+      "resume_id": "c76955bf",
+      "local_skills": [
+        "hubspot",
+        "seo",
+        "artificial intelligence",
+        "digital marketing",
+        "salesforce"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "hubspot",
+        "digital marketing",
+        "seo",
+        "artificial intelligence",
+        "salesforce"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Marketing"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:26.819887"
+    },
+    {
+      "resume_id": "de8e4165",
+      "local_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Mba"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:29.949404"
+    },
+    {
+      "resume_id": "2660fd82",
+      "local_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Finance"
+        },
+        {
+          "degree": "Associates",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:33.234333"
+    },
+    {
+      "resume_id": "1fa4dadc",
+      "local_skills": [
+        "forecasting",
+        "budgeting",
+        "artificial intelligence",
+        "excel",
+        "sap",
+        "financial modeling"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "forecasting",
+        "excel",
+        "sap",
+        "financial modeling",
+        "budgeting",
+        "artificial intelligence"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:36.339176"
+    },
+    {
+      "resume_id": "93306c8f",
+      "local_skills": [
+        "aws",
+        "google cloud",
+        "artificial intelligence",
+        "azure",
+        "data science"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "aws",
+        "google cloud",
+        "artificial intelligence",
+        "azure",
+        "data science"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Data Science"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:39.491482"
+    },
+    {
+      "resume_id": "ff76573f",
+      "local_skills": [
+        "ci/cd",
+        "postgresql",
+        "artificial intelligence",
+        "spring",
+        "java",
+        "redis"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "postgresql",
+        "redis",
+        "ci/cd",
+        "artificial intelligence",
+        "spring",
+        "java"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Information Technology"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:45.131028"
+    },
+    {
+      "resume_id": "48f69955",
+      "local_skills": [
+        "prototyping",
+        "ux design",
+        "ui design",
+        "html",
+        "artificial intelligence",
+        "css",
+        "machine learning",
+        "graphic design"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "prototyping",
+        "ux design",
+        "ui design",
+        "html",
+        "artificial intelligence",
+        "css",
+        "machine learning",
+        "graphic design"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Associates",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:48.868838"
+    },
+    {
+      "resume_id": "c31c15fb",
+      "local_skills": [
+        "ux design",
+        "artificial intelligence",
+        "ui/ux",
+        "graphic design",
+        "after effects",
+        "indesign"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "ux design",
+        "graphic design",
+        "ui/ux",
+        "after effects",
+        "indesign",
+        "artificial intelligence"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:34:52.169407"
+    },
+    {
+      "resume_id": "e69f16aa",
+      "local_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "a/b testing",
+        "artificial intelligence",
+        "user research"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Mba"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:37:44.339676"
+    },
+    {
+      "resume_id": "be04c594",
+      "local_skills": [
+        "communication",
+        "artificial intelligence",
+        "after effects",
+        "indesign"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "communication",
+        "artificial intelligence",
+        "after effects",
+        "indesign"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": null
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:37:47.683255"
+    },
+    {
+      "resume_id": "25c5b341",
+      "local_skills": [
+        "artificial intelligence",
+        "sketch",
+        "adobe xd",
+        "user research",
+        "figma",
+        "wireframing",
+        "ui/ux",
+        "illustrator",
+        "photoshop"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "artificial intelligence",
+        "sketch",
+        "adobe xd",
+        "user research",
+        "figma",
+        "wireframing",
+        "ui/ux",
+        "illustrator",
+        "photoshop"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:37:50.763592"
+    },
+    {
+      "resume_id": "067a1a83",
+      "local_skills": [
+        "artificial intelligence",
+        "a/b testing",
+        "user research"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "artificial intelligence",
+        "a/b testing",
+        "user research"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Business Administration"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:38:45.076200"
+    },
+    {
+      "resume_id": "9e23aab3",
+      "local_skills": [
+        "artificial intelligence",
+        "a/b testing",
+        "user research"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "artificial intelligence",
+        "a/b testing",
+        "user research"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": "Marketing"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:38:48.309497"
+    },
+    {
+      "resume_id": "95733773",
+      "local_skills": [
+        "lead generation",
+        "sales strategy",
+        "crm",
+        "negotiation",
+        "salesforce",
+        "artificial intelligence",
+        "b2b"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "lead generation",
+        "sales strategy",
+        "artificial intelligence",
+        "crm",
+        "negotiation",
+        "salesforce",
+        "b2b"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": null
+        },
+        {
+          "degree": "Associates",
+          "field": null
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:39:28.844093"
+    },
+    {
+      "resume_id": "632bf928",
+      "local_skills": [
+        "after effects",
+        "artificial intelligence",
+        "salesforce",
+        "indesign"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "after effects",
+        "artificial intelligence",
+        "salesforce",
+        "indesign"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:39:32.096717"
+    },
+    {
+      "resume_id": "b643a8c2",
+      "local_skills": [
+        "postgresql",
+        "artificial intelligence",
+        "spring",
+        "java",
+        "ci/cd",
+        "redis"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "postgresql",
+        "redis",
+        "java",
+        "artificial intelligence",
+        "ci/cd",
+        "spring"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Engineering"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:39:35.523468"
+    },
+    {
+      "resume_id": "dbce8709",
+      "local_skills": [
+        "budgeting",
+        "financial modeling",
+        "sap",
+        "artificial intelligence",
+        "salesforce",
+        "excel",
+        "forecasting"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "forecasting",
+        "financial modeling",
+        "sap",
+        "budgeting",
+        "artificial intelligence",
+        "salesforce",
+        "excel"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Mba"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:39:38.828514"
+    },
+    {
+      "resume_id": "957d294c",
+      "local_skills": [
+        "confluence",
+        "jira",
+        "stakeholder management",
+        "scrum",
+        "artificial intelligence",
+        "agile",
+        "project management"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "confluence",
+        "agile",
+        "jira",
+        "stakeholder management",
+        "scrum",
+        "project management",
+        "artificial intelligence"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Finance"
+        },
+        {
+          "degree": "Associates",
+          "field": "Finance"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:39:41.797007"
+    },
+    {
+      "resume_id": "f7e56b96",
+      "local_skills": [
+        "aws",
+        "terraform",
+        "sql",
+        "python",
+        "react",
+        "javascript",
+        "artificial intelligence",
+        "docker",
+        "kubernetes",
+        "node"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "aws",
+        "terraform",
+        "sql",
+        "python",
+        "react",
+        "javascript",
+        "artificial intelligence",
+        "docker",
+        "kubernetes",
+        "node"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Bachelors",
+          "field": "Software Engineering"
+        },
+        {
+          "degree": "Associates",
+          "field": "Software Engineering"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:42:59.850513"
+    },
+    {
+      "resume_id": "db995a1b",
+      "local_skills": [
+        "forecasting",
+        "excel",
+        "financial modeling",
+        "artificial intelligence",
+        "sap",
+        "budgeting",
+        "salesforce"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "forecasting",
+        "sap",
+        "excel",
+        "artificial intelligence",
+        "financial modeling",
+        "budgeting",
+        "salesforce"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Mba"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:43:03.142958"
+    },
+    {
+      "resume_id": "ffba7e94",
+      "local_skills": [
+        "ux design",
+        "prototyping",
+        "machine learning",
+        "css",
+        "artificial intelligence",
+        "html",
+        "ui design"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "ux design",
+        "prototyping",
+        "artificial intelligence",
+        "html",
+        "ui design",
+        "machine learning",
+        "css"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:43:11.062217"
+    },
+    {
+      "resume_id": "29743d8b",
+      "local_skills": [
+        "graphic design",
+        "artificial intelligence",
+        "after effects",
+        "indesign",
+        "ux design"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "after effects",
+        "artificial intelligence",
+        "graphic design",
+        "indesign",
+        "ux design"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:46:12.163713"
+    },
+    {
+      "resume_id": "f134395b",
+      "local_skills": [
+        "data science",
+        "angular",
+        "typescript",
+        "aws",
+        "mongodb",
+        "terraform",
+        "azure",
+        "artificial intelligence",
+        "linux"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "data science",
+        "angular",
+        "typescript",
+        "aws",
+        "mongodb",
+        "terraform",
+        "azure",
+        "artificial intelligence",
+        "linux"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Data Science"
+        },
+        {
+          "degree": "Associates",
+          "field": "Data Science"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:46:15.560348"
+    },
+    {
+      "resume_id": "acf2e947",
+      "local_skills": [
+        "scikit-learn",
+        "machine learning",
+        "pandas",
+        "numpy",
+        "python",
+        "pytorch",
+        "artificial intelligence",
+        "tensorflow"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "scikit-learn",
+        "machine learning",
+        "pandas",
+        "numpy",
+        "python",
+        "pytorch",
+        "artificial intelligence",
+        "tensorflow"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Engineering"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T02:46:21.893108"
+    },
+    {
+      "resume_id": "7bc90de0",
+      "local_skills": [
+        "azure",
+        "mongodb",
+        "typescript",
+        "linux",
+        "terraform",
+        "angular",
+        "artificial intelligence"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "linux",
+        "azure",
+        "terraform",
+        "angular",
+        "mongodb",
+        "typescript",
+        "artificial intelligence"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Engineering"
+        },
+        {
+          "degree": "Associates",
+          "field": "Engineering"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T03:07:59.106507"
+    },
+    {
+      "resume_id": "292841c2",
+      "local_skills": [
+        "scrum",
+        "agile",
+        "confluence",
+        "stakeholder management",
+        "jira",
+        "project management",
+        "artificial intelligence"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "project management",
+        "scrum",
+        "agile",
+        "confluence",
+        "stakeholder management",
+        "jira",
+        "artificial intelligence"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Business Administration"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T03:08:02.447597"
+    },
+    {
+      "resume_id": "fe2133b4",
+      "local_skills": [
+        "a/b testing",
+        "user research",
+        "artificial intelligence"
+      ],
+      "affinda_skills": [],
+      "missing_skills": [],
+      "extra_skills": [
+        "artificial intelligence",
+        "user research",
+        "a/b testing"
+      ],
+      "local_experience": 0.0,
+      "affinda_experience": 0.0,
+      "local_education": [
+        {
+          "degree": "Masters",
+          "field": "Business Administration"
+        }
+      ],
+      "affinda_education": [],
+      "accuracy_score": 50.0,
+      "timestamp": "2026-01-31T03:08:08.322475"
+    }
+  ]
+}

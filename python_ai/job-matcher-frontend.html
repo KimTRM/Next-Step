@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextStep AI - Smart Job Matching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50: '#f0f9f1',
+                            100: '#dcf0de',
+                            200: '#bbe1bf',
+                            300: '#8dcc94',
+                            400: '#5ab164',
+                            500: '#117f1f',
+                            600: '#0f6b1a',
+                            700: '#0d5716',
+                            800: '#0b4512',
+                            900: '#09380f',
+                            950: '#052009',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: radial-gradient(ellipse at 20% 20%, rgba(122, 139, 98, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(90, 110, 76, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, rgba(150, 165, 127, 0.04) 0%, transparent 70%);
+        }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen bg-white text-earth-900 gradient-bg">
+    <!-- Header -->
+    <header class="border-b border-earth-200 backdrop-blur-sm sticky top-0 z-50 bg-white/90">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-earth-500 to-earth-700 flex items-center justify-center text-white">
+                    <i data-lucide="compass" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-semibold tracking-tight text-earth-900">NextStep AI</h1>
+                    <p class="text-xs text-earth-500">Smart Job Matching</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-earth-600">
+                <i data-lucide="sparkles" class="w-4 h-4 text-earth-500"></i>
+                <span>Powered by ML</span>
+                <span id="api-status" class="ml-3 px-2 py-1 rounded text-xs bg-amber-100 text-amber-700">Checking API...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <!-- Progress Steps -->
+        <div class="flex items-center justify-center gap-4 mb-12" id="progress-steps">
+            <div class="flex items-center gap-2">
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-600 text-white" data-step="1">1</div>
+                <span class="text-sm text-earth-800">Upload Resume</span>
+            </div>
+            <div class="w-16 h-px bg-earth-200" id="progress-line-1"></div>
+            <div class="flex items-center gap-2">
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-100 text-earth-400" data-step="2">2</div>
+                <span class="text-sm text-earth-400" id="step-2-label">Select Preferences</span>
+            </div>
+            <div class="w-16 h-px bg-earth-200" id="progress-line-2"></div>
+            <div class="flex items-center gap-2">
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-100 text-earth-400" data-step="3">3</div>
+                <span class="text-sm text-earth-400" id="step-3-label">View Matches</span>
+            </div>
+        </div>
+
+        <!-- Step 1 & 2: Input Form -->
+        <div id="input-section" class="max-w-2xl mx-auto space-y-8">
+            <!-- Resume Upload -->
+            <div class="bg-white rounded-2xl border border-earth-200 shadow-sm p-8">
+                <h2 class="text-xl font-semibold mb-6 flex items-center gap-2 text-earth-800">
+                    <i data-lucide="upload" class="w-5 h-5 text-earth-600"></i>
+                    Upload Your Resume
+                </h2>
+                
+                <label id="upload-area" class="block border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all border-earth-300 hover:border-earth-400 hover:bg-earth-50">
+                    <input type="file" id="file-input" accept=".txt,.pdf,.docx" class="hidden">
+                    <div id="upload-prompt" class="space-y-2">
+                        <i data-lucide="upload" class="w-10 h-10 mx-auto text-earth-400"></i>
+                        <p class="text-earth-600">Drop your resume here or click to browse</p>
+                        <p class="text-xs text-earth-400">Supports TXT, PDF, DOCX</p>
+                    </div>
+                    <div id="upload-success" class="hidden flex items-center justify-center gap-3">
+                        <i data-lucide="check-circle" class="w-6 h-6 text-earth-600"></i>
+                        <span class="text-earth-700 font-medium" id="file-name"></span>
+                    </div>
+                </label>
+
+                <div class="mt-6">
+                    <p class="text-sm text-earth-500 mb-2">Or paste your resume text:</p>
+                    <textarea id="resume-text" placeholder="Paste your resume content here... 
+
+Example:
+John Smith - Software Engineer
+5 years experience in Python, JavaScript, React, AWS
+Bachelor's in Computer Science
+Previously worked at Tech Corp, StartupXYZ" 
+                        class="w-full h-40 bg-earth-50 border border-earth-200 rounded-xl p-4 text-sm text-earth-800 placeholder-earth-400 focus:outline-none focus:border-earth-500 focus:ring-2 focus:ring-earth-500/20 resize-none"></textarea>
+                </div>
+
+
+            </div>
+
+            <!-- Location & Industry -->
+            <div class="bg-white rounded-2xl border border-earth-200 shadow-sm p-8">
+                <h2 class="text-xl font-semibold mb-6 flex items-center gap-2 text-earth-800">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-earth-600"></i>
+                    Job Preferences
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm text-earth-600 mb-2 font-medium">Preferred City</label>
+                        <select id="city-select" class="w-full bg-white border border-earth-200 rounded-xl px-4 py-3 text-earth-800 focus:outline-none focus:border-earth-500 focus:ring-2 focus:ring-earth-500/20">
+                            <option value="">Select a city...</option>
+                            <option value="Naga City">Naga City</option>
+                            <option value="Manila">Manila</option>
+                            <option value="Quezon City">Quezon City</option>
+                            <option value="Makati">Makati</option>
+                            <option value="Cebu City">Cebu City</option>
+                            <option value="Davao City">Davao City</option>
+                            <option value="Iloilo City">Iloilo City</option>
+                            <option value="Bacolod">Bacolod</option>
+                            <option value="Taguig">Taguig</option>
+                            <option value="Pasig">Pasig</option>
+                            <option value="Remote Philippines">Remote Philippines</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-earth-600 mb-2 font-medium">Target Industry</label>
+                        <select id="industry-select" class="w-full bg-white border border-earth-200 rounded-xl px-4 py-3 text-earth-800 focus:outline-none focus:border-earth-500 focus:ring-2 focus:ring-earth-500/20">
+                            <option value="detect">🔍 Detect Industry (AI)</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance & Accounting</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Marketing">Marketing & Advertising</option>
+                            <option value="Education">Education</option>
+                            <option value="Retail">Retail & Sales</option>
+                            <option value="Manufacturing">Manufacturing & Logistics</option>
+                            <option value="Consulting">Consulting</option>
+                            <option value="BPO">BPO & Customer Service</option>
+                            <option value="Engineering">Engineering (Civil/Mech/Elec)</option>
+                            <option value="Hospitality">Hospitality & Tourism</option>
+                            <option value="Legal">Legal</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Administrative">Administrative</option>
+                            <option value="Fine Arts & Design">Fine Arts & Design</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- LinkedIn Profile (Optional) -->
+                <div class="mt-6">
+                    <label class="block text-sm text-earth-600 mb-2 font-medium">
+                        <i data-lucide="linkedin" class="w-4 h-4 inline mr-1"></i>
+                        LinkedIn Profile (Optional)
+                    </label>
+                    <div class="relative">
+                        <input type="url" id="linkedin-url" 
+                            placeholder="https://www.linkedin.com/in/your-profile"
+                            class="w-full bg-white border border-earth-200 rounded-xl px-4 py-3 text-earth-800 placeholder-earth-400 focus:outline-none focus:border-earth-500 focus:ring-2 focus:ring-earth-500/20">
+                        <div id="linkedin-status" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-earth-400 mt-1">Adding your LinkedIn increases match accuracy by up to 15%</p>
+                </div>
+            </div>
+
+            <!-- Analyze Button -->
+            <button id="analyze-btn" disabled
+                class="w-full py-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3 bg-earth-200 text-earth-400 cursor-not-allowed">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span>Find Matching Jobs</span>
+            </button>
+        </div>
+
+        <!-- Results Section (Hidden Initially) -->
+        <div id="results-section" class="hidden space-y-8">
+            <!-- AI Detection Results (shown when Detect Industry was used) -->
+            <div id="ai-detection-results" class="hidden bg-gradient-to-br from-earth-50 to-white border border-earth-200 rounded-2xl p-6 shadow-sm">
+                <div class="flex items-center gap-2 text-earth-700 font-semibold mb-4">
+                    <i data-lucide="brain" class="w-5 h-5 text-earth-600"></i>
+                    <span>AI Industry Detection Results</span>
+                    <span id="detection-badge" class="ml-auto text-xs px-2 py-1 bg-earth-600 text-white rounded-full">Analyzed</span>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-white rounded-lg p-3 border border-earth-100">
+                        <div class="text-xs text-earth-500 mb-1">Detected Industry</div>
+                        <div id="result-detected-industry" class="font-semibold text-earth-700">-</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-earth-100">
+                        <div class="text-xs text-earth-500 mb-1">Confidence</div>
+                        <div id="result-industry-confidence" class="font-semibold text-earth-700">-</div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-earth-100 col-span-2">
+                        <div class="text-xs text-earth-500 mb-1">Search Keywords</div>
+                        <div id="result-search-keywords" class="text-sm text-earth-600 truncate">-</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="text-xs text-earth-500 mb-2">Detected Skills</div>
+                    <div id="result-detected-skills" class="flex flex-wrap gap-1"></div>
+                </div>
+                
+                <div id="result-suggestions" class="hidden mt-4">
+                    <div class="text-xs text-earth-500 mb-2">Other Matching Industries</div>
+                    <div id="result-suggested-industries" class="flex flex-wrap gap-1"></div>
+                </div>
+                
+                <div id="result-fresh-jobs" class="hidden mt-4 p-3 bg-earth-100 rounded-lg text-sm text-earth-700">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-1 text-earth-600"></i>
+                    <span id="result-fresh-jobs-message">Fetched fresh jobs from Indeed</span>
+                </div>
+                
+                <!-- LinkedIn Profile Boost -->
+                <div id="result-linkedin-boost" class="hidden mt-4 p-3 bg-gradient-to-r from-blue-50 to-earth-50 rounded-lg border border-blue-100">
+                    <div class="flex items-center gap-2 text-sm">
+                        <i data-lucide="linkedin" class="w-4 h-4 text-blue-600"></i>
+                        <span class="font-medium text-earth-700">LinkedIn Profile Boost:</span>
+                        <span id="linkedin-boost-value" class="font-bold text-earth-800">+0%</span>
+                    </div>
+                    <div id="linkedin-skills-container" class="hidden mt-2">
+                        <div class="text-xs text-earth-500 mb-1">Additional Skills from LinkedIn:</div>
+                        <div id="linkedin-skills-list" class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Card -->
+            <div class="bg-gradient-to-br from-earth-600 to-earth-700 rounded-2xl shadow-lg p-8 text-white">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Your Skills Analysis</h2>
+                        <p class="text-earth-200" id="results-summary">Analyzing...</p>
+                    </div>
+                    <button id="new-search-btn" class="px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-colors text-white border border-white/20">
+                        New Search
+                    </button>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-white/20">
+                    <div class="flex flex-wrap gap-3 mb-4" id="candidate-meta"></div>
+                    <div class="flex flex-wrap gap-2" id="skills-tags"></div>
+                </div>
+            </div>
+
+            <!-- Job Matches -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2 text-earth-800">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-earth-600"></i>
+                    Top Job Matches
+                </h3>
+                <div id="matches-container"></div>
+            </div>
+
+            <!-- Industry Summary -->
+            <div class="bg-white rounded-xl border border-earth-200 shadow-sm p-6">
+                <h3 class="font-semibold mb-4 flex items-center gap-2 text-earth-800">
+                    <i data-lucide="briefcase" class="w-5 h-5 text-earth-600"></i>
+                    Match Summary
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4" id="summary-stats"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-earth-200 mt-20 bg-earth-50">
+        <div class="max-w-6xl mx-auto px-6 py-8 text-center text-sm text-earth-500">
+            <p>NextStep AI — Smart job matching powered by machine learning</p>
+            <p class="mt-1">API Endpoint: <code id="api-endpoint" class="text-earth-600 bg-earth-100 px-2 py-0.5 rounded">http://localhost:8000</code></p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Configuration
+        const API_BASE = 'http://localhost:8000';
+        
+        // State
+        let currentStep = 1;
+        let resumeText = '';
+        let selectedCity = '';
+        let selectedIndustry = '';
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const resumeTextarea = document.getElementById('resume-text');
+        const citySelect = document.getElementById('city-select');
+        const industrySelect = document.getElementById('industry-select');
+        const linkedinInput = document.getElementById('linkedin-url');
+        const linkedinStatus = document.getElementById('linkedin-status');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const inputSection = document.getElementById('input-section');
+        const resultsSection = document.getElementById('results-section');
+        const apiStatus = document.getElementById('api-status');
+
+        // AI Analysis state
+        let aiAnalysisData = null;
+
+        // Check API Status
+        async function checkAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    apiStatus.textContent = `API Ready (${data.num_jobs} jobs)`;
+                    apiStatus.className = 'ml-3 px-2 py-1 rounded text-xs bg-earth-100 text-earth-700';
+                    return true;
+                }
+            } catch (e) {
+                apiStatus.textContent = 'API Offline - Using Demo Mode';
+                apiStatus.className = 'ml-3 px-2 py-1 rounded text-xs bg-amber-100 text-amber-700';
+            }
+            return false;
+        }
+
+        // Update button state
+        function updateButtonState() {
+            resumeText = resumeTextarea.value;
+            selectedCity = citySelect.value;
+            selectedIndustry = industrySelect.value;
+
+            // Ready if either text is entered OR a file is uploaded
+            const hasResume = resumeText.trim() || uploadedFile;
+            // Industry can be 'detect' or any specific industry
+            const hasIndustry = selectedIndustry && selectedIndustry.length > 0;
+            const isReady = hasResume && selectedCity && hasIndustry;
+            
+            if (isReady) {
+                analyzeBtn.disabled = false;
+                analyzeBtn.className = 'w-full py-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3 bg-earth-600 hover:bg-earth-700 shadow-lg shadow-earth-600/25 text-white cursor-pointer';
+            } else {
+                analyzeBtn.disabled = true;
+                analyzeBtn.className = 'w-full py-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3 bg-earth-200 text-earth-400 cursor-not-allowed';
+            }
+        }
+
+        // File upload handler
+        let uploadedFile = null;
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                uploadedFile = file;
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                
+                // Update UI to show file uploaded
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('upload-prompt').classList.add('hidden');
+                document.getElementById('upload-success').classList.remove('hidden');
+                document.getElementById('upload-area').classList.add('border-earth-500', 'bg-earth-50');
+                document.getElementById('upload-area').classList.remove('border-earth-300');
+
+                // Only populate textarea for plain text files
+                if (fileExtension === 'txt') {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        resumeTextarea.value = event.target.result;
+                        updateButtonState();
+                    };
+                    reader.readAsText(file);
+                } else if (fileExtension === 'pdf' || fileExtension === 'docx') {
+                    // For PDF/DOCX, show Gemini AI will analyze
+                    resumeTextarea.placeholder = `${file.name} uploaded\n\nGemini AI will analyze this file when you click "Find Matching Jobs"\n\nOr you can paste additional text here...`;
+                    updateButtonState();
+                } else {
+                    // Unsupported format
+                    resumeTextarea.placeholder = 'Unsupported file format. Please upload PDF, DOCX, or TXT files.';
+                    updateButtonState();
+                }
+            }
+        });
+
+        // Input listeners
+        resumeTextarea.addEventListener('input', updateButtonState);
+        citySelect.addEventListener('change', updateButtonState);
+        industrySelect.addEventListener('change', updateButtonState);
+        
+        // LinkedIn URL validation listener
+        linkedinInput.addEventListener('input', () => {
+            const url = linkedinInput.value.trim();
+            if (!url) {
+                linkedinStatus.classList.add('hidden');
+                return;
+            }
+            
+            // Validate LinkedIn URL pattern
+            const pattern = /^https?:\/\/(www\.)?linkedin\.com\/in\/[\w\-]+\/?$/;
+            if (pattern.test(url)) {
+                linkedinStatus.classList.remove('hidden');
+                linkedinStatus.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>';
+            } else {
+                linkedinStatus.classList.remove('hidden');
+                linkedinStatus.innerHTML = '<i data-lucide="alert-circle" class="w-5 h-5 text-orange-500"></i>';
+            }
+            lucide.createIcons();
+        });
+
+        // Local industry detection fallback
+        function detectIndustryLocal(text) {
+            const textLower = text.toLowerCase();
+            const industryKeywords = {
+                'Technology': ['software', 'developer', 'engineer', 'programming', 'python', 'javascript', 'react', 'aws', 'cloud', 'data'],
+                'Finance': ['finance', 'accounting', 'bank', 'investment', 'audit', 'tax', 'bookkeeping'],
+                'Healthcare': ['nurse', 'medical', 'hospital', 'patient', 'clinical', 'doctor', 'pharmacy'],
+                'Marketing': ['marketing', 'advertising', 'brand', 'social media', 'seo', 'content'],
+                'Education': ['teacher', 'education', 'school', 'training', 'curriculum', 'student'],
+                'Retail': ['retail', 'sales', 'store', 'customer service', 'inventory'],
+                'Manufacturing': ['manufacturing', 'production', 'factory', 'assembly', 'quality control'],
+                'Consulting': ['consulting', 'consultant', 'advisory', 'strategy'],
+                'Fine Arts & Design': ['graphic design', 'artist', 'illustrator', 'creative', 'visual', 'animation', 'ui', 'ux', 'designer', 'art director', 'multimedia', 'photography', 'adobe', 'photoshop']
+            };
+
+            let bestMatch = 'Technology';
+            let bestScore = 0;
+
+            for (const [industry, keywords] of Object.entries(industryKeywords)) {
+                const score = keywords.filter(kw => textLower.includes(kw)).length;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = industry;
+                }
+            }
+
+            return bestMatch;
+        }
+
+        // Demo data generator (fallback when API is offline)
+        function generateDemoMatches(skills) {
+            const companies = [
+                { name: 'TechFlow Inc', size: 'Startup' },
+                { name: 'DataSphere', size: 'Mid-size' },
+                { name: 'CloudNine Systems', size: 'Enterprise' },
+                { name: 'InnovateLabs', size: 'Startup' },
+                { name: 'ScaleUp Corp', size: 'Mid-size' },
+            ];
+
+            const titles = ['Software Engineer', 'Senior Developer', 'Full Stack Developer', 'Data Engineer', 'ML Engineer'];
+
+            return companies.map((company, idx) => {
+                const confidence = Math.round(95 - idx * 8 + (Math.random() * 10 - 5));
+                const matchedSkills = skills.slice(0, Math.max(2, skills.length - idx));
+                const missingSkills = ['kubernetes', 'terraform', 'graphql'].slice(0, idx % 3);
+
+                return {
+                    id: `job_${idx}`,
+                    company: company.name,
+                    companySize: company.size,
+                    title: titles[idx],
+                    confidence,
+                    matchedSkills,
+                    missingSkills,
+                    salaryRange: `₱${60 + idx * 15}k - ₱${100 + idx * 20}k`,
+                    experience: `${2 + idx}-${5 + idx} years`
+                };
+            });
+        }
+
+        // Extract skills from text (simple version)
+        function extractSkills(text) {
+            const skillPatterns = [
+                // Tech skills
+                'python', 'javascript', 'react', 'node.js', 'sql', 'aws', 'docker',
+                'kubernetes', 'machine learning', 'java', 'typescript', 'git', 'agile',
+                'css', 'html', 'mongodb', 'postgresql', 'tensorflow', 'vue', 'angular',
+                // Design skills
+                'photoshop', 'illustrator', 'figma', 'sketch', 'adobe', 'indesign',
+                'after effects', 'premiere', 'ui design', 'ux design', 'graphic design',
+                'branding', 'typography', 'animation', 'canva', 'coreldraw',
+                // Marketing skills
+                'seo', 'social media', 'content marketing', 'google analytics',
+                // Finance skills
+                'accounting', 'bookkeeping', 'excel', 'financial analysis'
+            ];
+            const textLower = text.toLowerCase();
+            return skillPatterns.filter(skill => textLower.includes(skill));
+        }
+
+        // Analyze button click
+        analyzeBtn.addEventListener('click', async () => {
+            const useDetection = selectedIndustry === 'detect';
+            let detectedIndustryValue = selectedIndustry;
+            let searchKeywords = [];
+            
+            // If Detect Industry is selected, analyze resume first
+            if (useDetection) {
+                analyzeBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>AI Analyzing Resume...</span>';
+                
+                try {
+                    let analyzeResponse;
+                    
+                    // If a PDF/DOCX file is uploaded, use Gemini file analysis
+                    if (uploadedFile) {
+                        const fileExtension = uploadedFile.name.split('.').pop().toLowerCase();
+                        if (fileExtension === 'pdf' || fileExtension === 'docx') {
+                            // Use Gemini API for file analysis
+                            const formData = new FormData();
+                            formData.append('file', uploadedFile);
+                            formData.append('city', selectedCity || '');
+                            formData.append('fetch_fresh_jobs', 'true');
+                            
+                            console.log('[PDF Upload] Sending file for analysis:', uploadedFile.name);
+                            
+                            analyzeResponse = await fetch(`${API_BASE}/analyze-resume-file`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if (analyzeResponse.ok) {
+                                aiAnalysisData = await analyzeResponse.json();
+                                console.log('[PDF Analysis] Response:', aiAnalysisData);
+                                console.log('[PDF Analysis] Skills detected:', aiAnalysisData.detected_skills);
+                                console.log('[PDF Analysis] Industry:', aiAnalysisData.detected_industry);
+                                console.log('[PDF Analysis] Extracted text length:', aiAnalysisData.extracted_text?.length || 0);
+                                
+                                // If text was extracted, populate textarea for matching
+                                if (aiAnalysisData.extracted_text) {
+                                    resumeTextarea.value = aiAnalysisData.extracted_text;
+                                }
+                                detectedIndustryValue = aiAnalysisData.detected_industry || 'Technology';
+                                searchKeywords = aiAnalysisData.search_keywords || [];
+                                
+                                // If there was an error (e.g., image-based PDF), show it to user
+                                if (aiAnalysisData.error) {
+                                    console.warn('[PDF Analysis] Error:', aiAnalysisData.error);
+                                    // Show error to user and ask them to paste text
+                                    resumeTextarea.value = '';
+                                    resumeTextarea.placeholder = `⚠️ ${aiAnalysisData.error}\n\nPlease paste your resume text here instead.`;
+                                    alert(`PDF Analysis Issue:\n\n${aiAnalysisData.error}\n\nPlease paste your resume text in the text area.`);
+                                    analyzeResponse = null; // Force fallback to text analysis
+                                }
+                            } else {
+                                console.error('[PDF Analysis] HTTP Error:', analyzeResponse.status);
+                            }
+                        }
+                    }
+                    
+                    // Fall back to text analysis if no file or text file
+                    if (!analyzeResponse || !analyzeResponse.ok) {
+                        analyzeResponse = await fetch(`${API_BASE}/analyze-resume`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                resume_text: resumeTextarea.value,
+                                city: selectedCity,
+                                fetch_fresh_jobs: true
+                            })
+                        });
+                        
+                        if (analyzeResponse.ok) {
+                            aiAnalysisData = await analyzeResponse.json();
+                            detectedIndustryValue = aiAnalysisData.detected_industry || 'Technology';
+                            searchKeywords = aiAnalysisData.search_keywords || [];
+                        }
+                    }
+                    
+                    if (!analyzeResponse.ok) {
+                        // Fallback to local detection
+                        detectedIndustryValue = detectIndustryLocal(resumeTextarea.value);
+                        aiAnalysisData = {
+                            detected_industry: detectedIndustryValue,
+                            industry_confidence: 70,
+                            detected_skills: extractSkills(resumeTextarea.value),
+                            suggested_industries: [{ industry: detectedIndustryValue, confidence: 70 }],
+                            search_keywords: extractSkills(resumeTextarea.value).slice(0, 5),
+                            fresh_jobs_fetched: 0
+                        };
+                        searchKeywords = aiAnalysisData.search_keywords;
+                    }
+                } catch (e) {
+                    console.error('Detection error:', e);
+                    // Fallback to local detection
+                    detectedIndustryValue = detectIndustryLocal(resumeTextarea.value);
+                    aiAnalysisData = {
+                        detected_industry: detectedIndustryValue,
+                        industry_confidence: 70,
+                        detected_skills: extractSkills(resumeTextarea.value),
+                        suggested_industries: [{ industry: detectedIndustryValue, confidence: 70 }],
+                        search_keywords: extractSkills(resumeTextarea.value).slice(0, 5),
+                        fresh_jobs_fetched: 0
+                    };
+                    searchKeywords = aiAnalysisData.search_keywords;
+                }
+            }
+            
+            // Show loading
+            analyzeBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-8-10h4m12 0h4m-4.93-5.07l-2.83 2.83m-5.66 5.66l-2.83 2.83m11.31 0l-2.83-2.83M6.1 6.1L3.27 3.27"/></svg><span>Fetching Fresh Jobs & Matching...</span>';
+
+            let matches, skills, experience;
+
+            try {
+                // Use AI analysis data if available, otherwise extract locally
+                const detectedSkills = aiAnalysisData?.detected_skills || extractSkills(resumeTextarea.value);
+                if (!searchKeywords.length) searchKeywords = aiAnalysisData?.search_keywords || detectedSkills.slice(0, 5);
+                experience = aiAnalysisData?.experience_years || 5;
+                const targetIndustry = useDetection ? detectedIndustryValue : selectedIndustry;
+                
+                // Get LinkedIn URL if provided
+                const linkedinUrl = linkedinInput.value.trim() || null;
+
+                // Try API first
+                const response = await fetch(`${API_BASE}/match`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        skills: detectedSkills,
+                        experience_years: experience,
+                        city: selectedCity,
+                        target_industry: targetIndustry,
+                        limit: 15,
+                        search_keywords: searchKeywords,  // Pass to help fetch relevant jobs
+                        linkedin_url: linkedinUrl  // Pass LinkedIn profile for confidence boost
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    matches = data.matches;
+                    skills = data.candidate_skills;
+                    
+                    // Store LinkedIn boost info if present
+                    if (data.linkedin_boost !== undefined) {
+                        aiAnalysisData = aiAnalysisData || {};
+                        aiAnalysisData.linkedin_boost = data.linkedin_boost;
+                        aiAnalysisData.linkedin_skills = data.linkedin_skills || [];
+                    }
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (e) {
+                // Fallback to demo mode
+                await new Promise(r => setTimeout(r, 1500));
+                skills = aiAnalysisData?.detected_skills || extractSkills(resumeTextarea.value);
+                if (skills.length === 0) skills = ['javascript', 'python', 'sql'];
+                matches = generateDemoMatches(skills);
+                experience = 5;
+            }
+
+            // Show results with detected industry
+            showResults(matches, skills, experience, useDetection ? detectedIndustryValue : selectedIndustry, useDetection);
+        });
+
+        // Display results
+        function showResults(matches, skills, experience, detectedIndustry, showAIResults = false) {
+            // Ensure skills is an array
+            skills = skills || [];
+            matches = matches || [];
+            experience = experience || 0;
+            const displayIndustry = detectedIndustry || selectedIndustry;
+
+            inputSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');            
+            // Show AI Detection results if Detect Industry was used
+            const aiResultsDiv = document.getElementById('ai-detection-results');
+            if (showAIResults && aiAnalysisData) {
+                aiResultsDiv.classList.remove('hidden');
+                
+                // Detected industry
+                document.getElementById('result-detected-industry').textContent = aiAnalysisData.detected_industry || 'Unknown';
+                
+                // Confidence
+                const confidence = aiAnalysisData.industry_confidence || 0;
+                const confEl = document.getElementById('result-industry-confidence');
+                confEl.textContent = `${confidence}%`;
+                confEl.className = `font-semibold ${confidence >= 70 ? 'text-green-600' : confidence >= 50 ? 'text-yellow-600' : 'text-red-600'}`;
+                
+                // Search keywords
+                const keywords = aiAnalysisData.search_keywords || [];
+                document.getElementById('result-search-keywords').textContent = keywords.length > 0 ? keywords.join(', ') : 'No specific keywords';
+                
+                // Skills
+                const skillsDiv = document.getElementById('result-detected-skills');
+                const detectedSkills = aiAnalysisData.detected_skills || [];
+                skillsDiv.innerHTML = detectedSkills.slice(0, 15).map(s => 
+                    `<span class="px-2 py-1 bg-earth-100 text-earth-700 text-xs rounded">${s}</span>`
+                ).join('');
+                if (detectedSkills.length === 0) {
+                    skillsDiv.innerHTML = '<span class="text-earth-400 text-sm">No specific skills detected</span>';
+                }
+                
+                // Suggested industries
+                const suggestions = aiAnalysisData.suggested_industries || [];
+                if (suggestions.length > 1) {
+                    document.getElementById('result-suggestions').classList.remove('hidden');
+                    document.getElementById('result-suggested-industries').innerHTML = suggestions.slice(1, 4).map(ind =>
+                        `<span class="px-2 py-1 bg-white border border-earth-200 text-earth-600 text-xs rounded-full">${ind.industry} (${ind.confidence}%)</span>`
+                    ).join('');
+                } else {
+                    document.getElementById('result-suggestions').classList.add('hidden');
+                }
+                
+                // Fresh jobs status
+                if (aiAnalysisData.fresh_jobs_fetched > 0) {
+                    document.getElementById('result-fresh-jobs').classList.remove('hidden');
+                    document.getElementById('result-fresh-jobs-message').textContent = 
+                        `Fetched ${aiAnalysisData.fresh_jobs_fetched} fresh jobs from Indeed based on your profile`;
+                } else {
+                    document.getElementById('result-fresh-jobs').classList.add('hidden');
+                }
+                
+                // LinkedIn profile boost
+                const linkedinBoostDiv = document.getElementById('result-linkedin-boost');
+                if (aiAnalysisData.linkedin_boost !== undefined) {
+                    linkedinBoostDiv.classList.remove('hidden');
+                    const boost = aiAnalysisData.linkedin_boost;
+                    const boostValue = document.getElementById('linkedin-boost-value');
+                    boostValue.textContent = boost >= 0 ? `+${boost}%` : `${boost}%`;
+                    boostValue.className = `font-bold ${boost >= 0 ? 'text-green-600' : 'text-red-500'}`;
+                    
+                    // Show LinkedIn skills if any
+                    const linkedinSkills = aiAnalysisData.linkedin_skills || [];
+                    const linkedinSkillsContainer = document.getElementById('linkedin-skills-container');
+                    if (linkedinSkills.length > 0) {
+                        linkedinSkillsContainer.classList.remove('hidden');
+                        document.getElementById('linkedin-skills-list').innerHTML = linkedinSkills.slice(0, 10).map(s => 
+                            `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">${s}</span>`
+                        ).join('');
+                    } else {
+                        linkedinSkillsContainer.classList.add('hidden');
+                    }
+                } else {
+                    linkedinBoostDiv.classList.add('hidden');
+                }
+            } else {
+                aiResultsDiv.classList.add('hidden');
+            }
+            // Update progress
+            document.querySelectorAll('.step-indicator').forEach(el => {
+                el.className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-600 text-white';
+            });
+            document.getElementById('progress-line-1').className = 'w-16 h-px bg-earth-600';
+            document.getElementById('progress-line-2').className = 'w-16 h-px bg-earth-600';
+            document.getElementById('step-2-label').className = 'text-sm text-earth-800';
+            document.getElementById('step-3-label').className = 'text-sm text-earth-800';
+
+            // Summary
+            document.getElementById('results-summary').textContent =
+                `Found ${matches.length} matching jobs in ${displayIndustry} · ${selectedCity}`;
+
+            // Candidate meta
+            document.getElementById('candidate-meta').innerHTML = `
+                <div class="flex items-center gap-2 text-sm text-earth-200">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    ${displayIndustry}
+                </div>
+                <div class="flex items-center gap-2 text-sm text-earth-200">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    ${experience}+ years experience
+                </div>
+                <div class="flex items-center gap-2 text-sm text-earth-200">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                    ${skills.length} skills detected
+                </div>
+            `;
+
+            // Skills sentence and tags
+            const skillsSentence = skills.length > 0
+                ? `Detected skills: ${skills.join(', ')}.`
+                : 'No skills detected.';
+
+            document.getElementById('skills-tags').innerHTML = `
+                <div class="mt-4 pt-4 border-t border-white/20">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-earth-200 mt-1"></i>
+                        <p class="text-white text-base leading-relaxed">
+                            ${skillsSentence}
+                        </p>
+                    </div>
+                    <details class="mt-4">
+                        <summary class="text-sm text-earth-200 cursor-pointer hover:text-white transition-colors">
+                            View skills by category
+                        </summary>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            ${skills.map(skill =>
+                                `<span class="px-3 py-1 bg-white/20 text-white rounded-full text-sm border border-white/20">${skill}</span>`
+                            ).join('')}
+                        </div>
+                    </details>
+                </div>
+            `;
+
+            // Matches
+            const matchesHtml = matches.map((job, idx) => {
+                const confBgClass = job.confidence >= 75 ? 'bg-earth-100 border-earth-300 text-earth-700' : job.confidence >= 50 ? 'bg-amber-100 border-amber-300 text-amber-700' : 'bg-red-100 border-red-300 text-red-700';
+                const confLabel = job.confidence >= 75 ? 'Strong Match' : job.confidence >= 50 ? 'Good Fit' : 'Potential';
+
+                return `
+                    <div class="bg-white rounded-xl border border-earth-200 shadow-sm overflow-hidden hover:border-earth-300 hover:shadow-md transition-all mb-4">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-lg bg-earth-100 flex items-center justify-center text-lg font-bold text-earth-600">
+                                        #${idx + 1}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-lg text-earth-900">${job.title}</h4>
+                                        <div class="flex items-center gap-2 text-earth-600 mt-1 flex-wrap">
+                                            <i data-lucide="building-2" class="w-4 h-4"></i>
+                                            <span>${job.company}</span>
+                                            <span class="text-earth-300">·</span>
+                                            <span class="text-xs px-2 py-0.5 bg-earth-100 text-earth-600 rounded-full">${job.companySize || 'Company'}</span>
+                                            ${job.job_source && job.job_source !== 'synthetic' ? `
+                                                <span class="text-earth-300">·</span>
+                                                <span class="text-xs px-2 py-0.5 bg-earth-600 text-white rounded-full flex items-center gap-1">
+                                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                                    ${job.job_source}
+                                                </span>
+                                            ` : ''}
+                                        </div>
+                                        <div class="flex items-center gap-4 mt-2 text-sm text-earth-500">
+                                            <span>${job.salaryRange || '₱80k - ₱150k'}</span>
+                                            <span>${job.experience || '3-5 years'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-2 rounded-lg border ${confBgClass} text-center min-w-[100px]">
+                                    <div class="text-2xl font-bold">${job.confidence}%</div>
+                                    <div class="text-xs opacity-75">${confLabel}</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-earth-100 grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="text-sm font-medium text-earth-700 mb-2">✓ Matching Skills</h5>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${(job.matchedSkills || job.matched_skills || []).map(s => 
+                                            `<span class="px-2 py-1 bg-earth-100 text-earth-700 rounded text-xs">${s}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-medium text-amber-700 mb-2">⚡ Skills to Develop</h5>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${(job.missingSkills || job.missing_skills || []).map(s => 
+                                            `<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">${s}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex gap-3">
+                                ${job.job_url ? `
+                                    <a
+                                        href="${job.job_url}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex-1 py-2 bg-earth-600 hover:bg-earth-700 rounded-lg font-medium transition-colors text-center text-white flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                                        Apply on ${job.job_source || 'Indeed'}
+                                    </a>
+                                ` : `
+                                    <button
+                                        disabled
+                                        class="flex-1 py-2 bg-earth-100 text-earth-400 rounded-lg font-medium cursor-not-allowed"
+                                    >
+                                        Application Link Unavailable
+                                    </button>
+                                `}
+                                <button class="px-4 py-2 bg-earth-100 text-earth-700 rounded-lg hover:bg-earth-200 transition-colors">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('matches-container').innerHTML = matchesHtml;
+
+            // Summary stats
+            const avgConfidence = matches.length > 0 
+                ? Math.round(matches.reduce((a, b) => a + b.confidence, 0) / matches.length)
+                : 0;
+            const strongMatches = matches.filter(m => m.confidence >= 75).length;
+
+            document.getElementById('summary-stats').innerHTML = `
+                <div class="bg-earth-50 rounded-lg p-4 text-center border border-earth-100">
+                    <div class="text-2xl font-bold text-earth-800">${avgConfidence}%</div>
+                    <div class="text-sm text-earth-600">Average Match</div>
+                </div>
+                <div class="bg-earth-50 rounded-lg p-4 text-center border border-earth-100">
+                    <div class="text-2xl font-bold text-earth-800">${strongMatches}</div>
+                    <div class="text-sm text-earth-600">Strong Matches</div>
+                </div>
+                <div class="bg-earth-50 rounded-lg p-4 text-center border border-earth-100">
+                    <div class="text-2xl font-bold text-earth-800">${skills.length}</div>
+                    <div class="text-sm text-earth-600">Skills Detected</div>
+                </div>
+            `;
+
+            // Re-init icons
+            lucide.createIcons();
+        }
+
+        // New search button
+        document.getElementById('new-search-btn').addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+            
+            // Reset AI analysis
+            aiAnalysisData = null;
+            document.getElementById('ai-detection-results').classList.add('hidden');
+            
+            // Reset progress indicators
+            document.querySelectorAll('.step-indicator')[1].className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-100 text-earth-400';
+            document.querySelectorAll('.step-indicator')[2].className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-earth-100 text-earth-400';
+            document.getElementById('progress-line-1').className = 'w-16 h-px bg-earth-200';
+            document.getElementById('progress-line-2').className = 'w-16 h-px bg-earth-200';
+            document.getElementById('step-2-label').className = 'text-sm text-earth-400';
+            document.getElementById('step-3-label').className = 'text-sm text-earth-400';
+
+            // Reset button
+            analyzeBtn.innerHTML = '<i data-lucide="sparkles" class="w-5 h-5"></i><span>Find Matching Jobs</span>';
+            lucide.createIcons();
+        });
+
+        // Initialize
+        checkAPI();
+        updateButtonState();
+    </script>
+</body>
+</html>

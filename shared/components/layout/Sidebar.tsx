@@ -22,6 +22,7 @@ export default function Sidebar({ className }: SidebarProps) {
         { href: '/profile', label: 'My Profile', icon: '👤' },
         { href: '/opportunities', label: 'Opportunities', icon: '💼' },
         { href: '/jobs', label: 'Jobs', icon: '🔍' },
+        { href: '/match-jobs', label: 'Match Jobs', icon: '✨' },
         { href: '/mentors', label: 'Find Mentors', icon: '🎓' },
         { href: '/applications', label: 'My Applications', icon: '📝' },
         { href: '/messages', label: 'Messages', icon: '💬' },
