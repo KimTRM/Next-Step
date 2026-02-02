@@ -26,7 +26,15 @@ import {
     AlertTriangle,
     Loader2,
     Check,
-    RefreshCw
+    RefreshCw,
+    Phone,
+    Building2,
+    Camera,
+    MoreVertical,
+    ChevronDown,
+    FileDown,
+    Eye,
+    Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCurrentUser, useUpsertUser, useUpdateUserProfile } from '../api';
@@ -35,9 +43,8 @@ import type { User as UserType, EducationLevel } from '../types';
 // URL validation regex pattern
 const URL_PATTERN = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
 
-// Validation helper for URLs
 function isValidUrl(url: string): boolean {
-    if (!url) return true; // Empty is valid (optional field)
+    if (!url) return true;
     return URL_PATTERN.test(url);
 }
 
@@ -59,7 +66,6 @@ import {
     SelectValue,
 } from '@/shared/components/ui/select';
 
-// Education level display labels
 const EDUCATION_LEVEL_LABELS: Record<EducationLevel, string> = {
     high_school: 'High School',
     undergraduate: 'Undergraduate',
@@ -78,19 +84,16 @@ const EDUCATION_LEVELS = [
     { value: 'self_taught', label: 'Self-Taught' },
 ] as const;
 
-// Skill suggestions
 const SKILL_SUGGESTIONS = [
     'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python',
     'HTML/CSS', 'SQL', 'Git', 'Communication', 'Problem Solving', 'Teamwork',
 ];
 
-// Interest suggestions
 const INTEREST_SUGGESTIONS = [
     'Web Development', 'Mobile Apps', 'AI/ML', 'Data Science', 'DevOps',
     'UI/UX Design', 'Cloud Computing', 'Cybersecurity', 'Blockchain', 'Gaming',
 ];
 
-// Profile fields for completion calculation
 type ProfileField = {
     key: string;
     label: string;
@@ -111,7 +114,6 @@ const PROFILE_FIELDS: ProfileField[] = [
     { key: 'portfolioUrl', label: 'Portfolio', weight: 2 },
 ];
 
-// Form data type
 type ProfileFormData = {
     name: string;
     location: string;
@@ -125,7 +127,6 @@ type ProfileFormData = {
     portfolioUrl: string;
 };
 
-// Calculate profile completion percentage
 function calculateProfileCompletion(user: UserType | null): { percentage: number; incomplete: string[] } {
     if (!user) return { percentage: 0, incomplete: [] };
 
@@ -158,7 +159,6 @@ function calculateProfileCompletion(user: UserType | null): { percentage: number
     };
 }
 
-// Get default form values from user data
 function getDefaultFormValues(user: UserType | null): ProfileFormData {
     return {
         name: user?.name || '',
@@ -174,8 +174,46 @@ function getDefaultFormValues(user: UserType | null): ProfileFormData {
     };
 }
 
-// Auto-save debounce delay in milliseconds
 const AUTO_SAVE_DELAY = 2000;
+
+// Hardcoded data for sections not yet in the user model
+const HARDCODED_SKILLS = ['Python', 'Django', 'React'];
+const HARDCODED_INTERESTS = ['Web Development', 'AI/ML', 'Mobile Apps'];
+const HARDCODED_EXPERIENCES = [
+    {
+        id: 1,
+        title: 'App Development Intern',
+        company: 'Bapple Technologies, Inc',
+        duration: 'Apr 2025 – Jun 2025 (3 months)',
+        description: 'Developed backend APIs using Python and Django to support user and service...',
+    },
+    {
+        id: 2,
+        title: 'App Development Intern',
+        company: 'Bapple Technologies, Inc',
+        duration: 'Apr 2025 – Jun 2025 (3 months)',
+        description: 'Developed backend APIs using Python and Django to support user and service...',
+    },
+];
+const HARDCODED_CAREER_GOALS = [
+    'Land a developer job',
+    'Do a flip',
+    'Connect with 3 mentors in the Tech Industry',
+];
+const HARDCODED_CONNECTIONS = [
+    { id: 1, name: 'John David Laureles', subtitle: 'Bachelor of Science in Computer Science' },
+    { id: 2, name: 'John David Laureles', subtitle: 'Bachelor of Science in Computer Science' },
+    { id: 3, name: 'John David Laureles', subtitle: 'Bachelor of Science in Computer Science' },
+];
+const HARDCODED_DOCUMENTS = [
+    { id: 1, name: 'Resume.pdf', updatedAt: 'Jan. 30, 2026' },
+];
+const PROFILE_STRENGTH_ITEMS = [
+    { label: 'Basic Information added', done: true },
+    { label: 'Skills Listed', done: true },
+    { label: 'Experience Listed', done: true },
+    { label: 'Upload Resume (Recommended)', done: false },
+];
 
 export function ProfilePageContent() {
     const [isEditing, setIsEditing] = useState(false);
@@ -187,34 +225,28 @@ export function ProfilePageContent() {
     const [isCreatingUser, setIsCreatingUser] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Auto-save state
     const [isAutoSaving, setIsAutoSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
     const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const pendingAutoSaveRef = useRef<ProfileFormData | null>(null);
 
-    // Skill/Interest input states
     const [newSkill, setNewSkill] = useState('');
     const [newInterest, setNewInterest] = useState('');
+    const [expandedExperience, setExpandedExperience] = useState<number | null>(null);
 
-    // React Hook Form setup with validation mode
     const form = useForm<ProfileFormData>({
         defaultValues: getDefaultFormValues(currentUser ?? null),
-        mode: 'onBlur', // Validate on blur for better UX
+        mode: 'onBlur',
     });
 
     const { register, handleSubmit, watch, setValue, reset, setError, clearErrors, formState: { errors, isDirty } } = form;
 
-    // Watch form values for skills and interests
     const watchedSkills = watch('skills');
     const watchedInterests = watch('interests');
     const watchedEducationLevel = watch('educationLevel');
-
-    // Watch all form values for real-time profile completion
     const watchedFormValues = watch();
 
-    // Calculate profile completion from form data (for edit mode real-time updates)
     const calculateFormCompletion = useCallback((data: ProfileFormData): { percentage: number; incomplete: string[] } => {
         const fields = [
             { key: 'name', value: data.name, label: 'Name', weight: 15 },
@@ -227,11 +259,9 @@ export function ProfilePageContent() {
             { key: 'githubUrl', value: data.githubUrl, label: 'GitHub', weight: 3 },
             { key: 'portfolioUrl', value: data.portfolioUrl, label: 'Portfolio', weight: 2 },
         ];
-
         let totalWeight = 0;
         let completedWeight = 0;
         const incomplete: string[] = [];
-
         for (const field of fields) {
             totalWeight += field.weight;
             if (field.isArray) {
@@ -248,14 +278,12 @@ export function ProfilePageContent() {
                 }
             }
         }
-
         return {
             percentage: Math.round((completedWeight / totalWeight) * 100),
             incomplete,
         };
     }, []);
 
-    // Calculate profile completion (view mode uses user data, edit mode uses form data)
     const profileCompletion = useMemo(() => {
         if (isEditing) {
             return calculateFormCompletion(watchedFormValues);
@@ -263,7 +291,6 @@ export function ProfilePageContent() {
         return calculateProfileCompletion(currentUser ?? null);
     }, [isEditing, watchedFormValues, currentUser, calculateFormCompletion]);
 
-    // Warn user before leaving with unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (isEditing && isDirty && !lastSaved) {
@@ -272,24 +299,18 @@ export function ProfilePageContent() {
                 return '';
             }
         };
-
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [isEditing, isDirty, lastSaved]);
 
-    // Prevent hydration mismatch
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    useEffect(() => { setMounted(true); }, []);
 
-    // Reset form when user data loads or changes
     useEffect(() => {
         if (currentUser) {
             reset(getDefaultFormValues(currentUser));
         }
     }, [currentUser, reset]);
 
-    // Auto-create user in Convex if signed in with Clerk but no Convex record
     useEffect(() => {
         const createUser = async () => {
             if (clerkUser && currentUser === null && !isCreatingUser) {
@@ -312,25 +333,16 @@ export function ProfilePageContent() {
         createUser();
     }, [clerkUser, currentUser, upsertUser, isCreatingUser]);
 
-    // Auto-save function (non-blocking)
     const performAutoSave = useCallback(async (data: ProfileFormData) => {
-        // Skip if required fields are missing
-        if (!data.name.trim() || !data.educationLevel) {
-            return;
-        }
-
-        // Validate URLs before auto-saving
+        if (!data.name.trim() || !data.educationLevel) return;
         if (
             (data.linkedInUrl && !isValidUrl(data.linkedInUrl)) ||
             (data.githubUrl && !isValidUrl(data.githubUrl)) ||
             (data.portfolioUrl && !isValidUrl(data.portfolioUrl))
-        ) {
-            return;
-        }
+        ) return;
 
         setIsAutoSaving(true);
         setAutoSaveError(null);
-
         try {
             await updateProfile({
                 bio: data.bio.trim() || undefined,
@@ -354,45 +366,27 @@ export function ProfilePageContent() {
         }
     }, [updateProfile]);
 
-    // Retry auto-save
     const handleRetryAutoSave = useCallback(() => {
-        if (pendingAutoSaveRef.current) {
-            performAutoSave(pendingAutoSaveRef.current);
-        }
+        if (pendingAutoSaveRef.current) performAutoSave(pendingAutoSaveRef.current);
     }, [performAutoSave]);
 
-    // Debounced auto-save on form changes
     useEffect(() => {
         if (!isEditing) return;
-
-        // Clear any pending auto-save timeout
-        if (autoSaveTimeoutRef.current) {
-            clearTimeout(autoSaveTimeoutRef.current);
-        }
-
-        // Set new timeout for auto-save
+        if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
         autoSaveTimeoutRef.current = setTimeout(() => {
             performAutoSave(watchedFormValues);
         }, AUTO_SAVE_DELAY);
-
-        // Cleanup on unmount or when dependencies change
         return () => {
-            if (autoSaveTimeoutRef.current) {
-                clearTimeout(autoSaveTimeoutRef.current);
-            }
+            if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
         };
     }, [watchedFormValues, isEditing, performAutoSave]);
 
-    // Cleanup auto-save timeout on unmount
     useEffect(() => {
         return () => {
-            if (autoSaveTimeoutRef.current) {
-                clearTimeout(autoSaveTimeoutRef.current);
-            }
+            if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
         };
     }, []);
 
-    // Handle entering edit mode
     const handleEditClick = () => {
         reset(getDefaultFormValues(currentUser ?? null));
         setLastSaved(null);
@@ -400,12 +394,8 @@ export function ProfilePageContent() {
         setIsEditing(true);
     };
 
-    // Handle cancel - discard changes and exit edit mode
     const handleCancel = () => {
-        // Clear any pending auto-save
-        if (autoSaveTimeoutRef.current) {
-            clearTimeout(autoSaveTimeoutRef.current);
-        }
+        if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
         reset(getDefaultFormValues(currentUser ?? null));
         setNewSkill('');
         setNewInterest('');
@@ -414,65 +404,44 @@ export function ProfilePageContent() {
         setIsEditing(false);
     };
 
-    // Validate education level when it changes
     const handleEducationLevelChange = (value: string) => {
         setValue('educationLevel', value as EducationLevel);
-        if (value) {
-            clearErrors('educationLevel');
-        }
+        if (value) clearErrors('educationLevel');
     };
 
-    // Custom validation before submit
     const validateForm = (data: ProfileFormData): boolean => {
         let isValid = true;
-
-        // Validate required name
         if (!data.name.trim()) {
             setError('name', { type: 'required', message: 'Name is required' });
             isValid = false;
         }
-
-        // Validate required education level
         if (!data.educationLevel) {
             setError('educationLevel', { type: 'required', message: 'Education level is required' });
             isValid = false;
         }
-
-        // Validate URL formats
         if (data.linkedInUrl && !isValidUrl(data.linkedInUrl)) {
             setError('linkedInUrl', { type: 'pattern', message: 'Please enter a valid URL' });
             isValid = false;
         }
-
         if (data.githubUrl && !isValidUrl(data.githubUrl)) {
             setError('githubUrl', { type: 'pattern', message: 'Please enter a valid URL' });
             isValid = false;
         }
-
         if (data.portfolioUrl && !isValidUrl(data.portfolioUrl)) {
             setError('portfolioUrl', { type: 'pattern', message: 'Please enter a valid URL' });
             isValid = false;
         }
-
         return isValid;
     };
 
-    // Handle form submission (manual save)
     const onSubmit = async (data: ProfileFormData) => {
-        // Clear any pending auto-save
-        if (autoSaveTimeoutRef.current) {
-            clearTimeout(autoSaveTimeoutRef.current);
-        }
-
-        // Run custom validation
+        if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
         if (!validateForm(data)) {
             toast.error('Please fix the validation errors');
             return;
         }
-
         setIsSaving(true);
         setAutoSaveError(null);
-
         try {
             await updateProfile({
                 bio: data.bio.trim() || undefined,
@@ -496,534 +465,276 @@ export function ProfilePageContent() {
         }
     };
 
-    // Add skill
     const handleAddSkill = (skill: string) => {
         const trimmed = skill.trim();
-        if (trimmed && !watchedSkills.includes(trimmed)) {
-            setValue('skills', [...watchedSkills, trimmed]);
-        }
+        if (trimmed && !watchedSkills.includes(trimmed)) setValue('skills', [...watchedSkills, trimmed]);
         setNewSkill('');
     };
 
-    // Remove skill
     const handleRemoveSkill = (skill: string) => {
         setValue('skills', watchedSkills.filter(s => s !== skill));
     };
 
-    // Add interest
     const handleAddInterest = (interest: string) => {
         const trimmed = interest.trim();
-        if (trimmed && !watchedInterests.includes(trimmed)) {
-            setValue('interests', [...watchedInterests, trimmed]);
-        }
+        if (trimmed && !watchedInterests.includes(trimmed)) setValue('interests', [...watchedInterests, trimmed]);
         setNewInterest('');
     };
 
-    // Remove interest
     const handleRemoveInterest = (interest: string) => {
         setValue('interests', watchedInterests.filter(i => i !== interest));
     };
 
-    // Show loading while mounting or while Clerk and Convex are initializing
+    // ─── LOADING STATES ─────────────────────────────────────────────
     if (!mounted || !clerkLoaded || currentUser === undefined) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                    <p className="text-lg text-muted-foreground">Loading profile...</p>
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+                    <p className="text-lg text-gray-600">Loading profile...</p>
                 </div>
             </div>
         );
     }
 
-    // Not signed in with Clerk
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
-                <p className="text-lg text-muted-foreground">Please sign in to view your profile</p>
-                <Button asChild>
-                    <a href="/auth">Sign In</a>
-                </Button>
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
+                <p className="text-lg text-gray-600">Please sign in to view your profile</p>
+                <Button asChild><a href="/auth">Sign In</a></Button>
             </div>
         );
     }
 
-    // Signed in but no Convex user record yet
     if (currentUser === null) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20 flex items-center justify-center flex-col gap-4">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                <p className="text-lg text-muted-foreground">Setting up your profile...</p>
-                <p className="text-sm text-muted-foreground">Signed in as {clerkUser.emailAddresses[0]?.emailAddress}</p>
-                <p className="text-xs text-muted-foreground">If this persists, try refreshing the page</p>
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+                <p className="text-lg text-gray-600">Setting up your profile...</p>
+                <p className="text-sm text-gray-500">Signed in as {clerkUser.emailAddresses[0]?.emailAddress}</p>
+                <p className="text-xs text-gray-400">If this persists, try refreshing the page</p>
             </div>
         );
     }
 
-    // EDIT MODE
+    // ─── EDIT MODE ──────────────────────────────────────────────────
     if (isEditing) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                    {/* Page Header */}
                     <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="display-font text-3xl sm:text-4xl lg:text-5xl mb-2">Edit Profile</h1>
-                            <p className="text-base lg:text-lg text-muted-foreground">
-                                Update your professional information.
-                            </p>
-                            {/* Auto-save indicator */}
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">Edit Profile</h1>
+                            <p className="text-base lg:text-lg text-gray-600">Update your professional information.</p>
                             <div className="mt-2 flex items-center gap-2 text-sm">
                                 {isAutoSaving && (
-                                    <span className="text-muted-foreground flex items-center gap-1">
-                                        <Loader2 className="h-3 w-3 animate-spin" />
-                                        Saving...
+                                    <span className="text-gray-600 flex items-center gap-1">
+                                        <Loader2 className="h-3 w-3 animate-spin" /> Saving...
                                     </span>
                                 )}
                                 {!isAutoSaving && lastSaved && !autoSaveError && (
-                                    <span className="text-green-600 flex items-center gap-1">
-                                        <Check className="h-3 w-3" />
-                                        Saved {lastSaved.toLocaleTimeString()}
+                                    <span className="text-emerald-600 flex items-center gap-1">
+                                        <Check className="h-3 w-3" /> Saved {lastSaved.toLocaleTimeString()}
                                     </span>
                                 )}
                                 {autoSaveError && (
-                                    <button
-                                        type="button"
-                                        onClick={handleRetryAutoSave}
-                                        className="text-destructive flex items-center gap-1 hover:underline"
-                                    >
-                                        <RefreshCw className="h-3 w-3" />
-                                        {autoSaveError}
+                                    <button type="button" onClick={handleRetryAutoSave} className="text-red-600 flex items-center gap-1 hover:underline">
+                                        <RefreshCw className="h-3 w-3" /> {autoSaveError}
                                     </button>
                                 )}
                             </div>
                         </div>
                         <div className="flex gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={handleCancel}
-                                disabled={isSaving || isAutoSaving}
-                            >
-                                <X className="h-4 w-4" />
-                                Cancel
+                            <Button variant="outline" onClick={handleCancel} disabled={isSaving || isAutoSaving}>
+                                <X className="h-4 w-4" /> Cancel
                             </Button>
-                            <Button
-                                onClick={handleSubmit(onSubmit)}
-                                disabled={isSaving || isAutoSaving}
-                            >
-                                <Save className="h-4 w-4" />
-                                {isSaving ? 'Saving...' : 'Save Changes'}
+                            <Button onClick={handleSubmit(onSubmit)} disabled={isSaving || isAutoSaving}>
+                                <Save className="h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        {/* Basic Info Section */}
+                        {/* Basic Info */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <User className="h-5 w-5 text-primary" />
-                                    Basic Information
+                                    <User className="h-5 w-5 text-emerald-600" /> Basic Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">
-                                            Full Name <span className="text-destructive">*</span>
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            {...register('name', {
-                                                required: 'Name is required',
-                                                minLength: { value: 2, message: 'Name must be at least 2 characters' }
-                                            })}
-                                            placeholder="Enter your full name"
-                                            className={errors.name ? 'border-destructive' : ''}
-                                            aria-invalid={!!errors.name}
-                                        />
-                                        {errors.name && (
-                                            <p className="text-sm text-destructive flex items-center gap-1">
-                                                <AlertTriangle className="h-3 w-3" />
-                                                {errors.name.message}
-                                            </p>
-                                        )}
+                                        <Label htmlFor="name">Full Name <span className="text-red-600">*</span></Label>
+                                        <Input id="name" {...register('name', { required: 'Name is required', minLength: { value: 2, message: 'Name must be at least 2 characters' } })} placeholder="Enter your full name" className={errors.name ? 'border-red-600' : ''} aria-invalid={!!errors.name} />
+                                        {errors.name && <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.name.message}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="location">Location</Label>
-                                        <Input
-                                            id="location"
-                                            {...register('location')}
-                                            placeholder="e.g., San Francisco, CA"
-                                        />
+                                        <Input id="location" {...register('location')} placeholder="e.g., San Francisco, CA" />
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Education Section */}
+                        {/* Education */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <GraduationCap className="h-5 w-5 text-primary" />
-                                    Education
+                                    <GraduationCap className="h-5 w-5 text-emerald-600" /> Education
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-2">
-                                    <Label htmlFor="educationLevel">
-                                        Education Level <span className="text-destructive">*</span>
-                                    </Label>
-                                    <Select
-                                        value={watchedEducationLevel}
-                                        onValueChange={handleEducationLevelChange}
-                                    >
-                                        <SelectTrigger
-                                            className={errors.educationLevel ? 'border-destructive' : ''}
-                                            aria-invalid={!!errors.educationLevel}
-                                        >
+                                    <Label htmlFor="educationLevel">Education Level <span className="text-red-600">*</span></Label>
+                                    <Select value={watchedEducationLevel} onValueChange={handleEducationLevelChange}>
+                                        <SelectTrigger className={errors.educationLevel ? 'border-red-600' : ''} aria-invalid={!!errors.educationLevel}>
                                             <SelectValue placeholder="Select your education level" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {EDUCATION_LEVELS.map((level) => (
-                                                <SelectItem key={level.value} value={level.value}>
-                                                    {level.label}
-                                                </SelectItem>
+                                                <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.educationLevel && (
-                                        <p className="text-sm text-destructive flex items-center gap-1">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            {errors.educationLevel.message}
-                                        </p>
-                                    )}
+                                    {errors.educationLevel && <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.educationLevel.message}</p>}
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Bio Section */}
+                        {/* Bio */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <FileText className="h-5 w-5 text-primary" />
-                                    About Me
+                                    <FileText className="h-5 w-5 text-emerald-600" /> About Me
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-2">
                                     <Label htmlFor="bio">Bio</Label>
-                                    <Textarea
-                                        id="bio"
-                                        {...register('bio', {
-                                            maxLength: { value: 500, message: 'Bio must be 500 characters or less' }
-                                        })}
-                                        placeholder="Tell us about yourself, your background, and what you're passionate about..."
-                                        className={`min-h-30 ${errors.bio ? 'border-destructive' : ''}`}
-                                        aria-invalid={!!errors.bio}
-                                    />
+                                    <Textarea id="bio" {...register('bio', { maxLength: { value: 500, message: 'Bio must be 500 characters or less' } })} placeholder="Tell us about yourself..." className={`min-h-[120px] ${errors.bio ? 'border-red-600' : ''}`} aria-invalid={!!errors.bio} />
                                     <div className="flex justify-between text-sm">
-                                        {errors.bio ? (
-                                            <span className="text-destructive flex items-center gap-1">
-                                                <AlertTriangle className="h-3 w-3" />
-                                                {errors.bio.message}
-                                            </span>
-                                        ) : (
-                                            <span className="text-muted-foreground">&nbsp;</span>
-                                        )}
-                                        <span className={`${(watch('bio')?.length || 0) > 500 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                                            {watch('bio')?.length || 0}/500
-                                        </span>
+                                        {errors.bio ? <span className="text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.bio.message}</span> : <span className="text-gray-500">&nbsp;</span>}
+                                        <span className={`${(watch('bio')?.length || 0) > 500 ? 'text-red-600' : 'text-gray-500'}`}>{watch('bio')?.length || 0}/500</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Skills Section */}
+                        {/* Skills */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Award className="h-5 w-5 text-primary" />
-                                    Skills
+                                    <Award className="h-5 w-5 text-emerald-600" /> Skills
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {/* Selected skills */}
                                 {watchedSkills.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                         {watchedSkills.map((skill) => (
-                                            <Badge
-                                                key={skill}
-                                                variant="secondary"
-                                                className="px-3 py-1"
-                                            >
+                                            <Badge key={skill} variant="secondary" className="px-3 py-1">
                                                 {skill}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveSkill(skill)}
-                                                    className="ml-2 hover:text-destructive"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
+                                                <button type="button" onClick={() => handleRemoveSkill(skill)} className="ml-2 hover:text-red-600"><X className="h-3 w-3" /></button>
                                             </Badge>
                                         ))}
                                     </div>
                                 )}
-
-                                {/* Add skill input */}
                                 <div className="flex gap-2">
-                                    <Input
-                                        value={newSkill}
-                                        onChange={(e) => setNewSkill(e.target.value)}
-                                        placeholder="Add a skill..."
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                handleAddSkill(newSkill);
-                                            }
-                                        }}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => handleAddSkill(newSkill)}
-                                        disabled={!newSkill.trim()}
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
+                                    <Input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="Add a skill..." onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(newSkill); } }} />
+                                    <Button type="button" variant="outline" onClick={() => handleAddSkill(newSkill)} disabled={!newSkill.trim()}><Plus className="h-4 w-4" /></Button>
                                 </div>
-
-                                {/* Skill suggestions */}
                                 <div>
-                                    <p className="text-sm text-muted-foreground mb-2">Suggestions:</p>
+                                    <p className="text-sm text-gray-500 mb-2">Suggestions:</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {SKILL_SUGGESTIONS
-                                            .filter(s => !watchedSkills.includes(s))
-                                            .slice(0, 8)
-                                            .map((skill) => (
-                                                <Badge
-                                                    key={skill}
-                                                    variant="outline"
-                                                    className="cursor-pointer hover:bg-accent"
-                                                    onClick={() => handleAddSkill(skill)}
-                                                >
-                                                    + {skill}
-                                                </Badge>
-                                            ))}
+                                        {SKILL_SUGGESTIONS.filter(s => !watchedSkills.includes(s)).slice(0, 8).map((skill) => (
+                                            <Badge key={skill} variant="outline" className="cursor-pointer hover:bg-gray-100" onClick={() => handleAddSkill(skill)}>+ {skill}</Badge>
+                                        ))}
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Interests Section */}
+                        {/* Interests */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Heart className="h-5 w-5 text-primary" />
-                                    Interests
+                                    <Heart className="h-5 w-5 text-emerald-600" /> Interests
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {/* Selected interests */}
                                 {watchedInterests.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                         {watchedInterests.map((interest) => (
-                                            <Badge
-                                                key={interest}
-                                                variant="outline"
-                                                className="px-3 py-1"
-                                            >
+                                            <Badge key={interest} variant="outline" className="px-3 py-1">
                                                 {interest}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveInterest(interest)}
-                                                    className="ml-2 hover:text-destructive"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
+                                                <button type="button" onClick={() => handleRemoveInterest(interest)} className="ml-2 hover:text-red-600"><X className="h-3 w-3" /></button>
                                             </Badge>
                                         ))}
                                     </div>
                                 )}
-
-                                {/* Add interest input */}
                                 <div className="flex gap-2">
-                                    <Input
-                                        value={newInterest}
-                                        onChange={(e) => setNewInterest(e.target.value)}
-                                        placeholder="Add an interest..."
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                handleAddInterest(newInterest);
-                                            }
-                                        }}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => handleAddInterest(newInterest)}
-                                        disabled={!newInterest.trim()}
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
+                                    <Input value={newInterest} onChange={(e) => setNewInterest(e.target.value)} placeholder="Add an interest..." onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddInterest(newInterest); } }} />
+                                    <Button type="button" variant="outline" onClick={() => handleAddInterest(newInterest)} disabled={!newInterest.trim()}><Plus className="h-4 w-4" /></Button>
                                 </div>
-
-                                {/* Interest suggestions */}
                                 <div>
-                                    <p className="text-sm text-muted-foreground mb-2">Suggestions:</p>
+                                    <p className="text-sm text-gray-500 mb-2">Suggestions:</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {INTEREST_SUGGESTIONS
-                                            .filter(i => !watchedInterests.includes(i))
-                                            .slice(0, 8)
-                                            .map((interest) => (
-                                                <Badge
-                                                    key={interest}
-                                                    variant="outline"
-                                                    className="cursor-pointer hover:bg-accent"
-                                                    onClick={() => handleAddInterest(interest)}
-                                                >
-                                                    + {interest}
-                                                </Badge>
-                                            ))}
+                                        {INTEREST_SUGGESTIONS.filter(i => !watchedInterests.includes(i)).slice(0, 8).map((interest) => (
+                                            <Badge key={interest} variant="outline" className="cursor-pointer hover:bg-gray-100" onClick={() => handleAddInterest(interest)}>+ {interest}</Badge>
+                                        ))}
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Goals Section */}
+                        {/* Career Goals */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <Target className="h-5 w-5 text-primary" />
-                                    Career Goals
+                                    <Target className="h-5 w-5 text-emerald-600" /> Career Goals
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-2">
                                     <Label htmlFor="careerGoals">What are your career aspirations?</Label>
-                                    <Textarea
-                                        id="careerGoals"
-                                        {...register('careerGoals', {
-                                            maxLength: { value: 1000, message: 'Career goals must be 1000 characters or less' }
-                                        })}
-                                        placeholder="Describe your short-term and long-term career goals..."
-                                        className={`min-h-30rors.careerGoals ? 'border-destructive' : ''}`}
-                                        aria-invalid={!!errors.careerGoals}
-                                    />
+                                    <Textarea id="careerGoals" {...register('careerGoals', { maxLength: { value: 1000, message: 'Career goals must be 1000 characters or less' } })} placeholder="Describe your short-term and long-term career goals..." className={`min-h-[120px] ${errors.careerGoals ? 'border-red-600' : ''}`} aria-invalid={!!errors.careerGoals} />
                                     <div className="flex justify-between text-sm">
-                                        {errors.careerGoals ? (
-                                            <span className="text-destructive flex items-center gap-1">
-                                                <AlertTriangle className="h-3 w-3" />
-                                                {errors.careerGoals.message}
-                                            </span>
-                                        ) : (
-                                            <span className="text-muted-foreground">&nbsp;</span>
-                                        )}
-                                        <span className={`${(watch('careerGoals')?.length || 0) > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                                            {watch('careerGoals')?.length || 0}/1000
-                                        </span>
+                                        {errors.careerGoals ? <span className="text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.careerGoals.message}</span> : <span className="text-gray-500">&nbsp;</span>}
+                                        <span className={`${(watch('careerGoals')?.length || 0) > 1000 ? 'text-red-600' : 'text-gray-500'}`}>{watch('careerGoals')?.length || 0}/1000</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Social Links Section */}
+                        {/* Social Links */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <LinkIcon className="h-5 w-5 text-primary" />
-                                    Social Links
+                                    <LinkIcon className="h-5 w-5 text-emerald-600" /> Social Links
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="linkedInUrl" className="flex items-center gap-2">
-                                        <Linkedin className="h-4 w-4" />
-                                        LinkedIn
-                                    </Label>
-                                    <Input
-                                        id="linkedInUrl"
-                                        {...register('linkedInUrl', {
-                                            validate: (value) => !value || isValidUrl(value) || 'Please enter a valid LinkedIn URL'
-                                        })}
-                                        placeholder="https://linkedin.com/in/yourprofile"
-                                        type="url"
-                                        className={errors.linkedInUrl ? 'border-destructive' : ''}
-                                        aria-invalid={!!errors.linkedInUrl}
-                                    />
-                                    {errors.linkedInUrl && (
-                                        <p className="text-sm text-destructive flex items-center gap-1">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            {errors.linkedInUrl.message}
-                                        </p>
-                                    )}
+                                    <Label htmlFor="linkedInUrl" className="flex items-center gap-2"><Linkedin className="h-4 w-4" /> LinkedIn</Label>
+                                    <Input id="linkedInUrl" {...register('linkedInUrl', { validate: (value) => !value || isValidUrl(value) || 'Please enter a valid LinkedIn URL' })} placeholder="https://linkedin.com/in/yourprofile" type="url" className={errors.linkedInUrl ? 'border-red-600' : ''} aria-invalid={!!errors.linkedInUrl} />
+                                    {errors.linkedInUrl && <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.linkedInUrl.message}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="githubUrl" className="flex items-center gap-2">
-                                        <Github className="h-4 w-4" />
-                                        GitHub
-                                    </Label>
-                                    <Input
-                                        id="githubUrl"
-                                        {...register('githubUrl', {
-                                            validate: (value) => !value || isValidUrl(value) || 'Please enter a valid GitHub URL'
-                                        })}
-                                        placeholder="https://github.com/yourusername"
-                                        type="url"
-                                        className={errors.githubUrl ? 'border-destructive' : ''}
-                                        aria-invalid={!!errors.githubUrl}
-                                    />
-                                    {errors.githubUrl && (
-                                        <p className="text-sm text-destructive flex items-center gap-1">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            {errors.githubUrl.message}
-                                        </p>
-                                    )}
+                                    <Label htmlFor="githubUrl" className="flex items-center gap-2"><Github className="h-4 w-4" /> GitHub</Label>
+                                    <Input id="githubUrl" {...register('githubUrl', { validate: (value) => !value || isValidUrl(value) || 'Please enter a valid GitHub URL' })} placeholder="https://github.com/yourusername" type="url" className={errors.githubUrl ? 'border-red-600' : ''} aria-invalid={!!errors.githubUrl} />
+                                    {errors.githubUrl && <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.githubUrl.message}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="portfolioUrl" className="flex items-center gap-2">
-                                        <Globe className="h-4 w-4" />
-                                        Portfolio
-                                    </Label>
-                                    <Input
-                                        id="portfolioUrl"
-                                        {...register('portfolioUrl', {
-                                            validate: (value) => !value || isValidUrl(value) || 'Please enter a valid URL'
-                                        })}
-                                        placeholder="https://yourportfolio.com"
-                                        type="url"
-                                        className={errors.portfolioUrl ? 'border-destructive' : ''}
-                                        aria-invalid={!!errors.portfolioUrl}
-                                    />
-                                    {errors.portfolioUrl && (
-                                        <p className="text-sm text-destructive flex items-center gap-1">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            {errors.portfolioUrl.message}
-                                        </p>
-                                    )}
+                                    <Label htmlFor="portfolioUrl" className="flex items-center gap-2"><Globe className="h-4 w-4" /> Portfolio</Label>
+                                    <Input id="portfolioUrl" {...register('portfolioUrl', { validate: (value) => !value || isValidUrl(value) || 'Please enter a valid URL' })} placeholder="https://yourportfolio.com" type="url" className={errors.portfolioUrl ? 'border-red-600' : ''} aria-invalid={!!errors.portfolioUrl} />
+                                    {errors.portfolioUrl && <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{errors.portfolioUrl.message}</p>}
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Bottom Action Buttons */}
                         <div className="flex justify-end gap-3 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleCancel}
-                                disabled={isSaving}
-                            >
-                                <X className="h-4 w-4" />
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isSaving}
-                            >
-                                <Save className="h-4 w-4" />
-                                {isSaving ? 'Saving...' : 'Save Changes'}
-                            </Button>
+                            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving}><X className="h-4 w-4" /> Cancel</Button>
+                            <Button type="submit" disabled={isSaving}><Save className="h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Changes'}</Button>
                         </div>
                     </form>
                 </div>
@@ -1031,335 +742,240 @@ export function ProfilePageContent() {
         );
     }
 
-    // VIEW MODE
     return (
-        <div className="min-h-screen bg-linear-to-br from-white via-green-50/30 to-green-100/20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-                {/* Page Header */}
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="display-font text-3xl sm:text-4xl lg:text-5xl mb-2">My Profile</h1>
-                        <p className="text-base lg:text-lg text-muted-foreground">
-                            Manage your professional profile and showcase your skills.
-                        </p>
-                    </div>
-                    <Button
-                        onClick={handleEditClick}
-                        size="lg"
-                        className="w-full sm:w-auto"
-                    >
-                        <Edit3 className="h-5 w-5" />
-                        Edit Profile
-                    </Button>
+        <div className="min-h-screen bg-gradient-to-br from-green-100 to-white">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+                {/* ── Cover Banner ── */}
+                <div className="relative rounded-t-xl overflow-hidden h-48 bg-gradient-to-br from-green-400 via-green-300 to-emerald-200">
+                    {/* Camera icon top right */}
+                    <button className="absolute top-4 right-4 bg-white/80 hover:bg-white rounded-full p-2 shadow transition-colors">
+                        <Camera className="h-5 w-5 text-gray-600" />
+                    </button>
                 </div>
 
-                {/* Profile Completion Card */}
-                <Card className="mb-8">
-                    <CardContent className="pt-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium">Profile Completion</span>
-                                    <span className="text-sm font-semibold text-primary">
-                                        {profileCompletion.percentage}%
-                                    </span>
-                                </div>
-                                <Progress value={profileCompletion.percentage} className="h-2" />
+                {/* ── Profile Header (overlapping) ── */}
+                <div className="bg-white rounded-b-xl shadow-sm px-6 pb-5 pt-0 relative">
+                    {/* Avatar row */}
+                    <div className="flex items-end gap-4 -mt-12">
+                        {/* Avatar */}
+                        <Avatar className="h-24 w-24 border-4 border-white shadow-md shrink-0 bg-emerald-50">
+                            <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
+                            <AvatarFallback className="bg-emerald-50 text-emerald-700 text-3xl">
+                                <User className="h-12 w-12 text-emerald-600" />
+                            </AvatarFallback>
+                        </Avatar>
+
+                        {/* Name + badge + subtitle */}
+                        <div className="pb-2 flex-1">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h1 className="text-2xl font-bold text-gray-900">{currentUser.name}</h1>
+                                <Badge className="bg-emerald-600 text-white text-xs font-semibold px-3 py-0.5 uppercase tracking-wide">
+                                    {currentUser.role?.replace('_', ' ') || 'Job Seeker'}
+                                </Badge>
+                                <button onClick={handleEditClick} className="text-gray-400 hover:text-emerald-600 transition-colors">
+                                    <Edit3 className="h-4 w-4" />
+                                </button>
                             </div>
-                            {profileCompletion.incomplete.length > 0 && (
-                                <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                                    <span>
-                                        Complete your {profileCompletion.incomplete.slice(0, 3).join(', ')}
-                                        {profileCompletion.incomplete.length > 3 && ` and ${profileCompletion.incomplete.length - 3} more`}
-                                    </span>
-                                </div>
-                            )}
+                            <p className="text-sm text-gray-500 mt-0.5">Bachelor of Science in Computer Science</p>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {/* Left Column - Profile Card */}
-                    <div className="lg:col-span-1 space-y-6">
-                        {/* Basic Info Card */}
-                        <Card>
-                            <CardContent className="pt-6">
-                                <div className="flex flex-col items-center text-center">
-                                    <Avatar className="h-24 w-24 mb-4">
-                                        <AvatarImage
-                                            src={currentUser.avatarUrl}
-                                            alt={currentUser.name}
-                                        />
-                                        <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                                            {currentUser.name.charAt(0).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <h2 className="text-xl font-semibold mb-2">{currentUser.name}</h2>
-                                    <Badge variant="secondary" className="capitalize mb-4">
-                                        {currentUser.role.replace('_', ' ')}
-                                    </Badge>
+                {/* ── Main two-column grid ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+
+                    {/* ═══ LEFT SIDEBAR ═══ */}
+                    <div className="lg:col-span-1 space-y-4">
+
+                        {/* Details Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                            <h3 className="font-semibold text-gray-900 text-base mb-4">Details</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</p>
+                                    <p className="text-sm text-gray-700 mt-0.5 break-all">{currentUser.email}</p>
                                 </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Contact number</p>
+                                    <p className="text-sm text-gray-700 mt-0.5">+63 912 345 6789</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Address</p>
+                                    <p className="text-sm text-gray-700 mt-0.5">Naga City, Camarines Sur</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Education</p>
+                                    <p className="text-sm text-gray-700 mt-0.5">University of Nueva Caceres</p>
+                                </div>
+                            </div>
+                        </div>
 
-                                <Separator className="my-4" />
-
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <Mail className="h-4 w-4 text-primary shrink-0" />
-                                        <span className="truncate">{currentUser.email}</span>
-                                    </div>
-
-                                    {currentUser.location && (
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <MapPin className="h-4 w-4 text-primary shrink-0" />
-                                            <span>{currentUser.location}</span>
+                        {/* Profile Strength Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Profile Strength</h3>
+                            {/* Progress bar */}
+                            <div className="mb-1">
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div className="bg-emerald-500 h-2.5 rounded-full w-3/4 transition-all duration-500"></div>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-3">75% complete</p>
+                            {/* Checklist */}
+                            <div className="space-y-2">
+                                {PROFILE_STRENGTH_ITEMS.map((item, i) => (
+                                    <div key={i} className="flex items-center gap-2">
+                                        <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${item.done ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                                            {item.done ? (
+                                                <Check className="h-2.5 w-2.5 text-emerald-600" />
+                                            ) : (
+                                                <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                                            )}
                                         </div>
-                                    )}
-
-                                    {currentUser.educationLevel && (
-                                        <div className="flex items-center gap-3 text-sm">
-                                            <GraduationCap className="h-4 w-4 text-primary shrink-0" />
-                                            <span>{EDUCATION_LEVEL_LABELS[currentUser.educationLevel]}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                        <Calendar className="h-4 w-4 shrink-0" />
-                                        <span>
-                                            Member since {new Date(currentUser.createdAt).toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long'
-                                            })}
+                                        <span className={`text-xs ${item.done ? 'text-gray-700' : 'text-gray-400'}`}>
+                                            {item.label}
                                         </span>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                ))}
+                            </div>
+                        </div>
 
-                        {/* Social Links Card */}
-                        {(currentUser.linkedInUrl || currentUser.githubUrl || currentUser.portfolioUrl) && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Globe className="h-5 w-5 text-primary" />
-                                        Connect
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {currentUser.linkedInUrl && (
-                                        <a
-                                            href={currentUser.linkedInUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
-                                        >
-                                            <Linkedin className="h-4 w-4" />
-                                            <span className="flex-1">LinkedIn</span>
-                                            <ExternalLink className="h-3 w-3" />
-                                        </a>
-                                    )}
-                                    {currentUser.githubUrl && (
-                                        <a
-                                            href={currentUser.githubUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
-                                        >
-                                            <Github className="h-4 w-4" />
-                                            <span className="flex-1">GitHub</span>
-                                            <ExternalLink className="h-3 w-3" />
-                                        </a>
-                                    )}
-                                    {currentUser.portfolioUrl && (
-                                        <a
-                                            href={currentUser.portfolioUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
-                                        >
-                                            <Globe className="h-4 w-4" />
-                                            <span className="flex-1">Portfolio</span>
-                                            <ExternalLink className="h-3 w-3" />
-                                        </a>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* No Social Links Prompt */}
-                        {!currentUser.linkedInUrl && !currentUser.githubUrl && !currentUser.portfolioUrl && (
-                            <Card className="border-dashed">
-                                <CardContent className="pt-6">
-                                    <div className="text-center text-muted-foreground">
-                                        <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm">No social links added yet.</p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm mt-1 h-auto p-0"
-                                            onClick={handleEditClick}
-                                        >
-                                            Add your links
-                                        </Button>
+                        {/* Connect with Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Connect with</h3>
+                            <div className="space-y-3">
+                                {HARDCODED_CONNECTIONS.map((conn) => (
+                                    <div key={conn.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <Avatar className="h-9 w-9 shrink-0">
+                                            <AvatarFallback className="bg-gray-300 text-gray-600 text-xs">
+                                                <User className="h-4 w-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-gray-800 truncate">{conn.name}</p>
+                                            <p className="text-xs text-gray-500 truncate">{conn.subtitle}</p>
+                                        </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Right Column - Details */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Bio Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <FileText className="h-5 w-5 text-primary" />
-                                    About Me
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {currentUser.bio ? (
-                                    <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                        {currentUser.bio}
-                                    </p>
-                                ) : (
-                                    <div className="text-center py-4 text-muted-foreground">
-                                        <p className="text-sm">No bio added yet.</p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm mt-1 h-auto p-0"
-                                            onClick={handleEditClick}
-                                        >
-                                            Add a bio
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                    {/* ═══ RIGHT CONTENT ═══ */}
+                    <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
 
-                        {/* Career Goals Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <Target className="h-5 w-5 text-primary" />
-                                    Career Goals
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {currentUser.careerGoals ? (
-                                    <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                        {currentUser.careerGoals}
-                                    </p>
-                                ) : (
-                                    <div className="text-center py-4 text-muted-foreground">
-                                        <p className="text-sm">No career goals added yet.</p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm mt-1 h-auto p-0"
-                                            onClick={handleEditClick}
-                                        >
-                                            Add your career goals
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                        {/* About me */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-2">About me</h3>
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                                {currentUser.bio || 'Fresh graduate passionate about technology and eager to start my career in software development. Strong foundation in programming and problem-solving.'}
+                            </p>
+                        </div>
 
-                        {/* Skills Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <Award className="h-5 w-5 text-primary" />
-                                    Skills
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {currentUser.skills && currentUser.skills.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {currentUser.skills.map((skill) => (
-                                            <Badge
-                                                key={skill}
-                                                variant="secondary"
-                                                className="px-3 py-1"
-                                            >
-                                                {skill}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-4 text-muted-foreground">
-                                        <p className="text-sm">No skills added yet.</p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm mt-1 h-auto p-0"
-                                            onClick={handleEditClick}
-                                        >
-                                            Add your skills
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                        <Separator />
 
-                        {/* Interests Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <Heart className="h-5 w-5 text-primary" />
-                                    Interests
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {currentUser.interests && currentUser.interests.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {currentUser.interests.map((interest) => (
-                                            <Badge
-                                                key={interest}
-                                                variant="outline"
-                                                className="px-3 py-1"
-                                            >
-                                                {interest}
-                                            </Badge>
-                                        ))}
+                        {/* Skills */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Skills</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {(currentUser.skills && currentUser.skills.length > 0 ? currentUser.skills : HARDCODED_SKILLS).map((skill) => (
+                                    <div key={skill} className="bg-gray-100 rounded-md px-4 py-1.5 text-sm text-gray-600 border border-gray-200">
+                                        {skill}
                                     </div>
-                                ) : (
-                                    <div className="text-center py-4 text-muted-foreground">
-                                        <p className="text-sm">No interests added yet.</p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm mt-1 h-auto p-0"
-                                            onClick={handleEditClick}
-                                        >
-                                            Add your interests
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                                ))}
+                            </div>
+                        </div>
 
-                        {/* Goals Section */}
-                        {currentUser.goals && currentUser.goals.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Target className="h-5 w-5 text-primary" />
-                                        Goals
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex flex-wrap gap-2">
-                                        {currentUser.goals.map((goal) => (
-                                            <Badge
-                                                key={goal}
-                                                variant="outline"
-                                                className="px-3 py-1 bg-primary/5"
-                                            >
-                                                {goal}
-                                            </Badge>
-                                        ))}
+                        <Separator />
+
+                        {/* Experience */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Experience</h3>
+                            <div className="space-y-3">
+                                {HARDCODED_EXPERIENCES.map((exp, idx) => (
+                                    <div key={exp.id} className="border border-gray-200 rounded-lg p-4 relative">
+                                        {/* More button */}
+                                        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors">
+                                            <MoreVertical className="h-4 w-4" />
+                                        </button>
+                                        <h4 className="font-semibold text-gray-900 text-sm pr-6">{exp.title}</h4>
+                                        <p className="text-xs text-gray-500 mt-0.5">{exp.company}</p>
+                                        <p className="text-xs text-gray-400 mt-1">{exp.duration}</p>
+                                        <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                                            {expandedExperience === idx ? exp.description : exp.description}
+                                        </p>
+                                        <button
+                                            onClick={() => setExpandedExperience(expandedExperience === idx ? null : idx)}
+                                            className="text-xs text-emerald-600 hover:text-emerald-700 mt-1 flex items-center gap-0.5 transition-colors"
+                                        >
+                                            More <ChevronDown className={`h-3 w-3 transition-transform ${expandedExperience === idx ? 'rotate-180' : ''}`} />
+                                        </button>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
+                                ))}
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Career Goals */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Career Goals</h3>
+                            <div className="space-y-2">
+                                {HARDCODED_CAREER_GOALS.map((goal, i) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <div className="mt-0.5 h-4 w-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                                            <Target className="h-2.5 w-2.5 text-emerald-600" />
+                                        </div>
+                                        <p className="text-sm text-gray-700">{goal}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Area of Interest */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Area of Interest</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {(currentUser.interests && currentUser.interests.length > 0 ? currentUser.interests : HARDCODED_INTERESTS).map((interest) => (
+                                    <div key={interest} className="bg-gray-100 rounded-md px-4 py-1.5 text-sm text-gray-600 border border-gray-200">
+                                        {interest}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Documents & Attachments */}
+                        <div>
+                            <h3 className="font-semibold text-gray-900 text-base mb-3">Documents &amp; Attachments</h3>
+                            <div className="space-y-2">
+                                {HARDCODED_DOCUMENTS.map((doc) => (
+                                    <div key={doc.id} className="flex items-center justify-between py-2 border-b border-gray-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-emerald-50 rounded-md p-1.5">
+                                                <FileDown className="h-4 w-4 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-800">{doc.name}</p>
+                                                <p className="text-xs text-gray-400">Updated {doc.updatedAt}</p>
+                                            </div>
+                                        </div>
+                                        <button className="text-emerald-600 hover:text-emerald-700 text-xs font-medium transition-colors">
+                                            View
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Upload button */}
+                            <button className="w-full mt-4 border border-gray-200 rounded-lg py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors flex items-center justify-center gap-2">
+                                <Upload className="h-4 w-4" />
+                                Upload a Document
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
