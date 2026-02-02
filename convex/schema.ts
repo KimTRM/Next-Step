@@ -77,6 +77,14 @@ export default defineSchema({
         linkedInUrl: v.optional(v.string()),
         githubUrl: v.optional(v.string()),
         portfolioUrl: v.optional(v.string()),
+        socialLinks: v.optional(
+            v.array(
+                v.object({
+                    label: v.string(),
+                    url: v.string(),
+                }),
+            ),
+        ),
 
         // Profile Tracking
         profileCompletion: v.optional(v.number()), // 0-100 percentage
@@ -107,13 +115,30 @@ export default defineSchema({
         education: v.optional(
             v.array(
                 v.object({
-                    id: v.string(),
+                    id: v.optional(v.string()), // Client-side temporary ID
                     institution: v.string(),
                     degree: v.string(),
-                    field: v.string(),
+                    field: v.optional(v.string()), // Keep for backwards compatibility
                     startDate: v.number(), // Unix timestamp
                     endDate: v.optional(v.number()), // Unix timestamp, null if current
                     isCurrent: v.boolean(),
+                    description: v.optional(v.string()), // Additional description
+                }),
+            ),
+        ),
+
+        // Work Experience
+        experience: v.optional(
+            v.array(
+                v.object({
+                    id: v.optional(v.string()), // Client-side temporary ID
+                    title: v.string(),
+                    company: v.string(),
+                    location: v.optional(v.string()),
+                    startDate: v.number(), // Unix timestamp
+                    endDate: v.optional(v.number()), // Unix timestamp, null if current
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
                 }),
             ),
         ),

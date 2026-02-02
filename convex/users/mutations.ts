@@ -135,6 +135,7 @@ export const setOnboardingStatus = mutation({
  */
 export const updateUserProfile = mutation({
     args: {
+        name: v.optional(v.string()),
         bio: v.optional(v.string()),
         location: v.optional(v.string()),
         age: v.optional(v.number()),
@@ -157,11 +158,48 @@ export const updateUserProfile = mutation({
         linkedInUrl: v.optional(v.string()),
         githubUrl: v.optional(v.string()),
         portfolioUrl: v.optional(v.string()),
+        socialLinks: v.optional(
+            v.array(
+                v.object({
+                    label: v.string(),
+                    url: v.string(),
+                }),
+            ),
+        ),
+        coverPhotoUrl: v.optional(v.string()),
+        avatarUrl: v.optional(v.string()),
         role: v.optional(
             v.union(
                 v.literal("job_seeker"),
                 v.literal("mentor"),
                 v.literal("employer"),
+            ),
+        ),
+        // Education and Experience arrays
+        education: v.optional(
+            v.array(
+                v.object({
+                    institution: v.string(),
+                    degree: v.string(),
+                    field: v.optional(v.string()), // Field of study
+                    startDate: v.number(),
+                    endDate: v.optional(v.number()),
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
+                }),
+            ),
+        ),
+        experience: v.optional(
+            v.array(
+                v.object({
+                    title: v.string(),
+                    company: v.string(),
+                    location: v.optional(v.string()),
+                    startDate: v.number(),
+                    endDate: v.optional(v.number()),
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
+                }),
             ),
         ),
     },
