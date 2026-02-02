@@ -48,6 +48,28 @@ export type ConversationPartner = {
     unreadCount?: number;
 };
 
+export interface ConversationListProps {
+    conversations: Conversation[] | undefined;
+    selectedUserId: string | null;
+    onSelectConversation: (userId: string) => void;
+    loading?: boolean;
+}
+
+export interface MessageThreadProps {
+    messages: Message[] | undefined;
+    currentUserId: Id<"users">;
+    otherUser: {
+        _id: Id<"users">;
+        name: string;
+        avatarUrl?: string;
+        title?: string;
+        company?: string;
+    } | null;
+    loading?: boolean;
+    onBack?: () => void;
+    showBackButton?: boolean;
+}
+
 // Send message input
 export type SendMessageInput = {
     receiverId: Id<"users">;
