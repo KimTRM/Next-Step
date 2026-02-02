@@ -16,6 +16,7 @@ import type * as applications_queries from "../applications/queries.js";
 import type * as connections_index from "../connections/index.js";
 import type * as connections_mutations from "../connections/mutations.js";
 import type * as connections_queries from "../connections/queries.js";
+import type * as jobsMutations from "../jobsMutations.js";
 import type * as jobs_index from "../jobs/index.js";
 import type * as jobs_mutations from "../jobs/mutations.js";
 import type * as jobs_queries from "../jobs/queries.js";
@@ -37,38 +38,40 @@ import type * as utils_migration from "../utils/migration.js";
 import type * as utils_seed from "../utils/seed.js";
 
 import type {
-    ApiFromModules,
-    FilterApi,
-    FunctionReference,
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-    api: typeof api_;
-    "applications/index": typeof applications_index;
-    "applications/mutations": typeof applications_mutations;
-    "applications/queries": typeof applications_queries;
-    "connections/index": typeof connections_index;
-    "connections/mutations": typeof connections_mutations;
-    "connections/queries": typeof connections_queries;
-    "jobs/index": typeof jobs_index;
-    "jobs/mutations": typeof jobs_mutations;
-    "jobs/queries": typeof jobs_queries;
-    "mentors/index": typeof mentors_index;
-    "mentors/mutations": typeof mentors_mutations;
-    "mentors/queries": typeof mentors_queries;
-    "messages/index": typeof messages_index;
-    "messages/mutations": typeof messages_mutations;
-    "messages/queries": typeof messages_queries;
-    "notifications/index": typeof notifications_index;
-    "notifications/mutations": typeof notifications_mutations;
-    "notifications/queries": typeof notifications_queries;
-    "users/helpers": typeof users_helpers;
-    "users/index": typeof users_index;
-    "users/mutations": typeof users_mutations;
-    "users/queries": typeof users_queries;
-    "utils/mentorMigration": typeof utils_mentorMigration;
-    "utils/migration": typeof utils_migration;
-    "utils/seed": typeof utils_seed;
+  api: typeof api_;
+  applications: typeof applications;
+  "applications/index": typeof applications_index;
+  "applications/mutations": typeof applications_mutations;
+  "applications/queries": typeof applications_queries;
+  "connections/index": typeof connections_index;
+  "connections/mutations": typeof connections_mutations;
+  "connections/queries": typeof connections_queries;
+  jobsMutations: typeof jobsMutations;
+  "jobs/index": typeof jobs_index;
+  "jobs/mutations": typeof jobs_mutations;
+  "jobs/queries": typeof jobs_queries;
+  "mentors/index": typeof mentors_index;
+  "mentors/mutations": typeof mentors_mutations;
+  "mentors/queries": typeof mentors_queries;
+  "messages/index": typeof messages_index;
+  "messages/mutations": typeof messages_mutations;
+  "messages/queries": typeof messages_queries;
+  "notifications/index": typeof notifications_index;
+  "notifications/mutations": typeof notifications_mutations;
+  "notifications/queries": typeof notifications_queries;
+  "users/helpers": typeof users_helpers;
+  "users/index": typeof users_index;
+  "users/mutations": typeof users_mutations;
+  "users/queries": typeof users_queries;
+  "utils/mentorMigration": typeof utils_mentorMigration;
+  "utils/migration": typeof utils_migration;
+  "utils/seed": typeof utils_seed;
 }>;
 
 /**
@@ -80,8 +83,8 @@ declare const fullApi: ApiFromModules<{
  * ```
  */
 export declare const api: FilterApi<
-    typeof fullApi,
-    FunctionReference<any, "public">
+  typeof fullApi,
+  FunctionReference<any, "public">
 >;
 
 /**
@@ -93,8 +96,8 @@ export declare const api: FilterApi<
  * ```
  */
 export declare const internal: FilterApi<
-    typeof fullApi,
-    FunctionReference<any, "internal">
+  typeof fullApi,
+  FunctionReference<any, "internal">
 >;
 
 export declare const components: {};

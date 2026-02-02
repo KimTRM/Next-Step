@@ -61,3 +61,23 @@ export const getJobApplications = query({
             .collect();
     },
 });
+
+/**
+ * Check if a user has applied to a specific job
+ */
+export const checkUserApplied = query({
+    args: {
+        jobId: v.id("jobs"),
+        userId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const application = await ctx.db
+            .query("jobApplications")
+            .withIndex("by_jobId_userId", (q) =>
+                q.eq("jobId", args.jobId).eq("userId", args.userId),
+            )
+            .first();
+
+        return !!application;
+    },
+});

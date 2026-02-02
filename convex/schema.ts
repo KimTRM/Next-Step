@@ -32,7 +32,6 @@ export default defineSchema({
             v.literal("mentor"),
             v.literal("employer"),
         ),
-        avatarUrl: v.optional(v.string()),
 
         // Onboarding
         onboardingStatus: v.optional(

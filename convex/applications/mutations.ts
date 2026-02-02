@@ -5,11 +5,11 @@
 
 import { mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { 
-  handleConvexAuthError, 
-  handleConvexAuthzError, 
-  validateConvexInput,
-  createConvexValidationError 
+import {
+    handleConvexAuthError,
+    handleConvexAuthzError,
+    validateConvexInput,
+    createConvexValidationError,
 } from "../../shared/lib/errors/convex";
 
 /**
@@ -107,7 +107,7 @@ export const updateApplicationStatus = mutation({
             .query("users")
             .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity!.subject))
             .unique();
-        
+
         if (!user) {
             throw new Error("User not found");
         }
@@ -116,7 +116,7 @@ export const updateApplicationStatus = mutation({
             application.userId,
             user._id,
             "jobApplication",
-            "update"
+            "update",
         );
         if (authzError) {
             throw new Error(authzError.message);
@@ -161,7 +161,7 @@ export const updateApplicationNotes = mutation({
             application.userId,
             user._id,
             "jobApplication",
-            "update"
+            "update",
         );
         if (authzError) {
             throw new Error(authzError.message);
@@ -214,7 +214,7 @@ export const deleteApplication = mutation({
             application.userId,
             user._id,
             "jobApplication",
-            "delete"
+            "delete",
         );
         if (authzError) {
             throw new Error(authzError.message);
