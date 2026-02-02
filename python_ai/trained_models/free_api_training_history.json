@@ -1,0 +1,110 @@
+{
+  "sessions": [
+    {
+      "timestamp": "2026-01-31T04:17:42.928941",
+      "samples": 5,
+      "avg_accuracy": 59.54545454545455,
+      "new_skills": 20,
+      "skill_examples": [
+        "Jupyter",
+        "Logging",
+        "Firebase",
+        "Presentation Skills",
+        "Change Management",
+        "C++",
+        "Seaborn",
+        "Oracle",
+        "DynamoDB",
+        "Model Deployment",
+        "Process Improvement",
+        "Contract Negotiation",
+        "Vendor Management",
+        "Webpack",
+        "Accounting",
+        "Monitoring",
+        "Heroku",
+        "Brand Strategy",
+        "Google Analytics",
+        "Campaign Management"
+      ]
+    },
+    {
+      "timestamp": "2026-01-31T04:17:44.719408",
+      "samples": 5,
+      "avg_accuracy": 57.84026431085255,
+      "new_skills": 27,
+      "skill_examples": [
+        "HTML5",
+        "Telemedicine",
+        "Team Collaboration",
+        "FHIR",
+        "OAuth",
+        "GraphQL",
+        "API Design",
+        "Tailwind CSS",
+        "Neo4j",
+        "IAM",
+        "C#",
+        "SIEM",
+        "Ruby on Rails",
+        "WebSocket",
+        "Xamarin",
+        "Encryption",
+        "Matplotlib",
+        "Plotly",
+        "Cybersecurity",
+        "Grafana"
+      ]
+    },
+    {
+      "timestamp": "2026-01-31T04:17:46.470791",
+      "samples": 5,
+      "avg_accuracy": 57.19914072855249,
+      "new_skills": 13,
+      "skill_examples": [
+        "iOS Development",
+        "Express.js",
+        "Feature Engineering",
+        "InfluxDB",
+        "Decision Making",
+        "ERP Systems",
+        "UI/UX Design",
+        "Tax Planning",
+        "Version Control",
+        "CloudFormation",
+        "Penetration Testing",
+        "EC2",
+        "ELK Stack"
+      ]
+    },
+    {
+      "timestamp": "2026-01-31T04:18:29.764565",
+      "samples": 50,
+      "avg_accuracy": 58.64852924852925,
+      "new_skills": 47,
+      "skill_examples": [
+        "Social Media",
+        "Vue.js",
+        "SQL Server",
+        "Mobile UI/UX",
+        "Shell Scripting",
+        "Serverless",
+        "Incident Response",
+        "React Native",
+        "Android Development",
+        "Lambda",
+        "CockroachDB",
+        "Epic Systems",
+        "Accessibility",
+        "Vite",
+        "Material UI",
+        "S3",
+        "GDPR",
+        "Security Auditing",
+        "Vulnerability Assessment",
+        "Objective-C"
+      ]
+    }
+  ],
+  "total_samples": 65
+}
