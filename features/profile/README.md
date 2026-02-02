@@ -27,24 +27,38 @@ features/profile/
 
 ### ProfilePage
 
-Main component that handles:
+Main orchestrator component that manages view/edit mode toggle.
 
-- Loading states
-- User authentication checks
-- View/edit mode orchestration
-- User creation (if needed)
+**Features:**
+
+- Authentication and user loading
+- Mode switching (view/edit)
+- Save/cancel handlers
 
 ### ProfileViewMode
 
-Read-only profile display with:
+Read-only display of user profile with completion tracking.
 
-- Profile completion indicator
-- Personal details
-- Skills and interests
-- Career goals
-- Experience (hardcoded for now)
-- Social links
-- Documents
+**Features:**
+
+- Profile header with avatar
+- Skills & interests display
+- Goals display
+- Progress indicator
+- Edit button
+
+### ProfileEditMode
+
+Form interface for editing all profile fields.
+
+**Features:**
+
+- Tabbed sections (Basic Info, Education, Experience, Skills, Goals, Links)
+- Inline validation errors
+- Education entry management (add/edit/remove)
+- Experience entry management (add/edit/remove)
+- Save/cancel actions
+- Unsaved changes indicator
 
 ## Hooks
 
@@ -219,20 +233,27 @@ Reusable multi-select component for skills, interests, or tags.
 - ✅ Form state management with dirty tracking
 - ✅ Validation errors handling
 
+## Phase 3 Status ✅
+
+- ✅ ProfileEditMode component created (670 lines)
+- ✅ Six tabbed sections (Basic, Education, Experience, Skills, Goals, Links)
+- ✅ EducationEntryCard sub-component with full CRUD
+- ✅ ExperienceEntryCard sub-component with full CRUD
+- ✅ Inline validation error display
+- ✅ Timestamp to date string conversion for date inputs
+- ✅ Edit/Cancel mode toggle in ProfilePage
+- ✅ Unsaved changes indicator
+- ✅ Proper form integration with useProfileForm hook
+
 ## Next Phases
-
-### Phase 3: Edit Mode Form
-
-- [ ] ProfileEditMode component
-- [ ] React Hook Form integration
-- [ ] Validation rules
-- [ ] Form sections
 
 ### Phase 4: Save, Cancel, Unsaved Changes
 
-- [ ] Save/Cancel handlers
-- [ ] Dirty state detection
-- [ ] Navigation warnings
+- [ ] Connect Save button to Convex mutation
+- [ ] Implement Cancel button with confirmation
+- [ ] Add navigation guard for unsaved changes
+- [ ] Show success toast after save
+- [ ] Handle save failures with retry option
 
 ### Phase 5: Auto-save
 

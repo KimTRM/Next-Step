@@ -6,6 +6,7 @@
 // Components
 export { ProfilePage } from "./components/ProfilePage";
 export { ProfileViewMode } from "./components/ProfileViewMode";
+export { ProfileEditMode } from "./components/ProfileEditMode";
 
 // Hooks
 export { useProfileCompletion } from "./hooks/useProfileCompletion";

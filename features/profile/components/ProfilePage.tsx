@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useProfile, useUpsertProfile } from "../api";
 import { useProfileCompletion } from "../hooks/useProfileCompletion";
 import { ProfileViewMode } from "./ProfileViewMode";
+import { ProfileEditMode } from "./ProfileEditMode";
 import { Button } from "@/shared/components/ui/button";
 
 export function ProfilePage() {
@@ -59,6 +60,11 @@ export function ProfilePage() {
         setIsEditing(false);
     };
 
+    const handleSaveEdit = () => {
+        setIsEditing(false);
+        toast.success("Profile updated successfully!");
+    };
+
     // Loading state
     if (!mounted || !clerkLoaded || currentUser === undefined) {
         return (
@@ -100,9 +106,12 @@ export function ProfilePage() {
     // TODO: Edit mode component will be added in Phase 3
     if (isEditing) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
-                <p className="text-lg text-gray-600">Edit mode coming in Phase 3...</p>
-                <Button onClick={handleCancelEdit}>Back to View Mode</Button>
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-12 px-4">
+                <ProfileEditMode
+                    user={currentUser}
+                    onSave={handleSaveEdit}
+                    onCancel={handleCancelEdit}
+                />
             </div>
         );
     }
