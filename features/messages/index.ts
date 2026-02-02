@@ -8,6 +8,8 @@ export {
     useConversation,
     useSendMessage,
     useMarkMessageAsRead,
+    useCurrentUser,
+    useAllUsers,
 } from "./api";
 
 // Types
@@ -15,6 +17,7 @@ export type {
     Message,
     ConversationPartner,
     SendMessageInput,
+    ConversationListProps,
 } from "./types";
 
 // Components (will be added as they are migrated)

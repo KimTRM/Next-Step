@@ -244,6 +244,7 @@ export const updateUser = mutation({
         education: v.optional(
             v.array(
                 v.object({
+                    id: v.string(),
                     institution: v.string(),
                     degree: v.string(),
                     field: v.string(),
@@ -278,6 +279,7 @@ export const updateUser = mutation({
                 v.literal("just_exploring"),
             ),
         ),
+        coverPhotoUrl: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await ctx.db
