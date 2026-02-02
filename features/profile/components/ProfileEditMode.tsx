@@ -72,6 +72,10 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
             try {
                 setSaveError(null);
 
+                // Transform education entries - remove client-side IDs
+                const cleanedEducation = data.education.map(({ id, ...rest }) => rest);
+                const cleanedExperience = data.experience.map(({ id, ...rest }) => rest);
+
                 // Transform data for Convex mutation
                 await updateProfile({
                     name: data.name || undefined,
@@ -86,9 +90,9 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     portfolioUrl: data.portfolioUrl || undefined,
                     coverPhotoUrl: data.coverPhotoUrl || undefined,
                     avatarUrl: data.avatarUrl || undefined,
-                    // Include education and experience arrays
-                    education: data.education.length > 0 ? data.education : undefined,
-                    experience: data.experience.length > 0 ? data.experience : undefined,
+                    // Include education and experience arrays without client-side IDs
+                    education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
+                    experience: cleanedExperience.length > 0 ? cleanedExperience : undefined,
                 });
 
                 toast.success("Profile updated successfully!");
@@ -144,7 +148,12 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
             try {
                 setIsAutoSaving(true);
 
+                // Transform education and experience - remove client-side IDs
+                const cleanedEducation = formData.education.map(({ id, ...rest }) => rest);
+                const cleanedExperience = formData.experience.map(({ id, ...rest }) => rest);
+
                 await updateProfile({
+                    name: formData.name || undefined,
                     bio: formData.bio || undefined,
                     location: formData.location || undefined,
                     skills: formData.skills.length > 0 ? formData.skills : undefined,
@@ -154,6 +163,10 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     linkedInUrl: formData.linkedInUrl || undefined,
                     githubUrl: formData.githubUrl || undefined,
                     portfolioUrl: formData.portfolioUrl || undefined,
+                    coverPhotoUrl: formData.coverPhotoUrl || undefined,
+                    avatarUrl: formData.avatarUrl || undefined,
+                    education: cleanedEducation.length > 0 ? cleanedEducation : undefined,
+                    experience: cleanedExperience.length > 0 ? cleanedExperience : undefined,
                 });
 
                 setLastAutoSaveTime(new Date());
@@ -346,6 +359,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     onAddEntry={educationManager.addEntry}
                     onUpdateEntry={educationManager.updateEntry}
                     onRemoveEntry={educationManager.removeEntry}
+                    onReorder={educationManager.reorderEntries}
                 />
             )}
 
@@ -357,6 +371,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     onAddEntry={experienceManager.addEntry}
                     onUpdateEntry={experienceManager.updateEntry}
                     onRemoveEntry={experienceManager.removeEntry}
+                    onReorder={experienceManager.reorderEntries}
                 />
             )}
 

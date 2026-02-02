@@ -6,6 +6,8 @@ import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { GripVertical, Trash2 } from "lucide-react";
 import type { ExperienceEntry } from "../types";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ExperienceEntryCardProps {
     entry: ExperienceEntry;
@@ -20,14 +22,40 @@ export function ExperienceEntryCard({
     onUpdate,
     onRemove,
 }: ExperienceEntryCardProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: entry.id || "" });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
     const getError = (field: string) =>
         errors.find((e) => e.field === field)?.message;
 
     return (
-        <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="border rounded-lg p-4 space-y-4 bg-gray-50"
+        >
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                    <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
+                    <button
+                        type="button"
+                        className="touch-none cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+                        {...attributes}
+                        {...listeners}
+                    >
+                        <GripVertical className="w-5 h-5 text-gray-400" />
+                    </button>
                     <h4 className="font-semibold text-gray-900">Experience Entry</h4>
                 </div>
                 <Button variant="ghost" size="sm" onClick={onRemove}>

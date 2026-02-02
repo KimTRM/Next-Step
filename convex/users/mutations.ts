@@ -171,7 +171,6 @@ export const updateUserProfile = mutation({
         education: v.optional(
             v.array(
                 v.object({
-                    id: v.optional(v.string()), // Client-side temporary ID
                     institution: v.string(),
                     degree: v.string(),
                     field: v.optional(v.string()), // Field of study
@@ -185,7 +184,6 @@ export const updateUserProfile = mutation({
         experience: v.optional(
             v.array(
                 v.object({
-                    id: v.optional(v.string()), // Client-side temporary ID
                     title: v.string(),
                     company: v.string(),
                     location: v.optional(v.string()),

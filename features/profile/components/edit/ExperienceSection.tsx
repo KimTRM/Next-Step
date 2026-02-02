@@ -5,6 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Plus } from "lucide-react";
 import { ExperienceEntryCard } from "../ExperienceEntryCard";
 import type { ExperienceEntry } from "../../types";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from "@dnd-kit/core";
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface ExperienceSectionProps {
     entries: ExperienceEntry[];
@@ -12,6 +26,7 @@ interface ExperienceSectionProps {
     onAddEntry: (entry: Omit<ExperienceEntry, "id">) => void;
     onUpdateEntry: (id: string, entry: Partial<ExperienceEntry>) => void;
     onRemoveEntry: (id: string) => void;
+    onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
 export function ExperienceSection({
@@ -20,7 +35,25 @@ export function ExperienceSection({
     onAddEntry,
     onUpdateEntry,
     onRemoveEntry,
+    onReorder,
 }: ExperienceSectionProps) {
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = entries.findIndex((entry) => entry.id === active.id);
+            const newIndex = entries.findIndex((entry) => entry.id === over.id);
+            onReorder(oldIndex, newIndex);
+        }
+    };
+
     return (
         <Card className="animate-in fade-in duration-200">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -46,15 +79,26 @@ export function ExperienceSection({
                         No experience entries yet. Click &quot;Add Experience&quot; to get started.
                     </p>
                 ) : (
-                    entries.map((entry) => (
-                        <ExperienceEntryCard
-                            key={entry.id}
-                            entry={entry}
-                            errors={errors.get(entry.id!) || []}
-                            onUpdate={(updated: ExperienceEntry) => onUpdateEntry(entry.id!, updated)}
-                            onRemove={() => onRemoveEntry(entry.id!)}
-                        />
-                    ))
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={entries.map((entry) => entry.id || "")}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {entries.map((entry) => (
+                                <ExperienceEntryCard
+                                    key={entry.id}
+                                    entry={entry}
+                                    errors={errors.get(entry.id!) || []}
+                                    onUpdate={(updated: ExperienceEntry) => onUpdateEntry(entry.id!, updated)}
+                                    onRemove={() => onRemoveEntry(entry.id!)}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 )}
             </CardContent>
         </Card>
