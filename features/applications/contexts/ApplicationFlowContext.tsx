@@ -180,12 +180,26 @@ const ApplicationContext = createContext<ApplicationContextType | null>(null);
 // Provider props
 type ApplicationProviderProps = {
     children: React.ReactNode;
+    job?: ApplicationJob;
+    applicant?: ApplicationUser;
     onSubmitAction?: (data: ApplicationFormData, job: ApplicationJob) => Promise<void>;
 };
 
 // Provider component
-export function ApplicationFlowProvider({ children, onSubmitAction }: ApplicationProviderProps) {
+export function ApplicationFlowProvider({
+    children,
+    job: initialJob,
+    applicant: initialApplicant,
+    onSubmitAction
+}: ApplicationProviderProps) {
     const [state, dispatch] = useReducer(applicationReducer, initialState);
+
+    // Auto-initialize when job and applicant are provided as props
+    React.useEffect(() => {
+        if (initialJob && initialApplicant && !state.job) {
+            dispatch({ type: "INITIALIZE", payload: { job: initialJob, applicant: initialApplicant } });
+        }
+    }, [initialJob, initialApplicant, state.job]);
 
     // Navigation handlers
     const goToStep = useCallback((step: ApplicationStep) => {
@@ -217,8 +231,8 @@ export function ApplicationFlowProvider({ children, onSubmitAction }: Applicatio
         dispatch({ type: "SET_CONFIRMATION", payload: confirmed });
     }, []);
 
-    // Validation
-    const validateStep = useCallback((step: ApplicationStep): StepValidation => {
+    // Pure validation function (no state updates - safe for render)
+    const checkStepValidity = useCallback((step: ApplicationStep): StepValidation => {
         const errors: string[] = [];
 
         switch (step) {
@@ -252,14 +266,20 @@ export function ApplicationFlowProvider({ children, onSubmitAction }: Applicatio
                 break;
         }
 
-        const validation = { isValid: errors.length === 0, errors };
-        dispatch({ type: "SET_VALIDATION", payload: { step, validation } });
-        return validation;
+        return { isValid: errors.length === 0, errors };
     }, [state.formData]);
 
+    // Validation with state update (use for explicit validation, not during render)
+    const validateStep = useCallback((step: ApplicationStep): StepValidation => {
+        const validation = checkStepValidity(step);
+        dispatch({ type: "SET_VALIDATION", payload: { step, validation } });
+        return validation;
+    }, [checkStepValidity]);
+
+    // Safe for render - uses pure function, no dispatch
     const isStepValid = useCallback((step: ApplicationStep): boolean => {
-        return validateStep(step).isValid;
-    }, [validateStep]);
+        return checkStepValidity(step).isValid;
+    }, [checkStepValidity]);
 
     const canProceed = useCallback((): boolean => {
         return isStepValid(state.currentStep);

@@ -430,7 +430,7 @@ export default defineSchema({
      */
     jobApplications: defineTable({
         jobId: v.id("jobs"),
-        userId: v.string(), // String to match our auth context
+        userId: v.id("users"), // User who applied
         status: v.union(
             v.literal("pending"),
             v.literal("reviewing"),

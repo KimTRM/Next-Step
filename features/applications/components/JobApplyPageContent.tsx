@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Briefcase, Building2, MapPin, Clock, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
@@ -100,8 +101,13 @@ export function JobApplyPageContent({ jobId }: JobApplyPageContentProps) {
                 jobId: submittedJob._id as Parameters<typeof createApplication>[0]["jobId"],
                 notes: data.questions.additionalNotes,
             });
+            toast.success("Application submitted successfully!", {
+                description: `Your application for ${submittedJob.title} at ${submittedJob.company} has been submitted.`,
+            });
         } catch (error) {
             console.error("Failed to create application:", error);
+            const message = error instanceof Error ? error.message : "Failed to submit application";
+            toast.error(message);
             throw error;
         }
     };

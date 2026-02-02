@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { X, MapPin, Clock, Users, Bookmark, Globe, Calendar, Briefcase, Building2, DollarSign, CheckCircle, User, ArrowLeft, Eye, FileText, Award, TrendingUp } from 'lucide-react';
 import type { JobWithPoster } from '../types';
 
@@ -11,8 +12,9 @@ interface JobApplyPanelProps {
 }
 
 export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
+    const router = useRouter();
     const [isSaved, setIsSaved] = useState(false);
-    
+
     // Handle ESC key press
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -33,14 +35,14 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
     // Prevent body scroll when panel is open
     useEffect(() => {
         let originalScrollY = 0;
-        
+
         if (isOpen) {
             // Save current scroll position
             originalScrollY = window.scrollY;
-            
+
             // Store scroll position in a data attribute
             document.body.dataset.scrollY = originalScrollY.toString();
-            
+
             // Prevent body scroll
             document.body.style.position = 'fixed';
             document.body.style.top = `-${originalScrollY}px`;
@@ -49,13 +51,13 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
         } else {
             // Restore body scroll
             const savedScrollY = document.body.dataset.scrollY;
-            
+
             // First restore body styles
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
             document.body.style.overflow = '';
-            
+
             // Then restore scroll position
             if (savedScrollY) {
                 const scrollValue = parseInt(savedScrollY, 10);
@@ -63,7 +65,7 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
                     window.scrollTo(0, scrollValue);
                 });
             }
-            
+
             // Clean up data attribute
             delete document.body.dataset.scrollY;
         }
@@ -131,9 +133,8 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
         <>
             {/* Backdrop */}
             <div
-                className={`fixed inset-0 bg-black/20 transition-all duration-500 ease-in-out z-40 ${
-                    isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                }`}
+                className={`fixed inset-0 bg-black/20 transition-all duration-500 ease-in-out z-40 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                    }`}
                 onClick={onClose}
                 aria-hidden="true"
                 style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
@@ -142,8 +143,7 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
             {/* Slide-in Panel */}
             <div
                 className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[95%] md:w-[85%] lg:w-[60%] xl:w-[45%] 2xl:w-[40%] bg-white
-                           flex flex-col transition-all duration-500 ease-in-out ${
-                               isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+                        flex flex-col transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
                     }`}
                 role="dialog"
                 aria-modal="true"
@@ -206,7 +206,7 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
                                 </div>
-                                
+
                                 {/* Company Avatar - Overlapping */}
                                 <div className="absolute -bottom-12 left-6">
                                     <div className="w-28 h-28 rounded-full border-4 border-white flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600">
@@ -357,18 +357,17 @@ export function JobApplyPanel({ isOpen, onClose, job }: JobApplyPanelProps) {
                             <div className="border-t border-gray-200 px-6 py-6 bg-white">
                                 <div className="flex gap-4">
                                     <button
+                                        onClick={() => router.push(`/jobs/${job._id}/apply`)}
                                         className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
                                     >
-
                                         Quick Apply
                                     </button>
                                     <button
                                         onClick={handleSaveJob}
-                                        className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg flex items-center gap-3 ${
-                                            isSaved
-                                                ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-2 border-green-300'
-                                                : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-gray-400'
-                                        }`}
+                                        className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg flex items-center gap-3 ${isSaved
+                                            ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-2 border-green-300'
+                                            : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-gray-400'
+                                            }`}
                                     >
                                         <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-current' : ''}`} />
                                         {isSaved ? 'Saved' : 'Save'}

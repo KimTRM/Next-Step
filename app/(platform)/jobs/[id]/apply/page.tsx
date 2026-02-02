@@ -1,20 +1,12 @@
 /**
- * Job Apply Page
+ * Job Apply - Step 1: Documents
  * Route: /jobs/[id]/apply
  * 
- * Server component that renders the job application flow
+ * First step of the application flow - upload resume and documents
  */
 
-import { JobApplyPageContent } from "@/features/applications/components/JobApplyPageContent";
+import { DocumentsStepPage } from "@/features/applications/components/apply-flow";
 
-interface PageProps {
-    params: Promise<{
-        id: string;
-    }>;
-}
-
-export default async function JobApplyPage({ params }: PageProps) {
-    const { id } = await params;
-
-    return <JobApplyPageContent jobId={id} />;
+export default function ApplyDocumentsPage() {
+    return <DocumentsStepPage />;
 }

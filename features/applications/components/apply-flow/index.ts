@@ -3,6 +3,16 @@ export { ApplicationStepper } from "./ApplicationStepper";
 export { JobApplicationModal } from "./JobApplicationModal";
 export { DocumentsStep, QuestionsStep, ProfileStep, ReviewStep } from "./steps";
 
+// Page-based Flow Components
+export { ApplicationFlowLayout } from "./ApplicationFlowLayout";
+export { ApplicationPageStepper } from "./ApplicationPageStepper";
+export {
+    DocumentsStepPage,
+    QuestionsStepPage,
+    ProfileStepPage,
+    ReviewStepPage,
+} from "./pages";
+
 // Context and State
 export {
     ApplicationFlowProvider,
