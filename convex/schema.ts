@@ -418,4 +418,40 @@ export default defineSchema({
         .index("by_job", ["jobId"])
         .index("by_user", ["userId"])
         .index("by_status", ["status"]),
+
+    /**
+     * Connections Collection
+     * User-to-user connections (friends/network)
+     *
+     * Indexes:
+     * - by_requester: Query connections initiated by a user
+     * - by_receiver: Query connections received by a user
+     * - by_requester_receiver: Query specific connection between two users
+     * - by_status: Filter connections by status
+     * - by_receiver_status: Query pending requests for a user
+     */
+    connections: defineTable({
+        // Connection participants
+        requesterId: v.id("users"), // User who sent the request
+        receiverId: v.id("users"), // User who received the request
+
+        // Connection status
+        status: v.union(
+            v.literal("pending"),
+            v.literal("accepted"),
+            v.literal("rejected"),
+        ),
+
+        // Request message (optional)
+        message: v.optional(v.string()),
+
+        // Timestamps
+        createdAt: v.number(), // When request was sent
+        respondedAt: v.optional(v.number()), // When request was accepted/rejected
+    })
+        .index("by_requester", ["requesterId"])
+        .index("by_receiver", ["receiverId"])
+        .index("by_requester_receiver", ["requesterId", "receiverId"])
+        .index("by_status", ["status"])
+        .index("by_receiver_status", ["receiverId", "status"]),
 });

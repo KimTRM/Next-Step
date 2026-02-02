@@ -9,6 +9,7 @@ import * as jobsModule from "./jobs";
 import * as applicationsModule from "./applications";
 import * as mentorsModule from "./mentors";
 import * as messagesModule from "./messages";
+import * as connectionsModule from "./connections";
 
 // Export feature namespaces
 export const users = usersModule;
@@ -16,6 +17,7 @@ export const jobs = jobsModule;
 export const applications = applicationsModule;
 export const mentors = mentorsModule;
 export const messages = messagesModule;
+export const connections = connectionsModule;
 
 // Legacy aliases for backwards compatibility during migration
 // These can be removed once all frontend imports are updated

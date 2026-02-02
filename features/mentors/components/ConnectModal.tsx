@@ -3,7 +3,8 @@
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 import type { MentorWithUser } from '@/shared/lib/types/index';
-import { useSendConnectionRequest } from '@/features/mentors/api';
+import { useSendConnectionRequest as useSendMentorMessage } from '@/features/mentors/api';
+import { useSendConnectionRequest } from '@/features/connections/api';
 
 interface ConnectModalProps {
     mentor: MentorWithUser;
@@ -16,6 +17,7 @@ export function ConnectModal({ mentor, onClose }: ConnectModalProps) {
     const [error, setError] = useState('');
     const [sent, setSent] = useState(false);
 
+    const sendMentorMessage = useSendMentorMessage();
     const sendConnectionRequest = useSendConnectionRequest();
 
     const handleSubmit = async () => {
@@ -28,10 +30,23 @@ export function ConnectModal({ mentor, onClose }: ConnectModalProps) {
         try {
             setSubmitting(true);
             setError('');
-            await sendConnectionRequest({
+
+            // Send message to mentor (existing functionality)
+            await sendMentorMessage({
                 mentorId: mentor._id,
                 message: trimmed,
             });
+
+            // Also create a connection request
+            try {
+                await sendConnectionRequest({
+                    receiverId: mentor.userId,
+                    message: trimmed,
+                });
+            } catch {
+                // Connection might already exist, that's okay
+            }
+
             setSent(true);
             setTimeout(() => onClose(), 1200);
         } catch (err) {

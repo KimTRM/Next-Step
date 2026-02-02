@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { ConnectionsModal } from "@/features/connections";
+import { usePendingRequestCount } from "@/features/connections/api";
+import { Badge } from "@/shared/components/ui/badge";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [connectionsModalOpen, setConnectionsModalOpen] = useState(false);
   const pathname = usePathname();
+  const pendingRequestCount = usePendingRequestCount();
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -86,6 +91,21 @@ export function Header() {
               </Link>
             </SignedOut>
             <SignedIn>
+              <button
+                onClick={() => setConnectionsModalOpen(true)}
+                className="relative p-2 text-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted"
+                aria-label="View connections"
+              >
+                <Users className="h-5 w-5" />
+                {(pendingRequestCount ?? 0) > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 min-w-5 px-1 text-xs flex items-center justify-center"
+                  >
+                    {pendingRequestCount}
+                  </Badge>
+                )}
+              </button>
               <div>
                 <UserButton
                   appearance={{
@@ -149,6 +169,21 @@ export function Header() {
                   </Link>
                 </SignedOut>
                 <SignedIn>
+                  <button
+                    onClick={() => {
+                      setConnectionsModalOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="py-2 text-left flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+                  >
+                    <Users className="h-5 w-5" />
+                    Connections
+                    {(pendingRequestCount ?? 0) > 0 && (
+                      <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                        {pendingRequestCount}
+                      </Badge>
+                    )}
+                  </button>
                   <div className="py-2">
                     <UserButton
                       appearance={{
@@ -165,6 +200,12 @@ export function Header() {
           </div>
         )}
       </nav>
+
+      {/* Connections Modal */}
+      <ConnectionsModal
+        open={connectionsModalOpen}
+        onOpenChange={setConnectionsModalOpen}
+      />
     </header>
   );
 }
