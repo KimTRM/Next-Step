@@ -19,7 +19,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { Card } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { SquarePen } from "lucide-react";
+import { SquarePen, Ban } from "lucide-react";
 
 import { ConversationList } from "./ConversationList";
 import { MessageThread } from "./MessageThread";
@@ -117,35 +117,42 @@ export function MessagesPageContent() {
   // Initial loading state
   if (isInitialLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Header skeleton */}
-          <div className="mb-8">
-            <Skeleton className="h-10 w-48 mb-2" />
-            <Skeleton className="h-5 w-72" />
-          </div>
-
-          {/* Content skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 h-150">
-            <Card className="lg:col-span-3">
-              <div className="p-4 border-b">
-                <Skeleton className="h-6 w-32" />
+      <div className="min-h-screen bg-green-100">
+        <div className="w-full mx-auto">
+          {/* Messages Layout Skeleton */}
+          <div className="grid grid-cols-1 p-0 md:p-4 lg:p-4 lg:grid-cols-10 gap-2 h-[90vh]">
+            {/* Conversation List Skeleton */}
+            <Card className="lg:col-span-3 h-full border-0 rounded-md overflow-hidden flex flex-col">
+              {/* Header */}
+              <div className="p-4 bg-[#198754]">
+                <Skeleton className="h-6 w-40 bg-white/20" />
+                <Skeleton className="h-4 w-32 bg-white/20 mt-2" />
               </div>
-              <div className="p-4 space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex gap-3">
-                    <Skeleton className="h-12 w-12 rounded-full" />
+
+              {/* Conversation Items */}
+              <div className="flex-1 bg-white p-4 space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex gap-3 p-2">
+                    <Skeleton className="h-12 w-12 rounded-full shrink-0" />
                     <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-24" />
+                      <div className="flex justify-between items-start">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
                       <Skeleton className="h-3 w-full" />
                     </div>
                   </div>
                 ))}
               </div>
             </Card>
-            <Card className="lg:col-span-7">
-              <div className="flex items-center justify-center h-full">
-                <Skeleton className="h-12 w-48" />
+
+            {/* Message Thread Skeleton - Empty State Style */}
+            <Card className="hidden lg:flex lg:col-span-7 h-full rounded-md border-0 overflow-hidden flex-col">
+              {/* Centered Empty State */}
+              <div className="flex-1 bg-white flex flex-col items-center justify-center p-8">
+                <Skeleton className="h-16 w-16 rounded-full mb-4" />
+                <Skeleton className="h-6 w-48 mb-2" />
+                <Skeleton className="h-4 w-64" />
               </div>
             </Card>
           </div>
@@ -170,14 +177,14 @@ export function MessagesPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="min-h-screen bg-green-100">
       <div className="w-full mx-auto">
 
         {/* Messages Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-2 h-[90vh]">
+        <div className="grid grid-cols-1 p-0 md:p-4 lg:p-4 lg:grid-cols-10 gap-2 h-[90vh]">
           {/* Conversation List - 30% width on desktop */}
           <Card
-            className={`lg:col-span-2 h-full rounded-none border-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 ${selectedUserId ? "hidden lg:flex lg:flex-col" : "flex flex-col"
+            className={`lg:col-span-3 h-full border-0 rounded-md overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 ${selectedUserId ? "hidden lg:flex lg:flex-col" : "flex flex-col"
               }`}
           >
             <div className="p-4 bg-[#198754] sticky top-0 z-10">
@@ -192,9 +199,22 @@ export function MessagesPageContent() {
                     : "conversations"}
                 </p>
               )}
-              <button className="absolute top-4 right-4">
-                <SquarePen className="h-7 w-7 text-white mt-2" />
-              </button>
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <button
+                  className="bg-white/10 hover:bg-white/20 rounded-md px-2 py-1 text-white"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new Event("messages:block:open"));
+                    }
+                  }}
+                  aria-label="Open blocked users"
+                >
+                  <Ban className="h-5 w-5" />
+                </button>
+                <button className="relative">
+                  <SquarePen className="h-7 w-7 text-white mt-2" />
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-hidden">
               <ConversationList
@@ -208,7 +228,7 @@ export function MessagesPageContent() {
 
           {/* Message Thread - 80% width on desktop */}
           <Card
-            className={`lg:col-span-8 h-full rounded-none border-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 flex flex-col ${selectedUserId ? "flex" : "hidden lg:flex"
+            className={`lg:col-span-7 h-full rounded-md border-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 flex flex-col ${selectedUserId ? "flex" : "hidden lg:flex"
               }`}
           >
             {!selectedUserId ? (

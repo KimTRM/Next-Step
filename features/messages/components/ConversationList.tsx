@@ -7,8 +7,6 @@
  * - User avatars
  * - Timestamp of last message
  * - Search functionality to filter by name
- * - Actions menu (mute, pin, block) with simple local state
- * - Block list modal for managing blocked users
  */
 
 "use client";
@@ -18,27 +16,17 @@ import { Badge } from "@/shared/components/ui/badge";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/shared/components/ui/dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Conversation } from "../types";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useMemo } from "react";
-import { Search, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, ShieldOff, X } from "lucide-react";
+import { Search, Pin, BellOff } from "lucide-react";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
+import {
+    getSettings,
+    removeBlocked,
+} from "@/features/messages/settings";
+import { useEffect } from "react";
 
 interface ConversationListProps {
     conversations: Conversation[] | undefined;
@@ -54,106 +42,56 @@ export function ConversationList({
     loading = false,
 }: ConversationListProps) {
     const [searchQuery, setSearchQuery] = useState("");
-    const [isBlockListOpen, setIsBlockListOpen] = useState(false);
-
-    // Simple local state for actions (persists during session only)
     const [mutedUsers, setMutedUsers] = useState<Set<string>>(new Set());
     const [pinnedUsers, setPinnedUsers] = useState<Set<string>>(new Set());
     const [blockedUsers, setBlockedUsers] = useState<Set<string>>(new Set());
+    const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
 
-    // Get blocked user details
-    const blockedConversations = useMemo(() => {
-        if (!conversations) return [];
-        return conversations.filter((conv) => blockedUsers.has(conv.otherUserId));
-    }, [conversations, blockedUsers]);
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const load = () => {
+            const s = getSettings();
+            setMutedUsers(new Set(s.muted));
+            setPinnedUsers(new Set(s.pinned));
+            setBlockedUsers(new Set(s.blocked));
+        };
+        load();
+        window.addEventListener("messages:settings:changed", load);
+        window.addEventListener("storage", load);
+        const openHandler = () => setIsBlockModalOpen(true);
+        window.addEventListener("messages:block:open", openHandler as EventListener);
+        return () => {
+            window.removeEventListener("messages:settings:changed", load);
+            window.removeEventListener("storage", load);
+            window.removeEventListener("messages:block:open", openHandler as EventListener);
+        };
+    }, []);
 
     // Filter conversations based on search query
     const filteredConversations = useMemo(() => {
         if (!conversations) return [];
+        if (!searchQuery.trim()) return conversations;
 
-        // Filter out blocked users
-        const notBlocked = conversations.filter(
-            (conv) => !blockedUsers.has(conv.otherUserId)
-        );
-
-        if (!searchQuery.trim()) return notBlocked;
-
-        return notBlocked.filter((conv) => {
+        return conversations.filter((conv) => {
             const userName = conv.otherUser?.name || "";
             return userName.toLowerCase().includes(searchQuery.toLowerCase());
         });
-    }, [conversations, searchQuery, blockedUsers]);
+    }, [conversations, searchQuery]);
 
-    // Sort conversations: pinned first, then by timestamp
-    const sortedConversations = useMemo(() => {
-        return [...filteredConversations].sort((a, b) => {
-            const aIsPinned = pinnedUsers.has(a.otherUserId);
-            const bIsPinned = pinnedUsers.has(b.otherUserId);
-
-            // Pinned conversations first
-            if (aIsPinned && !bIsPinned) return -1;
-            if (!aIsPinned && bIsPinned) return 1;
-
-            // Then sort by timestamp
-            return b.lastMessage.timestamp - a.lastMessage.timestamp;
+    // Sort/pinned: pinned conversations appear at top, then by last message time desc
+    const displayedConversations = useMemo(() => {
+        const list = filteredConversations.slice();
+        list.sort((a, b) => {
+            const aPinned = pinnedUsers.has(String(a.otherUserId)) ? 0 : 1;
+            const bPinned = pinnedUsers.has(String(b.otherUserId)) ? 0 : 1;
+            if (aPinned !== bPinned) return aPinned - bPinned;
+            const aTime = new Date(a.lastMessage.timestamp).getTime();
+            const bTime = new Date(b.lastMessage.timestamp).getTime();
+            return bTime - aTime;
         });
-    }, [filteredConversations, pinnedUsers]);
-
-    // Action handlers
-    const handleMute = (userId: Id<"users">) => {
-        setMutedUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.add(userId);
-            return newSet;
-        });
-    };
-
-    const handleUnmute = (userId: Id<"users">) => {
-        setMutedUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-        });
-    };
-
-    const handlePin = (userId: Id<"users">) => {
-        setPinnedUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.add(userId);
-            return newSet;
-        });
-    };
-
-    const handleUnpin = (userId: Id<"users">) => {
-        setPinnedUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-        });
-    };
-
-    const handleBlock = (userId: Id<"users">) => {
-        if (confirm("Are you sure you want to block this user? This will hide all their messages.")) {
-            setBlockedUsers(prev => {
-                const newSet = new Set(prev);
-                newSet.add(userId);
-                return newSet;
-            });
-
-            // If currently selected, deselect
-            if (selectedUserId === userId) {
-                onSelectConversation(null as any);
-            }
-        }
-    };
-
-    const handleUnblock = (userId: Id<"users">) => {
-        setBlockedUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-        });
-    };
+        // filter out blocked
+        return list.filter((c) => !blockedUsers.has(String(c.otherUserId)));
+    }, [filteredConversations, pinnedUsers, blockedUsers]);
 
     if (loading) {
         return (
@@ -184,7 +122,7 @@ export function ConversationList({
     }
 
     return (
-        <div className="flex flex-col h-full relative">
+        <div className="flex flex-col h-full">
             {/* Search Bar */}
             <div className="p-4 border-b">
                 <div className="relative">
@@ -201,229 +139,114 @@ export function ConversationList({
 
             {/* Conversations List */}
             <ScrollArea className="flex-1">
-                {sortedConversations.length === 0 ? (
+                {displayedConversations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                         <div className="text-4xl mb-3">🔍</div>
-                        <h3 className="font-semibold text-foreground mb-1">
-                            {blockedUsers.size > 0 && filteredConversations.length === 0
-                                ? "No conversations"
-                                : "No matches found"}
-                        </h3>
+                        <h3 className="font-semibold text-foreground mb-1">No matches found</h3>
                         <p className="text-sm text-muted-foreground">
-                            {blockedUsers.size > 0 && filteredConversations.length === 0
-                                ? "All users are blocked"
-                                : "Try searching with a different name"}
+                            Try searching with a different name
                         </p>
                     </div>
                 ) : (
                     <div className="divide-y">
-                        {sortedConversations.map((conv) => {
+                        {displayedConversations.map((conv) => {
                             const isSelected = selectedUserId === conv.otherUserId;
                             const userName = conv.otherUser?.name || "Unknown User";
                             const userInitial = userName.charAt(0).toUpperCase();
                             const avatarUrl = conv.otherUser?.avatarUrl;
 
-                            const isMuted = mutedUsers.has(conv.otherUserId);
-                            const isPinned = pinnedUsers.has(conv.otherUserId);
-
                             return (
-                                <div
+                                <button
                                     key={conv.otherUserId}
-                                    className={`relative group ${isSelected ? "bg-muted border-l-2 border-l-primary" : ""
+                                    onClick={() => onSelectConversation(conv.otherUserId)}
+                                    className={`w-full p-4 m-1 text-left transition-colors rounded-md hover:bg-muted/100 ${isSelected ? "bg-muted border-l-2 border-l-primary" : ""
                                         }`}
+                                    aria-label={`Conversation with ${userName}`}
+                                    aria-current={isSelected ? "true" : undefined}
                                 >
-                                    <button
-                                        onClick={() => onSelectConversation(conv.otherUserId)}
-                                        className="w-full p-4 pr-12 text-left transition-colors hover:bg-muted/50"
-                                        aria-label={`Conversation with ${userName}`}
-                                        aria-current={isSelected ? "true" : undefined}
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            {/* Avatar */}
-                                            <div className="relative">
-                                                <Avatar className="h-12 w-12 shrink-0">
-                                                    <AvatarImage src={avatarUrl} alt={userName} />
-                                                    <AvatarFallback className="bg-primary text-primary-foreground">
-                                                        {userInitial}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                {isPinned && (
-                                                    <div className="absolute -top-1 -right-1 bg-primary rounded-full p-1">
-                                                        <Pin className="h-3 w-3 text-primary-foreground fill-current" />
-                                                    </div>
-                                                )}
-                                            </div>
+                                    <div className="flex items-start gap-3">
+                                        {/* Avatar */}
+                                        <Avatar className="h-12 w-12 shrink-0">
+                                            <AvatarImage src={avatarUrl} alt={userName} />
+                                            <AvatarFallback className="bg-primary text-primary-foreground">
+                                                {userInitial}
+                                            </AvatarFallback>
+                                        </Avatar>
 
-                                            {/* Content */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between gap-2 mb-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-medium text-foreground truncate">
-                                                            {userName}
-                                                        </span>
-                                                        {isMuted && (
-                                                            <BellOff className="h-3.5 w-3.5 text-muted-foreground" />
-                                                        )}
-                                                    </div>
-                                                    <span className="text-xs text-muted-foreground shrink-0">
-                                                        {formatDistanceToNow(conv.lastMessage.timestamp, {
-                                                            addSuffix: true,
-                                                        })}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <p className="text-sm text-muted-foreground line-clamp-1 overflow-hidden text-ellipsis">
-                                                        {conv.lastMessage.content}
-                                                    </p>
-                                                    {conv.unreadCount > 0 && !isMuted && (
-                                                        <Badge variant="destructive" className="shrink-0">
-                                                            {conv.unreadCount}
-                                                        </Badge>
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between gap-2 mb-1">
+                                                <span className="font-medium text-foreground truncate flex items-center gap-2">
+                                                    <span className="truncate">{userName}</span>
+                                                    {pinnedUsers.has(String(conv.otherUserId)) && (
+                                                        <Pin className="h-4 w-4 text-primary" />
                                                     )}
-                                                </div>
+                                                    {mutedUsers.has(String(conv.otherUserId)) && (
+                                                        <BellOff className="h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground shrink-0">
+                                                    {formatDistanceToNow(conv.lastMessage.timestamp, {
+                                                        addSuffix: true,
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <p className="text-sm text-muted-foreground line-clamp-1 overflow-hidden text-ellipsis">
+                                                    {conv.lastMessage.content}
+                                                </p>
+                                                {conv.unreadCount > 0 && (
+                                                    <Badge variant="destructive" className="shrink-0">
+                                                        {conv.unreadCount}
+                                                    </Badge>
+                                                )}
                                             </div>
                                         </div>
-                                    </button>
-
-                                    {/* Actions Menu */}
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    aria-label="Conversation actions"
-                                                >
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48">
-                                                {/* Mute/Unmute */}
-                                                {isMuted ? (
-                                                    <DropdownMenuItem onClick={() => handleUnmute(conv.otherUserId)}>
-                                                        <Bell className="mr-2 h-4 w-4" />
-                                                        Unmute
-                                                    </DropdownMenuItem>
-                                                ) : (
-                                                    <DropdownMenuItem onClick={() => handleMute(conv.otherUserId)}>
-                                                        <BellOff className="mr-2 h-4 w-4" />
-                                                        Mute
-                                                    </DropdownMenuItem>
-                                                )}
-
-                                                {/* Pin/Unpin */}
-                                                {isPinned ? (
-                                                    <DropdownMenuItem onClick={() => handleUnpin(conv.otherUserId)}>
-                                                        <PinOff className="mr-2 h-4 w-4" />
-                                                        Unpin
-                                                    </DropdownMenuItem>
-                                                ) : (
-                                                    <DropdownMenuItem onClick={() => handlePin(conv.otherUserId)}>
-                                                        <Pin className="mr-2 h-4 w-4" />
-                                                        Pin
-                                                    </DropdownMenuItem>
-                                                )}
-
-                                                <DropdownMenuSeparator />
-
-                                                {/* Block */}
-                                                <DropdownMenuItem
-                                                    onClick={() => handleBlock(conv.otherUserId)}
-                                                    className="text-destructive focus:text-destructive"
-                                                >
-                                                    <Ban className="mr-2 h-4 w-4" />
-                                                    Block
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
                                     </div>
-                                </div>
+                                </button>
                             );
                         })}
                     </div>
                 )}
             </ScrollArea>
-
-            {/* Block List Button - Bottom Right */}
-            <div className="absolute bottom-4 right-4 z-10">
-                <Dialog open={isBlockListOpen} onOpenChange={setIsBlockListOpen}>
-                    <DialogTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-10 w-10 rounded-full shadow-lg bg-background hover:bg-muted"
-                            aria-label="View blocked users"
-                        >
-                            <ShieldOff className="h-5 w-5" />
-                            {blockedUsers.size > 0 && (
-                                <Badge
-                                    variant="destructive"
-                                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                                >
-                                    {blockedUsers.size}
-                                </Badge>
-                            )}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                            <DialogTitle>Blocked Users</DialogTitle>
-                            <DialogDescription>
-                                Manage users you've blocked. Unblock them to see their messages again.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="mt-4">
-                            {blockedConversations.length === 0 ? (
-                                <div className="text-center py-8">
-                                    <ShieldOff className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                                    <p className="text-sm text-muted-foreground">
-                                        No blocked users
-                                    </p>
-                                </div>
-                            ) : (
-                                <ScrollArea className="max-h-[400px]">
-                                    <div className="space-y-2">
-                                        {blockedConversations.map((conv) => {
-                                            const userName = conv.otherUser?.name || "Unknown User";
-                                            const userInitial = userName.charAt(0).toUpperCase();
-                                            const avatarUrl = conv.otherUser?.avatarUrl;
-
-                                            return (
-                                                <div
-                                                    key={conv.otherUserId}
-                                                    className="flex items-center justify-between p-3 rounded-lg border bg-muted/50"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <Avatar className="h-10 w-10">
-                                                            <AvatarImage src={avatarUrl} alt={userName} />
-                                                            <AvatarFallback className="bg-primary text-primary-foreground">
-                                                                {userInitial}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p className="font-medium text-sm">{userName}</p>
-                                                            <p className="text-xs text-muted-foreground">Blocked</p>
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleUnblock(conv.otherUserId)}
-                                                    >
-                                                        Unblock
-                                                    </Button>
-                                                </div>
-                                            );
-                                        })}
+            {/* Blocked users dialog */}
+            <Dialog open={isBlockModalOpen} onOpenChange={setIsBlockModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Blocked users</DialogTitle>
+                        <DialogDescription>Unblock users to restore conversations.</DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4 space-y-3">
+                        {Array.from(blockedUsers).length === 0 && (
+                            <div className="text-sm text-muted-foreground">No blocked users</div>
+                        )}
+                        {Array.from(blockedUsers).map((id) => {
+                            const conv = conversations?.find((c) => String(c.otherUserId) === id);
+                            const name = conv?.otherUser?.name || id;
+                            const initial = name.charAt(0).toUpperCase();
+                            return (
+                                <div key={id} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">{initial}</div>
+                                        <div className="text-sm">{name}</div>
                                     </div>
-                                </ScrollArea>
-                            )}
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            </div>
+                                    <div>
+                                        <button
+                                            className="text-sm text-primary"
+                                            onClick={() => {
+                                                removeBlocked(id);
+                                                setBlockedUsers(new Set(getSettings().blocked));
+                                            }}
+                                        >
+                                            Unblock
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
