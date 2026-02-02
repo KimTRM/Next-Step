@@ -91,6 +91,8 @@ export type User = {
     profileCompletion?: number;
     education?: EducationEntry[]; // Detailed education history
     experience?: ExperienceEntry[]; // Work experience
+    specialization?: string; // User's specialization/expertise area
+    technology?: string[]; // Technologies user works with
 };
 
 /**
@@ -112,6 +114,8 @@ export type ProfileFormData = {
     avatarUrl: string;
     education: EducationEntry[];
     experience: ExperienceEntry[];
+    specialization: string;
+    technology: string[];
 };
 
 /**

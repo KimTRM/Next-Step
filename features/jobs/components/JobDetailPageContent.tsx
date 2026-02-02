@@ -17,8 +17,11 @@ import {
     Briefcase,
     Globe,
     Tag,
+    FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
@@ -34,6 +37,9 @@ import {
 } from '@/shared/components/ui/dialog';
 import { useJobById, useRelatedJobs } from '../api';
 import { useCreateApplication } from '@/features/applications/api';
+import { JobApplicationModal } from '@/features/applications/components/apply-flow';
+import type { ApplicationFormData, ApplicationJob } from '@/features/applications';
+import type { Job } from '../types';
 
 type JobDTO = {
     _id: Id<'jobs'>;
@@ -82,12 +88,16 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
     const [isSaved, setIsSaved] = useState(false);
     const [showProfileDialog, setShowProfileDialog] = useState(false);
     const [hasApplied, setHasApplied] = useState(false);
+    const [showApplicationModal, setShowApplicationModal] = useState(false);
     const router = useRouter();
 
     // Fetch job and related jobs using feature API
     const job = useJobById(jobId);
     const relatedJobs = useRelatedJobs(jobId, 4);
     const createApplication = useCreateApplication();
+
+    // Fetch current user for the multi-step modal
+    const currentUser = useQuery(api.users.index.getCurrentUser, {});
 
     const handleApply = async () => {
         if (!job) return;
@@ -117,6 +127,32 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
         } finally {
             setIsApplying(false);
         }
+    };
+
+    // Handle enhanced application flow submission
+    const handleEnhancedApply = async (data: ApplicationFormData, jobData: ApplicationJob) => {
+        try {
+            await createApplication({
+                jobId: jobData._id as Id<"jobs">,
+                notes: data.questions.additionalNotes,
+            });
+            toast.success('Application submitted successfully!');
+            setHasApplied(true);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to submit application';
+            toast.error(errorMessage);
+            throw error;
+        }
+    };
+
+    // Open enhanced application modal
+    const handleOpenEnhancedModal = () => {
+        if (!currentUser) {
+            toast.error('Please sign in to apply');
+            router.push('/sign-in');
+            return;
+        }
+        setShowApplicationModal(true);
     };
 
     const handleSave = () => {
@@ -416,6 +452,30 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                                 </div>
                             ) : (
                                 <>
+                                    {/* Enhanced Multi-Step Application */}
+                                    <Button
+                                        onClick={handleOpenEnhancedModal}
+                                        className="w-full"
+                                        size="lg"
+                                    >
+                                        <FileText className="h-4 w-4 mr-2" />
+                                        Apply Now
+                                    </Button>
+                                    <p className="text-xs text-center text-muted-foreground">
+                                        Complete your application with resume, cover letter, and profile
+                                    </p>
+
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t" />
+                                        </div>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-card px-2 text-muted-foreground">
+                                                or quick apply
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-2">
                                         <label htmlFor="notes" className="text-sm font-medium">
                                             Application Notes (Optional)
@@ -433,12 +493,11 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                                         </p>
                                     </div>
                                     <Button
-                                        onClick={handleApply}
-                                        disabled={isApplying}
+                                        onClick={() => router.push(`/jobs/${jobId}/apply`)}
                                         className="w-full"
-                                        size="lg"
+                                        variant="outline"
                                     >
-                                        {isApplying ? 'Submitting...' : 'Submit Application'}
+                                        Quick Apply
                                     </Button>
                                 </>
                             )}
@@ -531,6 +590,48 @@ export function JobDetailPageContent({ jobId }: JobDetailPageContentProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Enhanced Multi-Step Application Modal */}
+            {job && currentUser && (
+                <JobApplicationModal
+                    isOpen={showApplicationModal}
+                    onClose={() => setShowApplicationModal(false)}
+                    job={{
+                        _id: job._id,
+                        title: job.title,
+                        company: job.company,
+                        location: job.location,
+                        description: job.description,
+                        employmentType: job.employmentType,
+                        locationType: job.locationType,
+                        minSalary: job.minSalary,
+                        maxSalary: job.maxSalary,
+                        salaryCurrency: job.salaryCurrency,
+                        salaryPeriod: job.salaryPeriod,
+                        requiredSkills: job.requiredSkills,
+                        experienceLevel: job.experienceLevel,
+                        postedDate: job.postedDate,
+                    }}
+                    applicant={{
+                        _id: currentUser._id,
+                        name: currentUser.name || "User",
+                        email: currentUser.email || "",
+                        avatarUrl: currentUser.avatarUrl,
+                        location: currentUser.location,
+                        experience: currentUser.experience,
+                        education: currentUser.education,
+                        skills: currentUser.skills,
+                    }}
+                    onSubmitAction={handleEnhancedApply}
+                    onViewDescription={() => {
+                        // Already on the job detail page
+                        setShowApplicationModal(false);
+                    }}
+                    onEditProfile={() => {
+                        window.open('/profile', '_blank');
+                    }}
+                />
+            )}
         </div>
     );
 }

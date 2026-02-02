@@ -9,12 +9,14 @@
  */
 
 import type * as api_ from "../api.js";
+import type * as applications from "../applications.js";
 import type * as applications_index from "../applications/index.js";
 import type * as applications_mutations from "../applications/mutations.js";
 import type * as applications_queries from "../applications/queries.js";
 import type * as connections_index from "../connections/index.js";
 import type * as connections_mutations from "../connections/mutations.js";
 import type * as connections_queries from "../connections/queries.js";
+import type * as jobsMutations from "../jobsMutations.js";
 import type * as jobs_index from "../jobs/index.js";
 import type * as jobs_mutations from "../jobs/mutations.js";
 import type * as jobs_queries from "../jobs/queries.js";
@@ -43,12 +45,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   api: typeof api_;
+  applications: typeof applications;
   "applications/index": typeof applications_index;
   "applications/mutations": typeof applications_mutations;
   "applications/queries": typeof applications_queries;
   "connections/index": typeof connections_index;
   "connections/mutations": typeof connections_mutations;
   "connections/queries": typeof connections_queries;
+  jobsMutations: typeof jobsMutations;
   "jobs/index": typeof jobs_index;
   "jobs/mutations": typeof jobs_mutations;
   "jobs/queries": typeof jobs_queries;

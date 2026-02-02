@@ -28,7 +28,7 @@ export const getUserJobApplications = query({
 
         const applications = await ctx.db
             .query("jobApplications")
-            .withIndex("by_user", (q) => q.eq("userId", user._id))
+            .withIndex("by_userId", (q) => q.eq("userId", user._id))
             .order("desc")
             .collect();
 
@@ -57,7 +57,43 @@ export const getJobApplications = query({
     handler: async (ctx, args) => {
         return await ctx.db
             .query("jobApplications")
-            .withIndex("by_job", (q) => q.eq("jobId", args.jobId))
+            .withIndex("by_jobId", (q) => q.eq("jobId", args.jobId))
             .collect();
+    },
+});
+
+/**
+ * Check if a user has applied to a specific job
+ * Accepts Clerk user ID and looks up Convex user internally
+ */
+export const checkUserApplied = query({
+    args: {
+        jobId: v.id("jobs"),
+        userId: v.string(), // Clerk user ID
+    },
+    handler: async (ctx, args) => {
+        // Skip if no userId provided
+        if (!args.userId) {
+            return false;
+        }
+
+        // Look up Convex user by Clerk ID
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+            .unique();
+
+        if (!user) {
+            return false;
+        }
+
+        const application = await ctx.db
+            .query("jobApplications")
+            .withIndex("by_jobId_userId", (q) =>
+                q.eq("jobId", args.jobId).eq("userId", user._id),
+            )
+            .first();
+
+        return !!application;
     },
 });

@@ -163,6 +163,7 @@ export const clearAndReseedJobs = internalMutation({
                 postedDate:
                     Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
                 isActive: true,
+                applicants: 0,
             });
             jobIds.push(id);
         }
