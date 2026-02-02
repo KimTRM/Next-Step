@@ -4,11 +4,13 @@
  */
 
 import { mutation } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { v } from "convex/values";
 
 /**
  * Send a message to another user
  * Creates a message with isRead = false and timestamp = Date.now()
+ * Also creates a notification for the receiver
  */
 export const sendMessage = mutation({
     args: {
@@ -43,6 +45,20 @@ export const sendMessage = mutation({
             timestamp: Date.now(),
             isRead: false,
             relatedJobId: args.relatedJobId,
+        });
+
+        // Create notification for the receiver
+        const messagePreview = args.content.length > 100 
+            ? args.content.substring(0, 100) + "..." 
+            : args.content;
+
+        await ctx.scheduler.runAfter(0, internal.notifications.index.createNotification, {
+            userId: args.receiverId,
+            type: "message",
+            fromUserId: user._id,
+            title: `New message from ${user.name}`,
+            body: messagePreview,
+            relatedMessageId: messageId,
         });
 
         return messageId;
