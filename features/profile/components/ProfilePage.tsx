@@ -68,7 +68,7 @@ export function ProfilePage() {
     // Loading state
     if (!mounted || !clerkLoaded || currentUser === undefined) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
                     <p className="text-lg text-gray-600">Loading profile...</p>
@@ -80,7 +80,7 @@ export function ProfilePage() {
     // Not signed in
     if (!clerkUser) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
+            <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
                 <p className="text-lg text-gray-600">Please sign in to view your profile</p>
                 <Button asChild>
                     <a href="/auth">Sign In</a>
@@ -92,7 +92,7 @@ export function ProfilePage() {
     // User not created yet
     if (currentUser === null) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
+            <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
                 <p className="text-lg text-gray-600">Setting up your profile...</p>
                 <p className="text-sm text-gray-500">
@@ -103,10 +103,9 @@ export function ProfilePage() {
         );
     }
 
-    // TODO: Edit mode component will be added in Phase 3
     if (isEditing) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-12 px-4">
+            <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 py-12 px-4">
                 <ProfileEditMode
                     user={currentUser}
                     onSave={handleSaveEdit}

@@ -164,6 +164,34 @@ export const updateUserProfile = mutation({
                 v.literal("employer"),
             ),
         ),
+        // Education and Experience arrays
+        education: v.optional(
+            v.array(
+                v.object({
+                    id: v.optional(v.string()), // Client-side temporary ID
+                    institution: v.string(),
+                    degree: v.string(),
+                    startDate: v.number(),
+                    endDate: v.optional(v.number()),
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
+                }),
+            ),
+        ),
+        experience: v.optional(
+            v.array(
+                v.object({
+                    id: v.optional(v.string()), // Client-side temporary ID
+                    title: v.string(),
+                    company: v.string(),
+                    location: v.optional(v.string()),
+                    startDate: v.number(),
+                    endDate: v.optional(v.number()),
+                    isCurrent: v.boolean(),
+                    description: v.optional(v.string()),
+                }),
+            ),
+        ),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();

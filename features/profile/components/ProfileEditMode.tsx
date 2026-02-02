@@ -5,6 +5,7 @@ import { User } from "../types";
 import { useProfileForm } from "../hooks/useProfileForm";
 import { useUpdateProfile } from "../api";
 import { useDebounce } from "../hooks/useDebounce";
+import { useProfileCompletion } from "../hooks/useProfileCompletion";
 import { SkillsSelector } from "@/shared/components/ui/SkillsSelector";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -29,7 +30,7 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { EDUCATION_LEVELS, SKILL_SUGGESTIONS, INTEREST_SUGGESTIONS } from "../constants";
-import { Loader2, Plus, Trash2, GripVertical, Save, X, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, GripVertical, Save, X, AlertCircle, CheckCircle2 } from "lucide-react";
 import { EducationEntry, ExperienceEntry } from "../types";
 import { toast } from "sonner";
 
@@ -54,6 +55,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
         isDirty,
         isSubmitting,
         setName,
+        setLocation,
         setBio,
         setEducationLevel,
         setCareerGoals,
@@ -75,8 +77,6 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                 setSaveError(null);
 
                 // Transform data for Convex mutation
-                // Note: updateUserProfile doesn't currently support education/experience arrays
-                // We'll save what we can and log a warning for now
                 await updateProfile({
                     bio: data.bio || undefined,
                     location: data.location || undefined,
@@ -87,12 +87,10 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     linkedInUrl: data.linkedInUrl || undefined,
                     githubUrl: data.githubUrl || undefined,
                     portfolioUrl: data.portfolioUrl || undefined,
+                    // Include education and experience arrays
+                    education: data.education.length > 0 ? data.education : undefined,
+                    experience: data.experience.length > 0 ? data.experience : undefined,
                 });
-
-                // TODO: Once backend supports education/experience, save those too
-                if (data.education.length > 0 || data.experience.length > 0) {
-                    console.warn("Education and experience data not yet persisted to backend");
-                }
 
                 toast.success("Profile updated successfully!");
                 onSave?.();
@@ -107,6 +105,9 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
     });
 
     const [activeSection, setActiveSection] = useState<string>("basic");
+
+    // Calculate profile completion in real-time
+    const profileCompletion = useProfileCompletion(user, formData, true);
 
     // Debounce form data for auto-save (2 second delay)
     const debouncedFormData = useDebounce(formData, 2000);
@@ -229,40 +230,54 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6 px-4 sm:px-0">
             {/* Header with Save/Cancel */}
-            <div className="flex items-center justify-between bg-white rounded-xl shadow-sm px-6 py-4 sticky top-0 z-10">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
-                    <div className="flex items-center gap-3 mt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white rounded-xl shadow-sm px-4 sm:px-6 py-4 sticky top-0 z-10 gap-4 sm:gap-0 transition-all">
+                <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Profile</h2>
+                        {/* Real-time Profile Completion Indicator */}
+                        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full">
+                            <CheckCircle2 className={`w-4 h-4 transition-colors ${profileCompletion.percentage === 100 ? 'text-emerald-600' : 'text-emerald-500'
+                                }`} />
+                            <span className={`text-sm font-semibold transition-colors ${profileCompletion.percentage === 100 ? 'text-emerald-700' : 'text-emerald-600'
+                                }`}>
+                                {profileCompletion.percentage}%
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                         {isDirty && !isAutoSaving && !lastAutoSaveTime && (
-                            <p className="text-sm text-amber-600">You have unsaved changes</p>
+                            <p className="text-xs sm:text-sm text-amber-600 transition-opacity">You have unsaved changes</p>
                         )}
                         {isAutoSaving && (
-                            <p className="text-sm text-gray-500 flex items-center gap-2">
+                            <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 animate-in fade-in">
                                 <Loader2 className="w-3 h-3 animate-spin" />
                                 Auto-saving...
                             </p>
                         )}
                         {lastAutoSaveTime && !isAutoSaving && (
-                            <p className="text-sm text-emerald-600">
+                            <p className="text-xs sm:text-sm text-emerald-600 animate-in fade-in">
                                 Auto-saved at {lastAutoSaveTime.toLocaleTimeString()}
                             </p>
                         )}
                     </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button
                         variant="outline"
                         onClick={handleCancel}
                         disabled={isSubmitting}
+                        className="flex-1 sm:flex-none"
                     >
                         <X className="w-4 h-4 mr-2" />
-                        Cancel
+                        <span className="hidden sm:inline">Cancel</span>
+                        <span className="sm:hidden">Cancel</span>
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={isSubmitting || !isDirty}
+                        className="flex-1 sm:flex-none"
                     >
                         {isSubmitting ? (
                             <>
@@ -280,8 +295,8 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
             </div>
 
             {/* Section Navigation */}
-            <div className="bg-white rounded-xl shadow-sm px-6 py-3">
-                <div className="flex gap-2 overflow-x-auto">
+            <div className="bg-white rounded-xl shadow-sm px-4 sm:px-6 py-3">
+                <div className="flex gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
                     {[
                         { id: "basic", label: "Basic Info" },
                         { id: "education", label: "Education" },
@@ -295,6 +310,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                             variant={activeSection === section.id ? "default" : "ghost"}
                             size="sm"
                             onClick={() => setActiveSection(section.id)}
+                            className="whitespace-nowrap"
                         >
                             {section.label}
                         </Button>
@@ -304,24 +320,50 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Basic Info Section */}
             {activeSection === "basic" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader>
                         <CardTitle>Basic Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">
-                                Full Name <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter your full name"
-                            />
-                            {getBasicError("name") && (
-                                <p className="text-sm text-red-600">{getBasicError("name")}</p>
-                            )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">
+                                    Full Name <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="name"
+                                    value={formData.name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter your full name"
+                                />
+                                {getBasicError("name") && (
+                                    <p className="text-sm text-red-600">{getBasicError("name")}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="educationLevel">Education Level</Label>
+                                <Select
+                                    value={formData.educationLevel}
+                                    onValueChange={setEducationLevel}
+                                >
+                                    <SelectTrigger id="educationLevel">
+                                        <SelectValue placeholder="Select your education level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {EDUCATION_LEVELS.map((level) => (
+                                            <SelectItem key={level.value} value={level.value}>
+                                                {level.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {getBasicError("educationLevel") && (
+                                    <p className="text-sm text-red-600">
+                                        {getBasicError("educationLevel")}
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2">
@@ -332,34 +374,47 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                                 onChange={(e) => setBio(e.target.value)}
                                 placeholder="Tell us about yourself..."
                                 rows={4}
+                                className="resize-none"
                             />
                             {getBasicError("bio") && (
                                 <p className="text-sm text-red-600">{getBasicError("bio")}</p>
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="educationLevel">Education Level</Label>
-                            <Select
-                                value={formData.educationLevel}
-                                onValueChange={setEducationLevel}
-                            >
-                                <SelectTrigger id="educationLevel">
-                                    <SelectValue placeholder="Select your education level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {EDUCATION_LEVELS.map((level) => (
-                                        <SelectItem key={level.value} value={level.value}>
-                                            {level.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {getBasicError("educationLevel") && (
-                                <p className="text-sm text-red-600">
-                                    {getBasicError("educationLevel")}
-                                </p>
-                            )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="educationLevel">Education Level</Label>
+                                <Select
+                                    value={formData.educationLevel}
+                                    onValueChange={setEducationLevel}
+                                >
+                                    <SelectTrigger id="educationLevel">
+                                        <SelectValue placeholder="Select your education level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {EDUCATION_LEVELS.map((level) => (
+                                            <SelectItem key={level.value} value={level.value}>
+                                                {level.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {getBasicError("educationLevel") && (
+                                    <p className="text-sm text-red-600">
+                                        {getBasicError("educationLevel")}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="location">Location</Label>
+                                <Input
+                                    id="location"
+                                    value={formData.location || ""}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    placeholder="City, Country"
+                                />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -367,7 +422,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Education Section */}
             {activeSection === "education" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>Education History</CardTitle>
                         <Button
@@ -408,7 +463,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Experience Section */}
             {activeSection === "experience" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>Work Experience</CardTitle>
                         <Button
@@ -448,7 +503,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Skills & Interests Section */}
             {activeSection === "skills" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader>
                         <CardTitle>Skills & Interests</CardTitle>
                     </CardHeader>
@@ -474,7 +529,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Goals Section */}
             {activeSection === "goals" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader>
                         <CardTitle>Career & Learning Goals</CardTitle>
                     </CardHeader>
@@ -487,6 +542,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                                 onChange={(e) => setCareerGoals(e.target.value)}
                                 placeholder="What are your career aspirations?"
                                 rows={4}
+                                className="resize-none"
                             />
                             {getBasicError("careerGoals") && (
                                 <p className="text-sm text-red-600">
@@ -503,6 +559,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                                 placeholder="Your goals are reflected in your interests"
                                 rows={4}
                                 disabled
+                                className="resize-none"
                             />
                             <p className="text-sm text-gray-500">Edit your interests in the Skills & Interests section</p>
                         </div>
@@ -512,41 +569,45 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Social Links Section */}
             {activeSection === "links" && (
-                <Card>
+                <Card className="animate-in fade-in duration-200">
                     <CardHeader>
                         <CardTitle>Social Links</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="linkedin">LinkedIn Profile</Label>
-                            <Input
-                                id="linkedin"
-                                type="url"
-                                value={formData.linkedInUrl}
-                                onChange={(e) => setLinkedInUrl(e.target.value)}
-                                placeholder="https://linkedin.com/in/yourprofile"
-                            />
-                            {getSocialLinksError("linkedInUrl") && (
-                                <p className="text-sm text-red-600">
-                                    {getSocialLinksError("linkedInUrl")}
-                                </p>
-                            )}
-                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="linkedin">LinkedIn Profile</Label>
+                                <Input
+                                    id="linkedin"
+                                    type="url"
+                                    value={formData.linkedInUrl}
+                                    onChange={(e) => setLinkedInUrl(e.target.value)}
+                                    placeholder="https://linkedin.com/in/yourprofile"
+                                    className="truncate"
+                                />
+                                {getSocialLinksError("linkedInUrl") && (
+                                    <p className="text-sm text-red-600">
+                                        {getSocialLinksError("linkedInUrl")}
+                                    </p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="github">GitHub Profile</Label>
-                            <Input
-                                id="github"
-                                type="url"
-                                value={formData.githubUrl}
-                                onChange={(e) => setGithubUrl(e.target.value)}
-                                placeholder="https://github.com/yourusername"
-                            />
-                            {getSocialLinksError("githubUrl") && (
-                                <p className="text-sm text-red-600">
-                                    {getSocialLinksError("githubUrl")}
-                                </p>
-                            )}
+                            <div className="space-y-2">
+                                <Label htmlFor="github">GitHub Profile</Label>
+                                <Input
+                                    id="github"
+                                    type="url"
+                                    value={formData.githubUrl}
+                                    onChange={(e) => setGithubUrl(e.target.value)}
+                                    placeholder="https://github.com/yourusername"
+                                    className="truncate"
+                                />
+                                {getSocialLinksError("githubUrl") && (
+                                    <p className="text-sm text-red-600">
+                                        {getSocialLinksError("githubUrl")}
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2">
