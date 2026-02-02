@@ -4,12 +4,13 @@ export type MsgSettings = {
     muted: string[];
     pinned: string[];
     blocked: string[];
+    deleted: string[];
 };
 
 const KEY = "messages:settings:v1";
 
 function defaultSettings(): MsgSettings {
-    return { muted: [], pinned: [], blocked: [] };
+    return { muted: [], pinned: [], blocked: [], deleted: [] };
 }
 
 export function getSettings(): MsgSettings {
@@ -80,4 +81,24 @@ export function isPinned(id: string) {
 
 export function isBlocked(id: string) {
     return getSettings().blocked.includes(id);
+}
+
+export function addDeleted(id: string) {
+    const s = getSettings();
+    if (!s.deleted) s.deleted = [];
+    if (!s.deleted.includes(id)) s.deleted.push(id);
+    saveSettings(s);
+}
+
+export function removeDeleted(id: string) {
+    const s = getSettings();
+    if (!s.deleted) s.deleted = [];
+    s.deleted = s.deleted.filter((x) => x !== id);
+    saveSettings(s);
+}
+
+export function isDeleted(id: string) {
+    const s = getSettings();
+    if (!s.deleted) return false;
+    return s.deleted.includes(id);
 }

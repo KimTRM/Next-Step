@@ -31,7 +31,7 @@ import {
     DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { ArrowLeft, Check, CheckCheck, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, ShieldOff } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, ShieldOff, Trash2 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Message } from "../types";
 import { formatDistanceToNow } from "date-fns";
@@ -43,6 +43,7 @@ import {
     removePinned,
     addBlocked,
     removeBlocked,
+    addDeleted,
 } from "@/features/messages/settings";
 
 interface MessageThreadProps {
@@ -151,6 +152,15 @@ export function MessageThread({
     const handleUnblock = (userId: Id<"users">) => {
         removeBlocked(String(userId));
         setBlockedUsers(new Set(getSettings().blocked));
+    };
+
+    const handleDeleteConversation = () => {
+        if (!otherUser) return;
+        if (confirm(`Are you sure you want to delete this conversation? This will hide it from your list.`)) {
+            addDeleted(String(otherUser._id));
+            // Navigate back after deleting
+            if (onBack) onBack();
+        }
     };
 
     if (loading) {
@@ -298,6 +308,15 @@ export function MessageThread({
                         >
                             <Ban className="mr-2 h-4 w-4" />
                             Block
+                        </DropdownMenuItem>
+
+                        {/* Delete Conversation */}
+                        <DropdownMenuItem
+                            onClick={handleDeleteConversation}
+                            className="text-destructive focus:text-destructive"
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Conversation
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

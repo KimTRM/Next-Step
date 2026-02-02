@@ -25,8 +25,9 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import {
     getSettings,
     removeBlocked,
+    removeDeleted,
 } from "@/features/messages/settings";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface ConversationListProps {
     conversations: Conversation[] | undefined;
@@ -45,7 +46,11 @@ export function ConversationList({
     const [mutedUsers, setMutedUsers] = useState<Set<string>>(new Set());
     const [pinnedUsers, setPinnedUsers] = useState<Set<string>>(new Set());
     const [blockedUsers, setBlockedUsers] = useState<Set<string>>(new Set());
+    const [deletedUsers, setDeletedUsers] = useState<Set<string>>(new Set());
     const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+    
+    // Track last seen message IDs to detect new incoming messages
+    const lastSeenMessageIds = useRef<Map<string, string>>(new Map());
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -54,6 +59,7 @@ export function ConversationList({
             setMutedUsers(new Set(s.muted));
             setPinnedUsers(new Set(s.pinned));
             setBlockedUsers(new Set(s.blocked));
+            setDeletedUsers(new Set(s.deleted || []));
         };
         load();
         window.addEventListener("messages:settings:changed", load);
@@ -66,6 +72,32 @@ export function ConversationList({
             window.removeEventListener("messages:block:open", openHandler as EventListener);
         };
     }, []);
+
+    // Auto-restore deleted conversations when the other user sends a new message
+    useEffect(() => {
+        if (!conversations) return;
+        const settings = getSettings();
+        const deleted = new Set(settings.deleted || []);
+        
+        conversations.forEach((conv) => {
+            const otherUserId = String(conv.otherUserId);
+            const lastMessageId = String(conv.lastMessage._id);
+            const lastSenderId = String(conv.lastMessage.senderId);
+            const previousMessageId = lastSeenMessageIds.current.get(otherUserId);
+            
+            // If this user was deleted AND the last message is from them (not us)
+            // AND this is a new message we haven't seen before, restore the conversation
+            if (deleted.has(otherUserId) && lastSenderId === otherUserId) {
+                if (previousMessageId !== lastMessageId) {
+                    // New message from a deleted user - restore the conversation
+                    removeDeleted(otherUserId);
+                }
+            }
+            
+            // Update the last seen message ID for this conversation
+            lastSeenMessageIds.current.set(otherUserId, lastMessageId);
+        });
+    }, [conversations]);
 
     // Filter conversations based on search query
     const filteredConversations = useMemo(() => {
@@ -89,9 +121,9 @@ export function ConversationList({
             const bTime = new Date(b.lastMessage.timestamp).getTime();
             return bTime - aTime;
         });
-        // filter out blocked
-        return list.filter((c) => !blockedUsers.has(String(c.otherUserId)));
-    }, [filteredConversations, pinnedUsers, blockedUsers]);
+        // filter out blocked and deleted
+        return list.filter((c) => !blockedUsers.has(String(c.otherUserId)) && !deletedUsers.has(String(c.otherUserId)));
+    }, [filteredConversations, pinnedUsers, blockedUsers, deletedUsers]);
 
     if (loading) {
         return (
