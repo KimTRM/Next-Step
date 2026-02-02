@@ -14,6 +14,13 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ArrowRight, Loader2, Briefcase, Users, Building2 } from "lucide-react";
 import { cn } from "@/shared/utils";
+import { Antonio } from "next/font/google";
+
+const antonio = Antonio({
+    subsets: ["latin"],
+    weight: ["400", "700"],
+    display: "swap",
+});
 
 type UserRole = "job_seeker" | "mentor" | "employer";
 
@@ -74,7 +81,7 @@ export default function RoleSelectionContent() {
             <div className="max-w-3xl w-full">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className={` ${antonio.className} tracking-tighter text-4xl md:text-5xl lg:text-6x font-bold text-gray-900 mb-4`}>
                         What brings you here?
                     </h1>
                     <p className="text-lg text-gray-600">
