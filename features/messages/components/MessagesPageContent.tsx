@@ -25,6 +25,7 @@ import { ConversationList } from "./ConversationList";
 import { MessageThread } from "./MessageThread";
 import { MessageInput } from "./MessageInput";
 import { EmptyMessageState } from "./EmptyMessageState";
+import { UserSearchModal } from "./UserSearchModal";
 
 import {
   useUserConversations,
@@ -40,6 +41,7 @@ export function MessagesPageContent() {
   const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
     null,
   );
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   // Fetch data via feature APIs
   const conversations = useUserConversations();
@@ -211,11 +213,22 @@ export function MessagesPageContent() {
                 >
                   <Ban className="h-5 w-5" />
                 </button>
-                <button className="relative">
+                <button
+                  className="relative"
+                  onClick={() => setIsSearchModalOpen(true)}
+                  aria-label="Start new conversation"
+                >
                   <SquarePen className="h-7 w-7 text-white mt-2" />
                 </button>
               </div>
             </div>
+
+            {/* User Search Modal */}
+            <UserSearchModal
+              open={isSearchModalOpen}
+              onOpenChange={setIsSearchModalOpen}
+              onStartConversation={handleSelectConversation}
+            />
             <div className="flex-1 overflow-hidden">
               <ConversationList
                 conversations={conversations}
