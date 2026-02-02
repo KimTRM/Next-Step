@@ -10,6 +10,7 @@ import * as applicationsModule from "./applications";
 import * as mentorsModule from "./mentors";
 import * as messagesModule from "./messages";
 import * as connectionsModule from "./connections";
+import * as notificationsModule from "./notifications";
 
 // Export feature namespaces
 export const users = usersModule;
@@ -18,6 +19,7 @@ export const applications = applicationsModule;
 export const mentors = mentorsModule;
 export const messages = messagesModule;
 export const connections = connectionsModule;
+export const notifications = notificationsModule;
 
 // Legacy aliases for backwards compatibility during migration
 // These can be removed once all frontend imports are updated

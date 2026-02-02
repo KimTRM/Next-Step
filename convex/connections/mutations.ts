@@ -4,6 +4,7 @@
  */
 
 import { mutation } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { v } from "convex/values";
 
 /**
@@ -49,7 +50,15 @@ export const sendConnectionRequest = mutation({
             .unique();
 
         if (existingAsRequester) {
-            throw new Error("Connection request already sent");
+            if (existingAsRequester.status === "rejected") {
+                // Previous request was rejected, delete it and allow new request
+                await ctx.db.delete(existingAsRequester._id);
+            } else if (existingAsRequester.status === "pending") {
+                throw new Error("Connection request already sent");
+            } else {
+                // Status is "accepted" - already connected
+                throw new Error("Connection already exists");
+            }
         }
 
         const existingAsReceiver = await ctx.db
@@ -60,15 +69,30 @@ export const sendConnectionRequest = mutation({
             .unique();
 
         if (existingAsReceiver) {
-            if (existingAsReceiver.status === "pending") {
+            if (existingAsReceiver.status === "rejected") {
+                // They rejected our previous request to them, delete and allow new request
+                await ctx.db.delete(existingAsReceiver._id);
+            } else if (existingAsReceiver.status === "pending") {
                 // They already sent us a request, auto-accept it
                 await ctx.db.patch(existingAsReceiver._id, {
                     status: "accepted",
                     respondedAt: Date.now(),
                 });
+
+                // Notify them that we accepted (by connecting back)
+                await ctx.scheduler.runAfter(0, internal.notifications.index.createNotification, {
+                    userId: args.receiverId,
+                    type: "connection_accepted",
+                    fromUserId: user._id,
+                    title: `${user.name} accepted your connection request`,
+                    relatedConnectionId: existingAsReceiver._id,
+                });
+
                 return { connectionId: existingAsReceiver._id, autoAccepted: true };
+            } else {
+                // Status is "accepted" - already connected
+                throw new Error("Connection already exists");
             }
-            throw new Error("Connection already exists");
         }
 
         // Create new connection request
@@ -78,6 +102,16 @@ export const sendConnectionRequest = mutation({
             status: "pending",
             message: args.message,
             createdAt: Date.now(),
+        });
+
+        // Create notification for the receiver
+        await ctx.scheduler.runAfter(0, internal.notifications.index.createNotification, {
+            userId: args.receiverId,
+            type: "connection_request",
+            fromUserId: user._id,
+            title: `${user.name} sent you a connection request`,
+            body: args.message,
+            relatedConnectionId: connectionId,
         });
 
         return { connectionId, autoAccepted: false };
@@ -125,6 +159,15 @@ export const acceptConnectionRequest = mutation({
             respondedAt: Date.now(),
         });
 
+        // Notify the requester that their request was accepted
+        await ctx.scheduler.runAfter(0, internal.notifications.index.createNotification, {
+            userId: connection.requesterId,
+            type: "connection_accepted",
+            fromUserId: user._id,
+            title: `${user.name} accepted your connection request`,
+            relatedConnectionId: args.connectionId,
+        });
+
         return { success: true };
     },
 });
@@ -169,6 +212,8 @@ export const rejectConnectionRequest = mutation({
             status: "rejected",
             respondedAt: Date.now(),
         });
+
+        // No notification for rejection (to avoid negativity)
 
         return { success: true };
     },
@@ -252,7 +297,20 @@ export const removeConnection = mutation({
             throw new Error("Can only remove accepted connections");
         }
 
+        // Determine the other user
+        const otherUserId = connection.requesterId === user._id 
+            ? connection.receiverId 
+            : connection.requesterId;
+
         await ctx.db.delete(args.connectionId);
+
+        // Notify the other user that they were removed
+        await ctx.scheduler.runAfter(0, internal.notifications.index.createNotification, {
+            userId: otherUserId,
+            type: "connection_removed",
+            fromUserId: user._id,
+            title: `${user.name} removed you from their connections`,
+        });
 
         return { success: true };
     },

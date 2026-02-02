@@ -454,4 +454,48 @@ export default defineSchema({
         .index("by_requester_receiver", ["requesterId", "receiverId"])
         .index("by_status", ["status"])
         .index("by_receiver_status", ["receiverId", "status"]),
+
+    /**
+     * Notifications Collection
+     * User notifications for messages and connections
+     *
+     * Indexes:
+     * - by_user: Get all notifications for a user
+     * - by_user_read: Get read/unread notifications for a user
+     * - by_user_starred: Get starred notifications for a user
+     * - by_type: Filter notifications by type
+     */
+    notifications: defineTable({
+        // Recipient
+        userId: v.id("users"), // User who receives the notification
+
+        // Notification type
+        type: v.union(
+            v.literal("message"),
+            v.literal("connection_request"),
+            v.literal("connection_accepted"),
+            v.literal("connection_removed"),
+        ),
+
+        // Related entities
+        fromUserId: v.id("users"), // User who triggered the notification
+        relatedMessageId: v.optional(v.id("messages")), // For message notifications
+        relatedConnectionId: v.optional(v.id("connections")), // For connection notifications
+
+        // Notification content (preview/summary)
+        title: v.string(),
+        body: v.optional(v.string()),
+
+        // Status
+        isRead: v.boolean(),
+        isStarred: v.boolean(),
+
+        // Timestamps
+        createdAt: v.number(),
+        readAt: v.optional(v.number()),
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_read", ["userId", "isRead"])
+        .index("by_user_starred", ["userId", "isStarred"])
+        .index("by_type", ["type"]),
 });
