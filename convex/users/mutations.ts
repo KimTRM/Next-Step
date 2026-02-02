@@ -135,6 +135,7 @@ export const setOnboardingStatus = mutation({
  */
 export const updateUserProfile = mutation({
     args: {
+        name: v.optional(v.string()),
         bio: v.optional(v.string()),
         location: v.optional(v.string()),
         age: v.optional(v.number()),
@@ -171,6 +172,7 @@ export const updateUserProfile = mutation({
                     id: v.optional(v.string()), // Client-side temporary ID
                     institution: v.string(),
                     degree: v.string(),
+                    field: v.optional(v.string()), // Field of study
                     startDate: v.number(),
                     endDate: v.optional(v.number()),
                     isCurrent: v.boolean(),

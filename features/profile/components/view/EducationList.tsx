@@ -25,8 +25,8 @@ export function EducationList({ education }: EducationListProps) {
 
     return (
         <div className="space-y-3">
-            {education.map((edu) => (
-                <div key={edu.id} className="border border-gray-200 rounded-lg p-4">
+            {education.map((edu, index) => (
+                <div key={edu.id || `edu-${index}`} className="border border-gray-200 rounded-lg p-4">
                     <h4 className="font-semibold text-gray-900 text-sm">{edu.degree}</h4>
                     <p className="text-xs text-gray-500 mt-0.5">{edu.institution}</p>
                     <p className="text-xs text-gray-400 mt-1">{getDuration(edu.startDate, edu.endDate, edu.isCurrent)}</p>

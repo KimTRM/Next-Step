@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { EDUCATION_LEVELS } from "../../constants";
+import type { EducationLevel } from "@/features/users/types";
 
 interface BasicInfoSectionProps {
     formData: {
@@ -23,7 +24,7 @@ interface BasicInfoSectionProps {
     setName: (value: string) => void;
     setLocation: (value: string) => void;
     setBio: (value: string) => void;
-    setEducationLevel: (value: string) => void;
+    setEducationLevel: (value: EducationLevel | "") => void;
     getBasicError: (field: string) => string | undefined;
 }
 

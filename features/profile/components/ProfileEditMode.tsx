@@ -6,18 +6,7 @@ import { useProfileForm } from "../hooks/useProfileForm";
 import { useUpdateProfile } from "../api";
 import { useDebounce } from "../hooks/useDebounce";
 import { useProfileCompletion } from "../hooks/useProfileCompletion";
-import { SkillsSelector } from "@/shared/components/ui/SkillsSelector";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/shared/components/ui/select";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -28,11 +17,16 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { EDUCATION_LEVELS, SKILL_SUGGESTIONS, INTEREST_SUGGESTIONS } from "../constants";
-import { Loader2, Plus, Trash2, GripVertical, Save, X, AlertCircle, CheckCircle2 } from "lucide-react";
-import { EducationEntry, ExperienceEntry } from "../types";
+import { Loader2, Save, X, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+    BasicInfoSection,
+    EducationSection,
+    ExperienceSection,
+    SkillsSection,
+    GoalsSection,
+    SocialLinksSection,
+} from "./edit";
 
 interface ProfileEditModeProps {
     user: User;
@@ -78,6 +72,7 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
                 // Transform data for Convex mutation
                 await updateProfile({
+                    name: data.name || undefined,
                     bio: data.bio || undefined,
                     location: data.location || undefined,
                     skills: data.skills.length > 0 ? data.skills : undefined,
@@ -320,313 +315,74 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
 
             {/* Basic Info Section */}
             {activeSection === "basic" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader>
-                        <CardTitle>Basic Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">
-                                    Full Name <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter your full name"
-                                />
-                                {getBasicError("name") && (
-                                    <p className="text-sm text-red-600">{getBasicError("name")}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="educationLevel">Education Level</Label>
-                                <Select
-                                    value={formData.educationLevel}
-                                    onValueChange={setEducationLevel}
-                                >
-                                    <SelectTrigger id="educationLevel">
-                                        <SelectValue placeholder="Select your education level" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {EDUCATION_LEVELS.map((level) => (
-                                            <SelectItem key={level.value} value={level.value}>
-                                                {level.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {getBasicError("educationLevel") && (
-                                    <p className="text-sm text-red-600">
-                                        {getBasicError("educationLevel")}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="bio">Bio</Label>
-                            <Textarea
-                                id="bio"
-                                value={formData.bio}
-                                onChange={(e) => setBio(e.target.value)}
-                                placeholder="Tell us about yourself..."
-                                rows={4}
-                                className="resize-none"
-                            />
-                            {getBasicError("bio") && (
-                                <p className="text-sm text-red-600">{getBasicError("bio")}</p>
-                            )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="educationLevel">Education Level</Label>
-                                <Select
-                                    value={formData.educationLevel}
-                                    onValueChange={setEducationLevel}
-                                >
-                                    <SelectTrigger id="educationLevel">
-                                        <SelectValue placeholder="Select your education level" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {EDUCATION_LEVELS.map((level) => (
-                                            <SelectItem key={level.value} value={level.value}>
-                                                {level.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {getBasicError("educationLevel") && (
-                                    <p className="text-sm text-red-600">
-                                        {getBasicError("educationLevel")}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="location">Location</Label>
-                                <Input
-                                    id="location"
-                                    value={formData.location || ""}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    placeholder="City, Country"
-                                />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <BasicInfoSection
+                    formData={{
+                        name: formData.name,
+                        location: formData.location,
+                        bio: formData.bio,
+                        educationLevel: formData.educationLevel,
+                    }}
+                    setName={setName}
+                    setLocation={setLocation}
+                    setBio={setBio}
+                    setEducationLevel={setEducationLevel}
+                    getBasicError={getBasicError}
+                />
             )}
 
             {/* Education Section */}
             {activeSection === "education" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>Education History</CardTitle>
-                        <Button
-                            size="sm"
-                            onClick={() => educationManager.addEntry({
-                                institution: "",
-                                degree: "",
-                                field: "",
-                                startDate: Date.now(),
-                                isCurrent: false,
-                            })}
-                        >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Education
-                        </Button>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {educationManager.entries.length === 0 ? (
-                            <p className="text-center text-gray-500 py-8">
-                                No education entries yet. Click &quot;Add Education&quot; to get started.
-                            </p>
-                        ) : (
-                            educationManager.entries.map((entry) => (
-                                <EducationEntryCard
-                                    key={entry.id}
-                                    entry={entry}
-                                    errors={educationManager.errors.get(entry.id!) || []}
-                                    onUpdate={(updated) =>
-                                        educationManager.updateEntry(entry.id!, updated)
-                                    }
-                                    onRemove={() => educationManager.removeEntry(entry.id!)}
-                                />
-                            ))
-                        )}
-                    </CardContent>
-                </Card>
+                <EducationSection
+                    entries={educationManager.entries}
+                    errors={educationManager.errors}
+                    onAddEntry={educationManager.addEntry}
+                    onUpdateEntry={educationManager.updateEntry}
+                    onRemoveEntry={educationManager.removeEntry}
+                />
             )}
 
             {/* Experience Section */}
             {activeSection === "experience" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>Work Experience</CardTitle>
-                        <Button
-                            size="sm"
-                            onClick={() => experienceManager.addEntry({
-                                title: "",
-                                company: "",
-                                startDate: Date.now(),
-                                isCurrent: false,
-                            })}
-                        >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Experience
-                        </Button>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {experienceManager.entries.length === 0 ? (
-                            <p className="text-center text-gray-500 py-8">
-                                No experience entries yet. Click &quot;Add Experience&quot; to get started.
-                            </p>
-                        ) : (
-                            experienceManager.entries.map((entry) => (
-                                <ExperienceEntryCard
-                                    key={entry.id}
-                                    entry={entry}
-                                    errors={experienceManager.errors.get(entry.id!) || []}
-                                    onUpdate={(updated) =>
-                                        experienceManager.updateEntry(entry.id!, updated)
-                                    }
-                                    onRemove={() => experienceManager.removeEntry(entry.id!)}
-                                />
-                            ))
-                        )}
-                    </CardContent>
-                </Card>
+                <ExperienceSection
+                    entries={experienceManager.entries}
+                    errors={experienceManager.errors}
+                    onAddEntry={experienceManager.addEntry}
+                    onUpdateEntry={experienceManager.updateEntry}
+                    onRemoveEntry={experienceManager.removeEntry}
+                />
             )}
 
             {/* Skills & Interests Section */}
             {activeSection === "skills" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader>
-                        <CardTitle>Skills & Interests</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <SkillsSelector
-                            label="Skills"
-                            value={formData.skills}
-                            onChange={setSkills}
-                            suggestions={SKILL_SUGGESTIONS}
-                            placeholder="Add your skills..."
-                        />
-
-                        <SkillsSelector
-                            label="Interests"
-                            value={formData.interests}
-                            onChange={setInterests}
-                            suggestions={INTEREST_SUGGESTIONS}
-                            placeholder="Add your interests..."
-                        />
-                    </CardContent>
-                </Card>
+                <SkillsSection
+                    skills={formData.skills}
+                    interests={formData.interests}
+                    onSkillsChange={setSkills}
+                    onInterestsChange={setInterests}
+                />
             )}
 
             {/* Goals Section */}
             {activeSection === "goals" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader>
-                        <CardTitle>Career & Learning Goals</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="careerGoals">Career Goals</Label>
-                            <Textarea
-                                id="careerGoals"
-                                value={formData.careerGoals}
-                                onChange={(e) => setCareerGoals(e.target.value)}
-                                placeholder="What are your career aspirations?"
-                                rows={4}
-                                className="resize-none"
-                            />
-                            {getBasicError("careerGoals") && (
-                                <p className="text-sm text-red-600">
-                                    {getBasicError("careerGoals")}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="goals">Goals</Label>
-                            <Textarea
-                                id="goals"
-                                value={formData.interests.join(", ")}
-                                placeholder="Your goals are reflected in your interests"
-                                rows={4}
-                                disabled
-                                className="resize-none"
-                            />
-                            <p className="text-sm text-gray-500">Edit your interests in the Skills & Interests section</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <GoalsSection
+                    careerGoals={formData.careerGoals}
+                    interests={formData.interests}
+                    onCareerGoalsChange={setCareerGoals}
+                    getBasicError={getBasicError}
+                />
             )}
 
             {/* Social Links Section */}
             {activeSection === "links" && (
-                <Card className="animate-in fade-in duration-200">
-                    <CardHeader>
-                        <CardTitle>Social Links</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="linkedin">LinkedIn Profile</Label>
-                                <Input
-                                    id="linkedin"
-                                    type="url"
-                                    value={formData.linkedInUrl}
-                                    onChange={(e) => setLinkedInUrl(e.target.value)}
-                                    placeholder="https://linkedin.com/in/yourprofile"
-                                    className="truncate"
-                                />
-                                {getSocialLinksError("linkedInUrl") && (
-                                    <p className="text-sm text-red-600">
-                                        {getSocialLinksError("linkedInUrl")}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="github">GitHub Profile</Label>
-                                <Input
-                                    id="github"
-                                    type="url"
-                                    value={formData.githubUrl}
-                                    onChange={(e) => setGithubUrl(e.target.value)}
-                                    placeholder="https://github.com/yourusername"
-                                    className="truncate"
-                                />
-                                {getSocialLinksError("githubUrl") && (
-                                    <p className="text-sm text-red-600">
-                                        {getSocialLinksError("githubUrl")}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="portfolio">Portfolio Website</Label>
-                            <Input
-                                id="portfolio"
-                                type="url"
-                                value={formData.portfolioUrl}
-                                onChange={(e) => setPortfolioUrl(e.target.value)}
-                                placeholder="https://yourwebsite.com"
-                            />
-                            {getSocialLinksError("portfolioUrl") && (
-                                <p className="text-sm text-red-600">
-                                    {getSocialLinksError("portfolioUrl")}
-                                </p>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+                <SocialLinksSection
+                    linkedInUrl={formData.linkedInUrl}
+                    githubUrl={formData.githubUrl}
+                    portfolioUrl={formData.portfolioUrl}
+                    onLinkedInChange={setLinkedInUrl}
+                    onGithubChange={setGithubUrl}
+                    onPortfolioChange={setPortfolioUrl}
+                    getSocialLinksError={getSocialLinksError}
+                />
             )}
 
             {/* Cancel Confirmation Dialog */}
@@ -670,266 +426,6 @@ export function ProfileEditMode({ user, onSave, onCancel }: ProfileEditModeProps
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
-    );
-}
-
-// Education Entry Card Component
-interface EducationEntryCardProps {
-    entry: EducationEntry;
-    errors: Array<{ field: string; message: string }>;
-    onUpdate: (entry: EducationEntry) => void;
-    onRemove: () => void;
-}
-
-function EducationEntryCard({
-    entry,
-    errors,
-    onUpdate,
-    onRemove,
-}: EducationEntryCardProps) {
-    const getError = (field: string) =>
-        errors.find((e) => e.field === field)?.message;
-
-    return (
-        <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                    <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
-                    <h4 className="font-semibold text-gray-900">Education Entry</h4>
-                </div>
-                <Button variant="ghost" size="sm" onClick={onRemove}>
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`institution-${entry.id}`}>
-                        Institution <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`institution-${entry.id}`}
-                        value={entry.institution}
-                        onChange={(e) =>
-                            onUpdate({ ...entry, institution: e.target.value })
-                        }
-                        placeholder="University name"
-                    />
-                    {getError("institution") && (
-                        <p className="text-sm text-red-600">{getError("institution")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`degree-${entry.id}`}>
-                        Degree <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`degree-${entry.id}`}
-                        value={entry.degree}
-                        onChange={(e) => onUpdate({ ...entry, degree: e.target.value })}
-                        placeholder="e.g., Bachelor of Science"
-                    />
-                    {getError("degree") && (
-                        <p className="text-sm text-red-600">{getError("degree")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`field-${entry.id}`}>Field of Study</Label>
-                    <Input
-                        id={`field-${entry.id}`}
-                        value={entry.field}
-                        onChange={(e) =>
-                            onUpdate({ ...entry, field: e.target.value })
-                        }
-                        placeholder="e.g., Computer Science"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`start-${entry.id}`}>
-                        Start Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`start-${entry.id}`}
-                        type="date"
-                        value={new Date(entry.startDate).toISOString().split('T')[0]}
-                        onChange={(e) => onUpdate({ ...entry, startDate: new Date(e.target.value).getTime() })}
-                    />
-                    {getError("startDate") && (
-                        <p className="text-sm text-red-600">{getError("startDate")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`end-${entry.id}`}>End Date</Label>
-                    <Input
-                        id={`end-${entry.id}`}
-                        type="date"
-                        value={entry.endDate ? new Date(entry.endDate).toISOString().split('T')[0] : ""}
-                        onChange={(e) => onUpdate({ ...entry, endDate: e.target.value ? new Date(e.target.value).getTime() : undefined })}
-                        disabled={entry.isCurrent}
-                    />
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id={`current-${entry.id}`}
-                            checked={entry.isCurrent}
-                            onChange={(e) =>
-                                onUpdate({ ...entry, isCurrent: e.target.checked })
-                            }
-                            className="rounded"
-                        />
-                        <Label htmlFor={`current-${entry.id}`} className="font-normal">
-                            Currently studying here
-                        </Label>
-                    </div>
-                    {getError("endDate") && (
-                        <p className="text-sm text-red-600">{getError("endDate")}</p>
-                    )}
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor={`description-${entry.id}`}>Description</Label>
-                <Textarea
-                    id={`description-${entry.id}`}
-                    value={entry.description || ""}
-                    onChange={(e) => onUpdate({ ...entry, description: e.target.value })}
-                    placeholder="Achievements, activities, relevant coursework..."
-                    rows={3}
-                />
-            </div>
-        </div>
-    );
-}
-
-// Experience Entry Card Component
-interface ExperienceEntryCardProps {
-    entry: ExperienceEntry;
-    errors: Array<{ field: string; message: string }>;
-    onUpdate: (entry: ExperienceEntry) => void;
-    onRemove: () => void;
-}
-
-function ExperienceEntryCard({
-    entry,
-    errors,
-    onUpdate,
-    onRemove,
-}: ExperienceEntryCardProps) {
-    const getError = (field: string) =>
-        errors.find((e) => e.field === field)?.message;
-
-    return (
-        <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                    <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
-                    <h4 className="font-semibold text-gray-900">Experience Entry</h4>
-                </div>
-                <Button variant="ghost" size="sm" onClick={onRemove}>
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor={`company-${entry.id}`}>
-                        Company <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`company-${entry.id}`}
-                        value={entry.company}
-                        onChange={(e) => onUpdate({ ...entry, company: e.target.value })}
-                        placeholder="Company name"
-                    />
-                    {getError("company") && (
-                        <p className="text-sm text-red-600">{getError("company")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`position-${entry.id}`}>
-                        Position <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`position-${entry.id}`}
-                        value={entry.title}
-                        onChange={(e) => onUpdate({ ...entry, title: e.target.value })}
-                        placeholder="Job title"
-                    />
-                    {getError("title") && (
-                        <p className="text-sm text-red-600">{getError("title")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`location-${entry.id}`}>Location</Label>
-                    <Input
-                        id={`location-${entry.id}`}
-                        value={entry.location || ""}
-                        onChange={(e) => onUpdate({ ...entry, location: e.target.value })}
-                        placeholder="City, Country"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`start-${entry.id}`}>
-                        Start Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        id={`start-${entry.id}`}
-                        type="date"
-                        value={new Date(entry.startDate).toISOString().split('T')[0]}
-                        onChange={(e) => onUpdate({ ...entry, startDate: new Date(e.target.value).getTime() })}
-                    />
-                    {getError("startDate") && (
-                        <p className="text-sm text-red-600">{getError("startDate")}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor={`end-${entry.id}`}>End Date</Label>
-                    <Input
-                        id={`end-${entry.id}`}
-                        type="date"
-                        value={entry.endDate ? new Date(entry.endDate).toISOString().split('T')[0] : ""}
-                        onChange={(e) => onUpdate({ ...entry, endDate: e.target.value ? new Date(e.target.value).getTime() : undefined })}
-                        disabled={entry.isCurrent}
-                    />
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id={`current-${entry.id}`}
-                            checked={entry.isCurrent}
-                            onChange={(e) =>
-                                onUpdate({ ...entry, isCurrent: e.target.checked })
-                            }
-                            className="rounded"
-                        />
-                        <Label htmlFor={`current-${entry.id}`} className="font-normal">
-                            Currently working here
-                        </Label>
-                    </div>
-                    {getError("endDate") && (
-                        <p className="text-sm text-red-600">{getError("endDate")}</p>
-                    )}
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor={`description-${entry.id}`}>Description</Label>
-                <Textarea
-                    id={`description-${entry.id}`}
-                    value={entry.description || ""}
-                    onChange={(e) => onUpdate({ ...entry, description: e.target.value })}
-                    placeholder="Key responsibilities and achievements..."
-                    rows={3}
-                />
-            </div>
         </div>
     );
 }

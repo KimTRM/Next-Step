@@ -24,11 +24,11 @@ export type EducationEntry = {
     id?: string; // Temporary ID for form management (client-side only)
     institution: string;
     degree: string;
-    field: string;
+    field?: string; // Optional for backwards compatibility
     startDate: number; // Unix timestamp
     endDate?: number; // Unix timestamp, undefined if current
     isCurrent: boolean;
-    description?: string;
+    description?: string; // Optional description
 };
 
 /**

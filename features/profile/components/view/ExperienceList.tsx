@@ -29,12 +29,12 @@ export function ExperienceList({ experiences }: ExperienceListProps) {
 
     return (
         <div className="space-y-3">
-            {experiences.map((exp) => {
+            {experiences.map((exp, index) => {
                 const isExpanded = expandedExperience === exp.id;
                 const shouldTruncate = exp.description && exp.description.length > 100;
 
                 return (
-                    <div key={exp.id} className="border border-gray-200 rounded-lg p-4 relative">
+                    <div key={exp.id || `exp-${index}`} className="border border-gray-200 rounded-lg p-4 relative">
                         <h4 className="font-semibold text-gray-900 text-sm pr-6">{exp.title}</h4>
                         <p className="text-xs text-gray-500 mt-0.5">{exp.company}</p>
                         {exp.location && <p className="text-xs text-gray-400 mt-0.5">{exp.location}</p>}
