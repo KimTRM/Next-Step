@@ -10,100 +10,62 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { toast } from "sonner";
-
-import type { Id } from "@/convex/_generated/dataModel";
 
 import { Card } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { SquarePen, Ban } from "lucide-react";
 
-import { ConversationList } from "./ConversationList";
-import { MessageThread } from "./MessageThread";
-import { MessageInput } from "./MessageInput";
-import { EmptyMessageState } from "./EmptyMessageState";
-import { UserSearchModal } from "./UserSearchModal";
+import {
+  ConversationList,
+  MessageThread,
+  MessageInput,
+  EmptyMessageState,
+  UserSearchModal
+} from "@/features/messages/components"
 
 import {
-  useUserConversations,
-  useConversation,
-  useUnreadCount,
-  useSendMessage,
-  useMarkAsRead,
+  useMessageSelection,
+  useMessageConversation,
 } from "@/features/messages/api";
-import { useCurrentUser } from "@/features/users/api";
+import { useCurrentUser } from "../api";
 
 export function MessagesPageContent() {
   const { user: clerkUser } = useUser();
-  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
-    null,
-  );
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
-  // Fetch data via feature APIs
-  const conversations = useUserConversations();
-  const currentUser = useCurrentUser();
-  const messages = useConversation(selectedUserId);
-  const unreadCount = useUnreadCount();
+  // Custom hooks that abstract away Convex Id types
+  const { selectedUserId, selectConversation, clearSelection } =
+    useMessageSelection();
 
-  // Mutations
-  const sendMessage = useSendMessage();
-  const markAsRead = useMarkAsRead();
+  // Separate user hook from users feature
+  const currentUser = useCurrentUser();
+
+  const {
+    conversations,
+    messages,
+    selectedConversation,
+    sendMessage,
+    isConversationLoading,
+  } = useMessageConversation(selectedUserId, currentUser?._id);
 
   // Loading states
-  const isInitialLoading =
-    conversations === undefined || currentUser === undefined;
-  const isConversationLoading =
-    selectedUserId !== null && messages === undefined;
-
-  // Get selected conversation's other user info
-  const selectedConversation = conversations?.find(
-    (c) => c.otherUserId === selectedUserId,
-  );
-
-  // Mark messages as read when conversation opens or new messages arrive
-  useEffect(() => {
-    if (!selectedUserId || !currentUser?._id || !messages) return;
-
-    // Check if there are any unread messages from the other user
-    const hasUnreadMessages = messages.some(
-      (msg) => msg.receiverId === currentUser._id && !msg.isRead,
-    );
-
-    if (hasUnreadMessages) {
-      markAsRead({ otherUserId: selectedUserId }).catch((err) =>
-        console.error("Failed to mark as read:", err),
-      );
-    }
-  }, [selectedUserId, currentUser?._id, messages, markAsRead]);
+  const isInitialLoading = conversations === undefined || currentUser === undefined;
 
   // Handle selecting a conversation
-  const handleSelectConversation = (userId: Id<"users">) => {
-    setSelectedUserId(userId);
+  const handleSelectConversation = (userId: string) => {
+    selectConversation(userId);
   };
 
   // Handle going back (mobile)
   const handleBack = () => {
-    setSelectedUserId(null);
+    clearSelection();
   };
 
   // Handle sending a message
   const handleSendMessage = async (content: string) => {
-    if (!selectedUserId) return;
-
-    try {
-      await sendMessage({
-        receiverId: selectedUserId,
-        content,
-      });
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      toast.error("Failed to send message");
-      throw error;
-    }
+    await sendMessage(content);
   };
 
   // Auth check
@@ -194,7 +156,7 @@ export function MessagesPageContent() {
                 CONVERSATIONS
               </h2>
               {conversations && conversations.length > 0 && (
-                <p className="text-sm text-white text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {conversations.length}{" "}
                   {conversations.length === 1
                     ? "conversation"

@@ -21,6 +21,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Badge } from "@/shared/components/ui/badge";
+
+// eslint-disable-next-line no-restricted-imports
+import { Id } from "@/convex/_generated/dataModel";
 import {
     useConnections,
     useInboundRequests,
@@ -52,12 +55,12 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
     const removeConnection = useRemoveConnection();
 
     // Loading states
-    const [processingId, setProcessingId] = useState<string | null>(null);
+    const [processingId, setProcessingId] = useState<Id<"connections"> | null>(null);
 
-    const handleAccept = async (connectionId: string) => {
+    const handleAccept = async (connectionId: Id<"connections">) => {
         setProcessingId(connectionId);
         try {
-            await acceptRequest({ connectionId: connectionId as any });
+            await acceptRequest({ connectionId });
         } catch (error) {
             console.error("Failed to accept request:", error);
         } finally {
@@ -65,10 +68,10 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
         }
     };
 
-    const handleReject = async (connectionId: string) => {
+    const handleReject = async (connectionId: Id<"connections">) => {
         setProcessingId(connectionId);
         try {
-            await rejectRequest({ connectionId: connectionId as any });
+            await rejectRequest({ connectionId });
         } catch (error) {
             console.error("Failed to reject request:", error);
         } finally {
@@ -76,10 +79,10 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
         }
     };
 
-    const handleCancel = async (connectionId: string) => {
+    const handleCancel = async (connectionId: Id<"connections">) => {
         setProcessingId(connectionId);
         try {
-            await cancelRequest({ connectionId: connectionId as any });
+            await cancelRequest({ connectionId });
         } catch (error) {
             console.error("Failed to cancel request:", error);
         } finally {
@@ -87,10 +90,10 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
         }
     };
 
-    const handleRemove = async (connectionId: string) => {
+    const handleRemove = async (connectionId: Id<"connections">) => {
         setProcessingId(connectionId);
         try {
-            await removeConnection({ connectionId: connectionId as any });
+            await removeConnection({ connectionId });
         } catch (error) {
             console.error("Failed to remove connection:", error);
         } finally {
@@ -142,7 +145,7 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
 
                     {/* Connections Tab */}
                     <TabsContent value="connections">
-                        <ScrollArea className="h-[50vh] sm:h-[400px]">
+                        <ScrollArea className="h-[50vh] sm:h-100">
                             {connections === undefined ? (
                                 <div className="flex items-center justify-center py-8">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -170,7 +173,7 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
 
                     {/* Inbound Requests Tab */}
                     <TabsContent value="inbound">
-                        <ScrollArea className="h-[50vh] sm:h-[400px]">
+                        <ScrollArea className="h-[50vh] sm:h-100">
                             {inboundRequests === undefined ? (
                                 <div className="flex items-center justify-center py-8">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -199,7 +202,7 @@ export function ConnectionsModal({ open, onOpenChange }: ConnectionsModalProps) 
 
                     {/* Outbound Requests Tab */}
                     <TabsContent value="outbound">
-                        <ScrollArea className="h-[50vh] sm:h-[400px]">
+                        <ScrollArea className="h-[50vh] sm:h-100">
                             {outboundRequests === undefined ? (
                                 <div className="flex items-center justify-center py-8">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -247,7 +250,7 @@ function ConnectionCard({
     onRemove,
     isProcessing,
 }: {
-    user: any;
+    user: { name?: string; avatarUrl?: string; role?: string } | null;
     onRemove: () => void;
     isProcessing: boolean;
 }) {
@@ -329,7 +332,7 @@ function InboundRequestCard({
                             <div className="flex items-start gap-1.5">
                                 <MessageSquare className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
                                 <p className="text-xs text-muted-foreground italic line-clamp-2">
-                                    "{request.message}"
+                                    &quot;{request.message}&quot;
                                 </p>
                             </div>
                         </div>
@@ -416,7 +419,7 @@ function OutboundRequestCard({
                             <div className="flex items-start gap-1.5">
                                 <MessageSquare className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
                                 <p className="text-xs text-muted-foreground italic line-clamp-2">
-                                    "{request.message}"
+                                    &quot;{request.message}&quot;
                                 </p>
                             </div>
                         </div>

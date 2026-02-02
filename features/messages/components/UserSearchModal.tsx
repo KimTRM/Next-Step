@@ -9,8 +9,11 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Search, Loader2, UserRoundSearch, SearchX } from "lucide-react";
+
+// eslint-disable-next-line no-restricted-imports
+import { Id } from "@/convex/_generated/dataModel";
 import {
     Dialog,
     DialogContent,
@@ -21,14 +24,16 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { useAllUsers, useCurrentUser } from "@/features/users/api";
-import { ConnectionRequestModal } from "@/features/connections";
-import type { Id } from "@/convex/_generated/dataModel";
+
+// eslint-disable-next-line boundaries/element-types
+import { ConnectionRequestModal } from "@/features/connections/components";
+
+import { useUserSearch } from "@/features/messages/api";
 
 interface UserSearchModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onStartConversation: (userId: Id<"users">) => void;
+    onStartConversation: (userId: string) => void;
 }
 
 export function UserSearchModal({
@@ -36,7 +41,6 @@ export function UserSearchModal({
     onOpenChange,
     onStartConversation,
 }: UserSearchModalProps) {
-    const [searchQuery, setSearchQuery] = useState("");
     const [connectTarget, setConnectTarget] = useState<{
         _id: Id<"users">;
         name: string;
@@ -44,20 +48,16 @@ export function UserSearchModal({
         role?: string;
     } | null>(null);
 
-    // Fetch all users (will be filtered on client based on search)
-    const allUsers = useAllUsers({ search: searchQuery || undefined });
-    const currentUser = useCurrentUser();
-
-    // Filter out the current user from search results
-    const filteredUsers = useMemo(() => {
-        if (!allUsers || !currentUser) return [];
-        return allUsers.filter((user) => user._id !== currentUser._id);
-    }, [allUsers, currentUser]);
-
-    const isLoading = allUsers === undefined;
-    const hasSearchQuery = searchQuery.trim().length > 0;
-    const showResults = hasSearchQuery && filteredUsers.length > 0;
-    const showNoResults = hasSearchQuery && !isLoading && filteredUsers.length === 0;
+    // Use custom hook for user search
+    const {
+        searchQuery,
+        setSearchQuery,
+        filteredUsers,
+        isLoading,
+        hasSearchQuery,
+        showResults,
+        showNoResults,
+    } = useUserSearch();
 
     const handleMessageClick = (userId: Id<"users">) => {
         onStartConversation(userId);
@@ -71,7 +71,12 @@ export function UserSearchModal({
         avatarUrl?: string;
         role?: string;
     }) => {
-        setConnectTarget(user);
+        setConnectTarget({
+            _id: user._id,
+            name: user.name,
+            avatarUrl: user.avatarUrl,
+            role: user.role,
+        });
     };
 
     return (

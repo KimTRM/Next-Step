@@ -21,19 +21,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
 import { useSendConnectionRequest, useConnectionStatus } from "../api";
-import type { Id } from "@/convex/_generated/dataModel";
+import type { ConnectionRequestModalProps } from "../types";
 
-interface ConnectionRequestModalProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    targetUser: {
-        _id: Id<"users">;
-        name: string;
-        avatarUrl?: string;
-        role?: string;
-    } | null;
-    onSuccess?: () => void;
-}
 
 export function ConnectionRequestModal({
     open,
@@ -70,8 +59,8 @@ export function ConnectionRequestModal({
                 setMessage("");
                 onSuccess?.();
             }
-        } catch (err: any) {
-            setError(err.message || "Failed to send connection request");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to send connection request");
         } finally {
             setIsSubmitting(false);
         }
@@ -182,7 +171,7 @@ export function ConnectionRequestModal({
                         <X className="h-4 w-4 mr-2" />
                         Cancel
                     </Button>
-                    
+
                     {!isConnected && !(hasPendingRequest && connectionStatus?.direction === "outbound") && (
                         <Button
                             onClick={handleSubmit}

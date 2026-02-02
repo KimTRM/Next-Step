@@ -11,7 +11,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -22,35 +22,27 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { ArrowLeft, Check, CheckCheck, MoreVertical, BellOff, Bell, Pin, PinOff, Ban, Trash2 } from "lucide-react";
-import type { Id } from "@/convex/_generated/dataModel";
-import type { Message } from "../types";
+import type { MessageThreadProps } from "../types";
 import { formatDistanceToNow } from "date-fns";
 import {
-    getSettings,
-    addMuted,
-    removeMuted,
-    addPinned,
-    removePinned,
-    addBlocked,
-    removeBlocked,
-    addDeleted,
-} from "@/features/messages/settings";
-
-interface MessageThreadProps {
-    messages: Message[] | undefined;
-    currentUserId: Id<"users">;
-    otherUser: {
-        _id: Id<"users">;
-        name: string;
-        avatarUrl?: string;
-        title?: string;
-        company?: string;
-    } | null;
-    loading?: boolean;
-    onBack?: () => void;
-    showBackButton?: boolean;
-}
+    useMutedUsers,
+    usePinnedUsers,
+    useBlockedUsers,
+    useDeletedConversations,
+} from "../api";
+import {
+    ArrowLeft,
+    Bell,
+    BellOff,
+    Pin,
+    PinOff,
+    MoreVertical,
+    Trash2,
+    MessageSquareDashed,
+    Check,
+    CheckCheck,
+    Ban
+} from "lucide-react";
 
 export function MessageThread({
     messages,
@@ -63,27 +55,11 @@ export function MessageThread({
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const [mutedUsers, setMutedUsers] = useState<Set<string>>(() => {
-        if (typeof window !== "undefined") {
-            const s = getSettings();
-            return new Set(s.muted);
-        }
-        return new Set();
-    });
-    const [pinnedUsers, setPinnedUsers] = useState<Set<string>>(() => {
-        if (typeof window !== "undefined") {
-            const s = getSettings();
-            return new Set(s.pinned);
-        }
-        return new Set();
-    });
-    const [blockedUsers, setBlockedUsers] = useState<Set<string>>(() => {
-        if (typeof window !== "undefined") {
-            const s = getSettings();
-            return new Set(s.blocked);
-        }
-        return new Set();
-    });
+    // Settings hooks
+    const { mutedUsers, addMuted, removeMuted } = useMutedUsers();
+    const { pinnedUsers, addPinned, removePinned } = usePinnedUsers();
+    const { blockedUsers, addBlocked, removeBlocked } = useBlockedUsers();
+    const { deleteConversation } = useDeletedConversations();
 
     // Auto-scroll to bottom on new messages
     useEffect(() => {
@@ -91,25 +67,6 @@ export function MessageThread({
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
-
-    // Listen for settings changes
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-
-        const onChange = () => {
-            const ss = getSettings();
-            setMutedUsers(new Set(ss.muted));
-            setPinnedUsers(new Set(ss.pinned));
-            setBlockedUsers(new Set(ss.blocked));
-        };
-
-        window.addEventListener("messages:settings:changed", onChange);
-        window.addEventListener("storage", onChange);
-        return () => {
-            window.removeEventListener("messages:settings:changed", onChange);
-            window.removeEventListener("storage", onChange);
-        };
-    }, []);
 
     const userName = otherUser?.name || "Unknown User";
     const userInitial = userName.charAt(0).toUpperCase();
@@ -122,46 +79,40 @@ export function MessageThread({
     const handleMute = () => {
         if (!otherUser) return;
         addMuted(String(otherUser._id));
-        setMutedUsers(new Set(getSettings().muted));
     };
 
     const handleUnmute = () => {
         if (!otherUser) return;
         removeMuted(String(otherUser._id));
-        setMutedUsers(new Set(getSettings().muted));
     };
 
     const handlePin = () => {
         if (!otherUser) return;
         addPinned(String(otherUser._id));
-        setPinnedUsers(new Set(getSettings().pinned));
     };
 
     const handleUnpin = () => {
         if (!otherUser) return;
         removePinned(String(otherUser._id));
-        setPinnedUsers(new Set(getSettings().pinned));
     };
 
     const handleBlock = () => {
         if (!otherUser) return;
         if (confirm(`Are you sure you want to block ${userName}? This will hide all their messages.`)) {
             addBlocked(String(otherUser._id));
-            setBlockedUsers(new Set(getSettings().blocked));
             // Navigate back after blocking
             if (onBack) onBack();
         }
     };
 
-    const handleUnblock = (userId: Id<"users">) => {
+    const handleUnblock = (userId: string) => {
         removeBlocked(String(userId));
-        setBlockedUsers(new Set(getSettings().blocked));
     };
 
     const handleDeleteConversation = () => {
         if (!otherUser) return;
         if (confirm(`Are you sure you want to delete this conversation? This will hide it from your list.`)) {
-            addDeleted(String(otherUser._id));
+            deleteConversation(String(otherUser._id));
             // Navigate back after deleting
             if (onBack) onBack();
         }
@@ -350,7 +301,7 @@ export function MessageThread({
 
                 {!messages || messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="text-4xl mb-3">👋</div>
+                        <MessageSquareDashed className="h-12 w-12 text-muted-foreground mb-4" />
                         <p className="text-muted-foreground">
                             No messages yet. Start the conversation!
                         </p>

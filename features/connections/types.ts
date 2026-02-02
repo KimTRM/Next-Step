@@ -2,6 +2,7 @@
  * Connections Feature - Types
  */
 
+// eslint-disable-next-line no-restricted-imports
 import type { Id, Doc } from "@/convex/_generated/dataModel";
 
 /**
@@ -53,4 +54,16 @@ export interface SendConnectionRequestInput {
 export interface SendConnectionRequestResponse {
     connectionId: Id<"connections">;
     autoAccepted: boolean;
+}
+
+export interface ConnectionRequestModalProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    targetUser: {
+        _id: Id<"users">;
+        name: string;
+        avatarUrl?: string;
+        role?: string;
+    } | null;
+    onSuccess?: () => void;
 }

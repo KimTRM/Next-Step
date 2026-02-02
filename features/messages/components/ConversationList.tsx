@@ -16,11 +16,10 @@ import { Badge } from "@/shared/components/ui/badge";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Input } from "@/shared/components/ui/input";
-import type { Id } from "@/convex/_generated/dataModel";
-import type { Conversation } from "../types";
+import type { ConversationListProps } from "../types";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useMemo } from "react";
-import { Search, Pin, BellOff, MessageCircleDashed } from "lucide-react";
+import { Search, Pin, BellOff, MessageSquareWarning } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
 import {
     getSettings,
@@ -28,13 +27,6 @@ import {
     removeDeleted,
 } from "@/features/messages/settings";
 import { useEffect, useRef } from "react";
-
-interface ConversationListProps {
-    conversations: Conversation[] | undefined;
-    selectedUserId: Id<"users"> | null;
-    onSelectConversation: (userId: Id<"users">) => void;
-    loading?: boolean;
-}
 
 export function ConversationList({
     conversations,
@@ -144,7 +136,7 @@ export function ConversationList({
     if (!conversations || conversations.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <MessageCircleDashed className="h-12 w-12 text-muted-foreground mb-3" />
+                <MessageSquareWarning className="h-12 w-12 text-muted-foreground mb-3" />
                 <h3 className="font-semibold text-foreground mb-1">No conversations yet</h3>
                 <p className="text-sm text-muted-foreground">
                     Start a conversation with a mentor or employer
@@ -173,7 +165,7 @@ export function ConversationList({
             <ScrollArea className="flex-1">
                 {displayedConversations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                        <div className="text-4xl mb-3">🔍</div>
+                        <MessageSquareWarning className="h-12 w-12 text-muted-foreground mb-4" />
                         <h3 className="font-semibold text-foreground mb-1">No matches found</h3>
                         <p className="text-sm text-muted-foreground">
                             Try searching with a different name

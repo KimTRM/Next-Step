@@ -12,9 +12,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Send, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
+import { Send, Paperclip, X, FileText } from "lucide-react";
 
 interface Attachment {
     file: File;
@@ -143,10 +144,12 @@ export function MessageInput({
                         >
                             {attachment.type === "image" && attachment.preview ? (
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <img
+                                    <Image
                                         src={attachment.preview}
                                         alt={attachment.file.name}
-                                        className="h-12 w-12 rounded object-cover"
+                                        width={48}
+                                        height={48}
+                                        className="rounded object-cover"
                                     />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">
