@@ -32,6 +32,7 @@ export default defineSchema({
             v.literal("mentor"),
             v.literal("employer"),
         ),
+        avatarUrl: v.optional(v.string()),
 
         // Onboarding
         onboardingStatus: v.optional(
@@ -253,6 +254,7 @@ export default defineSchema({
         expiresDate: v.optional(v.number()), // Unix timestamp
         isActive: v.boolean(),
         views: v.number(), // View count
+        applicants: v.optional(v.number()), // Application count
 
         // Poster Information
         postedBy: v.id("users"),
@@ -429,7 +431,7 @@ export default defineSchema({
      */
     jobApplications: defineTable({
         jobId: v.id("jobs"),
-        userId: v.id("users"),
+        userId: v.string(), // String to match our auth context
         status: v.union(
             v.literal("pending"),
             v.literal("reviewing"),
@@ -441,9 +443,12 @@ export default defineSchema({
         nextStep: v.optional(v.string()),
         interviewDate: v.optional(v.number()),
         notes: v.optional(v.string()),
+        coverLetter: v.optional(v.string()),
+        resumeUrl: v.optional(v.string()),
     })
-        .index("by_job", ["jobId"])
-        .index("by_user", ["userId"])
+        .index("by_jobId", ["jobId"])
+        .index("by_userId", ["userId"])
+        .index("by_jobId_userId", ["jobId", "userId"])
         .index("by_status", ["status"]),
 
     /**
