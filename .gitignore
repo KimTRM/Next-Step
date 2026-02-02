@@ -44,7 +44,3 @@ next-env.d.ts
 /.clerk/
 
 .claude
-
-# test data and model knowledge
-python_ai/test_scripts/
-python_ai/trained_models/
