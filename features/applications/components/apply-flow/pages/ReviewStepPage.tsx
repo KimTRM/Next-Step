@@ -8,17 +8,12 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import {
-    ArrowLeft,
-    Pencil,
-    Mail,
-    MapPin,
-    Phone,
-} from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { toast } from "sonner";
 import { useApplicationFlow } from "../../../contexts/ApplicationFlowContext";
 import { useCreateApplication } from "../../../api";
+import { ProfileCard } from "../ProfileCard";
 import { SALARY_RANGES, type SalaryRange } from "../../../types/apply-flow";
 import type { Id } from "../../../types";
 
@@ -103,54 +98,13 @@ export function ReviewStepPage() {
 
     return (
         <div className="space-y-8">
-            {/* Profile Card with diagonal stripes */}
-            <div className="relative bg-gray-50 rounded-2xl overflow-hidden">
-                {/* Green diagonal stripes background on right side */}
-                <div
-                    className="absolute top-0 right-0 w-2/5 h-full"
-                    style={{
-                        background: `repeating-linear-gradient(
-                            -55deg,
-                            transparent,
-                            transparent 10px,
-                            rgba(17, 167, 115, 0.12) 10px,
-                            rgba(17, 167, 115, 0.12) 20px
-                        )`,
-                    }}
-                />
-
-                <div className="relative p-6 sm:p-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                        {applicant?.name || "John David Laureles"}
-                    </h2>
-
-                    <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-gray-500" />
-                            <span>{applicant?.email || "kimlabrador71@gmail.com"}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-500" />
-                            <span>{applicant?.location || "Naga City, Camarines Sur"}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-gray-500" />
-                            <span>+63 9602662884</span>
-                        </div>
-                    </div>
-
-                    {/* Edit Button - Dark style matching design */}
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        className="absolute bottom-6 right-6 bg-gray-700 hover:bg-gray-800 text-white"
-                        onClick={() => handleEditStep("documents")}
-                    >
-                        <Pencil className="w-3 h-3 mr-1.5" />
-                        Edit
-                    </Button>
-                </div>
-            </div>
+            {/* Profile Card */}
+            <ProfileCard
+                name={applicant?.name}
+                email={applicant?.email}
+                location={applicant?.location}
+                onEdit={() => handleEditStep("documents")}
+            />
 
             {/* Documents Included */}
             <section className="space-y-4">
