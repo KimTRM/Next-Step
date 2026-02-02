@@ -4,8 +4,20 @@ Configuration settings for Job Matcher API.
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from several possible locations:
+# 1. Repository root `.env.local` (used by Next.js and repo-level env)
+# 2. python_ai/.env (legacy local python env)
+from pathlib import Path as _Path
+
+_this_dir = _Path(__file__).resolve()
+# Repo root is two levels up from python_ai/config
+_repo_root = _this_dir.parents[2]
+_python_ai_env = _this_dir.parents[1] / ".env"
+_repo_env_local = _repo_root / ".env.local"
+
+# Load repo-level .env.local first (do not override existing env vars), then python_ai/.env
+load_dotenv(dotenv_path=str(_repo_env_local), override=False)
+load_dotenv(dotenv_path=str(_python_ai_env), override=False)
 
 
 class Settings:

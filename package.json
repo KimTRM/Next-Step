@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "concurrently \"npm run dev:next\" \"npm run dev:ai\"",
         "dev:next": "next dev",
-        "dev:ai": "cd python_ai && python run_server.py",
+        "dev:ai": "node scripts/start-python.js",
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
