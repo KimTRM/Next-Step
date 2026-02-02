@@ -310,7 +310,7 @@ export default defineSchema({
         receiverId: v.id("users"),
         content: v.string(),
         timestamp: v.number(), // Unix timestamp (Date.now())
-        isRead: v.boolean(),
+        isRead: v.optional(v.boolean()), // Made optional for legacy data compatibility
         read: v.optional(v.boolean()), // DEPRECATED: Legacy field from old schema
         relatedJobId: v.optional(v.id("jobs")),
     })
