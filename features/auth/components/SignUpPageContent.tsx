@@ -24,10 +24,10 @@ export function SignUpPageContent() {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
-  // Redirect if already signed in
+  // Redirect if already signed in - go to onboarding (guard will redirect to dashboard if complete)
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      router.replace("/dashboard");
+      router.replace("/onboarding");
     }
   }, [isLoaded, isSignedIn, router]);
 
@@ -38,7 +38,7 @@ export function SignUpPageContent() {
 
   // Don't render form if already signed in (will redirect)
   if (isSignedIn) {
-    return <AuthLoading message="Redirecting to dashboard..." />;
+    return <AuthLoading message="Setting up your account..." />;
   }
 
   return (

@@ -15,12 +15,14 @@ interface ReviewStepProps {
   data: OnboardingData;
   onComplete: () => void;
   onBack: () => void;
+  isSubmitting?: boolean;
 }
 
 export function ReviewStep({
   data,
   onComplete,
-  onBack
+  onBack,
+  isSubmitting = false
 }: ReviewStepProps) {
   const { user } = useUser();
 
@@ -197,24 +199,41 @@ export function ReviewStep({
             <div className="flex sm:hidden w-full gap-2">
               <button
                 onClick={onBack}
-                className="w-[30%] text-center px-4 py-3 font-medium rounded-xl border border-green-500 transition-colors" style={{ color: '#2A8643' }}
+                disabled={isSubmitting}
+                className="w-[30%] text-center px-4 py-3 font-medium rounded-xl border border-green-500 transition-colors disabled:opacity-50" style={{ color: '#2A8643' }}
               >
                 ← Back
               </button>
               <button
                 onClick={onComplete}
-                className="w-[70%] px-6 py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 shadow-sm hover:shadow-md transition-all"
+                disabled={isSubmitting}
+                className="w-[70%] px-6 py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Complete Setup
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  'Complete Setup'
+                )}
               </button>
             </div>
 
             {/* Desktop Continue Button - hidden on mobile */}
             <button
               onClick={onComplete}
-              className="hidden sm:block w-auto px-8 py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 shadow-sm hover:shadow-md transition-all"
+              disabled={isSubmitting}
+              className="hidden sm:flex w-auto px-8 py-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed items-center gap-2"
             >
-              Complete Setup
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                'Complete Setup'
+              )}
             </button>
           </div>
         </div>

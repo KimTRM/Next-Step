@@ -13,7 +13,8 @@ export type Message = {
     receiverId: Id<"users">;
     content: string;
     timestamp: number;
-    isRead: boolean;
+    isRead?: boolean; // Optional for legacy data compatibility
+    read?: boolean; // Legacy field
     relatedJobId?: Id<"jobs">;
 };
 
@@ -33,7 +34,7 @@ export type Conversation = {
         content: string;
         timestamp: number;
         senderId: Id<"users">;
-        isRead: boolean;
+        isRead?: boolean; // Optional for legacy data compatibility
     };
     unreadCount: number;
 };

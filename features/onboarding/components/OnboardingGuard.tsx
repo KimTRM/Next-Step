@@ -74,20 +74,20 @@ export function OnboardingGuard({
         }
 
         if (onboardingStatus === "not_started") {
-            // Users who haven't started should go to /welcome
-            if (!isOnWelcomePage) {
-                router.replace("/welcome");
+            // Users who haven't started should go to /onboarding to begin the flow
+            if (!isOnOnboardingPage && !isOnWelcomePage) {
+                router.replace("/onboarding");
                 return;
             }
-            // Already on welcome, allow
+            // Already on onboarding or welcome, allow
             return;
         }
 
         if (onboardingStatus === "in_progress") {
-            // Users in progress should be on /onboarding/* pages
+            // Users in progress should be on /onboarding page (single-page flow)
             if (!isOnOnboardingPage) {
-                // Redirect to continue where they left off
-                router.replace("/onboarding/role");
+                // Redirect to the onboarding flow
+                router.replace("/onboarding");
                 return;
             }
             // Already on onboarding page, allow
@@ -117,7 +117,7 @@ export function OnboardingGuard({
         if (onboardingStatus === "completed" && (isOnWelcomePage || isOnOnboardingPage)) {
             return <FullPageLoading />;
         }
-        if (onboardingStatus === "not_started" && !isOnWelcomePage) {
+        if (onboardingStatus === "not_started" && !isOnOnboardingPage && !isOnWelcomePage) {
             return <FullPageLoading />;
         }
         if (onboardingStatus === "in_progress" && !isOnOnboardingPage) {

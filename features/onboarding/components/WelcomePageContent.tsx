@@ -37,8 +37,8 @@ export default function WelcomePageContent() {
             // Set onboarding status to "in_progress"
             await setOnboardingStatus({ status: "in_progress" });
 
-            // Redirect to role selection
-            router.push("/onboarding/role");
+            // Redirect to the onboarding flow
+            router.push("/onboarding");
         } catch (error) {
             console.error("Failed to start onboarding:", error);
             setIsStarting(false);

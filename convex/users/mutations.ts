@@ -233,6 +233,38 @@ export const updateUserProfile = mutation({
 });
 
 /**
+ * Start onboarding - mark as in_progress
+ */
+export const startOnboarding = mutation({
+    args: {},
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Not authenticated");
+        }
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+            .unique();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Only update if not already in progress or completed
+        if (user.onboardingStatus === "not_started") {
+            await ctx.db.patch(user._id, {
+                onboardingStatus: "in_progress",
+                updatedAt: Date.now(),
+            });
+        }
+
+        return user._id;
+    },
+});
+
+/**
  * Mark onboarding as complete
  */
 export const completeOnboarding = mutation({
@@ -253,6 +285,7 @@ export const completeOnboarding = mutation({
         }
 
         await ctx.db.patch(user._id, {
+            onboardingStatus: "completed",
             isOnboardingComplete: true,
             updatedAt: Date.now(),
         });
