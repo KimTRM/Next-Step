@@ -2,8 +2,8 @@
 
 /**
  * SignUpForm Component
- * Custom sign-up form using Clerk hooks
- * Includes organization creation during sign-up
+ * Simplified sign-up form - only collects essential auth fields
+ * firstName, lastName, and organization are collected during onboarding
  */
 
 import { useState } from "react";
@@ -11,7 +11,6 @@ import {
   Lock,
   Mail,
   UserRound,
-  Building2,
   Loader2,
   Eye,
   EyeOff,
@@ -35,31 +34,19 @@ export function SignUpForm() {
     pendingVerification,
   } = useSignUpForm();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
-  const [showVerificationError, setShowVerificationError] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
-
-    if (!firstName.trim()) {
-      errors.firstName = "First name is required";
-    }
-
-    if (!lastName.trim()) {
-      errors.lastName = "Last name is required";
-    }
 
     if (!username.trim()) {
       errors.username = "Username is required";
@@ -92,13 +79,6 @@ export function SignUpForm() {
       errors.confirmPassword = "Passwords do not match";
     }
 
-    if (!organizationName.trim()) {
-      errors.organizationName = "Organization name is required";
-    } else if (organizationName.trim().length < 2) {
-      errors.organizationName =
-        "Organization name must be at least 2 characters";
-    }
-
     setFieldErrors(errors);
     setValidationError(null);
     return Object.keys(errors).length === 0;
@@ -113,12 +93,9 @@ export function SignUpForm() {
     }
 
     await register({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
       email: email.trim(),
       password,
       username: username.trim(),
-      organizationName: organizationName.trim(),
     });
   };
 
@@ -138,13 +115,10 @@ export function SignUpForm() {
   const isSubmitDisabled =
     isLoading ||
     !isReady ||
-    !firstName ||
-    !lastName ||
     !email ||
     !password ||
     !confirmPassword ||
-    !username ||
-    !organizationName;
+    !username;
 
   const displayError = validationError || error?.message;
 
@@ -166,7 +140,7 @@ export function SignUpForm() {
         <div>
           <VerificationStrategyError
             message={error?.message}
-            onDismiss={() => setShowVerificationError(false)}
+            onDismiss={() => clearError()}
           />
         </div>
       )}
@@ -190,11 +164,10 @@ export function SignUpForm() {
             clearFieldError("username");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
-            fieldErrors.username
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.username
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
-          }`}
+            }`}
           autoComplete="username"
           aria-invalid={!!fieldErrors.username}
           aria-describedby={fieldErrors.username ? "username-error" : undefined}
@@ -222,11 +195,10 @@ export function SignUpForm() {
             clearFieldError("email");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
-            fieldErrors.email
+          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.email
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
-          }`}
+            }`}
           autoComplete="email"
           aria-invalid={!!fieldErrors.email}
           aria-describedby={fieldErrors.email ? "email-error" : undefined}
@@ -254,11 +226,10 @@ export function SignUpForm() {
             clearFieldError("password");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
-            fieldErrors.password
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.password
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
-          }`}
+            }`}
           autoComplete="new-password"
           aria-invalid={!!fieldErrors.password}
           aria-describedby={fieldErrors.password ? "password-error" : undefined}
@@ -266,9 +237,8 @@ export function SignUpForm() {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          disabled={isLoading}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
-          aria-label={showPassword ? "Hide password" : "Show password"}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          tabIndex={-1}
         >
           {showPassword ? (
             <EyeOff className="w-5 h-5" />
@@ -299,11 +269,10 @@ export function SignUpForm() {
             clearFieldError("confirmPassword");
           }}
           disabled={isLoading}
-          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
-            fieldErrors.confirmPassword
+          className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.confirmPassword
               ? "border-red-300 focus:ring-red-500 bg-red-50"
               : "border-gray-300 focus:border-green-500 hover:border-gray-400"
-          }`}
+            }`}
           autoComplete="new-password"
           aria-invalid={!!fieldErrors.confirmPassword}
           aria-describedby={
@@ -313,14 +282,13 @@ export function SignUpForm() {
         <button
           type="button"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          disabled={isLoading}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
-          aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          tabIndex={-1}
         >
           {showConfirmPassword ? (
-            <EyeOff className="w-5 h-5 text-[#828282]" />
+            <EyeOff className="w-5 h-5" />
           ) : (
-            <Eye className="w-5 h-5 text-[#828282]" />
+            <Eye className="w-5 h-5" />
           )}
         </button>
         {fieldErrors.confirmPassword && (
@@ -330,40 +298,6 @@ export function SignUpForm() {
           >
             <span className="text-xs">●</span>
             {fieldErrors.confirmPassword}
-          </p>
-        )}
-      </div>
-
-      {/* Organization Name Input */}
-      <div className="relative">
-        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
-        <input
-          type="text"
-          placeholder="Organization Name"
-          value={organizationName}
-          onChange={(e) => {
-            setOrganizationName(e.target.value);
-            clearFieldError("organizationName");
-          }}
-          disabled={isLoading}
-          className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${
-            fieldErrors.organizationName
-              ? "border-red-300 focus:ring-red-500 bg-red-50"
-              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
-          }`}
-          autoComplete="organization"
-          aria-invalid={!!fieldErrors.organizationName}
-          aria-describedby={
-            fieldErrors.organizationName ? "organizationName-error" : undefined
-          }
-        />
-        {fieldErrors.organizationName && (
-          <p
-            id="organizationName-error"
-            className="mt-1 text-sm text-red-600 flex items-center gap-1"
-          >
-            <span className="text-xs">●</span>
-            {fieldErrors.organizationName}
           </p>
         )}
       </div>
@@ -389,7 +323,9 @@ export function SignUpForm() {
               className={
                 password !== confirmPassword && confirmPassword
                   ? "text-red-600"
-                  : "text-green-600"
+                  : password === confirmPassword && confirmPassword
+                    ? "text-green-600"
+                    : "text-blue-600"
               }
             >
               ●
@@ -402,7 +338,7 @@ export function SignUpForm() {
       {/* Clerk CAPTCHA mount point */}
       <div id="clerk-captcha" />
 
-      {/* Login Link  si ano na ni adwdiowbfouiwb*/}
+      {/* Login Link */}
       {isMobile || isTablet ? (
         <div className="text-center pt-2">
           <span className="text-gray-600 text-sm">

@@ -30,8 +30,10 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Redirect authenticated users away from auth pages
     if (userId && isAuthRoute(req)) {
-        const dashboardUrl = new URL("/dashboard", req.url);
-        return NextResponse.redirect(dashboardUrl);
+        // Check for redirect_url parameter and use it if available
+        const redirectUrl = req.nextUrl.searchParams.get("redirect_url");
+        const targetUrl = new URL(redirectUrl || "/dashboard", req.url);
+        return NextResponse.redirect(targetUrl);
     }
 
     // Protect routes that require authentication

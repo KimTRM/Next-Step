@@ -113,7 +113,7 @@ function SignUpSection() {
       <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-accent/5 to-emerald-50/30 pointer-events-none" />
 
       {/* Static decorative patterns */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-10 right-10 w-20 h-20 border-2 border-primary/10 rounded-full" />
         <div className="absolute bottom-10 left-10 w-16 h-16 border-2 border-accent/10 rounded-lg" />
       </div>

@@ -44,3 +44,5 @@ next-env.d.ts
 /.clerk/
 
 .claude
+
+__pycache__/

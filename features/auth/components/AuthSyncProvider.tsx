@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useUser, useAuth } from "@clerk/nextjs";
+import { useUser, useAuth, useClerk } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -19,6 +19,7 @@ type AuthSyncProviderProps = {
 export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
     const { isLoaded: authLoaded, isSignedIn } = useAuth();
     const { user, isLoaded: userLoaded } = useUser();
+    const { signOut } = useClerk();
     const router = useRouter();
     const upsertUser = useMutation(api.users.index.upsertUser);
     const convexUser = useQuery(
@@ -26,6 +27,7 @@ export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
         authLoaded && isSignedIn ? {} : "skip"
     );
     const hasSynced = useRef(false);
+    const hasAttemptedSessionFix = useRef(false);
 
     useEffect(() => {
         // Only sync once per session
@@ -73,29 +75,40 @@ export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
     }, [authLoaded, userLoaded, isSignedIn, user, convexUser, upsertUser]);
 
     // If Clerk reports not signed in but a server session cookie exists,
-    // trigger a router refresh to allow ClerkProvider to rehydrate client state.
+    // the session is likely invalid. Clear it and redirect to sign-in.
     useEffect(() => {
         try {
             if (typeof window === "undefined") return;
             // Only attempt once per page load
-            if (hasSynced.current) return;
+            if (hasAttemptedSessionFix.current) return;
 
             if (authLoaded && !isSignedIn) {
                 const hasSessionCookie = document.cookie.includes("__session=");
                 if (hasSessionCookie) {
                     console.warn(
-                        "AuthSyncProvider: detected server session cookie but Clerk reports not signed in. Refreshing router to resync client auth state.",
+                        "AuthSyncProvider: detected server session cookie but Clerk reports not signed in. Clearing invalid session.",
                     );
-                    hasSynced.current = true;
-                    // Use Next router refresh to re-run server components / middleware
-                    void router.refresh();
+                    hasAttemptedSessionFix.current = true;
+
+                    // Clear the invalid session cookie and sign out properly
+                    signOut().then(() => {
+                        // Force clear the cookie manually as well
+                        document.cookie = "__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        // Refresh to get clean state
+                        router.refresh();
+                    }).catch((err) => {
+                        console.error("Failed to sign out invalid session:", err);
+                        // Even if signOut fails, clear the cookie
+                        document.cookie = "__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        router.refresh();
+                    });
                 }
             }
         } catch (e) {
             // Non-fatal - ignore
-            console.error("AuthSyncProvider: refresh check failed:", e);
+            console.error("AuthSyncProvider: session fix failed:", e);
         }
-    }, [authLoaded, isSignedIn, router]);
+    }, [authLoaded, isSignedIn, router, signOut]);
 
     return <>{children}</>;
 }

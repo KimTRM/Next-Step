@@ -95,7 +95,12 @@ export function useLoginForm() {
                     // Build error string from all possible sources
                     const first = clerkError.errors?.[0];
                     const errString = String(err).toLowerCase();
-                    const errorMessage = (first?.message || first?.longMessage || clerkError.message || "").toLowerCase();
+                    const errorMessage = (
+                        first?.message ||
+                        first?.longMessage ||
+                        clerkError.message ||
+                        ""
+                    ).toLowerCase();
 
                     // Check for "already signed in" in multiple places
                     const isAlreadySignedIn =
@@ -111,7 +116,8 @@ export function useLoginForm() {
                         // Force a full page reload to let ClerkProvider reinitialize
                         if (typeof window !== "undefined") {
                             const redirectUrl =
-                                searchParams.get("redirect_url") || "/dashboard";
+                                searchParams.get("redirect_url") ||
+                                "/dashboard";
                             window.location.href = redirectUrl;
                         }
                         return { success: true, error: null };
@@ -160,9 +166,14 @@ export function useLoginForm() {
                     errorMessage = error.longMessage || error.message;
 
                     // Handle verification strategy error
-                    if (error.code === "verification_strategy_not_valid" || 
-                        errorMessage.includes("verification strategy is not valid")) {
-                        errorMessage = "This account requires a different verification method. Please try signing in with OAuth or contact support.";
+                    if (
+                        error.code === "verification_strategy_not_valid" ||
+                        errorMessage.includes(
+                            "verification strategy is not valid",
+                        )
+                    ) {
+                        errorMessage =
+                            "This account requires a different verification method. Please try signing in with OAuth or contact support.";
                     }
                     // Provide more specific messages for common errors
                     else if (error.code === "form_identifier_not_found") {
@@ -222,11 +233,10 @@ export function useLoginForm() {
 
 /**
  * Hook for handling sign up with email/password
- * Includes organization creation after verification
+ * Simplified sign-up - firstName, lastName, and organization are collected during onboarding
  */
 export function useSignUpForm() {
     const { signUp, isLoaded, setActive } = useSignUp();
-    const clerk = useClerk();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<AuthError | null>(null);
@@ -236,34 +246,12 @@ export function useSignUpForm() {
     const isSubmittingRef = useRef(false);
     const isVerifyingRef = useRef(false);
 
-    // Store organization name for creation after verification
-    const organizationNameRef = useRef<string>("");
-
     const register = useCallback(
-        async (data: {
-            firstName: string;
-            lastName: string;
-            email: string;
-            password: string;
-            username: string;
-            organizationName: string;
-        }) => {
+        async (data: { email: string; password: string; username: string }) => {
             if (!isLoaded || !signUp) {
                 return {
                     success: false,
                     error: { code: "not_ready", message: "Auth not loaded" },
-                };
-            }
-
-            // Validate organization name
-            if (!data.organizationName?.trim()) {
-                return {
-                    success: false,
-                    error: {
-                        code: "missing_organization",
-                        message: "Organization name is required",
-                        field: "organizationName",
-                    },
                 };
             }
 
@@ -283,12 +271,7 @@ export function useSignUpForm() {
             setError(null);
 
             try {
-                // Store organization name for later creation
-                organizationNameRef.current = data.organizationName.trim();
-
                 await signUp.create({
-                    firstName: data.firstName,
-                    lastName: data.lastName,
                     username: data.username,
                     emailAddress: data.email,
                     password: data.password,
@@ -311,30 +294,37 @@ export function useSignUpForm() {
                         meta?: { paramName?: string };
                     }>;
                 };
-                
+
                 let errorMessage = "An error occurred during sign up";
                 let errorCode = "unknown_error";
-                
+
                 if (clerkError.errors?.[0]) {
                     const error = clerkError.errors[0];
                     errorCode = error.code;
                     errorMessage = error.longMessage || error.message;
-                    
+
                     // Handle verification strategy error
-                    if (error.code === "verification_strategy_not_valid" || 
-                        errorMessage.includes("verification strategy is not valid")) {
-                        errorMessage = "Email verification is not available for this account. Please try signing up with OAuth or contact support.";
+                    if (
+                        error.code === "verification_strategy_not_valid" ||
+                        errorMessage.includes(
+                            "verification strategy is not valid",
+                        )
+                    ) {
+                        errorMessage =
+                            "Email verification is not available for this account. Please try signing up with OAuth or contact support.";
                     }
                     // Handle email already exists
                     else if (error.code === "form_identifier_exists") {
-                        errorMessage = "An account with this email already exists. Please sign in instead.";
+                        errorMessage =
+                            "An account with this email already exists. Please sign in instead.";
                     }
                     // Handle username already exists
                     else if (error.code === "form_username_exists") {
-                        errorMessage = "This username is already taken. Please choose another one.";
+                        errorMessage =
+                            "This username is already taken. Please choose another one.";
                     }
                 }
-                
+
                 const authError: AuthError = {
                     code: errorCode,
                     message: errorMessage,
@@ -349,38 +339,6 @@ export function useSignUpForm() {
         },
         [isLoaded, signUp],
     );
-
-    /**
-     * Creates organization after user is authenticated
-     * Called internally after successful verification
-     */
-    const createOrganization = useCallback(async (): Promise<{ success: boolean; error: AuthError | null }> => {
-        const orgName = organizationNameRef.current;
-
-        if (!orgName) {
-            return { success: true, error: null }; // No org to create
-        }
-
-        try {
-            await clerk.createOrganization({ name: orgName });
-            organizationNameRef.current = ""; // Clear after successful creation
-            return { success: true, error: null };
-        } catch (err: unknown) {
-            console.error("Failed to create organization:", err);
-            const clerkError = err as {
-                errors?: Array<{ code: string; message: string }>;
-            };
-            // Don't fail sign-up if org creation fails - user can create later
-            // Just log the error and continue
-            return {
-                success: false,
-                error: {
-                    code: clerkError.errors?.[0]?.code || "org_creation_failed",
-                    message: clerkError.errors?.[0]?.message || "Failed to create organization",
-                },
-            };
-        }
-    }, [clerk]);
 
     const verifyEmail = useCallback(
         async (code: string) => {
@@ -406,22 +364,33 @@ export function useSignUpForm() {
             if (signUp.status === "complete" && signUp.createdSessionId) {
                 try {
                     await setActive({ session: signUp.createdSessionId });
-                    router.replace("/onboarding");
+                    // Use window.location with delay for proper session establishment
+                    setTimeout(() => {
+                        window.location.href = "/onboarding";
+                    }, 100);
                     return { success: true, error: null };
                 } catch (sessionError) {
-                    console.error("Failed to activate completed session:", sessionError);
+                    console.error(
+                        "Failed to activate completed session:",
+                        sessionError,
+                    );
                     // Session activation failed - redirect to sign in
                     setError({
                         code: "session_activation_failed",
-                        message: "Account created but session failed. Please sign in.",
+                        message:
+                            "Account created but session failed. Please sign in.",
                     });
-                    // Auto-redirect to login after delay
-                    setTimeout(() => router.replace("/auth"), 2000);
+                    // Auto-redirect to login after delay with redirect back to onboarding
+                    setTimeout(
+                        () => router.replace("/auth?redirect_url=/onboarding"),
+                        2000,
+                    );
                     return {
                         success: false,
                         error: {
                             code: "session_activation_failed",
-                            message: "Account created but session failed. Please sign in.",
+                            message:
+                                "Account created but session failed. Please sign in.",
                         },
                     };
                 }
@@ -433,7 +402,10 @@ export function useSignUpForm() {
                 if (signUp.createdSessionId) {
                     try {
                         await setActive({ session: signUp.createdSessionId });
-                        router.replace("/onboarding");
+                        // Use window.location with delay for proper session establishment
+                        setTimeout(() => {
+                            window.location.href = "/onboarding";
+                        }, 100);
                         return { success: true, error: null };
                     } catch (sessionError) {
                         console.error(
@@ -443,14 +415,22 @@ export function useSignUpForm() {
                         // Session activation failed - redirect to sign in
                         setError({
                             code: "session_activation_failed",
-                            message: "Session failed. Redirecting to sign in...",
+                            message:
+                                "Session failed. Redirecting to sign in...",
                         });
-                        setTimeout(() => router.replace("/auth"), 2000);
+                        setTimeout(
+                            () =>
+                                router.replace(
+                                    "/auth?redirect_url=/onboarding",
+                                ),
+                            2000,
+                        );
                         return {
                             success: false,
                             error: {
                                 code: "session_activation_failed",
-                                message: "Session failed. Redirecting to sign in...",
+                                message:
+                                    "Session failed. Redirecting to sign in...",
                             },
                         };
                     }
@@ -461,8 +441,11 @@ export function useSignUpForm() {
                     message:
                         "Email already verified. Redirecting to sign in...",
                 });
-                // Auto-redirect to login after a short delay
-                setTimeout(() => router.replace("/auth"), 2000);
+                // Auto-redirect to login after a short delay with redirect back to onboarding
+                setTimeout(
+                    () => router.replace("/auth?redirect_url=/onboarding"),
+                    2000,
+                );
                 return {
                     success: false,
                     error: {
@@ -493,18 +476,24 @@ export function useSignUpForm() {
                     code,
                 });
 
+                console.log("[SignUp] Verification result:", {
+                    status: result.status,
+                    createdSessionId: result.createdSessionId,
+                });
+
                 if (result.status === "complete") {
+                    console.log("[SignUp] Setting active session...");
                     await setActive({ session: result.createdSessionId });
+                    console.log(
+                        "[SignUp] Session set, redirecting to /onboarding...",
+                    );
 
-                    // Create organization after session is active
-                    const orgResult = await createOrganization();
-                    if (!orgResult.success) {
-                        // Log but don't fail - user can create org later in onboarding
-                        console.warn("Organization creation failed:", orgResult.error);
-                    }
-
-                    // Redirect to onboarding after successful sign up
-                    router.replace("/onboarding");
+                    // Use window.location for full page navigation to ensure
+                    // the session cookie is sent with the request
+                    // Small delay to ensure Clerk finishes setting the cookie
+                    setTimeout(() => {
+                        window.location.href = "/onboarding";
+                    }, 100);
                     return { success: true, error: null };
                 } else {
                     console.warn("Verification result status:", result.status);
@@ -532,11 +521,16 @@ export function useSignUpForm() {
                     const error = clerkError.errors[0];
                     errorCode = error.code;
                     errorMessage = error.longMessage || error.message;
-                    
+
                     // Handle verification strategy error
-                    if (error.code === "verification_strategy_not_valid" || 
-                        errorMessage.includes("verification strategy is not valid")) {
-                        errorMessage = "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
+                    if (
+                        error.code === "verification_strategy_not_valid" ||
+                        errorMessage.includes(
+                            "verification strategy is not valid",
+                        )
+                    ) {
+                        errorMessage =
+                            "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
                     }
                     // Handle case where verification is already completed
                     else if (
@@ -563,8 +557,14 @@ export function useSignUpForm() {
                             "Email already verified. Redirecting to sign in...";
                         errorCode = "already_verified";
                         setError({ code: errorCode, message: errorMessage });
-                        // Auto-redirect to login after a short delay
-                        setTimeout(() => router.replace("/auth"), 2000);
+                        // Auto-redirect to login after a short delay with redirect back to onboarding
+                        setTimeout(
+                            () =>
+                                router.replace(
+                                    "/auth?redirect_url=/onboarding",
+                                ),
+                            2000,
+                        );
                         return {
                             success: false,
                             error: { code: errorCode, message: errorMessage },
@@ -594,7 +594,7 @@ export function useSignUpForm() {
                 isVerifyingRef.current = false;
             }
         },
-        [isLoaded, signUp, setActive, router, createOrganization],
+        [isLoaded, signUp, setActive, router],
     );
 
     const resendCode = useCallback(async () => {
@@ -615,28 +615,31 @@ export function useSignUpForm() {
             return { success: true, error: null };
         } catch (err: unknown) {
             const clerkError = err as {
-                errors?: Array<{ 
-                    code: string; 
-                    message: string; 
+                errors?: Array<{
+                    code: string;
+                    message: string;
                     longMessage?: string;
                 }>;
             };
-            
+
             let errorMessage = "Failed to resend verification code";
             let errorCode = "resend_error";
-            
+
             if (clerkError.errors?.[0]) {
                 const error = clerkError.errors[0];
                 errorCode = error.code;
                 errorMessage = error.longMessage || error.message;
-                
+
                 // Handle verification strategy error
-                if (error.code === "verification_strategy_not_valid" || 
-                    errorMessage.includes("verification strategy is not valid")) {
-                    errorMessage = "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
+                if (
+                    error.code === "verification_strategy_not_valid" ||
+                    errorMessage.includes("verification strategy is not valid")
+                ) {
+                    errorMessage =
+                        "Email verification is not available for this account. Please try signing in with OAuth or contact support.";
                 }
             }
-            
+
             const authError: AuthError = {
                 code: errorCode,
                 message: errorMessage,
