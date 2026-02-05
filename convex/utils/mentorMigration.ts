@@ -141,3 +141,110 @@ export const clearAndReseedMentors = mutation({
         };
     },
 });
+
+/**
+ * Repair: Create mentor profiles for users with role "mentor" but no mentor entry
+ * This fixes existing users who completed onboarding as mentors before the auto-create was added
+ */
+export const repairMentorProfiles = mutation({
+    args: {},
+    handler: async (ctx) => {
+        // Find all users with role "mentor"
+        const mentorUsers = await ctx.db
+            .query("users")
+            .withIndex("by_role", (q) => q.eq("role", "mentor"))
+            .collect();
+
+        let created = 0;
+        let skipped = 0;
+
+        for (const user of mentorUsers) {
+            // Check if mentor profile exists (using collect() to handle potential duplicates)
+            const existingMentors = await ctx.db
+                .query("mentors")
+                .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+                .collect();
+
+            if (existingMentors.length === 0) {
+                // Create mentor profile
+                await ctx.db.insert("mentors", {
+                    userId: user._id,
+                    role: "Mentor",
+                    company: "",
+                    location: user.location || "",
+                    expertise: user.skills || [],
+                    bio: user.bio || "",
+                    availability: "To be determined",
+                    rating: 0,
+                    mentees: 0,
+                    sessionsCompleted: 0,
+                    totalReviews: 0,
+                    isVerified: false,
+                    isAvailableForNewMentees: true,
+                    createdAt: Date.now(),
+                });
+                created++;
+                console.log(
+                    `[repairMentorProfiles] Created mentor profile for user: ${user._id} (${user.email})`,
+                );
+            } else {
+                skipped++;
+                // Log if there are duplicates
+                if (existingMentors.length > 1) {
+                    console.log(
+                        `[repairMentorProfiles] Warning: User ${user._id} has ${existingMentors.length} mentor profiles`,
+                    );
+                }
+            }
+        }
+
+        console.log(
+            `[repairMentorProfiles] Complete. Created: ${created}, Skipped: ${skipped}`,
+        );
+        return { created, skipped, total: mentorUsers.length };
+    },
+});
+
+/**
+ * Cleanup: Remove duplicate mentor profiles, keeping only the first one for each user
+ */
+export const cleanupDuplicateMentorProfiles = mutation({
+    args: {},
+    handler: async (ctx) => {
+        // Get all users with role "mentor"
+        const mentorUsers = await ctx.db
+            .query("users")
+            .withIndex("by_role", (q) => q.eq("role", "mentor"))
+            .collect();
+
+        let totalDeleted = 0;
+
+        for (const user of mentorUsers) {
+            const mentorProfiles = await ctx.db
+                .query("mentors")
+                .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+                .collect();
+
+            if (mentorProfiles.length > 1) {
+                // Sort by createdAt to keep the oldest one (or first if no createdAt)
+                const sorted = mentorProfiles.sort(
+                    (a, b) => (a.createdAt || 0) - (b.createdAt || 0),
+                );
+
+                // Keep the first one, delete the rest
+                for (let i = 1; i < sorted.length; i++) {
+                    await ctx.db.delete(sorted[i]._id);
+                    totalDeleted++;
+                }
+                console.log(
+                    `[cleanupDuplicateMentorProfiles] Deleted ${sorted.length - 1} duplicate profiles for user: ${user._id}`,
+                );
+            }
+        }
+
+        console.log(
+            `[cleanupDuplicateMentorProfiles] Total deleted: ${totalDeleted}`,
+        );
+        return { totalDeleted };
+    },
+});

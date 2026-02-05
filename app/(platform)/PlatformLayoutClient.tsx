@@ -2,12 +2,17 @@
 
 /**
  * Platform Layout Client Component
- * Handles onboarding guard logic on the client side
+ * 
+ * Provides mobile navigation for platform pages.
+ * 
+ * IMPORTANT: 
+ * - Route protection is handled by middleware.ts
+ * - Onboarding redirect is handled by OnboardingRedirect component (if needed)
  */
 
 import { usePathname } from "next/navigation";
-import { OnboardingGuard } from "@/features/onboarding";
 import { MobileBottomNav } from "@/shared/components/layout/MobileBottomNav";
+import { OnboardingRedirect } from "@/features/onboarding";
 
 export function PlatformLayoutClient({
     children,
@@ -16,16 +21,19 @@ export function PlatformLayoutClient({
 }) {
     const pathname = usePathname();
 
-    // Hide nav during onboarding flow (welcome + onboarding steps 1-4)
-    const isOnboardingFlow = pathname === "/welcome" || pathname?.startsWith("/test-onboarding");
+    // Hide nav during onboarding flow
+    const isOnboardingFlow = pathname === "/welcome" || pathname?.startsWith("/onboarding");
 
     return (
-        <OnboardingGuard>
+        <>
+            {/* Only redirect to onboarding if not already on onboarding pages */}
+            {!isOnboardingFlow && <OnboardingRedirect />}
+
             <div className={isOnboardingFlow ? "" : "pb-16 md:pb-0"}>
                 {children}
             </div>
 
             {!isOnboardingFlow && <MobileBottomNav />}
-        </OnboardingGuard>
+        </>
     );
 }

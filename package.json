@@ -3,7 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "concurrently \"npm run dev:next\" \"npm run dev:ai\"",
+        "dev": "next dev",
+        "dev:all": "concurrently -n next,ai -c green,blue npm:dev:next npm:dev:ai",
         "dev:next": "next dev",
         "dev:ai": "node scripts/start-python.js",
         "build": "next build",

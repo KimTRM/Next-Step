@@ -6,6 +6,7 @@
  */
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AlertCircle, RefreshCw, Home, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useClerk } from "@clerk/nextjs";
@@ -69,6 +70,7 @@ function getPlatformErrorInfo(error: Error): { title: string; message: string; s
 
 export default function PlatformError({ error, reset }: ErrorProps) {
     const { signOut } = useClerk();
+    const router = useRouter();
 
     useEffect(() => {
         // Log error to console in development
@@ -79,7 +81,8 @@ export default function PlatformError({ error, reset }: ErrorProps) {
 
     const handleSignOut = async () => {
         await signOut();
-        window.location.href = "/auth";
+        // Use router instead of window.location to avoid full page reload
+        router.push("/auth");
     };
 
     return (
