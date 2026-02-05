@@ -2,7 +2,7 @@
 
 /**
  * Auth Feature - API Layer
- * Wraps Clerk hooks for authentication
+ * Wraps Clerk hooks for authentication and Convex user operations
  */
 
 import {
@@ -13,7 +13,31 @@ import {
 } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback, useRef } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Doc } from "@/convex/_generated/dataModel";
 import type { LoginFormData, AuthError, OAuthProvider } from "./types";
+
+// ============================================
+// CONVEX DATA HOOKS (for internal use in auth feature)
+// ============================================
+
+/** Get current authenticated user from Convex */
+export function useCurrentUser() {
+    const { isLoaded, isSignedIn } = useClerkAuth();
+    return useQuery(
+        api.users.index.getCurrentUser,
+        isLoaded && isSignedIn ? {} : "skip",
+    );
+}
+
+/** Mutation to upsert user data */
+export function useUpsertUser() {
+    return useMutation(api.users.index.upsertUser);
+}
+
+/** Type export for user document */
+export type { Doc };
 
 // ============================================
 // CLERK AUTH STATE HOOK
@@ -38,6 +62,7 @@ export function useClerkAuthState() {
 
 /**
  * Hook for handling login with email/password
+ * Supports 2FA via email code
  */
 export function useLoginForm() {
     const { signIn, isLoaded, setActive } = useSignIn();
@@ -46,9 +71,19 @@ export function useLoginForm() {
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<AuthError | null>(null);
+    const [pendingTwoFactor, setPendingTwoFactor] = useState(false);
+
+    // Ref to prevent multiple simultaneous login attempts
+    const loginInProgressRef = useRef(false);
 
     const login = useCallback(
         async (data: LoginFormData) => {
+            // Prevent multiple simultaneous submissions
+            if (loginInProgressRef.current || isLoading) {
+                console.log("[Login] Already in progress, ignoring...");
+                return { success: false, error: null };
+            }
+
             if (!isLoaded || !signIn) {
                 return {
                     success: false,
@@ -66,84 +101,106 @@ export function useLoginForm() {
                 return { success: true, error: null };
             }
 
+            // Mark login as in progress immediately
+            loginInProgressRef.current = true;
             setIsLoading(true);
             setError(null);
 
             try {
-                // Attempt to create the sign-in session
-                const attemptSignIn = async () =>
-                    signIn.create({
-                        identifier: data.identifier,
+                // Step 1: Create the sign-in attempt with identifier
+                console.log("[Login] Creating sign-in attempt...");
+                let result = await signIn.create({
+                    identifier: data.identifier,
+                });
+
+                // Step 2: If needs first factor, attempt password verification
+                if (result.status === "needs_first_factor") {
+                    console.log("[Login] Attempting password verification...");
+                    result = await signIn.attemptFirstFactor({
+                        strategy: "password",
                         password: data.password,
                     });
-
-                let result;
-
-                try {
-                    result = await attemptSignIn();
-                } catch (err: unknown) {
-                    // If Clerk reports 'already signed in', handle session desync
-                    const clerkError = err as {
-                        errors?: Array<{
-                            code: string;
-                            message: string;
-                            longMessage?: string;
-                        }>;
-                        message?: string;
-                    };
-
-                    // Build error string from all possible sources
-                    const first = clerkError.errors?.[0];
-                    const errString = String(err).toLowerCase();
-                    const errorMessage = (
-                        first?.message ||
-                        first?.longMessage ||
-                        clerkError.message ||
-                        ""
-                    ).toLowerCase();
-
-                    // Check for "already signed in" in multiple places
-                    const isAlreadySignedIn =
-                        first?.code === "user_already_signed_in" ||
-                        errorMessage.includes("already signed in") ||
-                        errString.includes("already signed in");
-
-                    if (isAlreadySignedIn) {
-                        console.warn(
-                            "Login: detected already-signed-in server state. Triggering page reload to sync session.",
-                        );
-                        // User is already signed in on server but client is desynced
-                        // Force a full page reload to let ClerkProvider reinitialize
-                        if (typeof window !== "undefined") {
-                            const redirectUrl =
-                                searchParams.get("redirect_url") ||
-                                "/dashboard";
-                            window.location.href = redirectUrl;
-                        }
-                        return { success: true, error: null };
-                    } else {
-                        // Re-throw to be handled in outer catch
-                        throw err;
-                    }
                 }
 
+                // Step 3: Handle the result
                 if (result.status === "complete") {
-                    await setActive({ session: result.createdSessionId });
+                    console.log(
+                        "[Login] Sign-in complete! Session ID:",
+                        result.createdSessionId,
+                    );
 
-                    // Redirect to intended destination or dashboard
+                    console.log("[Login] Setting active session...");
+
                     const redirectUrl =
                         searchParams.get("redirect_url") || "/dashboard";
-                    // Use replace to prevent back navigation to auth page
-                    router.replace(redirectUrl);
+
+                    // Set the session active and navigate
+                    // Using beforeEmit ensures navigation happens after session is fully established
+                    await setActive({
+                        session: result.createdSessionId,
+                        beforeEmit: async () => {
+                            console.log(
+                                "[Login] Session established. Navigating to:",
+                                redirectUrl,
+                            );
+                            router.replace(redirectUrl);
+                        },
+                    });
+
+                    // Keep loginInProgressRef true to prevent any further attempts
+                    // Don't reset isLoading - we're navigating away
 
                     return { success: true, error: null };
+                } else if (result.status === "needs_second_factor") {
+                    // Check what second factors are available
+                    const secondFactors = result.supportedSecondFactors;
+                    console.log(
+                        "[Login] Second factors available:",
+                        secondFactors,
+                    );
+
+                    // Try to prepare email code verification
+                    const emailFactor = secondFactors?.find(
+                        (factor: { strategy: string }) =>
+                            factor.strategy === "email_code",
+                    );
+
+                    if (emailFactor) {
+                        console.log("[Login] Preparing email code 2FA...");
+                        await signIn.prepareSecondFactor({
+                            strategy: "email_code",
+                        });
+                        setPendingTwoFactor(true);
+                        // Reset ref - user needs to enter 2FA code
+                        loginInProgressRef.current = false;
+                        return {
+                            success: true,
+                            error: null,
+                            pendingTwoFactor: true,
+                        };
+                    } else {
+                        // Check for other 2FA methods (TOTP, SMS, etc.)
+                        const availableMethods =
+                            secondFactors
+                                ?.map((f: { strategy: string }) => f.strategy)
+                                .join(", ") || "unknown";
+                        const authError: AuthError = {
+                            code: "needs_second_factor",
+                            message: `Two-factor authentication required. Available methods: ${availableMethods}`,
+                        };
+                        setError(authError);
+                        loginInProgressRef.current = false;
+                        return { success: false, error: authError };
+                    }
                 } else {
-                    // Handle other statuses (needs_identifier, needs_factor, etc.)
+                    // Handle other statuses
+                    console.warn("[Login] Unexpected status:", result.status);
                     const authError: AuthError = {
                         code: result.status || "unknown",
-                        message: "Additional verification required",
+                        message: `Login incomplete. Status: ${result.status}`,
                     };
                     setError(authError);
+                    loginInProgressRef.current = false;
                     return { success: false, error: authError };
                 }
             } catch (err: unknown) {
@@ -155,7 +212,35 @@ export function useLoginForm() {
                         longMessage?: string;
                         meta?: { paramName?: string };
                     }>;
+                    message?: string;
                 };
+
+                // Check for "already signed in" error
+                const first = clerkError.errors?.[0];
+                const errString = String(err).toLowerCase();
+                const rawErrorMessage = (
+                    first?.message ||
+                    first?.longMessage ||
+                    clerkError.message ||
+                    ""
+                ).toLowerCase();
+
+                const isAlreadySignedIn =
+                    first?.code === "user_already_signed_in" ||
+                    rawErrorMessage.includes("already signed in") ||
+                    errString.includes("already signed in");
+
+                if (isAlreadySignedIn) {
+                    console.log(
+                        "[Login] Server says already signed in - redirecting to dashboard...",
+                    );
+                    // The user has a valid session on the server side
+                    // Just redirect them to where they wanted to go
+                    const redirectUrl =
+                        searchParams.get("redirect_url") || "/dashboard";
+                    router.replace(redirectUrl);
+                    return { success: true, error: null };
+                }
 
                 let errorMessage = "An error occurred during login";
                 let errorCode = "unknown_error";
@@ -190,7 +275,7 @@ export function useLoginForm() {
                     ) {
                         errorMessage =
                             "You are already signed in. Redirecting to dashboard...";
-                        // Auto-redirect after a short delay
+                        // Auto-redirect after a short delay using router
                         setTimeout(() => {
                             const redirectUrl =
                                 searchParams.get("redirect_url") ||
@@ -206,24 +291,168 @@ export function useLoginForm() {
                     field: clerkError.errors?.[0]?.meta?.paramName,
                 };
                 setError(authError);
+                // Reset the ref so user can try again after an error
+                loginInProgressRef.current = false;
                 return { success: false, error: authError };
             } finally {
                 setIsLoading(false);
             }
         },
-        [isLoaded, signIn, setActive, router, searchParams, isSignedIn],
+        [
+            isLoaded,
+            signIn,
+            setActive,
+            router,
+            searchParams,
+            isSignedIn,
+            isLoading,
+        ],
     );
 
     const clearError = useCallback(() => {
         setError(null);
     }, []);
 
+    const verifyTwoFactor = useCallback(
+        async (code: string) => {
+            if (!isLoaded || !signIn) {
+                return {
+                    success: false,
+                    error: { code: "not_ready", message: "Auth not loaded" },
+                };
+            }
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                console.log("[Login] Verifying 2FA code...");
+                const result = await signIn.attemptSecondFactor({
+                    strategy: "email_code",
+                    code,
+                });
+
+                console.log(
+                    "[Login] 2FA result:",
+                    JSON.stringify({
+                        status: result.status,
+                        sessionId: result.createdSessionId,
+                    }),
+                );
+
+                if (result.status === "complete") {
+                    console.log(
+                        "[Login] 2FA complete! Session ID:",
+                        result.createdSessionId,
+                    );
+
+                    setPendingTwoFactor(false);
+
+                    console.log(
+                        "[Login] Authentication successful, preparing redirect...",
+                    );
+
+                    const redirectUrl =
+                        searchParams.get("redirect_url") || "/dashboard";
+
+                    // Set the session active and navigate
+                    // Using beforeEmit ensures navigation happens after session is fully established
+                    await setActive({
+                        session: result.createdSessionId,
+                        beforeEmit: async () => {
+                            console.log(
+                                "[Login] Session established. Navigating to:",
+                                redirectUrl,
+                            );
+                            router.replace(redirectUrl);
+                        },
+                    });
+
+                    return { success: true, error: null };
+                } else {
+                    setIsLoading(false);
+                    console.log(
+                        "[Login] Unexpected status after 2FA:",
+                        result.status,
+                    );
+                    const authError: AuthError = {
+                        code: "verification_incomplete",
+                        message: `Verification incomplete. Status: ${result.status}`,
+                    };
+                    setError(authError);
+                    return { success: false, error: authError };
+                }
+            } catch (err: unknown) {
+                setIsLoading(false);
+                console.error("[Login] 2FA verification error:", err);
+
+                // Parse the error
+                const clerkError = err as {
+                    errors?: Array<{
+                        code: string;
+                        message: string;
+                        longMessage?: string;
+                    }>;
+                };
+
+                let errorMessage = "Invalid verification code";
+                let errorCode = "verification_failed";
+
+                if (clerkError.errors?.[0]) {
+                    const error = clerkError.errors[0];
+                    errorCode = error.code;
+                    errorMessage = error.longMessage || error.message;
+
+                    if (error.code === "form_code_incorrect") {
+                        errorMessage =
+                            "Incorrect code. Please check your email and try again.";
+                    }
+                }
+
+                const authError: AuthError = {
+                    code: errorCode,
+                    message: errorMessage,
+                };
+                setError(authError);
+                return { success: false, error: authError };
+            }
+        },
+        [isLoaded, signIn, setActive, searchParams, router],
+    );
+
+    const resendTwoFactorCode = useCallback(async () => {
+        if (!isLoaded || !signIn) {
+            return {
+                success: false,
+                error: { code: "not_ready", message: "Auth not loaded" },
+            };
+        }
+
+        try {
+            console.log("[Login] Resending 2FA code...");
+            await signIn.prepareSecondFactor({ strategy: "email_code" });
+            return { success: true, error: null };
+        } catch (err: unknown) {
+            console.error("[Login] Resend 2FA code error:", err);
+            return {
+                success: false,
+                error: {
+                    code: "resend_failed",
+                    message: "Failed to resend code",
+                },
+            };
+        }
+    }, [isLoaded, signIn]);
+
     return {
         login,
+        verifyTwoFactor,
+        resendTwoFactorCode,
         isLoading,
         isReady: isLoaded,
         error,
         clearError,
+        pendingTwoFactor,
     };
 }
 
@@ -233,9 +462,18 @@ export function useLoginForm() {
 
 /**
  * Hook for handling sign up with email/password
- * Simplified sign-up - firstName, lastName, and organization are collected during onboarding
+ * Collects firstName, lastName, username, email, and password (required by Clerk)
+ * Organization is collected during onboarding
+ * @param onUserCreated - Optional callback to sync user to Convex after successful verification
  */
-export function useSignUpForm() {
+export function useSignUpForm(
+    onUserCreated?: (userData: {
+        clerkId: string;
+        email: string;
+        name: string;
+        avatarUrl?: string;
+    }) => Promise<void>,
+) {
     const { signUp, isLoaded, setActive } = useSignUp();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -247,7 +485,13 @@ export function useSignUpForm() {
     const isVerifyingRef = useRef(false);
 
     const register = useCallback(
-        async (data: { email: string; password: string; username: string }) => {
+        async (data: {
+            firstName: string;
+            lastName: string;
+            email: string;
+            password: string;
+            username: string;
+        }) => {
             if (!isLoaded || !signUp) {
                 return {
                     success: false,
@@ -272,6 +516,8 @@ export function useSignUpForm() {
 
             try {
                 await signUp.create({
+                    firstName: data.firstName,
+                    lastName: data.lastName,
                     username: data.username,
                     emailAddress: data.email,
                     password: data.password,
@@ -363,28 +609,31 @@ export function useSignUpForm() {
             // Check if sign-up is already complete
             if (signUp.status === "complete" && signUp.createdSessionId) {
                 try {
-                    await setActive({ session: signUp.createdSessionId });
-                    // Use window.location with delay for proper session establishment
-                    setTimeout(() => {
-                        window.location.href = "/onboarding";
-                    }, 100);
+                    setIsLoading(true);
+                    console.log(
+                        "[SignUp] Session already complete, activating session...",
+                    );
+                    await setActive({
+                        session: signUp.createdSessionId,
+                        beforeEmit: async () => {
+                            console.log(
+                                "[SignUp] Session activated. Navigating to /onboarding...",
+                            );
+                            router.replace("/onboarding");
+                        },
+                    });
                     return { success: true, error: null };
                 } catch (sessionError) {
+                    setIsLoading(false);
                     console.error(
                         "Failed to activate completed session:",
                         sessionError,
                     );
-                    // Session activation failed - redirect to sign in
                     setError({
                         code: "session_activation_failed",
                         message:
                             "Account created but session failed. Please sign in.",
                     });
-                    // Auto-redirect to login after delay with redirect back to onboarding
-                    setTimeout(
-                        () => router.replace("/auth?redirect_url=/onboarding"),
-                        2000,
-                    );
                     return {
                         success: false,
                         error: {
@@ -401,36 +650,37 @@ export function useSignUpForm() {
                 // If session exists, complete sign-up
                 if (signUp.createdSessionId) {
                     try {
-                        await setActive({ session: signUp.createdSessionId });
-                        // Use window.location with delay for proper session establishment
-                        setTimeout(() => {
-                            window.location.href = "/onboarding";
-                        }, 100);
+                        setIsLoading(true);
+                        console.log(
+                            "[SignUp] Email already verified, activating session...",
+                        );
+                        await setActive({
+                            session: signUp.createdSessionId,
+                            beforeEmit: async () => {
+                                console.log(
+                                    "[SignUp] Session activated. Navigating to /onboarding...",
+                                );
+                                router.replace("/onboarding");
+                            },
+                        });
                         return { success: true, error: null };
                     } catch (sessionError) {
+                        setIsLoading(false);
                         console.error(
                             "Failed to set active session for already verified email:",
                             sessionError,
                         );
-                        // Session activation failed - redirect to sign in
                         setError({
                             code: "session_activation_failed",
                             message:
-                                "Session failed. Redirecting to sign in...",
+                                "Session failed. Please sign in to continue.",
                         });
-                        setTimeout(
-                            () =>
-                                router.replace(
-                                    "/auth?redirect_url=/onboarding",
-                                ),
-                            2000,
-                        );
                         return {
                             success: false,
                             error: {
                                 code: "session_activation_failed",
                                 message:
-                                    "Session failed. Redirecting to sign in...",
+                                    "Session failed. Please sign in to continue.",
                             },
                         };
                     }
@@ -483,17 +733,49 @@ export function useSignUpForm() {
 
                 if (result.status === "complete") {
                     console.log("[SignUp] Setting active session...");
-                    await setActive({ session: result.createdSessionId });
-                    console.log(
-                        "[SignUp] Session set, redirecting to /onboarding...",
-                    );
 
-                    // Use window.location for full page navigation to ensure
-                    // the session cookie is sent with the request
-                    // Small delay to ensure Clerk finishes setting the cookie
-                    setTimeout(() => {
-                        window.location.href = "/onboarding";
-                    }, 100);
+                    // Create user in Convex BEFORE redirect
+                    if (
+                        onUserCreated &&
+                        signUp.firstName &&
+                        signUp.emailAddress
+                    ) {
+                        try {
+                            console.log("[SignUp] Creating user in Convex...");
+                            await onUserCreated({
+                                clerkId:
+                                    result.createdUserId || signUp.id || "",
+                                email: signUp.emailAddress,
+                                name:
+                                    [signUp.firstName, signUp.lastName]
+                                        .filter(Boolean)
+                                        .join(" ") ||
+                                    signUp.emailAddress.split("@")[0],
+                                avatarUrl: undefined,
+                            });
+                            console.log("[SignUp] User created in Convex");
+                        } catch (convexError) {
+                            console.error(
+                                "[SignUp] Failed to create user in Convex:",
+                                convexError,
+                            );
+                            // Continue anyway - AuthSyncProvider will handle it
+                        }
+                    }
+
+                    // Activate session and navigate using Next.js router
+                    // Using beforeEmit ensures navigation happens after session is fully established
+                    console.log("[SignUp] Activating session...");
+                    await setActive({
+                        session: result.createdSessionId,
+                        beforeEmit: async () => {
+                            console.log(
+                                "[SignUp] Session established. Navigating to /onboarding...",
+                            );
+                            router.replace("/onboarding");
+                        },
+                    });
+
                     return { success: true, error: null };
                 } else {
                     console.warn("Verification result status:", result.status);
@@ -588,13 +870,14 @@ export function useSignUpForm() {
                     message: errorMessage,
                 };
                 setError(authError);
-                return { success: false, error: authError };
-            } finally {
+                // Reset loading and verifying state on error
                 setIsLoading(false);
                 isVerifyingRef.current = false;
+                return { success: false, error: authError };
             }
+            // Note: No finally block - success path keeps isLoading true until redirect
         },
-        [isLoaded, signUp, setActive, router],
+        [isLoaded, signUp, setActive, onUserCreated, router],
     );
 
     const resendCode = useCallback(async () => {

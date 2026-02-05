@@ -60,19 +60,17 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative transition-colors duration-200 ${
-                  isActive(item.href)
+                className={`relative transition-colors duration-200 ${isActive(item.href)
                     ? "text-primary font-semibold"
                     : "text-foreground hover:text-primary"
-                }`}
+                  }`}
               >
                 {item.label}
                 <span
-                  className={`${
-                    isActive(item.href)
+                  className={`${isActive(item.href)
                       ? "opacity-100 scale-x-100"
                       : "opacity-0 scale-x-0"
-                  } absolute -bottom-2 left-0 h-0.5 w-full bg-primary rounded-full transition-all duration-300 origin-left`}
+                    } absolute -bottom-2 left-0 h-0.5 w-full bg-primary rounded-full transition-all duration-300 origin-left`}
                 />
               </Link>
             ))}
@@ -161,11 +159,10 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`transition-colors py-2 text-left ${
-                    isActive(item.href)
+                  className={`transition-colors py-2 text-left ${isActive(item.href)
                       ? "text-primary font-semibold"
                       : "text-foreground hover:text-primary"
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -180,7 +177,7 @@ export function Header() {
                     Log In
                   </Link>
                   <Link
-                    href="/welcome"
+                    href="/signup"
                     onClick={() => setMobileMenuOpen(false)}
                     className="py-2 px-4 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors text-center"
                   >

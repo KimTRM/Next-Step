@@ -1,6 +1,11 @@
 /**
  * Platform Layout
- * Server component wrapper for platform routes
+ * 
+ * Wraps all authenticated platform pages (dashboard, profile, etc.)
+ * 
+ * IMPORTANT: This is now a SERVER component.
+ * Route protection is handled by middleware.ts, not here.
+ * Onboarding redirects are handled client-side only where needed.
  */
 
 import { PlatformLayoutClient } from './PlatformLayoutClient';

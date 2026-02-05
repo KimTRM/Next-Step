@@ -3,9 +3,138 @@
  * Create, update, and manage user profiles
  */
 
-import { mutation } from "../_generated/server";
+import { mutation, internalMutation } from "../_generated/server";
 import { v } from "convex/values";
 import { calculateProfileCompletion } from "./helpers";
+
+// ============================================
+// INTERNAL MUTATIONS (for HTTP actions/webhooks)
+// ============================================
+
+/**
+ * Internal: Create or update user from webhook
+ * Called from Convex HTTP action for Clerk webhooks
+ */
+export const upsertUserInternal = internalMutation({
+    args: {
+        clerkId: v.string(),
+        name: v.string(),
+        email: v.string(),
+        avatarUrl: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        // Check if user exists
+        const existingUser = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+            .unique();
+
+        if (existingUser) {
+            // Update existing user (don't overwrite onboardingStatus or role)
+            await ctx.db.patch(existingUser._id, {
+                name: args.name,
+                email: args.email,
+                avatarUrl: args.avatarUrl,
+            });
+            console.log(`[upsertUserInternal] Updated user: ${args.clerkId}`);
+            return existingUser._id;
+        } else {
+            // Create new user with onboardingStatus = "not_started"
+            const userId = await ctx.db.insert("users", {
+                clerkId: args.clerkId,
+                name: args.name,
+                email: args.email,
+                role: "job_seeker",
+                avatarUrl: args.avatarUrl,
+                onboardingStatus: "not_started",
+                createdAt: Date.now(),
+            });
+            console.log(`[upsertUserInternal] Created user: ${args.clerkId}`);
+            return userId;
+        }
+    },
+});
+
+/**
+ * Internal: Delete user from webhook
+ * Called from Convex HTTP action for Clerk webhooks
+ */
+export const deleteUserInternal = internalMutation({
+    args: { clerkId: v.string() },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+            .unique();
+
+        if (user) {
+            await ctx.db.delete(user._id);
+            console.log(`[deleteUserInternal] Deleted user: ${args.clerkId}`);
+        }
+        return true;
+    },
+});
+
+/**
+ * Internal: Repair mentor profiles for users with role "mentor" but no mentor entry
+ * This is a data migration/repair function to fix existing data
+ */
+export const repairMentorProfiles = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        // Find all users with role "mentor"
+        const mentorUsers = await ctx.db
+            .query("users")
+            .withIndex("by_role", (q) => q.eq("role", "mentor"))
+            .collect();
+
+        let created = 0;
+        let skipped = 0;
+
+        for (const user of mentorUsers) {
+            // Check if mentor profile exists (using collect() to handle duplicates)
+            const existingMentors = await ctx.db
+                .query("mentors")
+                .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+                .collect();
+
+            if (existingMentors.length === 0) {
+                // Create mentor profile
+                await ctx.db.insert("mentors", {
+                    userId: user._id,
+                    role: "Mentor",
+                    company: "",
+                    location: user.location || "",
+                    expertise: user.skills || [],
+                    bio: user.bio || "",
+                    availability: "To be determined",
+                    rating: 0,
+                    mentees: 0,
+                    sessionsCompleted: 0,
+                    totalReviews: 0,
+                    isVerified: false,
+                    isAvailableForNewMentees: true,
+                    createdAt: Date.now(),
+                });
+                created++;
+                console.log(
+                    `[repairMentorProfiles] Created mentor profile for user: ${user._id} (${user.email})`,
+                );
+            } else {
+                skipped++;
+            }
+        }
+
+        console.log(
+            `[repairMentorProfiles] Complete. Created: ${created}, Skipped: ${skipped}`,
+        );
+        return { created, skipped, total: mentorUsers.length };
+    },
+});
+
+// ============================================
+// PUBLIC MUTATIONS
+// ============================================
 
 /**
  * Create or update user (upsert)
@@ -391,6 +520,7 @@ export const deleteUser = mutation({
 
 /**
  * Set user role during onboarding
+ * If role is "mentor", also creates a basic mentor profile in the mentors table
  */
 export const setRole = mutation({
     args: {
@@ -415,10 +545,42 @@ export const setRole = mutation({
             throw new Error("User not found");
         }
 
+        // Update user role
         await ctx.db.patch(user._id, {
             role: args.role,
             updatedAt: Date.now(),
         });
+
+        // If role is mentor, create a basic mentor profile if it doesn't exist
+        if (args.role === "mentor") {
+            const existingMentors = await ctx.db
+                .query("mentors")
+                .withIndex("by_user_id", (q) => q.eq("userId", user._id))
+                .collect();
+
+            if (existingMentors.length === 0) {
+                // Create a basic mentor profile that can be completed later
+                await ctx.db.insert("mentors", {
+                    userId: user._id,
+                    role: "Mentor", // Default role, user can update later
+                    company: "", // To be filled later
+                    location: user.location || "", // Use user's location if available
+                    expertise: user.skills || [], // Use user's skills as initial expertise
+                    bio: user.bio || "", // Use user's bio if available
+                    availability: "To be determined", // Default availability
+                    rating: 0,
+                    mentees: 0,
+                    sessionsCompleted: 0,
+                    totalReviews: 0,
+                    isVerified: false,
+                    isAvailableForNewMentees: true,
+                    createdAt: Date.now(),
+                });
+                console.log(
+                    `[setRole] Created mentor profile for user: ${user._id}`,
+                );
+            }
+        }
 
         return user._id;
     },

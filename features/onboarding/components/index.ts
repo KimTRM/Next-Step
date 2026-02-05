@@ -4,6 +4,7 @@ export { default as ProfileEssentialsContent } from "./ProfileEssentialsContent"
 export { default as GoalsSelectionContent } from "./GoalsSelectionContent";
 export { default as FinishOnboardingContent } from "./FinishOnboardingContent";
 export { OnboardingGuard, useOnboardingStatus } from "./OnboardingGuard";
+export { OnboardingRedirect } from "./OnboardingRedirect";
 
 // New onboarding flow components
 export { NewOnboardingFlow } from "./NewOnboardingFlow";

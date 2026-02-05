@@ -9,7 +9,11 @@ export { OAuthButtons } from "./OAuthButtons";
 export { AuthPageContent } from "./AuthPageContent";
 export { SignUpPageContent } from "./SignUpPageContent";
 export { AuthErrorDisplay, getAuthErrorMessage } from "./AuthError";
-export { AuthLoading, AuthLoadingSkeleton, FullPageLoading } from "./AuthLoading";
+export {
+    AuthLoading,
+    AuthLoadingSkeleton,
+    FullPageLoading,
+} from "./AuthLoading";
 export { AuthGuard, useAuthReady } from "./AuthGuard";
 export { SignOutButton } from "./SignOutButton";
 export { UserMenu } from "./UserMenu";

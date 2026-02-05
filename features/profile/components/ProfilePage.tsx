@@ -8,6 +8,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useProfile, useUpsertProfile } from "../api";
 import { useProfileCompletion } from "../hooks/useProfileCompletion";
 import { ProfileViewMode } from "./ProfileViewMode";
@@ -83,7 +84,7 @@ export function ProfilePage() {
             <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center flex-col gap-4">
                 <p className="text-lg text-gray-600">Please sign in to view your profile</p>
                 <Button asChild>
-                    <a href="/auth">Sign In</a>
+                    <Link href="/auth">Sign In</Link>
                 </Button>
             </div>
         );

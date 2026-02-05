@@ -10,6 +10,8 @@ export {
     useOAuthLogin,
     useOAuthSignUp,
     useSignOut,
+    useCurrentUser,
+    useUpsertUser,
 } from "./api";
 
 // Types
