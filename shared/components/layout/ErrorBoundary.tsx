@@ -5,6 +5,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import Link from 'next/link';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -78,7 +79,11 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = () => {
-    window.location.href = '/';
+    // Note: This is a fallback for edge cases. 
+    // The Link component in render() handles navigation properly.
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   handleReportBug = () => {
@@ -120,8 +125,8 @@ export class ErrorBoundary extends Component<Props, State> {
                 {this.props.title || 'Something went wrong'}
               </CardTitle>
               <CardDescription className="text-gray-600">
-                {this.props.description || 
-                 (isNextStepError ? error.userMessage : 'An unexpected error occurred')}
+                {this.props.description ||
+                  (isNextStepError ? error.userMessage : 'An unexpected error occurred')}
               </CardDescription>
             </CardHeader>
 
@@ -166,12 +171,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
                 {(this.props.showHome !== false) && (
                   <Button
-                    onClick={this.handleGoHome}
+                    asChild
                     className="flex-1"
                     variant="outline"
                   >
-                    <Home className="w-4 h-4 mr-2" />
-                    Go Home
+                    <Link href="/">
+                      <Home className="w-4 h-4 mr-2" />
+                      Go Home
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -209,7 +216,7 @@ export const withErrorBoundary = <P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };
 

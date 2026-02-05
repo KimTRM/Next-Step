@@ -2,15 +2,16 @@
 
 /**
  * SignUpForm Component
- * Simplified sign-up form - only collects essential auth fields
- * firstName, lastName, and organization are collected during onboarding
+ * Collects essential auth fields including firstName and lastName (required by Clerk)
+ * Organization is collected during onboarding
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Lock,
   Mail,
   UserRound,
+  User,
   Loader2,
   Eye,
   EyeOff,
@@ -21,8 +22,28 @@ import Link from "next/link";
 import { VerificationStrategyError } from "./VerificationStrategyError";
 import { useIsMobile } from "@/shared/components/ui/use-mobile";
 import { useIsTablet } from "@/shared/components/ui/use-tablet";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export function SignUpForm() {
+  // Convex mutation to create user after sign-up
+  const createUserIfMissing = useMutation(api.users.index.createUserIfMissing);
+
+  // Callback to sync user to Convex
+  const handleUserCreated = useCallback(async (userData: {
+    clerkId: string;
+    email: string;
+    name: string;
+    avatarUrl?: string;
+  }) => {
+    await createUserIfMissing({
+      clerkId: userData.clerkId,
+      email: userData.email,
+      name: userData.name,
+      avatarUrl: userData.avatarUrl,
+    });
+  }, [createUserIfMissing]);
+
   const {
     register,
     verifyEmail,
@@ -32,8 +53,10 @@ export function SignUpForm() {
     error,
     clearError,
     pendingVerification,
-  } = useSignUpForm();
+  } = useSignUpForm(handleUserCreated);
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -47,6 +70,18 @@ export function SignUpForm() {
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
+
+    if (!firstName.trim()) {
+      errors.firstName = "First name is required";
+    } else if (firstName.trim().length < 2) {
+      errors.firstName = "First name must be at least 2 characters";
+    }
+
+    if (!lastName.trim()) {
+      errors.lastName = "Last name is required";
+    } else if (lastName.trim().length < 2) {
+      errors.lastName = "Last name must be at least 2 characters";
+    }
 
     if (!username.trim()) {
       errors.username = "Username is required";
@@ -93,6 +128,8 @@ export function SignUpForm() {
     }
 
     await register({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       email: email.trim(),
       password,
       username: username.trim(),
@@ -115,6 +152,8 @@ export function SignUpForm() {
   const isSubmitDisabled =
     isLoading ||
     !isReady ||
+    !firstName ||
+    !lastName ||
     !email ||
     !password ||
     !confirmPassword ||
@@ -152,6 +191,71 @@ export function SignUpForm() {
         </div>
       )}
 
+      {/* Name Row - First Name and Last Name */}
+      <div className="flex gap-3">
+        {/* First Name Input */}
+        <div className="relative flex-1">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
+          <input
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => {
+              setFirstName(e.target.value);
+              clearFieldError("firstName");
+            }}
+            disabled={isLoading}
+            className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.firstName
+              ? "border-red-300 focus:ring-red-500 bg-red-50"
+              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+              }`}
+            autoComplete="given-name"
+            aria-invalid={!!fieldErrors.firstName}
+            aria-describedby={fieldErrors.firstName ? "firstName-error" : undefined}
+          />
+          {fieldErrors.firstName && (
+            <p
+              id="firstName-error"
+              className="mt-1 text-sm text-red-600 flex items-center gap-1"
+            >
+              <span className="text-xs">●</span>
+              {fieldErrors.firstName}
+            </p>
+          )}
+        </div>
+
+        {/* Last Name Input */}
+        <div className="relative flex-1">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
+          <input
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => {
+              setLastName(e.target.value);
+              clearFieldError("lastName");
+            }}
+            disabled={isLoading}
+            className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.lastName
+              ? "border-red-300 focus:ring-red-500 bg-red-50"
+              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+              }`}
+            autoComplete="family-name"
+            aria-invalid={!!fieldErrors.lastName}
+            aria-describedby={fieldErrors.lastName ? "lastName-error" : undefined}
+          />
+          {fieldErrors.lastName && (
+            <p
+              id="lastName-error"
+              className="mt-1 text-sm text-red-600 flex items-center gap-1"
+            >
+              <span className="text-xs">●</span>
+              {fieldErrors.lastName}
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Username Input */}
       <div className="relative">
         <UserRound className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#828282] transition-colors duration-200" />
@@ -165,8 +269,8 @@ export function SignUpForm() {
           }}
           disabled={isLoading}
           className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.username
-              ? "border-red-300 focus:ring-red-500 bg-red-50"
-              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+            ? "border-red-300 focus:ring-red-500 bg-red-50"
+            : "border-gray-300 focus:border-green-500 hover:border-gray-400"
             }`}
           autoComplete="username"
           aria-invalid={!!fieldErrors.username}
@@ -196,8 +300,8 @@ export function SignUpForm() {
           }}
           disabled={isLoading}
           className={`w-full pl-10 pr-4 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.email
-              ? "border-red-300 focus:ring-red-500 bg-red-50"
-              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+            ? "border-red-300 focus:ring-red-500 bg-red-50"
+            : "border-gray-300 focus:border-green-500 hover:border-gray-400"
             }`}
           autoComplete="email"
           aria-invalid={!!fieldErrors.email}
@@ -227,8 +331,8 @@ export function SignUpForm() {
           }}
           disabled={isLoading}
           className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.password
-              ? "border-red-300 focus:ring-red-500 bg-red-50"
-              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+            ? "border-red-300 focus:ring-red-500 bg-red-50"
+            : "border-gray-300 focus:border-green-500 hover:border-gray-400"
             }`}
           autoComplete="new-password"
           aria-invalid={!!fieldErrors.password}
@@ -270,8 +374,8 @@ export function SignUpForm() {
           }}
           disabled={isLoading}
           className={`w-full pl-10 pr-12 py-3 rounded-lg disabled:bg-gray-100 bg-[#EAEAEA] text-[#828282] disabled:cursor-not-allowed transition-colors duration-200 ${fieldErrors.confirmPassword
-              ? "border-red-300 focus:ring-red-500 bg-red-50"
-              : "border-gray-300 focus:border-green-500 hover:border-gray-400"
+            ? "border-red-300 focus:ring-red-500 bg-red-50"
+            : "border-gray-300 focus:border-green-500 hover:border-gray-400"
             }`}
           autoComplete="new-password"
           aria-invalid={!!fieldErrors.confirmPassword}

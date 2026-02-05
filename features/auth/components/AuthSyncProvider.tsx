@@ -2,153 +2,164 @@
 
 /**
  * AuthSyncProvider Component
- * Ensures user is synced to Convex when authenticated
- * Acts as a fallback if webhook doesn't create the user
+ * 
+ * Ensures the authenticated Clerk user is synced to Convex database.
+ * This is a fallback mechanism - the primary sync happens via Clerk webhooks.
+ * 
+ * IMPORTANT: This component does NOT handle routing or redirects.
+ * Route protection is handled by middleware.ts
  */
 
-import { useEffect, useRef, ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { useUser, useAuth, useClerk } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useEffect, useRef, ReactNode, createContext, useContext, useMemo } from "react";
+import { useUser, useAuth } from "@clerk/nextjs";
+import { useCurrentUser, useUpsertUser, type Doc } from "../api";
+
+// ============================================
+// TYPES
+// ============================================
+
+type ConvexAuthContextValue = {
+    /** Whether auth state is still loading */
+    isLoading: boolean;
+    /** Whether user is authenticated (signed in and exists in Convex) */
+    isAuthenticated: boolean;
+    /** Whether user needs to complete onboarding */
+    needsOnboarding: boolean;
+    /** The Clerk user ID */
+    clerkUserId: string | null;
+    /** The Convex user document */
+    user: Doc<"users"> | null | undefined;
+    /** Role helpers */
+    isJobSeeker: boolean;
+    isMentor: boolean;
+    isEmployer: boolean;
+};
+
+// ============================================
+// CONTEXT
+// ============================================
+
+const ConvexAuthContext = createContext<ConvexAuthContextValue | null>(null);
+
+// ============================================
+// PROVIDER
+// ============================================
 
 type AuthSyncProviderProps = {
     children: ReactNode;
 };
 
 export function AuthSyncProvider({ children }: AuthSyncProviderProps) {
-    const { isLoaded: authLoaded, isSignedIn } = useAuth();
-    const { user, isLoaded: userLoaded } = useUser();
-    const { signOut } = useClerk();
-    const router = useRouter();
-    const upsertUser = useMutation(api.users.index.upsertUser);
-    const convexUser = useQuery(
-        api.users.index.getCurrentUser,
-        authLoaded && isSignedIn ? {} : "skip"
-    );
-    const hasSynced = useRef(false);
-    const hasAttemptedSessionFix = useRef(false);
+    const { isLoaded: authLoaded, isSignedIn, userId } = useAuth();
+    const { user: clerkUser, isLoaded: userLoaded } = useUser();
 
+    // Convex hooks from auth api layer
+    const upsertUser = useUpsertUser();
+    const convexUser = useCurrentUser();
+
+    // Track if we've synced this session
+    const hasSyncedRef = useRef(false);
+    const syncingRef = useRef(false);
+
+    // Sync user to Convex when authenticated
     useEffect(() => {
-        // Only sync once per session
-        if (hasSynced.current) return;
+        // Reset sync flag when user signs out
+        if (!isSignedIn) {
+            hasSyncedRef.current = false;
+            return;
+        }
 
-        // Wait for auth and user to load
-        if (!authLoaded || !userLoaded) return;
+        // Skip if already synced this session
+        if (hasSyncedRef.current) return;
 
-        // Only sync if signed in
-        if (!isSignedIn || !user) return;
+        // Skip if currently syncing
+        if (syncingRef.current) return;
 
-        // Check if user already exists in Convex
-        // convexUser will be null if user doesn't exist, undefined if loading
+        // Wait for all data to load
+        if (!authLoaded || !userLoaded || !clerkUser) return;
+
+        // Wait for Convex query to resolve
         if (convexUser === undefined) return;
 
-        // If user already exists, no need to sync
+        // If user already exists in Convex, mark as synced
         if (convexUser !== null) {
-            hasSynced.current = true;
+            hasSyncedRef.current = true;
             return;
         }
 
         // User is signed in but doesn't exist in Convex - create them
         const syncUser = async () => {
+            syncingRef.current = true;
+
             try {
-                const email = user.primaryEmailAddress?.emailAddress;
+                const email = clerkUser.primaryEmailAddress?.emailAddress;
                 if (!email) {
-                    console.error("No email found for user");
+                    console.error("[AuthSync] No email found for user");
                     return;
                 }
 
                 await upsertUser({
-                    clerkId: user.id,
+                    clerkId: clerkUser.id,
                     email,
-                    name: user.fullName || user.firstName || email.split("@")[0],
-                    avatarUrl: user.imageUrl,
+                    name: clerkUser.fullName || clerkUser.firstName || email.split("@")[0],
+                    avatarUrl: clerkUser.imageUrl,
                 });
 
-                hasSynced.current = true;
+                hasSyncedRef.current = true;
+                console.log("[AuthSync] User synced to Convex:", clerkUser.id);
             } catch (error) {
-                console.error("Error syncing user to Convex:", error);
+                console.error("[AuthSync] Failed to sync user:", error);
+            } finally {
+                syncingRef.current = false;
             }
         };
 
         syncUser();
-    }, [authLoaded, userLoaded, isSignedIn, user, convexUser, upsertUser]);
+    }, [authLoaded, userLoaded, isSignedIn, clerkUser, convexUser, upsertUser]);
 
-    // If Clerk reports not signed in but a server session cookie exists,
-    // the session is likely invalid. Clear it and redirect to sign-in.
-    useEffect(() => {
-        try {
-            if (typeof window === "undefined") return;
-            // Only attempt once per page load
-            if (hasAttemptedSessionFix.current) return;
+    // Compute auth context value
+    const contextValue = useMemo<ConvexAuthContextValue>(() => {
+        const isLoading = !authLoaded || !userLoaded || (isSignedIn && convexUser === undefined);
+        const isAuthenticated = isSignedIn === true && convexUser !== null && convexUser !== undefined;
+        const needsOnboarding = isAuthenticated && convexUser?.onboardingStatus !== "completed";
 
-            if (authLoaded && !isSignedIn) {
-                const hasSessionCookie = document.cookie.includes("__session=");
-                if (hasSessionCookie) {
-                    console.warn(
-                        "AuthSyncProvider: detected server session cookie but Clerk reports not signed in. Clearing invalid session.",
-                    );
-                    hasAttemptedSessionFix.current = true;
+        return {
+            isLoading,
+            isAuthenticated,
+            needsOnboarding,
+            clerkUserId: userId ?? null,
+            user: convexUser,
+            isJobSeeker: convexUser?.role === "job_seeker",
+            isMentor: convexUser?.role === "mentor",
+            isEmployer: convexUser?.role === "employer",
+        };
+    }, [authLoaded, userLoaded, isSignedIn, userId, convexUser]);
 
-                    // Clear the invalid session cookie and sign out properly
-                    signOut().then(() => {
-                        // Force clear the cookie manually as well
-                        document.cookie = "__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                        // Refresh to get clean state
-                        router.refresh();
-                    }).catch((err) => {
-                        console.error("Failed to sign out invalid session:", err);
-                        // Even if signOut fails, clear the cookie
-                        document.cookie = "__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                        router.refresh();
-                    });
-                }
-            }
-        } catch (e) {
-            // Non-fatal - ignore
-            console.error("AuthSyncProvider: session fix failed:", e);
-        }
-    }, [authLoaded, isSignedIn, router, signOut]);
-
-    return <>{children}</>;
+    return (
+        <ConvexAuthContext.Provider value={contextValue}>
+            {children}
+        </ConvexAuthContext.Provider>
+    );
 }
+
+// ============================================
+// HOOK
+// ============================================
 
 /**
  * Hook to get combined auth state from Clerk and Convex
+ * 
+ * Usage:
+ * ```tsx
+ * const { isLoading, isAuthenticated, user, needsOnboarding } = useConvexAuth();
+ * ```
  */
-export function useConvexAuth() {
-    const { isLoaded: authLoaded, isSignedIn, userId } = useAuth();
-    const { user: clerkUser, isLoaded: userLoaded } = useUser();
-    const convexUser = useQuery(
-        api.users.index.getCurrentUser,
-        authLoaded && isSignedIn ? {} : "skip"
-    );
-    const convexSession = useQuery(
-        api.users.index.getCurrentSession,
-        authLoaded && isSignedIn ? {} : "skip"
-    );
+export function useConvexAuth(): ConvexAuthContextValue {
+    const context = useContext(ConvexAuthContext);
 
-    const isLoading = !authLoaded || !userLoaded || (isSignedIn && convexUser === undefined);
-    const isAuthenticated = isSignedIn === true && convexUser !== null;
-    const needsOnboarding = isAuthenticated && convexUser?.isOnboardingComplete !== true;
+    if (!context) {
+        throw new Error("useConvexAuth must be used within AuthSyncProvider");
+    }
 
-    return {
-        // Auth state
-        isLoading,
-        isAuthenticated,
-        needsOnboarding,
-
-        // Clerk data
-        clerkUserId: userId,
-        clerkUser,
-
-        // Convex data
-        user: convexUser,
-        session: convexSession,
-
-        // Role helpers
-        isJobSeeker: convexUser?.role === "job_seeker",
-        isMentor: convexUser?.role === "mentor",
-        isEmployer: convexUser?.role === "employer",
-    };
+    return context;
 }

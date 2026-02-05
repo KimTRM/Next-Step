@@ -5,28 +5,33 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+// Public routes - accessible without authentication
+const isPublicRoute = createRouteMatcher([
+    "/",
+    "/jobs(.*)",
+    "/mentors(.*)",
+    "/api(.*)",
+]);
+
 // Auth routes - redirect authenticated users away from these
 const isAuthRoute = createRouteMatcher([
     "/auth(.*)",
     "/login(.*)",
     "/sign-up(.*)",
+    "/sso-callback(.*)",
 ]);
 
-// Protected routes - require authentication
-const isProtectedRoute = createRouteMatcher([
-    "/dashboard(.*)",
-    "/welcome",
-    "/onboarding(.*)",
-    "/applications(.*)",
-    "/jobs(.*)",
-    "/mentors(.*)",
-    "/messages(.*)",
-    "/profile(.*)",
-]);
+// Onboarding route - special handling for new users
+const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
     const { userId } = await auth();
     const { pathname } = req.nextUrl;
+
+    // Allow public routes without any checks
+    if (isPublicRoute(req)) {
+        return NextResponse.next();
+    }
 
     // Redirect authenticated users away from auth pages
     if (userId && isAuthRoute(req)) {
@@ -36,15 +41,42 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.redirect(targetUrl);
     }
 
-    // Protect routes that require authentication
-    if (!userId && isProtectedRoute(req)) {
+    // Allow auth routes for unauthenticated users
+    if (isAuthRoute(req)) {
+        return NextResponse.next();
+    }
+
+    // Special handling for onboarding route
+    // Allow access even if session is still being established (race condition after sign-up)
+    if (isOnboardingRoute(req)) {
+        // If authenticated, allow access
+        if (userId) {
+            return NextResponse.next();
+        }
+        // If not authenticated, check if there's a pending session (Clerk cookie exists but not yet validated)
+        // Give a small grace period for session establishment by allowing the request
+        // The client-side will handle redirect if truly unauthenticated
+        const hasClerkCookie =
+            req.cookies.has("__client_uat") || req.cookies.has("__session");
+        if (hasClerkCookie) {
+            // Session cookie exists, allow request - client will handle auth check
+            return NextResponse.next();
+        }
+        // No session at all, redirect to auth
+        const loginUrl = new URL("/auth", req.url);
+        loginUrl.searchParams.set("redirect_url", pathname);
+        return NextResponse.redirect(loginUrl);
+    }
+
+    // All other routes require authentication
+    if (!userId) {
         // Preserve the intended destination for redirect after login
         const loginUrl = new URL("/auth", req.url);
         loginUrl.searchParams.set("redirect_url", pathname);
         return NextResponse.redirect(loginUrl);
     }
 
-    // Allow public routes and authenticated requests to proceed
+    // Allow authenticated requests to proceed
     return NextResponse.next();
 });
 
