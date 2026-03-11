@@ -1,41 +1,46 @@
 """
-Job Matcher API
-FastAPI backend for resume upload and job matching
+PH Job Matcher API — v2
+Siamese Bi-Encoder + Cross-Encoder architecture
+PostgreSQL + pgvector backend
+FastAPI + uvicorn
 """
+from __future__ import annotations
 
-import os
-import sys
 import json
+import os
+import subprocess
+import sys
 import tempfile
-import sqlite3
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-from datetime import datetime
 
-# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-from models.resume_parser import ResumeParser, ParsedResume
-from models.job_matcher import JobMatcher, MatchResult, IndustryClassifier
-from data.data_generator import JobDatabase, generate_training_data, populate_sample_database
 from config.settings import settings
-from services.job_api_service import JobAPIOrchestrator
+from models.cross_encoder import PHJobCrossEncoder, CHECKPOINT_DIR
+from models.bi_encoder import PHJobBiEncoder
+from models.text_formatter import format_resume, format_job, verdict_from_confidence
+from models.resume_parser import ResumeParser, ParsedResume
+from pipeline.normalizers.skill_normalizer import SkillNormalizer
 from services.gemini_analyzer import GeminiResumeAnalyzer
 from services.linkedin_scraper import LinkedInScraper
 
-# Initialize FastAPI app
+# ---------------------------------------------------------------------------
+# App init
+# ---------------------------------------------------------------------------
+
 app = FastAPI(
-    title="Job Matcher AI",
-    description="AI-powered job matching based on resume skills",
-    version="1.0.0"
+    title="PH Job Matcher AI v2",
+    description="Siamese Bi-Encoder + Cross-Encoder resume-to-job matching for the Philippines",
+    version="2.0.0",
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,946 +49,686 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ---------------------------------------------------------------------------
 # Global instances
-resume_parser = ResumeParser()
-job_matcher = JobMatcher()
-db: Optional[JobDatabase] = None
-is_trained = False
-job_api_orchestrator: Optional[JobAPIOrchestrator] = None
+# ---------------------------------------------------------------------------
+
+cross_encoder: Optional[PHJobCrossEncoder] = None
+bi_encoder: Optional[PHJobBiEncoder] = None
+resume_parser: Optional[ResumeParser] = None
+skill_normalizer: Optional[SkillNormalizer] = None
 gemini_analyzer: Optional[GeminiResumeAnalyzer] = None
 linkedin_scraper: Optional[LinkedInScraper] = None
+db_available: bool = False
 
 
-# Pydantic models for API
-class SkillInput(BaseModel):
-    skills: List[str]
-    experience_years: float = 0
-    education: List[dict] = []
-    industries: List[str] = []
-
+# ---------------------------------------------------------------------------
+# Pydantic models
+# ---------------------------------------------------------------------------
 
 class MatchRequest(BaseModel):
-    skills: List[str]
-    experience_years: float
-    education: List[dict] = []
-    industries: List[str] = []
+    resume: dict  # {skills, experience_yrs, education, certifications, industry, region}
+    job_id: Optional[str] = None
+    job: Optional[dict] = None  # Direct job dict if no job_id
     city: Optional[str] = None
     target_industry: Optional[str] = None
     limit: int = 20
-    linkedin_url: Optional[str] = None  # Optional LinkedIn profile URL
+    linkedin_url: Optional[str] = None
+
+
+class MatchResponse(BaseModel):
+    confidence: float
+    skill_match: List[str]
+    skill_gaps: List[str]
+    verdict: str  # 'Strong Match' | 'Partial Match' | 'Low Match'
+    job_title: Optional[str] = None
+    company: Optional[str] = None
+
+
+class BulkMatchRequest(BaseModel):
+    resume: dict
+    city: Optional[str] = None
+    target_industry: Optional[str] = None
+    limit: int = 20
+    linkedin_url: Optional[str] = None
+
+
+class TrainingConfig(BaseModel):
+    epochs: int = 10
+    batch_size: int = 32
+    encoder_lr: float = 2e-5
+    head_lr: float = 1e-4
+    warmup_steps: int = 500
+    patience: int = 3
+    jsonl_path: Optional[str] = None
+
+
+class FeedbackRequest(BaseModel):
+    resume_id: Optional[str] = None
+    job_id: Optional[str] = None
+    was_successful: bool
+    feedback_type: str = "application"
 
 
 class LinkedInRequest(BaseModel):
     linkedin_url: str
 
 
-class FeedbackRequest(BaseModel):
-    job_id: str
-    candidate_id: str
-    was_successful: bool
-    feedback_type: str = "application"  # application, interview, hire
-
-
-class TrainingConfig(BaseModel):
-    num_samples: int = 1000
-    hire_rate: float = 0.3
-
-
-class HealthResponse(BaseModel):
-    status: str
-    is_trained: bool
-    num_jobs: int
-    timestamp: str
-
+# ---------------------------------------------------------------------------
+# Startup
+# ---------------------------------------------------------------------------
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database and train model on startup"""
-    global db, job_matcher, is_trained, job_api_orchestrator, gemini_analyzer, linkedin_scraper
+    global cross_encoder, bi_encoder, resume_parser, skill_normalizer
+    global gemini_analyzer, linkedin_scraper, db_available
 
-    # Initialize database
-    db_path = settings.DB_PATH
-    db = JobDatabase(db_path)
+    print("[Startup] Initializing PH Job Matcher v2...")
 
-    # Run database migration inline
-    print("Running database migrations...")
+    # Skill normalizer (always available)
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(jobs)")
-        columns = [col[1] for col in cursor.fetchall()]
-
-        if 'job_url' not in columns:
-            cursor.execute('ALTER TABLE jobs ADD COLUMN job_url TEXT')
-            print("[OK] Added job_url column")
-
-        if 'job_source' not in columns:
-            cursor.execute('ALTER TABLE jobs ADD COLUMN job_source TEXT DEFAULT "synthetic"')
-            print("[OK] Added job_source column")
-
-        cursor.execute("UPDATE jobs SET job_source = 'synthetic' WHERE job_source IS NULL")
-        conn.commit()
-        conn.close()
-        print("[SUCCESS] Migration completed successfully!")
+        skill_normalizer = SkillNormalizer()
+        print("[OK] Skill normalizer initialized")
     except Exception as e:
-        print(f"[WARNING] Migration warning: {e}")
+        print(f"[WARN] Skill normalizer: {e}")
 
-    # Initialize Gemini analyzer if API key is available
+    # Resume parser (original — kept for compatibility)
+    try:
+        resume_parser = ResumeParser()
+        print("[OK] Resume parser initialized")
+    except Exception as e:
+        print(f"[WARN] Resume parser: {e}")
+
+    # Cross-Encoder (load checkpoint if available)
+    try:
+        checkpoint = CHECKPOINT_DIR / "cross_encoder.pt"
+        if checkpoint.exists():
+            cross_encoder = PHJobCrossEncoder.load(checkpoint)
+            print(f"[OK] Cross-Encoder loaded from {checkpoint}")
+        else:
+            cross_encoder = PHJobCrossEncoder()
+            print("[INFO] Cross-Encoder initialized (no checkpoint — run /train first)")
+    except Exception as e:
+        print(f"[WARN] Cross-Encoder: {e}")
+
+    # Bi-Encoder
+    try:
+        bi_checkpoint = CHECKPOINT_DIR / "bi_encoder.pt"
+        if bi_checkpoint.exists():
+            bi_encoder = PHJobBiEncoder.load(bi_checkpoint)
+        else:
+            bi_encoder = PHJobBiEncoder()
+        print("[OK] Bi-Encoder initialized")
+    except Exception as e:
+        print(f"[WARN] Bi-Encoder: {e}")
+
+    # PostgreSQL
+    try:
+        from database.db import ping
+        db_available = ping()
+        if db_available:
+            print("[OK] PostgreSQL connected")
+        else:
+            print("[WARN] PostgreSQL not reachable — set DATABASE_URL in .env.local")
+    except Exception as e:
+        print(f"[WARN] PostgreSQL: {e}")
+
+    # Gemini
     if settings.GEMINI_API_KEY:
-        print("[DEBUG] Initializing Gemini Resume Analyzer...")
-        gemini_analyzer = GeminiResumeAnalyzer(settings.GEMINI_API_KEY)
-        if gemini_analyzer.is_available():
-            print("[SUCCESS] Gemini Resume Analyzer initialized!")
-        else:
-            print("[WARNING] Gemini API key provided but initialization failed")
-    else:
-        print("[INFO] No Gemini API key configured, using fallback analysis")
+        try:
+            gemini_analyzer = GeminiResumeAnalyzer(settings.GEMINI_API_KEY)
+            print("[OK] Gemini analyzer initialized")
+        except Exception as e:
+            print(f"[WARN] Gemini: {e}")
 
-    # Initialize LinkedIn scraper (uses same Apify API key)
+    # LinkedIn scraper
     if settings.APIFY_API_KEY:
-        print("[DEBUG] Initializing LinkedIn Scraper...")
-        linkedin_scraper = LinkedInScraper(settings.APIFY_API_KEY)
-        print("[SUCCESS] LinkedIn Scraper initialized!")
-    else:
-        print("[INFO] No Apify API key configured, LinkedIn scraping disabled")
+        try:
+            linkedin_scraper = LinkedInScraper(settings.APIFY_API_KEY)
+            print("[OK] LinkedIn scraper initialized")
+        except Exception as e:
+            print(f"[WARN] LinkedIn scraper: {e}")
 
-    # Initialize job API orchestrator if real jobs are enabled
-    if settings.USE_REAL_JOBS:
-        print(f"[DEBUG] USE_REAL_JOBS={settings.USE_REAL_JOBS}, Initializing job API orchestrator...")
-        job_api_orchestrator = JobAPIOrchestrator(settings)
-        print(f"[DEBUG] job_api_orchestrator initialized: {job_api_orchestrator is not None}")
-        print(f"[DEBUG] Available clients: {list(job_api_orchestrator.clients.keys()) if job_api_orchestrator else 'None'}")
-
-    # Check if we need to populate sample data
-    jobs = db.get_all_jobs(limit=1)
-    if not jobs:
-        if settings.USE_REAL_JOBS and job_api_orchestrator:
-            print("Fetching real Philippine jobs...")
-            await fetch_and_cache_real_jobs()
-        else:
-            print("Populating sample job database...")
-            populate_sample_database(db_path, num_jobs=500)
-
-    # Train the model
-    print("Training job matcher model...")
-    training_data = generate_training_data(num_samples=500)
-    job_matcher.train(training_data)
-    is_trained = True
-    print("Model training complete!")
+    print("[Startup] Done.")
 
 
-async def fetch_and_cache_real_jobs():
-    """Fetch real jobs from API and cache in database"""
-    if not job_api_orchestrator:
-        print("Job API orchestrator not initialized")
-        return False
+# ---------------------------------------------------------------------------
+# Health
+# ---------------------------------------------------------------------------
 
-    try:
-        # Fetch jobs for top Philippine cities
-        for city in settings.PHILIPPINE_CITIES[:5]:  # Top 5 cities
-            print(f"Fetching jobs for {city}...")
-            jobs = job_api_orchestrator.fetch_jobs(
-                location=city,
-                keywords=['software', 'technology', 'data', 'business'],
-                limit=20
-            )
-
-            # Insert into database
-            for job in jobs:
-                db.insert_job(job)
-
-            print(f"Cached {len(jobs)} jobs for {city}")
-
-        return True
-    except Exception as e:
-        print(f"Error fetching real jobs: {e}")
-        return False
-
-
-@app.get("/health", response_model=HealthResponse)
+@app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    jobs = db.get_all_jobs(limit=1) if db else []
-    return HealthResponse(
-        status="healthy",
-        is_trained=is_trained,
-        num_jobs=len(db.get_all_jobs(limit=10000)) if db else 0,
-        timestamp=datetime.now().isoformat()
-    )
+    checkpoint = CHECKPOINT_DIR / "cross_encoder.pt"
+    return {
+        "status": "healthy",
+        "version": "2.0.0",
+        "model": "PHJobCrossEncoder (paraphrase-multilingual-MiniLM-L12-v2)",
+        "checkpoint_exists": checkpoint.exists(),
+        "db_connected": db_available,
+        "gemini_available": gemini_analyzer is not None,
+        "linkedin_available": linkedin_scraper is not None,
+        "timestamp": datetime.now().isoformat(),
+    }
 
+
+# ---------------------------------------------------------------------------
+# Model info
+# ---------------------------------------------------------------------------
+
+@app.get("/model-info")
+async def model_info():
+    checkpoint = CHECKPOINT_DIR / "cross_encoder.pt"
+    metrics_path = CHECKPOINT_DIR / "metrics.json"
+    training_path = CHECKPOINT_DIR / "training_metrics.json"
+
+    latest_metrics = {}
+    if metrics_path.exists():
+        with open(metrics_path) as f:
+            latest_metrics = json.load(f)
+
+    training_metrics = {}
+    if training_path.exists():
+        with open(training_path) as f:
+            training_metrics = json.load(f)
+
+    latest_run = None
+    if db_available:
+        try:
+            from database.db import get_latest_training_run
+            latest_run = get_latest_training_run()
+        except Exception:
+            pass
+
+    return {
+        "architecture": "Siamese Bi-Encoder + Cross-Encoder Reranker",
+        "base_model": settings.BI_ENCODER_BASE,
+        "embedding_dim": 384,
+        "projection_dim": 128,
+        "checkpoint": str(checkpoint),
+        "checkpoint_exists": checkpoint.exists(),
+        "evaluation_metrics": latest_metrics,
+        "training_metrics": training_metrics,
+        "latest_training_run": latest_run,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Resume parsing
+# ---------------------------------------------------------------------------
 
 @app.post("/parse-resume")
-async def parse_resume(file: UploadFile = File(...)):
-    """
-    Parse an uploaded resume and extract skills, experience, education.
-    
-    Supports: PDF, DOCX, TXT files
-    """
-    # Validate file type
-    allowed_types = {'.pdf', '.docx', '.txt'}
-    file_ext = Path(file.filename).suffix.lower()
-    
-    if file_ext not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type. Allowed: {', '.join(allowed_types)}"
-        )
-    
-    # Save to temp file and parse
+async def parse_resume_file(file: UploadFile = File(...)):
+    allowed = {".pdf", ".docx", ".txt"}
+    ext = Path(file.filename or "resume.txt").suffix.lower()
+    if ext not in allowed:
+        raise HTTPException(400, f"Unsupported file type. Allowed: {', '.join(allowed)}")
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp:
-            content = await file.read()
-            tmp.write(content)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+            tmp.write(await file.read())
             tmp_path = tmp.name
-        
-        # Parse resume
+
         parsed = resume_parser.parse(tmp_path)
-        
-        # Clean up
         os.unlink(tmp_path)
-        
-        return {
-            "success": True,
-            "data": parsed.to_dict()
-        }
-        
+        return {"success": True, "data": parsed.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
 
 
 @app.post("/parse-resume-text")
-async def parse_resume_text(text: str):
-    """Parse resume from raw text"""
+async def parse_resume_text_endpoint(text: str):
     try:
         parsed = resume_parser.parse_text(text)
-        return {
-            "success": True,
-            "data": parsed.to_dict()
-        }
+        return {"success": True, "data": parsed.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))
 
 
-@app.post("/match")
-async def match_jobs(request: MatchRequest):
-    """
-    Match candidate skills to available jobs.
-    
-    Returns jobs ranked by confidence score.
-    """
-    if not is_trained:
-        raise HTTPException(
-            status_code=503,
-            detail="Model not yet trained. Please wait."
-        )
-    
-    # Build candidate profile
-    candidate = {
-        'skills': request.skills,
-        'experience_years': request.experience_years,
-        'education': request.education,
-        'industries': request.industries,
-    }
-    
-    # Get jobs from database
-    if request.city and request.target_industry:
-        jobs = db.get_jobs_by_industry(request.target_industry, request.city)
-    elif request.city:
-        jobs = db.get_jobs_by_city(request.city)
-    elif request.target_industry:
-        jobs = db.get_jobs_by_industry(request.target_industry)
-    else:
-        jobs = db.get_all_jobs(limit=200)
-    
-    # If no jobs found locally and real jobs are enabled, fetch from API on-demand
-    if not jobs and settings.USE_REAL_JOBS and job_api_orchestrator:
-        print(f"[DEBUG] No local jobs found for {request.city}/{request.target_industry}. Fetching from Apify...")
-        
-        # Build search keywords from candidate skills and target industry
-        search_keywords = []
-        
-        # Add industry-related keywords - use simpler, broader search terms
-        industry_keywords = {
-            'Technology': ['software developer', 'IT specialist', 'programmer'],
-            'Finance': ['accountant', 'financial analyst', 'bookkeeper'],
-            'Healthcare': ['nurse', 'medical assistant', 'healthcare'],
-            'Consulting': ['consultant', 'business analyst', 'advisor'],
-            'Retail': ['sales associate', 'retail', 'customer service'],
-            'Manufacturing': ['production', 'manufacturing', 'operations'],
-            'Education': ['teacher', 'instructor', 'tutor'],
-            'Marketing': ['marketing', 'digital marketing', 'social media'],
-            'Media': ['marketing', 'media', 'advertising'],
-            'BPO': ['customer service', 'call center', 'technical support'],
-            'Engineering': ['engineer', 'civil engineer', 'mechanical engineer'],
-            'Hospitality': ['hotel', 'restaurant', 'hospitality'],
-            'Legal': ['paralegal', 'legal assistant', 'lawyer'],
-            'HR': ['human resources', 'recruiter', 'HR specialist'],
-            'Human Resources': ['human resources', 'recruiter', 'HR specialist'],
-            'Administrative': ['admin assistant', 'office manager', 'secretary'],
-            'Fine Arts & Design': ['graphic designer', 'UI UX designer', 'illustrator', 'creative designer'],
-        }
-        
-        # Use industry-specific search term (just ONE good keyword, not combined)
-        if request.target_industry and request.target_industry in industry_keywords:
-            # Use just the first keyword for the industry - more effective search
-            search_keywords = [industry_keywords[request.target_industry][0]]
-        elif request.target_industry:
-            # If industry not in our list, use the industry name itself
-            search_keywords = [request.target_industry.lower()]
-        
-        # Only add skills if no industry keywords found
-        if not search_keywords and request.skills:
-            # Use just one skill for cleaner search
-            search_keywords = [request.skills[0]]
-        
-        # Default fallback
-        if not search_keywords:
-            search_keywords = ['job']
-        
-        # Fetch jobs from API
-        fetched_jobs = job_api_orchestrator.fetch_jobs(
-            location=request.city or 'Philippines',
-            keywords=search_keywords,
-            limit=request.limit or 20
-        )
-        
-        if fetched_jobs:
-            print(f"[DEBUG] Fetched {len(fetched_jobs)} jobs from API")
-            # Cache jobs in database for future use
-            for job in fetched_jobs:
-                db.insert_job(job)
-            jobs = fetched_jobs
-        else:
-            print(f"[DEBUG] No jobs returned from API")
-    
-    if not jobs:
-        return {
-            "success": True,
-            "matches": [],
-            "candidate_skills": request.skills,
-            "total_jobs_analyzed": 0,
-            "industry_summary": {},
-            "message": "No jobs found for the specified criteria"
-        }
-    
-    # Calculate LinkedIn boost if provided
-    linkedin_boost = 0
-    linkedin_data = None
+# ---------------------------------------------------------------------------
+# Core matching
+# ---------------------------------------------------------------------------
+
+@app.post("/match", response_model=MatchResponse)
+async def match_single(request: MatchRequest):
+    """Match a resume against a specific job dict or job_id."""
+    if cross_encoder is None:
+        raise HTTPException(503, "Model not initialized")
+
+    # Resolve job
+    job = request.job
+    if job is None and request.job_id and db_available:
+        try:
+            from database.db import get_jobs
+            jobs = get_jobs(limit=1)
+            job = jobs[0] if jobs else None
+        except Exception:
+            pass
+    if job is None:
+        raise HTTPException(400, "Provide either job_id or job dict")
+
+    resume = request.resume
+    resume_text = format_resume(resume)
+    job_text = format_job(job)
+
+    confidence = cross_encoder.score(resume_text, job_text)
+
+    # LinkedIn boost
     if request.linkedin_url and linkedin_scraper:
-        if linkedin_scraper.is_valid_linkedin_url(request.linkedin_url):
-            print(f"[LinkedIn] Scraping profile for match boost: {request.linkedin_url}")
-            linkedin_data = linkedin_scraper.scrape_profile(request.linkedin_url)
-            boost_info = linkedin_scraper.calculate_profile_boost(linkedin_data)
-            linkedin_boost = boost_info.get("boost_percentage", 0)
-            print(f"[LinkedIn] Boost calculated: {linkedin_boost}%")
-            
-            # Merge LinkedIn skills with resume skills
-            if linkedin_data.get("skills"):
-                existing_skills = set(s.lower() for s in request.skills)
-                for skill in linkedin_data.get("skills", []):
-                    if skill.lower() not in existing_skills:
-                        candidate['skills'].append(skill)
-    elif not request.linkedin_url:
-        # Small penalty for no LinkedIn
-        linkedin_boost = -3
-        print("[LinkedIn] No profile provided, applying -3% penalty")
-    
-    # Match against all jobs
-    matches = []
-    for job in jobs:
-        result = job_matcher.match(candidate, job)
-        result_dict = result.to_dict()
-        
-        # Apply LinkedIn boost to confidence
-        if linkedin_boost != 0:
-            original_confidence = result_dict['confidence']
-            result_dict['confidence'] = max(5, min(99, original_confidence + linkedin_boost))
-            result_dict['linkedin_boost'] = linkedin_boost
-        
-        matches.append(result_dict)
-    
-    # Sort by confidence
-    matches.sort(key=lambda x: x['confidence'], reverse=True)
-    
-    # Group by industry
-    industry_summary = {}
-    for match in matches:
-        ind = match['industry']
-        if ind not in industry_summary:
-            industry_summary[ind] = {
-                'count': 0,
-                'avg_confidence': 0,
-                'top_companies': []
-            }
-        industry_summary[ind]['count'] += 1
-        industry_summary[ind]['avg_confidence'] += match['confidence']
-        if len(industry_summary[ind]['top_companies']) < 3:
-            industry_summary[ind]['top_companies'].append(match['company'])
-    
-    # Calculate averages
-    for ind in industry_summary:
-        industry_summary[ind]['avg_confidence'] = round(
-            industry_summary[ind]['avg_confidence'] / industry_summary[ind]['count'], 1
-        )
-    
-    return {
-        "success": True,
-        "total_jobs_analyzed": len(jobs),
-        "matches": matches[:request.limit],
-        "industry_summary": industry_summary,
-        "candidate_skills": request.skills,
-        "linkedin_boost": linkedin_boost,
-        "linkedin_skills": linkedin_data.get("skills", []) if linkedin_data else [],
-        "linkedin_profile": linkedin_data if linkedin_data and linkedin_data.get("scraped") else None,
-    }
+        try:
+            boost = await linkedin_scraper.get_confidence_boost(request.linkedin_url)
+            confidence = min(1.0, confidence + boost * 0.15)
+        except Exception:
+            pass
+
+    resume_skills = set(s.lower() for s in resume.get("skills", []))
+    job_skills = list(job.get("required_skills", []))
+    skill_match = [s for s in job_skills if s.lower() in resume_skills]
+    skill_gaps = [s for s in job_skills if s.lower() not in resume_skills]
+
+    return MatchResponse(
+        confidence=round(confidence, 3),
+        skill_match=skill_match,
+        skill_gaps=skill_gaps,
+        verdict=verdict_from_confidence(confidence),
+        job_title=job.get("title"),
+        company=job.get("company"),
+    )
+
+
+@app.post("/match-bulk")
+async def match_bulk(request: BulkMatchRequest):
+    """Match a resume against multiple jobs from the database."""
+    if cross_encoder is None:
+        raise HTTPException(503, "Model not initialized")
+
+    resume = request.resume
+    resume_text = format_resume(resume)
+
+    # Get jobs from DB or use synthetic fallback
+    jobs = []
+    if db_available:
+        try:
+            from database.db import get_jobs, vector_search_jobs
+            # Try vector search first if bi-encoder available
+            if bi_encoder is not None:
+                import torch
+                emb = bi_encoder.encode_texts_384([resume_text])
+                emb_list = emb[0].tolist()
+                jobs = vector_search_jobs(emb_list, limit=request.limit * 2)
+            else:
+                jobs = get_jobs(
+                    industry=request.target_industry,
+                    region=request.city,
+                    limit=request.limit * 2,
+                )
+        except Exception as e:
+            print(f"[WARN] DB query: {e}")
+
+    if not jobs:
+        raise HTTPException(503, "No jobs available. Run /pipeline/run to fetch data.")
+
+    # Rerank with cross-encoder
+    resume_texts = [resume_text] * len(jobs)
+    job_texts = [format_job(j) for j in jobs]
+    scores = cross_encoder.score_batch(resume_texts, job_texts)
+
+    results = []
+    resume_skills = set(s.lower() for s in resume.get("skills", []))
+    for job, score in sorted(zip(jobs, scores), key=lambda x: x[1], reverse=True)[:request.limit]:
+        job_skills = job.get("required_skills") or []
+        if isinstance(job_skills, str):
+            job_skills = json.loads(job_skills)
+        results.append({
+            "job": {
+                "id": str(job.get("id", "")),
+                "title": job.get("title", ""),
+                "company": job.get("company", ""),
+                "location": job.get("location", ""),
+                "industry": job.get("industry", ""),
+                "required_skills": job_skills,
+                "min_experience": job.get("min_experience", 0),
+                "source_url": job.get("source_url", ""),
+            },
+            "confidence": round(score, 3),
+            "skill_match": [s for s in job_skills if s.lower() in resume_skills],
+            "skill_gaps": [s for s in job_skills if s.lower() not in resume_skills],
+            "verdict": verdict_from_confidence(score),
+        })
+
+    return {"matches": results, "total": len(results)}
 
 
 @app.post("/match-resume")
-async def match_resume(
+async def match_resume_upload(
     file: UploadFile = File(...),
     city: Optional[str] = Query(None),
     industry: Optional[str] = Query(None),
-    limit: int = Query(20)
+    limit: int = Query(20),
 ):
-    """
-    Upload a resume and get job matches in one step.
-    """
-    # Parse resume
-    allowed_types = {'.pdf', '.docx', '.txt'}
-    file_ext = Path(file.filename).suffix.lower()
-    
-    if file_ext not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type. Allowed: {', '.join(allowed_types)}"
-        )
-    
+    """Upload resume file → parse → bulk match. One-step endpoint."""
+    allowed = {".pdf", ".docx", ".txt"}
+    ext = Path(file.filename or "resume.txt").suffix.lower()
+    if ext not in allowed:
+        raise HTTPException(400, f"Unsupported file type: {ext}")
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp:
-            content = await file.read()
-            tmp.write(content)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+            tmp.write(await file.read())
             tmp_path = tmp.name
-        
+
         parsed = resume_parser.parse(tmp_path)
         os.unlink(tmp_path)
-        
+
+        resume_dict = parsed.to_dict()
+        req = BulkMatchRequest(
+            resume=resume_dict,
+            city=city,
+            target_industry=industry,
+            limit=limit,
+        )
+        return await match_bulk(req)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Resume parsing failed: {str(e)}")
-    
-    # Create match request
-    request = MatchRequest(
-        skills=parsed.skills,
-        experience_years=parsed.experience_years,
-        education=[edu for edu in parsed.education],
-        industries=parsed.industries,
-        city=city,
-        target_industry=industry,
-        limit=limit
-    )
-    
-    # Get matches
-    result = await match_jobs(request)
-    
-    # Add parsed resume data to response
-    result['parsed_resume'] = {
-        'skills': parsed.skills,
-        'experience_years': parsed.experience_years,
-        'education': parsed.education,
-        'job_titles': parsed.job_titles,
-        'industries': parsed.industries,
-        'certifications': parsed.certifications,
-    }
-    
-    return result
+        raise HTTPException(500, str(e))
 
 
-@app.get("/jobs")
-async def get_jobs(
-    city: Optional[str] = None,
-    industry: Optional[str] = None,
-    limit: int = 50
-):
-    """Get available jobs, optionally filtered by city or industry"""
-    if city and industry:
-        jobs = db.get_jobs_by_industry(industry, city)
-    elif city:
-        jobs = db.get_jobs_by_city(city)
-    elif industry:
-        jobs = db.get_jobs_by_industry(industry)
-    else:
-        jobs = db.get_all_jobs(limit=limit)
-    
-    return {
-        "success": True,
-        "count": len(jobs),
-        "jobs": jobs[:limit]
-    }
-
-
-@app.get("/industries")
-async def get_industries():
-    """Get list of available industries"""
-    industries = list(IndustryClassifier.INDUSTRY_KEYWORDS.keys())
-    return {
-        "success": True,
-        "industries": industries
-    }
-
-
-class AnalyzeResumeRequest(BaseModel):
-    resume_text: str
-    city: Optional[str] = None
-    fetch_fresh_jobs: bool = True
-
-
-class AnalyzeResumeResponse(BaseModel):
-    success: bool
-    detected_skills: List[str]
-    detected_industry: str
-    industry_confidence: float
-    suggested_industries: List[dict]
-    experience_years: float
-    job_titles: List[str]
-    search_keywords: List[str]
-
+# ---------------------------------------------------------------------------
+# Resume AI analysis (Gemini)
+# ---------------------------------------------------------------------------
 
 @app.post("/analyze-resume")
-async def analyze_resume(request: AnalyzeResumeRequest):
-    """
-    Analyze resume text to detect skills, industry, and generate search keywords.
-    Optionally fetches fresh jobs based on detected profile.
-    """
-    try:
-        # Parse the resume text
-        parsed = resume_parser.parse_text(request.resume_text)
-        
-        # Detect industries from skills and text
-        detected_industries = IndustryClassifier.classify(request.resume_text)
-        
-        # Score each industry based on keyword matches
-        industry_scores = {}
-        text_lower = request.resume_text.lower()
-        
-        for industry, keywords in IndustryClassifier.INDUSTRY_KEYWORDS.items():
-            score = sum(1 for kw in keywords if kw in text_lower)
-            # Also check skills overlap
-            skill_overlap = sum(1 for skill in parsed.skills if any(kw in skill.lower() for kw in keywords))
-            total_score = score + skill_overlap * 2  # Weight skills higher
-            if total_score > 0:
-                industry_scores[industry] = total_score
-        
-        # Sort and get top industries with confidence
-        sorted_industries = sorted(industry_scores.items(), key=lambda x: x[1], reverse=True)
-        max_score = sorted_industries[0][1] if sorted_industries else 1
-        
-        suggested_industries = [
-            {
-                'industry': ind,
-                'score': score,
-                'confidence': round((score / max_score) * 100, 1)
-            }
-            for ind, score in sorted_industries[:5]
-        ]
-        
-        primary_industry = sorted_industries[0][0] if sorted_industries else 'Technology'
-        industry_confidence = suggested_industries[0]['confidence'] if suggested_industries else 50.0
-        
-        # Generate search keywords based on skills and detected industry
-        search_keywords = []
-        
-        # Add top skills as search terms
-        if parsed.skills:
-            search_keywords.extend(parsed.skills[:5])
-        
-        # Add job titles if detected
-        if parsed.job_titles:
-            search_keywords.extend(parsed.job_titles[:2])
-        
-        # Add industry-specific keywords
-        if primary_industry in IndustryClassifier.INDUSTRY_KEYWORDS:
-            industry_kws = IndustryClassifier.INDUSTRY_KEYWORDS[primary_industry]
-            # Find matching keywords from resume
-            matching_kws = [kw for kw in industry_kws if kw in text_lower]
-            search_keywords.extend(matching_kws[:3])
-        
-        # Deduplicate
-        search_keywords = list(dict.fromkeys(search_keywords))[:10]
-        
-        # Fetch fresh jobs if requested
-        fresh_jobs_count = 0
-        if request.fetch_fresh_jobs and settings.USE_REAL_JOBS and job_api_orchestrator:
-            location = request.city or 'Philippines'
-            
-            # Build search position from detected profile
-            if parsed.job_titles:
-                search_position = parsed.job_titles[0]
-            elif parsed.skills:
-                search_position = ' '.join(parsed.skills[:3])
-            else:
-                search_position = primary_industry
-            
-            print(f"[AI Analysis] Fetching fresh jobs for: {search_position} in {location}")
-            
-            try:
-                fetched_jobs = job_api_orchestrator.fetch_jobs(
-                    location=location,
-                    keywords=[search_position],
-                    limit=30
-                )
-                
-                # Cache in database
-                for job in fetched_jobs:
-                    db.insert_job(job)
-                
-                fresh_jobs_count = len(fetched_jobs)
-                print(f"[AI Analysis] Fetched {fresh_jobs_count} fresh jobs")
-            except Exception as e:
-                print(f"[AI Analysis] Error fetching jobs: {e}")
-        
-        return {
-            "success": True,
-            "detected_skills": parsed.skills,
-            "detected_industry": primary_industry,
-            "industry_confidence": industry_confidence,
-            "suggested_industries": suggested_industries,
-            "experience_years": parsed.experience_years,
-            "job_titles": parsed.job_titles,
-            "search_keywords": search_keywords,
-            "fresh_jobs_fetched": fresh_jobs_count,
-            "education": parsed.education,
-            "certifications": parsed.certifications,
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+async def analyze_resume_text(text: str):
+    if gemini_analyzer and gemini_analyzer.is_available():
+        result = await gemini_analyzer.analyze_resume_text(text)
+    else:
+        parsed = resume_parser.parse_text(text)
+        result = parsed.to_dict()
+    return {"success": True, "data": result}
 
 
 @app.post("/analyze-resume-file")
-async def analyze_resume_file(
-    file: UploadFile = File(...),
-    city: Optional[str] = Query(None, description="City for job search"),
-    fetch_fresh_jobs: bool = Query(False, description="Whether to fetch fresh jobs")
-):
-    """
-    Analyze an uploaded resume file (PDF, DOCX, TXT) using Gemini AI.
-    Returns detailed analysis including skills, industry, experience, and job search keywords.
-    """
-    # Validate file type
-    allowed_types = {
-        'application/pdf': 'pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-        'text/plain': 'txt'
-    }
-    
-    # Get content type or infer from extension
-    content_type = file.content_type
-    filename = file.filename or "resume"
-    
-    if content_type not in allowed_types:
-        # Try to infer from extension
-        ext = filename.split('.')[-1].lower() if '.' in filename else ''
-        if ext == 'pdf':
-            content_type = 'application/pdf'
-        elif ext == 'docx':
-            content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        elif ext == 'txt':
-            content_type = 'text/plain'
-        else:
-            raise HTTPException(400, f"Unsupported file type: {content_type}. Allowed: PDF, DOCX, TXT")
-    
+async def analyze_resume_file(file: UploadFile = File(...)):
+    allowed = {".pdf", ".docx", ".txt"}
+    ext = Path(file.filename or "resume.txt").suffix.lower()
+    if ext not in allowed:
+        raise HTTPException(400, f"Unsupported file type: {ext}")
+
     try:
-        # Read file content
-        file_content = await file.read()
-        
-        print(f"[Gemini] Analyzing resume file: {filename} ({content_type}), size: {len(file_content)} bytes")
-        
-        # Use Gemini for analysis if available
+        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+            tmp.write(await file.read())
+            tmp_path = tmp.name
+
         if gemini_analyzer and gemini_analyzer.is_available():
-            if content_type == 'text/plain':
-                # For text files, decode and use text analysis
-                resume_text = file_content.decode('utf-8', errors='ignore')
-                result = gemini_analyzer.analyze_resume_text(resume_text)
-                result['extracted_text'] = resume_text
-            else:
-                # For PDF/DOCX, use file analysis
-                result = gemini_analyzer.analyze_resume_file(file_content, filename, content_type)
-            
-            result['analysis_method'] = 'gemini'
-            print(f"[Gemini] Analysis complete: {result.get('detected_industry')} ({result.get('industry_confidence')}%)")
-            print(f"[Gemini] Skills detected: {result.get('detected_skills', [])}")
-            print(f"[Gemini] Extracted text length: {len(result.get('extracted_text', ''))}")
-            
-            # If there's an error, log it
-            if result.get('error'):
-                print(f"[Gemini] Error: {result.get('error')}")
+            result = await gemini_analyzer.analyze_resume_file(tmp_path)
         else:
-            # Fallback: Try to extract text and use basic analysis
-            print("[Gemini] API not available, using fallback analysis")
-            
-            if content_type == 'text/plain':
-                resume_text = file_content.decode('utf-8', errors='ignore')
-            elif content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                # Try to extract DOCX text
-                try:
-                    from docx import Document
-                    import io
-                    doc = Document(io.BytesIO(file_content))
-                    resume_text = '\n'.join([p.text for p in doc.paragraphs])
-                except ImportError:
-                    raise HTTPException(500, "python-docx not installed. Cannot process DOCX files without Gemini API.")
-                except Exception as e:
-                    raise HTTPException(500, f"Failed to extract text from DOCX: {str(e)}")
-            else:
-                # PDF without Gemini is not supported
-                raise HTTPException(
-                    500, 
-                    "PDF analysis requires Gemini API. Please configure GEMINI_API_KEY in .env file."
-                )
-            
-            # Use fallback analyzer
-            if gemini_analyzer:
-                result = gemini_analyzer._fallback_analysis(resume_text)
-            else:
-                # Ultimate fallback using resume parser
-                parsed = resume_parser.parse_text(resume_text)
-                result = {
-                    'detected_skills': parsed.skills,
-                    'detected_industry': 'Technology',
-                    'industry_confidence': 50,
-                    'suggested_industries': [],
-                    'experience_years': parsed.experience_years,
-                    'job_titles': parsed.job_titles,
-                    'education_level': parsed.education,
-                    'search_keywords': parsed.skills[:5] if parsed.skills else [],
-                    'summary': '',
-                    'analysis_method': 'basic'
-                }
-        
-        # Fetch fresh jobs if requested
-        fresh_jobs_count = 0
-        if fetch_fresh_jobs and settings.USE_REAL_JOBS and job_api_orchestrator:
-            location = city or 'Philippines'
-            
-            # Build search position from detected profile
-            job_titles = result.get('job_titles', [])
-            skills = result.get('detected_skills', [])
-            industry = result.get('detected_industry', 'Technology')
-            
-            if job_titles:
-                search_position = job_titles[0]
-            elif skills:
-                search_position = skills[0]
-            else:
-                search_position = industry
-            
-            print(f"[Gemini] Fetching fresh jobs for: {search_position} in {location}")
-            
-            try:
-                fetched_jobs = job_api_orchestrator.fetch_jobs(
-                    location=location,
-                    keywords=[search_position],
-                    limit=30
-                )
-                
-                # Cache in database
-                for job in fetched_jobs:
-                    db.insert_job(job)
-                
-                fresh_jobs_count = len(fetched_jobs)
-                print(f"[Gemini] Fetched {fresh_jobs_count} fresh jobs")
-            except Exception as e:
-                print(f"[Gemini] Error fetching jobs: {e}")
-        
-        result['fresh_jobs_fetched'] = fresh_jobs_count
-        result['success'] = True
-        result['filename'] = filename
-        
-        return result
-        
-    except HTTPException:
-        raise
+            parsed = resume_parser.parse(tmp_path)
+            result = parsed.to_dict()
+
+        os.unlink(tmp_path)
+        return {"success": True, "data": result}
     except Exception as e:
-        print(f"[Gemini] Error analyzing file: {e}")
-        raise HTTPException(status_code=500, detail=f"File analysis failed: {str(e)}")
+        raise HTTPException(500, str(e))
 
 
 @app.get("/gemini-status")
-async def get_gemini_status():
-    """Check if Gemini API is configured and available."""
+async def gemini_status():
     return {
-        "configured": bool(settings.GEMINI_API_KEY),
-        "available": gemini_analyzer.is_available() if gemini_analyzer else False,
-        "message": "Gemini AI is ready for resume analysis" if (gemini_analyzer and gemini_analyzer.is_available()) else "Gemini API not available, using fallback analysis"
+        "available": gemini_analyzer is not None and gemini_analyzer.is_available(),
+        "model": "gemini-2.0-flash",
     }
 
+
+# ---------------------------------------------------------------------------
+# LinkedIn
+# ---------------------------------------------------------------------------
 
 @app.post("/scrape-linkedin")
 async def scrape_linkedin(request: LinkedInRequest):
-    """
-    Scrape a LinkedIn profile for additional resume data.
-    Uses Apify's LinkedIn Profile Scraper (pay-per-result).
-    """
     if not linkedin_scraper:
-        raise HTTPException(503, "LinkedIn scraping not configured. Add APIFY_API_KEY to .env")
-    
-    if not linkedin_scraper.is_valid_linkedin_url(request.linkedin_url):
-        raise HTTPException(400, "Invalid LinkedIn URL. Use format: https://www.linkedin.com/in/username")
-    
-    print(f"[LinkedIn] Scraping profile: {request.linkedin_url}")
-    
+        raise HTTPException(503, "LinkedIn scraper not configured")
     try:
-        # Scrape the profile
-        profile_data = linkedin_scraper.scrape_profile(request.linkedin_url)
-        
-        if profile_data.get("error"):
-            print(f"[LinkedIn] Scraping failed: {profile_data.get('error')}")
-            return {
-                "success": False,
-                "error": profile_data.get("error"),
-                "profile": None,
-                "boost": linkedin_scraper.calculate_profile_boost({})
-            }
-        
-        # Calculate confidence boost
-        boost = linkedin_scraper.calculate_profile_boost(profile_data)
-        
-        print(f"[LinkedIn] Profile scraped successfully. Skills: {len(profile_data.get('skills', []))}, Boost: {boost['boost_percentage']}%")
-        
-        return {
-            "success": True,
-            "profile": profile_data,
-            "boost": boost
-        }
-        
+        data = await linkedin_scraper.scrape_profile(request.linkedin_url)
+        return {"success": True, "data": data}
     except Exception as e:
-        print(f"[LinkedIn] Error: {e}")
-        raise HTTPException(500, f"LinkedIn scraping failed: {str(e)}")
+        raise HTTPException(500, str(e))
 
 
 @app.get("/linkedin-status")
-async def get_linkedin_status():
-    """Check if LinkedIn scraping is available."""
-    return {
-        "configured": bool(settings.APIFY_API_KEY),
-        "available": linkedin_scraper is not None,
-        "message": "LinkedIn profile scraping is available" if linkedin_scraper else "LinkedIn scraping not configured"
-    }
+async def linkedin_status():
+    return {"available": linkedin_scraper is not None}
+
+
+# ---------------------------------------------------------------------------
+# Jobs CRUD
+# ---------------------------------------------------------------------------
+
+@app.get("/jobs")
+async def list_jobs(
+    city: Optional[str] = Query(None),
+    industry: Optional[str] = Query(None),
+    limit: int = Query(50),
+):
+    if not db_available:
+        raise HTTPException(503, "Database not connected")
+    from database.db import get_jobs
+    jobs = get_jobs(industry=industry, region=city, limit=limit)
+    return {"jobs": jobs, "total": len(jobs)}
+
+
+@app.get("/industries")
+async def list_industries():
+    from data.synthetic.combinatorial_generator import INDUSTRY_MATRIX
+    return {"industries": list(INDUSTRY_MATRIX.keys())}
 
 
 @app.get("/cities")
-async def get_cities():
-    """Get list of Philippine cities with job listings"""
-    return {
-        "success": True,
-        "cities": settings.PHILIPPINE_CITIES,
-        "primary_city": "Naga City"
-    }
+async def list_cities():
+    return {"cities": settings.PHILIPPINE_CITIES}
 
 
-@app.post("/refresh-jobs")
-async def refresh_jobs(
-    city: Optional[str] = None,
-    force: bool = False
-):
-    """
-    Manually refresh job listings from API.
-    Admin endpoint for updating job cache.
-    """
-    if not settings.USE_REAL_JOBS:
-        raise HTTPException(400, "Real job fetching is disabled. Enable USE_REAL_JOBS in .env")
-
-    if not job_api_orchestrator:
-        raise HTTPException(500, "Job API orchestrator not initialized")
-
-    try:
-        if city:
-            print(f"Refreshing jobs for {city}...")
-            jobs = job_api_orchestrator.fetch_jobs(
-                location=city,
-                limit=50
-            )
-            for job in jobs:
-                db.insert_job(job)
-            job_count = len(jobs)
-        else:
-            print("Refreshing jobs for all cities...")
-            await fetch_and_cache_real_jobs()
-            job_count = len(db.get_all_jobs(limit=1000))
-
-        return {
-            "success": True,
-            "message": f"Refreshed jobs for {city or 'all cities'}",
-            "job_count": job_count
-        }
-    except Exception as e:
-        raise HTTPException(500, f"Error refreshing jobs: {str(e)}")
-
+# ---------------------------------------------------------------------------
+# Feedback
+# ---------------------------------------------------------------------------
 
 @app.post("/feedback")
 async def submit_feedback(request: FeedbackRequest):
-    """
-    Submit feedback on a match to improve the model.
-    """
-    # Record feedback for model improvement
-    feedback = {
-        'job_id': request.job_id,
-        'candidate_id': request.candidate_id,
-        'was_successful': request.was_successful,
-        'feedback_type': request.feedback_type,
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    # In production, this would update the database and trigger retraining
-    job_matcher.feedback_history.append(feedback)
-    
-    return {
-        "success": True,
-        "message": "Feedback recorded. Thank you!",
-        "total_feedback": len(job_matcher.feedback_history)
-    }
+    if not db_available:
+        return {"success": False, "message": "Database not connected"}
+    try:
+        from database.db import insert_feedback
+        fb_id = insert_feedback(
+            resume_id=request.resume_id or "",
+            job_id=request.job_id or "",
+            was_successful=request.was_successful,
+            feedback_type=request.feedback_type,
+        )
+        return {"success": True, "feedback_id": fb_id}
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
+
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
 
 @app.post("/train")
-async def train_model(config: TrainingConfig):
-    """
-    Trigger model training with new data.
-    """
-    global is_trained
-    
+async def trigger_training(config: TrainingConfig):
+    """Trigger model training. Runs as background subprocess."""
+    cmd = [
+        sys.executable,
+        str(Path(__file__).parents[1] / "training" / "train.py"),
+        "--epochs", str(config.epochs),
+        "--batch-size", str(config.batch_size),
+        "--encoder-lr", str(config.encoder_lr),
+        "--head-lr", str(config.head_lr),
+        "--warmup-steps", str(config.warmup_steps),
+        "--patience", str(config.patience),
+    ]
+
+    if config.jsonl_path:
+        cmd += ["--jsonl", config.jsonl_path, "--no-db"]
+
+    run_id = None
+    if db_available:
+        try:
+            from database.db import start_training_run
+            run_id = start_training_run(
+                epochs=config.epochs,
+                batch_size=config.batch_size,
+                learning_rate=config.encoder_lr,
+            )
+        except Exception:
+            pass
+
     try:
-        # Generate training data
-        training_data = generate_training_data(
-            num_samples=config.num_samples,
-            hire_rate=config.hire_rate
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=str(Path(__file__).parents[1]),
+            text=True,
         )
-        
-        # Train model
-        job_matcher.train(training_data)
-        is_trained = True
-        
         return {
             "success": True,
-            "message": f"Model trained on {len(training_data)} samples",
-            "weights": job_matcher.weights
+            "message": "Training started",
+            "pid": proc.pid,
+            "run_id": run_id,
+            "config": config.dict(),
         }
-        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, f"Failed to start training: {e}")
 
 
-@app.get("/model-info")
-async def get_model_info():
-    """Get information about the trained model"""
+@app.get("/train/status")
+async def training_status():
+    """Get latest training run status."""
+    metrics_path = CHECKPOINT_DIR / "training_metrics.json"
+    latest = {}
+    if metrics_path.exists():
+        with open(metrics_path) as f:
+            latest = json.load(f)
+
+    latest_run = None
+    if db_available:
+        try:
+            from database.db import get_latest_training_run
+            latest_run = get_latest_training_run()
+        except Exception:
+            pass
+
+    return {"latest_metrics": latest, "latest_run": latest_run}
+
+
+@app.get("/train/history")
+async def training_history():
+    if not db_available:
+        return {"history": []}
+    from database.db import get_training_history
+    return {"history": get_training_history(limit=10)}
+
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+
+@app.post("/evaluate")
+async def trigger_evaluation(
+    jsonl_path: Optional[str] = Query(None),
+    split: str = Query("test"),
+):
+    """Run evaluation and return metrics."""
+    cmd = [
+        sys.executable,
+        str(Path(__file__).parents[1] / "training" / "evaluate.py"),
+        "--split", split,
+        "--output", str(CHECKPOINT_DIR / "metrics.json"),
+    ]
+    if jsonl_path:
+        cmd += ["--jsonl", jsonl_path, "--no-db"]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=str(Path(__file__).parents[1]),
+        )
+        metrics_path = CHECKPOINT_DIR / "metrics.json"
+        if metrics_path.exists():
+            with open(metrics_path) as f:
+                return {"success": True, "metrics": json.load(f)}
+        return {"success": False, "stdout": result.stdout, "stderr": result.stderr}
+    except subprocess.TimeoutExpired:
+        raise HTTPException(504, "Evaluation timed out")
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@app.get("/evaluate/metrics")
+async def get_latest_metrics():
+    metrics_path = CHECKPOINT_DIR / "metrics.json"
+    if not metrics_path.exists():
+        return {"metrics": None, "message": "No evaluation run yet. POST /evaluate first."}
+    with open(metrics_path) as f:
+        return {"metrics": json.load(f)}
+
+
+# ---------------------------------------------------------------------------
+# Data pipeline
+# ---------------------------------------------------------------------------
+
+@app.post("/pipeline/run")
+async def run_pipeline(stage: str = Query("full")):
+    """Trigger a data pipeline run."""
+    valid_stages = {"full", "ingestion", "parsing", "normalization", "labeling", "storage"}
+    if stage not in valid_stages:
+        raise HTTPException(400, f"Invalid stage. Valid: {valid_stages}")
+
+    run_id = None
+    if db_available:
+        try:
+            from database.db import start_pipeline_run
+            run_id = start_pipeline_run(stage)
+        except Exception:
+            pass
+
+    # For 'full' pipeline: generate synthetic data and store
+    if stage in ("full", "storage"):
+        try:
+            cmd = [
+                sys.executable,
+                str(Path(__file__).parents[1] / "data" / "synthetic" / "combinatorial_generator.py"),
+                "--limit", "5000",
+                "--output", str(Path(__file__).parents[1] / "data" / "labeled" / "synthetic_pairs.jsonl"),
+            ]
+            subprocess.Popen(cmd, cwd=str(Path(__file__).parents[1]))
+        except Exception as e:
+            print(f"[WARN] Pipeline: {e}")
+
     return {
-        "is_trained": is_trained,
-        "weights": job_matcher.weights,
-        "calibration": job_matcher.calibration,
-        "feedback_count": len(job_matcher.feedback_history),
-        "vocabulary_size": len(job_matcher.embedder.vocabulary) if is_trained else 0
+        "success": True,
+        "stage": stage,
+        "run_id": run_id,
+        "message": f"Pipeline stage '{stage}' started",
     }
 
 
-# Run with: uvicorn api.main:app --reload --port 8000
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/pipeline/status")
+async def pipeline_status():
+    if not db_available:
+        return {
+            "db_connected": False,
+            "message": "DATABASE_URL not configured",
+        }
+    from database.db import get_pipeline_status
+    return get_pipeline_status()
+
+
+# ---------------------------------------------------------------------------
+# Admin (legacy compat)
+# ---------------------------------------------------------------------------
+
+@app.post("/refresh-jobs")
+async def refresh_jobs():
+    """Legacy endpoint — triggers pipeline ingestion."""
+    return await run_pipeline(stage="ingestion")

@@ -29,6 +29,19 @@ class Settings:
     ADZUNA_APP_ID = os.getenv('ADZUNA_APP_ID', '')
     ADZUNA_APP_KEY = os.getenv('ADZUNA_APP_KEY', '')
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+    ONET_USERNAME = os.getenv('ONET_USERNAME', '')
+    ONET_PASSWORD = os.getenv('ONET_PASSWORD', '')
+
+    # PostgreSQL + pgvector
+    DATABASE_URL = os.getenv('DATABASE_URL', '')  # e.g. postgresql://user:pass@localhost/ph_jobmatcher
+
+    # Ollama (local LLM labeling)
+    OLLAMA_URL = os.getenv('OLLAMA_URL', 'http://localhost:11434/api/generate')
+    OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'mistral')
+
+    # Model settings
+    BI_ENCODER_BASE = os.getenv('BI_ENCODER_BASE', 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+    CHECKPOINT_DIR = os.getenv('CHECKPOINT_DIR', 'python_ai/models/checkpoints')
 
     # Job API Settings
     # Options: apify (JobStreet), indeed (Indeed via Apify), rapidapi

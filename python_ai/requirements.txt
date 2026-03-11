@@ -4,9 +4,16 @@ numpy>=1.24.0
 pandas>=2.0.0
 google-generativeai>=0.3.0
 
+# New: Bi-Encoder + Cross-Encoder model
+torch>=2.0.0
+sentence-transformers>=2.2.0
+transformers>=4.35.0
+
 # Resume Parsing
 pdfminer.six>=20221105
 python-docx>=0.8.11
+spacy>=3.7.0
+# After install: python -m spacy download en_core_web_sm
 
 # API
 fastapi>=0.100.0
@@ -16,5 +23,21 @@ pydantic>=2.0.0
 requests>=2.31.0
 python-dotenv>=1.0.0
 
-# Optional: For better NLP (install separately)
-# pip install spacy sentence-transformers torch
+# PostgreSQL + pgvector
+psycopg2-binary>=2.9.0
+
+# Data collection
+scrapy>=2.11.0
+beautifulsoup4>=4.12.0
+faker>=20.0.0
+
+# Dataset loading (Kaggle / HuggingFace)
+datasets>=2.14.0
+huggingface_hub>=0.19.0
+
+# LLM labeling (Ollama — local, free)
+# Install Ollama: https://ollama.com
+# Then: ollama pull mistral
+
+# Annotation (optional)
+# label-studio>=1.8.0
