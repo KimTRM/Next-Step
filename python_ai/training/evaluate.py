@@ -97,9 +97,9 @@ def precision_at_k(preds: List[float], targets: List[float],
 
 def _deepseek_score_pair(resume_text: str, job_text: str, model: str) -> Optional[float]:
     """Ask DeepSeek to score one resume-job pair. Returns 0-1 or None on error."""
+    import re
     import requests as _req
 
-    # Truncate to keep latency low
     resume_snippet = resume_text[:600]
     job_snippet = job_text[:400]
 
@@ -125,18 +125,20 @@ Reply with ONLY a single decimal number between 0.0 and 1.0. No explanation."""
                 "model": model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 20},
+                "options": {"temperature": 0.1, "num_predict": 80},
             },
             timeout=30,
         )
         resp.raise_for_status()
         raw = resp.json().get("response", "")
-        # Strip chain-of-thought
+        # Print chain-of-thought
+        think_start = raw.find("<think>")
         think_end = raw.find("</think>")
-        if think_end >= 0:
+        if think_start >= 0 and think_end > think_start:
+            think_content = raw[think_start + 7:think_end].strip()
+            for chunk in [think_content[i:i+160] for i in range(0, len(think_content), 160)]:
+                print(f"[DeepSeek Think] {chunk}", flush=True)
             raw = raw[think_end + 8:]
-        # Extract first float
-        import re
         match = re.search(r"\b(0\.\d+|1\.0|0|1)\b", raw)
         if match:
             return min(1.0, max(0.0, float(match.group(1))))
@@ -351,6 +353,7 @@ def main():
     parser.add_argument("--jsonl", default=None)
     parser.add_argument("--no-db", action="store_true")
     parser.add_argument("--output", default=str(CHECKPOINT_DIR / "metrics.json"))
+    parser.add_argument("--log", default=None, help="Write stdout to this log file")
     # DeepSeek judge options
     parser.add_argument("--use-deepseek", action="store_true",
                         help="Use DeepSeek as an independent judge for realistic scoring")
@@ -359,6 +362,14 @@ def main():
     parser.add_argument("--deepseek-model", default="deepseek-r1:7b",
                         help="Ollama model to use as judge (default: deepseek-r1:7b)")
     args = parser.parse_args()
+
+    # Optionally redirect stdout → log file for streaming support
+    if args.log:
+        import io
+        log_path = Path(args.log)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_file = open(log_path, "w", encoding="utf-8", buffering=1)
+        sys.stdout = io.TextIOWrapper(log_file.buffer, line_buffering=True) if hasattr(log_file, "buffer") else log_file
 
     use_db = not args.no_db and args.jsonl is None
     metrics = evaluate(
@@ -374,7 +385,7 @@ def main():
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w") as f:
         json.dump(metrics, f, indent=2)
-    print(f"\nMetrics saved to {args.output}")
+    print(f"\nMetrics saved to {args.output}", flush=True)
 
 
 if __name__ == "__main__":

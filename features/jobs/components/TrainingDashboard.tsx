@@ -175,12 +175,16 @@ export function TrainingDashboard() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [useDeepseekJudge, setUseDeepseekJudge] = useState(false);
   const [deepseekJudgeSample, setDeepseekJudgeSample] = useState(50);
+  const [evalLog, setEvalLog] = useState<string[]>([]);
+  const evalLogRef = useRef<HTMLDivElement>(null);
+  const evalLogPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [deepseekAnalysis, setDeepseekAnalysis] = useState<{analysis: string; reasoning: string} | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
 
   // Pipeline
   const [pipelineStage, setPipelineStage] = useState("full");
+  const [pairsLimit, setPairsLimit] = useState(5000);
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [pipelineError, setPipelineError] = useState<string | null>(null);
   const [pipelineLog, setPipelineLog] = useState<string[]>([]);
@@ -193,16 +197,14 @@ export function TrainingDashboard() {
 
   // Auto-scroll logs
   useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [trainLog]);
-
   useEffect(() => {
-    if (pipelineLogRef.current) {
-      pipelineLogRef.current.scrollTop = pipelineLogRef.current.scrollHeight;
-    }
+    if (pipelineLogRef.current) pipelineLogRef.current.scrollTop = pipelineLogRef.current.scrollHeight;
   }, [pipelineLog]);
+  useEffect(() => {
+    if (evalLogRef.current) evalLogRef.current.scrollTop = evalLogRef.current.scrollHeight;
+  }, [evalLog]);
 
   const loadAll = useCallback(async () => {
     await Promise.allSettled([
@@ -223,6 +225,7 @@ export function TrainingDashboard() {
     return () => {
       clearInterval(interval);
       stopLogPolling();
+      stopEvalPolling();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadAll]);
@@ -290,8 +293,15 @@ export function TrainingDashboard() {
     }
   };
 
+  const stopEvalPolling = () => {
+    if (evalLogPollRef.current) { clearInterval(evalLogPollRef.current); evalLogPollRef.current = null; }
+  };
+
   const handleEvaluate = async () => {
     setIsEvaluating(true);
+    setEvalLog([`[${new Date().toLocaleTimeString()}] Launching evaluation...`]);
+    stopEvalPolling();
+
     try {
       const base = jsonlPath.trim()
         ? `?jsonl_path=${encodeURIComponent(jsonlPath)}&split=test`
@@ -299,12 +309,41 @@ export function TrainingDashboard() {
       const judgeParams = useDeepseekJudge
         ? `&use_deepseek=true&deepseek_sample=${deepseekJudgeSample}&deepseek_model=deepseek-r1:7b`
         : "";
-      const resp = await fetch(`${API_BASE}/evaluate${base}${judgeParams}`, { method: "POST" });
-      const data = await resp.json();
-      if (data.metrics) setEvalMetrics(data.metrics);
+      await fetch(`${API_BASE}/evaluate${base}${judgeParams}`, { method: "POST" });
+
+      // Poll evaluate.log until "Metrics saved" appears
+      let lastSize = 0;
+      let staleCount = 0;
+      evalLogPollRef.current = setInterval(async () => {
+        try {
+          const r = await fetch(`${API_BASE}/evaluate/logs?tail=400`);
+          const d = await r.json();
+          if (d.exists) {
+            if (d.size !== lastSize) {
+              lastSize = d.size;
+              staleCount = 0;
+              setEvalLog(d.lines);
+              // Check for completion signal
+              if (d.lines.some((l: string) => l.includes("Metrics saved"))) {
+                stopEvalPolling();
+                setIsEvaluating(false);
+                // Fetch final metrics
+                const mr = await fetch(`${API_BASE}/evaluate/metrics`);
+                const md = await mr.json();
+                if (md.metrics) setEvalMetrics(md.metrics);
+              }
+            } else {
+              staleCount++;
+              if (staleCount > 20) { // 40s stale → give up
+                stopEvalPolling();
+                setIsEvaluating(false);
+              }
+            }
+          }
+        } catch { /* ignore */ }
+      }, 2000);
     } catch (e) {
       console.error(e);
-    } finally {
       setIsEvaluating(false);
     }
   };
@@ -316,7 +355,7 @@ export function TrainingDashboard() {
       `[${new Date().toLocaleTimeString()}] Connecting to API...`,
     ]);
     try {
-      const params = new URLSearchParams({ stage: pipelineStage, use_llm: String(useLlm) });
+      const params = new URLSearchParams({ stage: pipelineStage, use_llm: String(useLlm), pairs_limit: String(pairsLimit) });
       const resp = await fetch(`${API_BASE}/pipeline/run?${params}`, { method: "POST" });
       if (!resp.ok) {
         const text = await resp.text();
@@ -579,17 +618,17 @@ export function TrainingDashboard() {
                     </div>
                     {useDeepseekJudge && (
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-gray-400">Sample size:</span>
-                        {[25, 50, 100].map(n => (
-                          <button
-                            key={n}
-                            onClick={() => setDeepseekJudgeSample(n)}
-                            className={`px-2 py-0.5 text-xs rounded ${deepseekJudgeSample === n ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-400 hover:bg-gray-600"}`}
-                          >
-                            {n}
-                          </button>
-                        ))}
-                        <span className="text-xs text-gray-500 ml-1">
+                        <span className="text-xs text-gray-400 shrink-0">Pairs to judge:</span>
+                        <input
+                          type="number"
+                          value={deepseekJudgeSample}
+                          min={5}
+                          max={500}
+                          step={5}
+                          onChange={e => setDeepseekJudgeSample(Math.max(5, parseInt(e.target.value) || 25))}
+                          className="w-20 bg-gray-900 border border-purple-500/40 rounded px-2 py-0.5 text-xs text-white font-mono"
+                        />
+                        <span className="text-xs text-gray-500">
                           ~{Math.round(deepseekJudgeSample * 3 / 60)} min
                         </span>
                       </div>
@@ -626,6 +665,41 @@ export function TrainingDashboard() {
                     </button>
                   )}
                 </div>
+
+                {/* Eval Log Terminal */}
+                {(isEvaluating || evalLog.length > 0) && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 font-mono">
+                        eval log{" "}
+                        {isEvaluating && (
+                          <span className={`animate-pulse ${useDeepseekJudge ? "text-purple-400" : "text-indigo-400"}`}>● live</span>
+                        )}
+                      </span>
+                      <button onClick={() => setEvalLog([])} className="text-xs text-gray-600 hover:text-gray-400">clear</button>
+                    </div>
+                    <div
+                      ref={evalLogRef}
+                      className="bg-gray-950 border border-gray-800 rounded-lg p-2 h-44 overflow-y-auto font-mono text-xs space-y-0.5"
+                    >
+                      {evalLog.map((line, i) => (
+                        <div key={i} className={
+                          /error|traceback|failed/i.test(line) ? "text-red-400" :
+                          /warning|warn/i.test(line) ? "text-yellow-400" :
+                          /\[DeepSeek Think\]/i.test(line) ? "text-purple-400/70 italic pl-3" :
+                          /\[deepseek/i.test(line) ? "text-purple-300" :
+                          /metrics saved|targets met/i.test(line) ? "text-green-400" :
+                          /Evaluate|evaluated \d+/i.test(line) ? "text-cyan-300" :
+                          "text-gray-300"
+                        }>{
+                          /\[DeepSeek Think\]/i.test(line)
+                            ? <><span className="text-purple-500 not-italic">🧠</span> {line.replace(/^\[DeepSeek Think\]\s*/i, "")}</>
+                            : line
+                        }</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* DeepSeek Judge Results */}
                 {evalMetrics.deepseek_judge && !evalMetrics.deepseek_judge.error && (
@@ -703,12 +777,10 @@ export function TrainingDashboard() {
                 <p className="text-gray-600 text-xs mb-4">Run evaluation to see how well the AI matches resumes to jobs.</p>
                 {ollamaAvailable && (
                   <div className="mb-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-1">
                       <div>
                         <span className="text-xs font-medium text-purple-300">DeepSeek Independent Judge</span>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          Scores a sample of pairs to detect label bias.
-                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">Scores a sample of pairs to detect label bias.</p>
                       </div>
                       <button
                         onClick={() => setUseDeepseekJudge(v => !v)}
@@ -717,6 +789,21 @@ export function TrainingDashboard() {
                         <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${useDeepseekJudge ? "translate-x-5" : "translate-x-1"}`} />
                       </button>
                     </div>
+                    {useDeepseekJudge && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-400 shrink-0">Pairs:</span>
+                        <input
+                          type="number"
+                          value={deepseekJudgeSample}
+                          min={5}
+                          max={500}
+                          step={5}
+                          onChange={e => setDeepseekJudgeSample(Math.max(5, parseInt(e.target.value) || 25))}
+                          className="w-20 bg-gray-900 border border-purple-500/40 rounded px-2 py-0.5 text-xs text-white font-mono"
+                        />
+                        <span className="text-xs text-gray-500">~{Math.round(deepseekJudgeSample * 3 / 60)} min</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 <button
@@ -724,8 +811,38 @@ export function TrainingDashboard() {
                   disabled={isEvaluating}
                   className="w-full py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors"
                 >
-                  {isEvaluating ? "Evaluating..." : "Run Evaluation"}
+                  {isEvaluating ? (useDeepseekJudge ? "Evaluating + Judging..." : "Evaluating...") : "Run Evaluation"}
                 </button>
+                {(isEvaluating || evalLog.length > 0) && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 font-mono">
+                        eval log{" "}
+                        {isEvaluating && <span className="animate-pulse text-indigo-400">● live</span>}
+                      </span>
+                      <button onClick={() => setEvalLog([])} className="text-xs text-gray-600 hover:text-gray-400">clear</button>
+                    </div>
+                    <div
+                      ref={evalLogRef}
+                      className="bg-gray-950 border border-gray-800 rounded-lg p-2 h-44 overflow-y-auto font-mono text-xs space-y-0.5"
+                    >
+                      {evalLog.map((line, i) => (
+                        <div key={i} className={
+                          /error|traceback/i.test(line) ? "text-red-400" :
+                          /\[DeepSeek Think\]/i.test(line) ? "text-purple-400/70 italic pl-3" :
+                          /\[deepseek/i.test(line) ? "text-purple-300" :
+                          /metrics saved/i.test(line) ? "text-green-400" :
+                          /Evaluate|evaluated/i.test(line) ? "text-cyan-300" :
+                          "text-gray-300"
+                        }>{
+                          /\[DeepSeek Think\]/i.test(line)
+                            ? <><span className="text-purple-500 not-italic">🧠</span> {line.replace(/^\[DeepSeek Think\]\s*/i, "")}</>
+                            : line
+                        }</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </SectionCard>
@@ -826,12 +943,17 @@ export function TrainingDashboard() {
                     <div key={i} className={
                       /error|traceback|failed/i.test(line) ? "text-red-400" :
                       /warning|warn/i.test(line) ? "text-yellow-400" :
+                      /\[DeepSeek Think\]/i.test(line) ? "text-purple-400/70 italic pl-3" :
                       /\[deepseek\]/i.test(line) ? "text-purple-300" :
                       /epoch \d+/i.test(line) ? "text-cyan-300" :
                       /conf=0\.[89]\d|conf=1\.0/i.test(line) ? "text-green-300" :
                       /conf=0\.[0-4]\d/i.test(line) ? "text-orange-300" :
                       "text-green-300"
-                    }>{line}</div>
+                    }>{
+                      /\[DeepSeek Think\]/i.test(line)
+                        ? <><span className="text-purple-500 not-italic">🧠</span> {line.replace(/^\[DeepSeek Think\]\s*/i, "")}</>
+                        : line
+                    }</div>
                   ))}
                 </div>
               </div>
@@ -886,20 +1008,37 @@ export function TrainingDashboard() {
               </div>
             )}
 
-            <div className="mb-3">
-              <label className="text-xs text-gray-400 block mb-1">Stage</label>
-              <select
-                value={pipelineStage}
-                onChange={e => setPipelineStage(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white"
-              >
-                <option value="full">Full Pipeline</option>
-                <option value="ingestion">Ingestion Only</option>
-                <option value="parsing">Parsing Only</option>
-                <option value="normalization">Normalization Only</option>
-                <option value="labeling">Labeling Only</option>
-                <option value="storage">Storage Only</option>
-              </select>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Stage</label>
+                <select
+                  value={pipelineStage}
+                  onChange={e => setPipelineStage(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white"
+                >
+                  <option value="full">Full Pipeline</option>
+                  <option value="ingestion">Ingestion Only</option>
+                  <option value="parsing">Parsing Only</option>
+                  <option value="normalization">Normalization Only</option>
+                  <option value="labeling">Labeling Only</option>
+                  <option value="storage">Storage Only</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">
+                  Pairs Limit
+                  {useLlm && <span className="ml-1 text-purple-400">· DeepSeek ~{Math.round(pairsLimit * 3 / 60)}min</span>}
+                </label>
+                <input
+                  type="number"
+                  value={pairsLimit}
+                  min={10}
+                  max={50000}
+                  step={50}
+                  onChange={e => setPairsLimit(Math.max(10, parseInt(e.target.value) || 500))}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white font-mono"
+                />
+              </div>
             </div>
 
             {/* DeepSeek LLM Labeling Toggle */}
@@ -976,10 +1115,15 @@ export function TrainingDashboard() {
                     <div key={i} className={
                       /error|traceback|failed/i.test(line) ? "text-red-400" :
                       /warning|warn/i.test(line) ? "text-yellow-400" :
+                      /\[DeepSeek Think\]/i.test(line) ? "text-purple-400/70 italic pl-3" :
                       /\[deepseek\]/i.test(line) ? "text-purple-300" :
                       /done\.|finished|saved to/i.test(line) ? "text-green-400" :
                       "text-gray-300"
-                    }>{line}</div>
+                    }>{
+                      /\[DeepSeek Think\]/i.test(line)
+                        ? <><span className="text-purple-500 not-italic">🧠</span> {line.replace(/^\[DeepSeek Think\]\s*/i, "")}</>
+                        : line
+                    }</div>
                   ))}
                 </div>
               </div>

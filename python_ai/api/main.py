@@ -784,12 +784,18 @@ async def trigger_evaluation(
     deepseek_sample: int = Query(100, description="Number of pairs to judge with DeepSeek"),
     deepseek_model: str = Query("deepseek-r1:7b"),
 ):
-    """Run evaluation and return metrics. Optionally uses DeepSeek as an independent judge."""
+    """
+    Launch evaluation as a background subprocess writing to evaluate.log.
+    Returns immediately with {launched: true}. Poll /evaluate/logs for progress,
+    then GET /evaluate/metrics when 'Metrics saved' appears in the log.
+    """
+    eval_log_path = CHECKPOINT_DIR / "evaluate.log"
     cmd = [
         sys.executable,
         str(Path(__file__).parents[1] / "training" / "evaluate.py"),
         "--split", split,
         "--output", str(CHECKPOINT_DIR / "metrics.json"),
+        "--log", str(eval_log_path),
     ]
     if jsonl_path:
         cmd += ["--jsonl", jsonl_path, "--no-db"]
@@ -797,24 +803,23 @@ async def trigger_evaluation(
         cmd += ["--use-deepseek", "--deepseek-sample", str(deepseek_sample),
                 "--deepseek-model", deepseek_model]
 
-    # Longer timeout when DeepSeek judge is running (~3s × sample size)
-    timeout = 300 + (deepseek_sample * 4 if use_deepseek else 0)
-
     try:
-        result = subprocess.run(
+        eval_log_path.parent.mkdir(parents=True, exist_ok=True)
+        # Clear old log
+        eval_log_path.write_text("", encoding="utf-8")
+        subprocess.Popen(
             cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
             cwd=str(Path(__file__).parents[1]),
+            # stdout/stderr go to the --log file via evaluate.py's own redirect
+            stdout=subprocess.DEVNULL,
+            stderr=open(eval_log_path, "a", encoding="utf-8", buffering=1),
         )
-        metrics_path = CHECKPOINT_DIR / "metrics.json"
-        if metrics_path.exists():
-            with open(metrics_path) as f:
-                return {"success": True, "metrics": json.load(f)}
-        return {"success": False, "stdout": result.stdout, "stderr": result.stderr}
-    except subprocess.TimeoutExpired:
-        raise HTTPException(504, "Evaluation timed out")
+        return {
+            "launched": True,
+            "use_deepseek": use_deepseek,
+            "deepseek_sample": deepseek_sample if use_deepseek else 0,
+            "message": "Evaluation started — poll /evaluate/logs for progress",
+        }
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -826,6 +831,21 @@ async def get_latest_metrics():
         return {"metrics": None, "message": "No evaluation run yet. POST /evaluate first."}
     with open(metrics_path) as f:
         return {"metrics": json.load(f)}
+
+
+@app.get("/evaluate/logs")
+async def get_evaluate_logs(tail: int = Query(300)):
+    """Return the last N lines of the evaluate.log file."""
+    log_path = CHECKPOINT_DIR / "evaluate.log"
+    if not log_path.exists():
+        return {"lines": [], "exists": False, "size": 0}
+    with open(log_path, encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    return {
+        "lines": [l.rstrip() for l in lines[-tail:]],
+        "exists": True,
+        "size": len(lines),
+    }
 
 
 @app.post("/evaluate/analyze")
@@ -911,7 +931,12 @@ async def ollama_status():
 
 
 @app.post("/pipeline/run")
-async def run_pipeline(stage: str = Query("full"), use_llm: bool = Query(False), llm_model: str = Query("deepseek-r1:7b")):
+async def run_pipeline(
+    stage: str = Query("full"),
+    use_llm: bool = Query(False),
+    llm_model: str = Query("deepseek-r1:7b"),
+    pairs_limit: int = Query(5000, description="Max pairs to generate"),
+):
     """Trigger a data pipeline run. Set use_llm=true to label with DeepSeek."""
     valid_stages = {"full", "ingestion", "parsing", "normalization", "labeling", "storage"}
     if stage not in valid_stages:
@@ -931,7 +956,7 @@ async def run_pipeline(stage: str = Query("full"), use_llm: bool = Query(False),
             cmd = [
                 sys.executable,
                 str(Path(__file__).parents[1] / "data" / "synthetic" / "combinatorial_generator.py"),
-                "--limit", "5000",
+                "--limit", str(pairs_limit),
                 "--output", str(Path(__file__).parents[1] / "data" / "labeled" / "synthetic_pairs.jsonl"),
             ]
             if use_llm:
@@ -947,7 +972,8 @@ async def run_pipeline(stage: str = Query("full"), use_llm: bool = Query(False),
         "success": True,
         "stage": stage,
         "run_id": run_id,
-        "message": f"Pipeline stage '{stage}' started",
+        "pairs_limit": pairs_limit,
+        "message": f"Pipeline stage '{stage}' started (limit={pairs_limit} pairs)",
     }
 
 

@@ -78,6 +78,14 @@ def label_pair_with_llm(
             )
             resp.raise_for_status()
             raw = resp.json().get("response", "")
+            # Print chain-of-thought if present
+            think_start = raw.find("<think>")
+            think_end = raw.find("</think>")
+            if think_start >= 0 and think_end > think_start:
+                think_content = raw[think_start + 7:think_end].strip()
+                for chunk in [think_content[i:i+160] for i in range(0, len(think_content), 160)]:
+                    print(f"[DeepSeek Think] {chunk}", flush=True)
+                raw = raw[think_end + 8:]
             # Extract JSON from response
             start = raw.find("{")
             end = raw.rfind("}") + 1
@@ -87,9 +95,8 @@ def label_pair_with_llm(
                 confidence = min(1.0, max(0.0, confidence))
                 reasoning = data.get("reasoning", "")
                 role = job.get("title", "?")
-                skills_preview = ", ".join(resume.get("skills", [])[:3])
                 print(
-                    f"[DeepSeek] {role} | conf={confidence:.3f} | {reasoning[:120]}",
+                    f"[DeepSeek] {role} | conf={confidence:.3f} | {reasoning[:160]}",
                     flush=True,
                 )
                 return round(confidence, 4), "llm"
