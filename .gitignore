@@ -46,3 +46,9 @@ next-env.d.ts
 .claude
 
 __pycache__/
+
+# ML model checkpoints (too large for git)
+*.pt
+*.pth
+*.ckpt
+*.bin
