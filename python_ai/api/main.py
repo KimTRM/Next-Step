@@ -858,54 +858,67 @@ async def analyze_metrics_with_deepseek():
         m = json.load(f)
 
     targets_met = m.get('targets_met', {})
-    prompt = f"""You are an AI model evaluation expert reviewing a Philippine job-matching AI system.
+    n_met = sum(targets_met.values())
+    n_total = len(targets_met)
+    dj = m.get("deepseek_judge", {})
+    judge_line = ""
+    if dj and not dj.get("error"):
+        judge_line = (
+            f"\n- DeepSeek Judge (independent): model vs DeepSeek Pearson={dj.get('model_vs_deepseek', {}).get('pearson', '?')}, "
+            f"label bias={dj.get('label_bias', {}).get('direction', '?')}"
+        )
 
-Here are the evaluation results on {m.get('n_pairs', '?')} resume-job pairs:
-- Pearson Correlation: {m.get('pearson', '?'):.4f} (measures how well the AI ranks candidates — target >0.80)
-- RMSE: {m.get('rmse', '?'):.4f} (average score error — target <0.12, lower is better)
-- NDCG@10: {m.get('ndcg_at_10', '?'):.4f} (top-10 ranking quality — target >0.75)
-- Precision@5: {m.get('precision_at_5', '?'):.4f} (top-5 relevance — target >0.70)
-- Targets met: {sum(targets_met.values())}/{len(targets_met)}
-- Training data label method: {m.get('label_method', 'synthetic rule-based')}
+    prompt = f"""You are an AI evaluation expert for a Philippine job-matching system.
 
-After your reasoning, write a final ANALYSIS section with exactly this format:
+Evaluation results ({m.get('n_pairs', '?')} resume-job pairs):
+- Pearson: {m.get('pearson', 0):.4f} (target >0.80) — {'PASS' if m.get('pearson', 0) > 0.80 else 'FAIL'}
+- RMSE: {m.get('rmse', 1):.4f} (target <0.12) — {'PASS' if m.get('rmse', 1) < 0.12 else 'FAIL'}
+- NDCG@10: {m.get('ndcg_at_10', 0):.4f} (target >0.75) — {'PASS' if m.get('ndcg_at_10', 0) > 0.75 else 'FAIL'}
+- Precision@5: {m.get('precision_at_5', 0):.4f} (target >0.70) — {'PASS' if m.get('precision_at_5', 0) > 0.70 else 'FAIL'}
+- Targets met: {n_met}/{n_total}{judge_line}
 
-ANALYSIS:
-[3-5 sentences covering: overall model quality, strongest and weakest metric and what it means for users, and one concrete recommendation to improve real-world performance. Be direct and practical. Avoid jargon.]"""
+Write 3-5 sentences explaining: overall quality, strongest metric, weakest metric, and one specific action to improve. Use plain language for a non-technical audience. Write directly without any headers or labels."""
 
     try:
         import requests as req
         resp = req.post(
             "http://localhost:11434/api/generate",
             json={"model": "deepseek-r1:7b", "prompt": prompt, "stream": False,
-                  "options": {"temperature": 0.3, "num_predict": 600}},
-            timeout=90,
+                  "options": {"temperature": 0.2, "num_predict": 500}},
+            timeout=120,
         )
         resp.raise_for_status()
         raw = resp.json().get("response", "")
-        # Extract thinking and final answer from DeepSeek-R1 format
+
+        # Split <think> reasoning from final answer
         think_start = raw.find("<think>")
         think_end = raw.find("</think>")
         reasoning = ""
-        answer = raw.strip()
+        answer = ""
+
         if think_start >= 0 and think_end > think_start:
             reasoning = raw[think_start + 7:think_end].strip()
-            after_think = raw[think_end + 8:].strip()
-            # Look for explicit ANALYSIS: section first
-            analysis_marker = after_think.find("ANALYSIS:")
-            if analysis_marker >= 0:
-                answer = after_think[analysis_marker + 9:].strip()
-            elif after_think:
-                answer = after_think
+            answer = raw[think_end + 8:].strip()
+
+        # Strip any stray section headers DeepSeek emits (ANALYSIS:, **ANALYSIS**, etc.)
+        import re as _re
+        answer = _re.sub(r"^[\*_]*ANALYSIS[\*_]*:?\s*", "", answer, flags=_re.IGNORECASE).strip()
+
+        # If answer is empty or very short, extract the best paragraph from <think>
+        if len(answer) < 40:
+            # Find the final substantive paragraph in the reasoning
+            paragraphs = [p.strip() for p in reasoning.split("\n\n") if len(p.strip()) > 60]
+            if paragraphs:
+                # Use the last paragraph that doesn't start with "Let me" / "I need to"
+                for p in reversed(paragraphs):
+                    if not _re.match(r"^(let me|i need|i should|i will|first|okay|so,)", p, _re.IGNORECASE):
+                        answer = p
+                        break
+                if not answer:
+                    answer = paragraphs[-1]
             else:
-                # DeepSeek put everything in <think> — extract ANALYSIS from reasoning
-                analysis_marker = reasoning.find("ANALYSIS:")
-                if analysis_marker >= 0:
-                    answer = reasoning[analysis_marker + 9:].strip()
-                else:
-                    # Fall back to last paragraph of reasoning as the answer
-                    paragraphs = [p.strip() for p in reasoning.split("\n\n") if p.strip()]
-                    answer = paragraphs[-1] if paragraphs else reasoning[:500]
+                answer = reasoning[:600] if reasoning else "DeepSeek returned an empty response."
+
         return {"analysis": answer, "reasoning": reasoning, "model": "deepseek-r1:7b"}
     except Exception as e:
         raise HTTPException(503, f"DeepSeek unavailable: {e}")
