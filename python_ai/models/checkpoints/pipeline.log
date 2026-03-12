@@ -1,0 +1,2 @@
+C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\synthetic\combinatorial_generator.py:338: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "generated_at": datetime.utcnow().isoformat(),

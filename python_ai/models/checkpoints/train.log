@@ -1,0 +1,54 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[Train] Device: cuda
+[Train] Epochs: 10 | Batch: 16 | Encoder LR: 2e-05
+[Dataset] Loaded 8025 pairs (split=train)
+[Dataset] Loaded 998 pairs (split=val)
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 4607.57it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Key                     | Status     | 
+------------------------+------------+-
+embeddings.position_ids | UNEXPECTED | 
+classifier.bias         | MISSING    | 
+classifier.weight       | MISSING    | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
+[Epoch 1/10] train_loss=0.0259 | val_loss=0.0171 | val_rmse=0.1304
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.1304)
+[Epoch 2/10] train_loss=0.0120 | val_loss=0.0072 | val_rmse=0.0851
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0851)
+[Epoch 3/10] train_loss=0.0061 | val_loss=0.0041 | val_rmse=0.0641
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0641)
+[Epoch 4/10] train_loss=0.0039 | val_loss=0.0032 | val_rmse=0.0562
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0562)
+[Epoch 5/10] train_loss=0.0030 | val_loss=0.0027 | val_rmse=0.0514
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0514)
+[Epoch 6/10] train_loss=0.0024 | val_loss=0.0027 | val_rmse=0.0518
+[Epoch 7/10] train_loss=0.0021 | val_loss=0.0023 | val_rmse=0.0477
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0477)
+[Epoch 8/10] train_loss=0.0019 | val_loss=0.0023 | val_rmse=0.0476
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0476)
+[Epoch 9/10] train_loss=0.0018 | val_loss=0.0021 | val_rmse=0.0459
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0459)
+[Epoch 10/10] train_loss=0.0017 | val_loss=0.0021 | val_rmse=0.0458
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0458)
+
+=== Training Complete ===
+{
+  "train_loss": 0.00167,
+  "val_loss": 0.002108,
+  "val_rmse": 0.04583781098661409,
+  "epochs_trained": 10,
+  "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt"
+}
+Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\training_metrics.json

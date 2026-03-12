@@ -1,0 +1,15 @@
+{
+  "split": "test",
+  "n_pairs": 977,
+  "pearson": 0.9695,
+  "rmse": 0.044,
+  "ndcg_at_10": 0.992,
+  "precision_at_5": 1.0,
+  "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt",
+  "targets_met": {
+    "pearson_gt_080": true,
+    "rmse_lt_012": true,
+    "ndcg10_gt_075": true,
+    "p5_gt_070": true
+  }
+}

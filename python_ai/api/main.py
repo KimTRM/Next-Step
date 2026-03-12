@@ -580,10 +580,13 @@ async def trigger_training(config: TrainingConfig):
             pass
 
     try:
+        log_path = CHECKPOINT_DIR / "train.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_file = open(log_path, "w", encoding="utf-8", buffering=1)
         proc = subprocess.Popen(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stdout=log_file,
+            stderr=log_file,
             cwd=str(Path(__file__).parents[1]),
             text=True,
         )
@@ -592,6 +595,7 @@ async def trigger_training(config: TrainingConfig):
             "message": "Training started",
             "pid": proc.pid,
             "run_id": run_id,
+            "log": str(log_path),
             "config": config.dict(),
         }
     except Exception as e:
@@ -616,6 +620,36 @@ async def training_status():
             pass
 
     return {"latest_metrics": latest, "latest_run": latest_run}
+
+
+@app.get("/train/logs")
+async def get_train_logs(tail: int = Query(200)):
+    """Return the last N lines of the training log file."""
+    log_path = CHECKPOINT_DIR / "train.log"
+    if not log_path.exists():
+        return {"lines": [], "exists": False, "size": 0}
+    with open(log_path, encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    return {
+        "lines": [l.rstrip() for l in lines[-tail:]],
+        "exists": True,
+        "size": len(lines),
+    }
+
+
+@app.get("/pipeline/logs")
+async def get_pipeline_logs(tail: int = Query(200)):
+    """Return the last N lines of the pipeline/DeepSeek log file."""
+    log_path = CHECKPOINT_DIR / "pipeline.log"
+    if not log_path.exists():
+        return {"lines": [], "exists": False, "size": 0}
+    with open(log_path, encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    return {
+        "lines": [l.rstrip() for l in lines[-tail:]],
+        "exists": True,
+        "size": len(lines),
+    }
 
 
 @app.get("/train/history")
@@ -673,13 +707,91 @@ async def get_latest_metrics():
         return {"metrics": json.load(f)}
 
 
+@app.post("/evaluate/analyze")
+async def analyze_metrics_with_deepseek():
+    """Send evaluation metrics to DeepSeek for a plain-English interpretation."""
+    metrics_path = CHECKPOINT_DIR / "metrics.json"
+    if not metrics_path.exists():
+        raise HTTPException(404, "No evaluation metrics found. Run /evaluate first.")
+    with open(metrics_path) as f:
+        m = json.load(f)
+
+    targets_met = m.get('targets_met', {})
+    prompt = f"""You are an AI model evaluation expert reviewing a Philippine job-matching AI system.
+
+Here are the evaluation results on {m.get('n_pairs', '?')} resume-job pairs:
+- Pearson Correlation: {m.get('pearson', '?'):.4f} (measures how well the AI ranks candidates — target >0.80)
+- RMSE: {m.get('rmse', '?'):.4f} (average score error — target <0.12, lower is better)
+- NDCG@10: {m.get('ndcg_at_10', '?'):.4f} (top-10 ranking quality — target >0.75)
+- Precision@5: {m.get('precision_at_5', '?'):.4f} (top-5 relevance — target >0.70)
+- Targets met: {sum(targets_met.values())}/{len(targets_met)}
+- Training data label method: {m.get('label_method', 'synthetic rule-based')}
+
+After your reasoning, write a final ANALYSIS section with exactly this format:
+
+ANALYSIS:
+[3-5 sentences covering: overall model quality, strongest and weakest metric and what it means for users, and one concrete recommendation to improve real-world performance. Be direct and practical. Avoid jargon.]"""
+
+    try:
+        import requests as req
+        resp = req.post(
+            "http://localhost:11434/api/generate",
+            json={"model": "deepseek-r1:7b", "prompt": prompt, "stream": False,
+                  "options": {"temperature": 0.3, "num_predict": 600}},
+            timeout=90,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("response", "")
+        # Extract thinking and final answer from DeepSeek-R1 format
+        think_start = raw.find("<think>")
+        think_end = raw.find("</think>")
+        reasoning = ""
+        answer = raw.strip()
+        if think_start >= 0 and think_end > think_start:
+            reasoning = raw[think_start + 7:think_end].strip()
+            after_think = raw[think_end + 8:].strip()
+            # Look for explicit ANALYSIS: section first
+            analysis_marker = after_think.find("ANALYSIS:")
+            if analysis_marker >= 0:
+                answer = after_think[analysis_marker + 9:].strip()
+            elif after_think:
+                answer = after_think
+            else:
+                # DeepSeek put everything in <think> — extract ANALYSIS from reasoning
+                analysis_marker = reasoning.find("ANALYSIS:")
+                if analysis_marker >= 0:
+                    answer = reasoning[analysis_marker + 9:].strip()
+                else:
+                    # Fall back to last paragraph of reasoning as the answer
+                    paragraphs = [p.strip() for p in reasoning.split("\n\n") if p.strip()]
+                    answer = paragraphs[-1] if paragraphs else reasoning[:500]
+        return {"analysis": answer, "reasoning": reasoning, "model": "deepseek-r1:7b"}
+    except Exception as e:
+        raise HTTPException(503, f"DeepSeek unavailable: {e}")
+
+
 # ---------------------------------------------------------------------------
 # Data pipeline
 # ---------------------------------------------------------------------------
 
+@app.get("/pipeline/ollama-status")
+async def ollama_status():
+    """Check if Ollama + DeepSeek is available for LLM labeling."""
+    try:
+        import requests as req
+        resp = req.get("http://localhost:11434/api/tags", timeout=3)
+        if resp.status_code == 200:
+            models = [m["name"] for m in resp.json().get("models", [])]
+            deepseek = [m for m in models if "deepseek" in m.lower()]
+            return {"available": True, "models": models, "deepseek_models": deepseek}
+    except Exception:
+        pass
+    return {"available": False, "models": [], "deepseek_models": []}
+
+
 @app.post("/pipeline/run")
-async def run_pipeline(stage: str = Query("full")):
-    """Trigger a data pipeline run."""
+async def run_pipeline(stage: str = Query("full"), use_llm: bool = Query(False), llm_model: str = Query("deepseek-r1:7b")):
+    """Trigger a data pipeline run. Set use_llm=true to label with DeepSeek."""
     valid_stages = {"full", "ingestion", "parsing", "normalization", "labeling", "storage"}
     if stage not in valid_stages:
         raise HTTPException(400, f"Invalid stage. Valid: {valid_stages}")
@@ -701,7 +813,12 @@ async def run_pipeline(stage: str = Query("full")):
                 "--limit", "5000",
                 "--output", str(Path(__file__).parents[1] / "data" / "labeled" / "synthetic_pairs.jsonl"),
             ]
-            subprocess.Popen(cmd, cwd=str(Path(__file__).parents[1]))
+            if use_llm:
+                cmd += ["--use-llm", "--llm-model", llm_model]
+            log_path = CHECKPOINT_DIR / "pipeline.log"
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_file = open(log_path, "w", encoding="utf-8", buffering=1)
+            subprocess.Popen(cmd, stdout=log_file, stderr=log_file, cwd=str(Path(__file__).parents[1]), text=True)
         except Exception as e:
             print(f"[WARN] Pipeline: {e}")
 

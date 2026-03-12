@@ -71,7 +71,14 @@ def train(
     model.train()
 
     # Layer-wise learning rates
-    encoder_params = list(model.model.base_model.parameters())
+    head_param_ids = {
+        id(p) for n, p in model.model.named_parameters()
+        if "classifier" in n or "pooler" in n
+    }
+    encoder_params = [
+        p for p in model.model.base_model.parameters()
+        if id(p) not in head_param_ids
+    ]
     head_params = [
         p for n, p in model.model.named_parameters()
         if "classifier" in n or "pooler" in n
@@ -112,6 +119,11 @@ def train(
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 targets = batch["confidence"].to(device)
+
+                # Squeeze out any extra dim from tokenizer (e.g. [B,1,L] -> [B,L])
+                if input_ids.dim() == 3:
+                    input_ids = input_ids.squeeze(1)
+                    attention_mask = attention_mask.squeeze(1)
 
                 outputs = model.model(
                     input_ids=input_ids,
@@ -204,6 +216,9 @@ def _evaluate(model, loader, criterion, device) -> tuple:
                 input_ids = batch["input_ids"].to(device)
                 attention_mask = batch["attention_mask"].to(device)
                 targets = batch["confidence"].to(device)
+                if input_ids.dim() == 3:
+                    input_ids = input_ids.squeeze(1)
+                    attention_mask = attention_mask.squeeze(1)
                 outputs = model.model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,

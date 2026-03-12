@@ -157,14 +157,26 @@ export function TrainingDashboard() {
   const [trainLog, setTrainLog] = useState<string[]>([]);
   const [isTraining, setIsTraining] = useState(false);
   const [trainResult, setTrainResult] = useState<Record<string, unknown> | null>(null);
+  const [isPollingLogs, setIsPollingLogs] = useState(false);
+  const [logSource, setLogSource] = useState<"train" | "pipeline">("train");
+  const logPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Eval
   const [evalMetrics, setEvalMetrics] = useState<EvalMetrics | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [deepseekAnalysis, setDeepseekAnalysis] = useState<{analysis: string; reasoning: string} | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showReasoning, setShowReasoning] = useState(false);
 
   // Pipeline
   const [pipelineStage, setPipelineStage] = useState("full");
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+  const [pipelineError, setPipelineError] = useState<string | null>(null);
+  const [pipelineLog, setPipelineLog] = useState<string[]>([]);
+  const pipelineLogRef = useRef<HTMLDivElement>(null);
+  const [useLlm, setUseLlm] = useState(false);
+  const [ollamaAvailable, setOllamaAvailable] = useState(false);
+  const [deepseekModels, setDeepseekModels] = useState<string[]>([]);
 
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -175,20 +187,62 @@ export function TrainingDashboard() {
     }
   }, [trainLog]);
 
+  useEffect(() => {
+    if (pipelineLogRef.current) {
+      pipelineLogRef.current.scrollTop = pipelineLogRef.current.scrollHeight;
+    }
+  }, [pipelineLog]);
+
   const loadAll = useCallback(async () => {
     await Promise.allSettled([
       fetch(`${API_BASE}/health`).then(r => r.json()).then(setHealth).catch(() => null),
       fetch(`${API_BASE}/model-info`).then(r => r.json()).then(setModelInfo).catch(() => null),
       fetch(`${API_BASE}/pipeline/status`).then(r => r.json()).then(setPipeline).catch(() => null),
       fetch(`${API_BASE}/evaluate/metrics`).then(r => r.json()).then(d => d.metrics && setEvalMetrics(d.metrics)).catch(() => null),
+      fetch(`${API_BASE}/pipeline/ollama-status`).then(r => r.json()).then(d => {
+        setOllamaAvailable(d.available);
+        setDeepseekModels(d.deepseek_models || []);
+      }).catch(() => null),
     ]);
   }, []);
 
   useEffect(() => {
     loadAll();
     const interval = setInterval(loadAll, 15000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      stopLogPolling();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadAll]);
+
+  const startLogPolling = (source: "train" | "pipeline" = "train") => {
+    if (logPollRef.current) clearInterval(logPollRef.current);
+    setIsPollingLogs(true);
+    setLogSource(source);
+    let lastSize = 0;
+    const endpoint = source === "pipeline" ? `${API_BASE}/pipeline/logs?tail=200` : `${API_BASE}/train/logs?tail=200`;
+    logPollRef.current = setInterval(async () => {
+      try {
+        const resp = await fetch(endpoint);
+        const data = await resp.json();
+        if (data.exists && data.size !== lastSize) {
+          lastSize = data.size;
+          setTrainLog(data.lines);
+        }
+      } catch {
+        // API might be restarting
+      }
+    }, 2000);
+  };
+
+  const stopLogPolling = () => {
+    if (logPollRef.current) {
+      clearInterval(logPollRef.current);
+      logPollRef.current = null;
+    }
+    setIsPollingLogs(false);
+  };
 
   const handleStartTraining = async () => {
     setIsTraining(true);
@@ -215,8 +269,9 @@ export function TrainingDashboard() {
         ...prev,
         `[${new Date().toLocaleTimeString()}] Training launched (PID: ${data.pid})`,
         `[${new Date().toLocaleTimeString()}] Run ID: ${data.run_id || "N/A"}`,
-        `[${new Date().toLocaleTimeString()}] Monitor via GET /train/status`,
+        `--- live log below ---`,
       ]);
+      startLogPolling();
     } catch (e) {
       setTrainLog(prev => [...prev, `[ERROR] ${e}`]);
     } finally {
@@ -242,14 +297,66 @@ export function TrainingDashboard() {
 
   const handleRunPipeline = async () => {
     setIsPipelineRunning(true);
+    setPipelineError(null);
+    setPipelineLog([
+      `[${new Date().toLocaleTimeString()}] Connecting to API...`,
+    ]);
     try {
-      const resp = await fetch(`${API_BASE}/pipeline/run?stage=${pipelineStage}`, { method: "POST" });
+      const params = new URLSearchParams({ stage: pipelineStage, use_llm: String(useLlm) });
+      const resp = await fetch(`${API_BASE}/pipeline/run?${params}`, { method: "POST" });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`API error ${resp.status}: ${text}`);
+      }
       const data = await resp.json();
-      console.log("Pipeline:", data);
+      setPipelineLog([
+        `[${new Date().toLocaleTimeString()}] Pipeline launched — stage: ${data.stage}`,
+        useLlm
+          ? `[${new Date().toLocaleTimeString()}] Labeling with DeepSeek (deepseek-r1:7b) — ~3s/pair...`
+          : `[${new Date().toLocaleTimeString()}] Labeling with rule-based method...`,
+        `--- streaming log below ---`,
+      ]);
+      // Also feed into training controls log tab
+      setTrainLog([
+        `[${new Date().toLocaleTimeString()}] Pipeline started — stage: ${pipelineStage}`,
+        `--- live log below ---`,
+      ]);
+      setLogSource("pipeline");
+      // Poll pipeline.log every 2s and update both log states
+      if (logPollRef.current) clearInterval(logPollRef.current);
+      setIsPollingLogs(true);
+      let lastSize = 0;
+      let staleCount = 0;
+      logPollRef.current = setInterval(async () => {
+        try {
+          const r = await fetch(`${API_BASE}/pipeline/logs?tail=300`);
+          const d = await r.json();
+          if (d.exists) {
+            if (d.size !== lastSize) {
+              lastSize = d.size;
+              staleCount = 0;
+              setPipelineLog(d.lines);
+              setTrainLog(d.lines);
+            } else {
+              staleCount++;
+              // If no new lines for 30s after process started, assume done
+              if (staleCount > 15 && d.size > 3) {
+                stopLogPolling();
+                setIsPipelineRunning(false);
+                setPipelineLog(prev => [...prev, `--- Pipeline finished ---`]);
+                setTimeout(loadAll, 1000);
+              }
+            }
+          }
+        } catch {
+          // API might be restarting
+        }
+      }, 2000);
       setTimeout(loadAll, 3000);
     } catch (e) {
-      console.error(e);
-    } finally {
+      const msg = e instanceof Error ? e.message : String(e);
+      setPipelineError(msg);
+      setPipelineLog(prev => [...prev, `[ERROR] ${msg}`]);
       setIsPipelineRunning(false);
     }
   };
@@ -328,30 +435,180 @@ export function TrainingDashboard() {
           <SectionCard title="Evaluation Metrics">
             {evalMetrics ? (
               <div>
+                {/* Summary banner */}
+                {evalMetrics.targets_met && (() => {
+                  const met = Object.values(evalMetrics.targets_met).filter(Boolean).length;
+                  const total = Object.values(evalMetrics.targets_met).length;
+                  const allGood = met === total;
+                  return (
+                    <div className={`mb-4 px-3 py-2.5 rounded-lg border text-sm ${allGood ? "bg-green-500/10 border-green-500/30 text-green-300" : "bg-yellow-500/10 border-yellow-500/30 text-yellow-300"}`}>
+                      <div className="font-semibold mb-0.5">{allGood ? "Model is performing well" : "Model needs more training"}</div>
+                      <div className="text-xs opacity-80">
+                        {allGood
+                          ? `All ${total} quality targets passed — ready for production use.`
+                          : `${met}/${total} targets passed — consider retraining with more data or epochs.`}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div className="text-xs text-gray-500 mb-3">
-                  {evalMetrics.n_pairs} pairs evaluated · split: {evalMetrics.split}
+                  Tested on <span className="text-gray-300 font-medium">{evalMetrics.n_pairs?.toLocaleString()}</span> resume–job pairs held out from training
                 </div>
-                <MetricRow label="Pearson Correlation" value={evalMetrics.pearson} target={0.80} />
-                <MetricRow label="RMSE" value={evalMetrics.rmse} target={0.12} higherIsBetter={false} />
-                <MetricRow label="NDCG@10" value={evalMetrics.ndcg_at_10} target={0.75} />
-                <MetricRow label="Precision@5" value={evalMetrics.precision_at_5} target={0.70} />
+
+                {/* Metric cards */}
+                <div className="space-y-3 mb-4">
+                  {/* Pearson */}
+                  <div className="bg-gray-900/60 rounded-lg p-3 border border-gray-700/50">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-sm font-medium text-white">Match Accuracy</div>
+                        <div className="text-xs text-gray-500">Pearson Correlation</div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-bold font-mono ${metricColor(evalMetrics.pearson, 0.80)}`}>
+                          {evalMetrics.pearson !== undefined ? `${(evalMetrics.pearson * 100).toFixed(1)}%` : "—"}
+                        </div>
+                        <div className="text-xs text-gray-500">target &gt;80%</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      How well the AI&apos;s match scores agree with the expected scores. <strong className="text-gray-300">97% means the AI almost always ranks better-fit candidates higher.</strong>
+                    </p>
+                  </div>
+
+                  {/* RMSE */}
+                  <div className="bg-gray-900/60 rounded-lg p-3 border border-gray-700/50">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-sm font-medium text-white">Score Precision</div>
+                        <div className="text-xs text-gray-500">RMSE (lower is better)</div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-bold font-mono ${metricColor(evalMetrics.rmse, 0.12, false)}`}>
+                          {fmt(evalMetrics.rmse)}
+                        </div>
+                        <div className="text-xs text-gray-500">target &lt;0.12</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Average error in the match score (0–1 scale). <strong className="text-gray-300">0.044 means scores are off by only ±4.4% on average</strong> — very precise.
+                    </p>
+                  </div>
+
+                  {/* NDCG */}
+                  <div className="bg-gray-900/60 rounded-lg p-3 border border-gray-700/50">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-sm font-medium text-white">Top-10 Ranking Quality</div>
+                        <div className="text-xs text-gray-500">NDCG@10</div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-bold font-mono ${metricColor(evalMetrics.ndcg_at_10, 0.75)}`}>
+                          {evalMetrics.ndcg_at_10 !== undefined ? `${(evalMetrics.ndcg_at_10 * 100).toFixed(1)}%` : "—"}
+                        </div>
+                        <div className="text-xs text-gray-500">target &gt;75%</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      How well the AI orders the top 10 job recommendations. <strong className="text-gray-300">97% means the best jobs almost always appear at the top of the list.</strong>
+                    </p>
+                  </div>
+
+                  {/* Precision@5 */}
+                  <div className="bg-gray-900/60 rounded-lg p-3 border border-gray-700/50">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-sm font-medium text-white">Top-5 Relevance</div>
+                        <div className="text-xs text-gray-500">Precision@5</div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-bold font-mono ${metricColor(evalMetrics.precision_at_5, 0.70)}`}>
+                          {evalMetrics.precision_at_5 !== undefined ? `${(evalMetrics.precision_at_5 * 100).toFixed(1)}%` : "—"}
+                        </div>
+                        <div className="text-xs text-gray-500">target &gt;70%</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Of the top 5 jobs shown to a user, how many are genuinely good matches. <strong className="text-gray-300">100% means every single top-5 recommendation is relevant.</strong>
+                    </p>
+                  </div>
+                </div>
 
                 {evalMetrics.targets_met && (
-                  <div className="mt-3 text-xs text-gray-500">
-                    Targets met: {Object.values(evalMetrics.targets_met).filter(Boolean).length}/4
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+                    <div className="flex gap-1">
+                      {Object.entries(evalMetrics.targets_met).map(([key, met]) => (
+                        <div key={key} className={`w-2 h-2 rounded-full ${met ? "bg-green-400" : "bg-red-400"}`} />
+                      ))}
+                    </div>
+                    <span>{Object.values(evalMetrics.targets_met).filter(Boolean).length}/{Object.values(evalMetrics.targets_met).length} targets met</span>
                   </div>
                 )}
-                <button
-                  onClick={handleEvaluate}
-                  disabled={isEvaluating}
-                  className="mt-4 w-full py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors"
-                >
-                  {isEvaluating ? "Evaluating..." : "Re-run Evaluation"}
-                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleEvaluate}
+                    disabled={isEvaluating}
+                    className="flex-1 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+                  >
+                    {isEvaluating ? "Evaluating..." : "Re-run Evaluation"}
+                  </button>
+                  {ollamaAvailable && (
+                    <button
+                      onClick={async () => {
+                        setIsAnalyzing(true);
+                        try {
+                          const resp = await fetch(`${API_BASE}/evaluate/analyze`, { method: "POST" });
+                          const data = await resp.json();
+                          setDeepseekAnalysis(data);
+                          setShowReasoning(false);
+                        } catch (e) { console.error(e); }
+                        finally { setIsAnalyzing(false); }
+                      }}
+                      disabled={isAnalyzing}
+                      className="flex-1 py-2 text-sm rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-50 transition-colors"
+                    >
+                      {isAnalyzing ? "Thinking..." : "Analyze with DeepSeek"}
+                    </button>
+                  )}
+                </div>
+
+                {/* DeepSeek Analysis */}
+                {deepseekAnalysis && (
+                  <div className="mt-3 bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-purple-300 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                        DeepSeek Analysis
+                      </span>
+                      {deepseekAnalysis.reasoning && (
+                        <button
+                          onClick={() => setShowReasoning(v => !v)}
+                          className="text-xs text-purple-400/60 hover:text-purple-300 transition-colors"
+                        >
+                          {showReasoning ? "hide reasoning" : "show reasoning"}
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {deepseekAnalysis.analysis}
+                    </p>
+                    {showReasoning && deepseekAnalysis.reasoning && (
+                      <div className="mt-2 pt-2 border-t border-purple-500/20">
+                        <div className="text-xs text-purple-400/50 mb-1">Chain of thought:</div>
+                        <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-wrap italic">
+                          {deepseekAnalysis.reasoning}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div>
-                <p className="text-gray-500 text-sm mb-4">No evaluation data yet.</p>
+                <p className="text-gray-400 text-sm mb-1">No evaluation data yet.</p>
+                <p className="text-gray-600 text-xs mb-4">Run evaluation to see how well the AI matches resumes to jobs.</p>
                 <button
                   onClick={handleEvaluate}
                   disabled={isEvaluating}
@@ -432,13 +689,41 @@ export function TrainingDashboard() {
 
             {/* Log output */}
             {trainLog.length > 0 && (
-              <div
-                ref={logRef}
-                className="mt-4 bg-gray-950 border border-gray-800 rounded-lg p-3 h-32 overflow-y-auto font-mono text-xs text-green-300 space-y-0.5"
-              >
-                {trainLog.map((line, i) => (
-                  <div key={i}>{line}</div>
-                ))}
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 font-mono">
+                    {logSource === "pipeline" ? "pipeline log" : "training log"}{" "}
+                    {isPollingLogs && (
+                      <span className={`animate-pulse ${logSource === "pipeline" ? "text-purple-400" : "text-green-400"}`}>
+                        ● live
+                      </span>
+                    )}
+                  </span>
+                  {isPollingLogs && (
+                    <button
+                      onClick={stopLogPolling}
+                      className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      stop polling
+                    </button>
+                  )}
+                </div>
+                <div
+                  ref={logRef}
+                  className="bg-gray-950 border border-gray-800 rounded-lg p-3 h-64 overflow-y-auto font-mono text-xs text-green-300 space-y-0.5"
+                >
+                  {trainLog.map((line, i) => (
+                    <div key={i} className={
+                      /error|traceback|failed/i.test(line) ? "text-red-400" :
+                      /warning|warn/i.test(line) ? "text-yellow-400" :
+                      /\[deepseek\]/i.test(line) ? "text-purple-300" :
+                      /epoch \d+/i.test(line) ? "text-cyan-300" :
+                      /conf=0\.[89]\d|conf=1\.0/i.test(line) ? "text-green-300" :
+                      /conf=0\.[0-4]\d/i.test(line) ? "text-orange-300" :
+                      "text-green-300"
+                    }>{line}</div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -507,13 +792,88 @@ export function TrainingDashboard() {
               </select>
             </div>
 
+            {/* DeepSeek LLM Labeling Toggle */}
+            <div className={`mb-3 p-3 rounded-lg border ${ollamaAvailable ? "border-purple-500/30 bg-purple-500/5" : "border-gray-700/50 bg-gray-900/30"}`}>
+              <div className="flex items-center justify-between mb-1">
+                <div>
+                  <div className="text-xs font-medium text-white flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${ollamaAvailable ? "bg-purple-400" : "bg-gray-600"}`} />
+                    DeepSeek Labeling
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {ollamaAvailable
+                      ? `Ollama ready · ${deepseekModels[0] || "deepseek-r1:7b"}`
+                      : "Ollama not running — using rule-based labels"}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setUseLlm(v => !v)}
+                  disabled={!ollamaAvailable}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${useLlm && ollamaAvailable ? "bg-purple-600" : "bg-gray-700"} disabled:opacity-40`}
+                >
+                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${useLlm && ollamaAvailable ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              {useLlm && ollamaAvailable && (
+                <p className="text-xs text-purple-300/70 mt-1">
+                  DeepSeek will score each pair. Slower (~3s/pair) but produces more realistic confidence scores than rule-based labeling.
+                </p>
+              )}
+            </div>
+
             <button
               onClick={handleRunPipeline}
               disabled={isPipelineRunning}
-              className="w-full py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 transition-colors"
+              className={`w-full py-2 text-sm rounded-lg disabled:opacity-50 transition-colors ${useLlm ? "bg-purple-600 hover:bg-purple-500" : "bg-blue-600 hover:bg-blue-500"}`}
             >
-              {isPipelineRunning ? "Starting..." : "Run Pipeline Stage"}
+              {isPipelineRunning
+                ? <span className="flex items-center justify-center gap-2">
+                    <span className={`w-2 h-2 rounded-full animate-pulse ${useLlm ? "bg-purple-300" : "bg-blue-300"}`} />
+                    {useLlm ? "DeepSeek labeling in progress..." : "Pipeline running..."}
+                  </span>
+                : useLlm ? "Run Pipeline (DeepSeek)" : "Run Pipeline Stage"}
             </button>
+
+            {/* Pipeline error */}
+            {pipelineError && (
+              <div className="mt-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                {pipelineError}
+              </div>
+            )}
+
+            {/* Inline pipeline log */}
+            {pipelineLog.length > 0 && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 font-mono">
+                    pipeline log{" "}
+                    {isPipelineRunning && (
+                      <span className={`animate-pulse ${useLlm ? "text-purple-400" : "text-blue-400"}`}>● live</span>
+                    )}
+                  </span>
+                  <button
+                    onClick={() => { setPipelineLog([]); setPipelineError(null); }}
+                    className="text-xs text-gray-600 hover:text-gray-400"
+                  >
+                    clear
+                  </button>
+                </div>
+                <div
+                  ref={pipelineLogRef}
+                  className="bg-gray-950 border border-gray-800 rounded-lg p-2 h-48 overflow-y-auto font-mono text-xs space-y-0.5"
+                >
+                  {pipelineLog.map((line, i) => (
+                    <div key={i} className={
+                      /error|traceback|failed/i.test(line) ? "text-red-400" :
+                      /warning|warn/i.test(line) ? "text-yellow-400" :
+                      /\[deepseek\]/i.test(line) ? "text-purple-300" :
+                      /done\.|finished|saved to/i.test(line) ? "text-green-400" :
+                      "text-gray-300"
+                    }>{line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </SectionCard>
 
           {/* Industry Breakdown */}

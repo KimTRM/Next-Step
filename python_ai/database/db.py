@@ -135,21 +135,8 @@ def get_jobs(
 
 
 def vector_search_jobs(embedding: list, limit: int = 20) -> List[dict]:
-    """Find the most similar jobs using pgvector cosine similarity."""
-    with get_conn() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                SELECT *, 1 - (embedding <=> %s::vector) AS similarity
-                FROM jobs
-                WHERE embedding IS NOT NULL
-                ORDER BY embedding <=> %s::vector
-                LIMIT %s
-                """,
-                (embedding, embedding, limit),
-            )
-            rows = cur.fetchall()
-    return [dict(r) for r in rows]
+    """Fallback: return recent jobs (pgvector not installed)."""
+    return get_jobs(limit=limit)
 
 
 # ---------------------------------------------------------------------------

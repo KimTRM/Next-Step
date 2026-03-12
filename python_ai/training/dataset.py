@@ -118,7 +118,8 @@ class JobMatchDataset(Dataset):
 
         if self.tokenizer:
             encoded = self.tokenizer(
-                (resume_text, job_text),
+                text=resume_text,
+                text_pair=job_text,
                 padding="max_length",
                 truncation=True,
                 max_length=self.max_length,

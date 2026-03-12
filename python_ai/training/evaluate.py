@@ -160,12 +160,13 @@ def evaluate(
 
 
 def _print_metrics(m: dict):
+    ok, fail = "OK", "FAIL"
     print("\n=== Evaluation Metrics ===")
     print(f"  Pairs evaluated : {m['n_pairs']}")
-    print(f"  Pearson         : {m['pearson']:.4f}  (target: >0.80) {'✓' if m['targets_met']['pearson_gt_080'] else '✗'}")
-    print(f"  RMSE            : {m['rmse']:.4f}  (target: <0.12) {'✓' if m['targets_met']['rmse_lt_012'] else '✗'}")
-    print(f"  NDCG@10         : {m['ndcg_at_10']:.4f}  (target: >0.75) {'✓' if m['targets_met']['ndcg10_gt_075'] else '✗'}")
-    print(f"  Precision@5     : {m['precision_at_5']:.4f}  (target: >0.70) {'✓' if m['targets_met']['p5_gt_070'] else '✗'}")
+    print(f"  Pearson         : {m['pearson']:.4f}  (target: >0.80) {ok if m['targets_met']['pearson_gt_080'] else fail}")
+    print(f"  RMSE            : {m['rmse']:.4f}  (target: <0.12) {ok if m['targets_met']['rmse_lt_012'] else fail}")
+    print(f"  NDCG@10         : {m['ndcg_at_10']:.4f}  (target: >0.75) {ok if m['targets_met']['ndcg10_gt_075'] else fail}")
+    print(f"  Precision@5     : {m['precision_at_5']:.4f}  (target: >0.70) {ok if m['targets_met']['p5_gt_070'] else fail}")
     targets_met = sum(m["targets_met"].values())
     print(f"\n  Targets met: {targets_met}/4")
 

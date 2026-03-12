@@ -21,6 +21,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Generator, List
 
+# Ensure python_ai root is in path when run as subprocess
+sys.path.insert(0, str(Path(__file__).parents[2]))
+
 try:
     from faker import Faker
     fake = Faker("en_PH")
@@ -213,9 +216,13 @@ def _make_job(industry: str, config: dict, niche: str, role: str,
     niche_skills = config.get("niche_skills", {}).get(niche, [])
     cert_skills = config.get("certifications", [])
 
-    # Sample 5-12 skills
+    # Sample 2-12 skills (min clamped to pool size)
     all_pool = list(set(core + niche_skills + cert_skills))
-    n_skills = random.randint(5, min(12, len(all_pool)))
+    if not all_pool:
+        all_pool = ["general skills"]
+    n_min = min(2, len(all_pool))
+    n_max = min(12, len(all_pool))
+    n_skills = random.randint(n_min, n_max)
     required_skills = random.sample(all_pool, n_skills)
 
     company = fake.company() if fake else f"Company_{random.randint(1, 9999)}"
@@ -282,16 +289,19 @@ def _make_resume(industry: str, config: dict, exp_level: dict,
     }
 
 
-def _pair_confidence(resume: dict, job: dict) -> float:
-    """Compute a rough confidence for the synthetic pair."""
+def _pair_confidence(resume: dict, job: dict, use_llm: bool = False, llm_model: str = "deepseek-r1:7b") -> tuple:
+    """Compute confidence using DeepSeek LLM (if available) or rule-based labeler."""
+    if use_llm:
+        from pipeline.labeling.llm_labeler import label_pair_with_llm
+        confidence, method = label_pair_with_llm(resume, job, model=llm_model)
+        return confidence, method
     from pipeline.labeling.rule_labeler import label_pair
     confidence, _ = label_pair(resume, job)
-    # Add small noise
     noise = random.gauss(0, 0.03)
-    return round(min(1.0, max(0.0, confidence + noise)), 4)
+    return round(min(1.0, max(0.0, confidence + noise)), 4), "rule_based"
 
 
-def generate_pairs(limit: int = 10000) -> Generator[dict, None, None]:
+def generate_pairs(limit: int = 10000, use_llm: bool = False, llm_model: str = "deepseek-r1:7b") -> Generator[dict, None, None]:
     """Generate synthetic resume-job pairs up to `limit`."""
     count = 0
     # Cycle through all combinations
@@ -317,13 +327,13 @@ def generate_pairs(limit: int = 10000) -> Generator[dict, None, None]:
         resume = _make_resume(industry, config, exp_level, edu_level, region,
                               career_path, job["required_skills"])
 
-        confidence = _pair_confidence(resume, job)
+        confidence, label_method = _pair_confidence(resume, job, use_llm=use_llm, llm_model=llm_model)
 
         pair = {
             "job": job,
             "resume": resume,
             "confidence": confidence,
-            "label_method": "rule_based",
+            "label_method": label_method,
             "split": _assign_split(),
             "generated_at": datetime.utcnow().isoformat(),
         }
@@ -348,17 +358,23 @@ def main():
     parser = argparse.ArgumentParser(description="Generate synthetic PH job-resume pairs")
     parser.add_argument("--limit", type=int, default=10000, help="Number of pairs to generate")
     parser.add_argument("--output", default="python_ai/data/labeled/synthetic_pairs.jsonl")
+    parser.add_argument("--use-llm", action="store_true", help="Use DeepSeek via Ollama for labeling")
+    parser.add_argument("--llm-model", default="deepseek-r1:7b", help="Ollama model name")
     args = parser.parse_args()
 
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Generating {args.limit:,} synthetic pairs → {args.output}")
+    label_mode = f"DeepSeek ({args.llm_model})" if args.use_llm else "rule-based"
+    print(f"Generating {args.limit:,} synthetic pairs -> {args.output}")
+    print(f"Label method: {label_mode}")
     count = 0
     with open(args.output, "w", encoding="utf-8") as f:
-        for pair in generate_pairs(limit=args.limit):
+        for pair in generate_pairs(limit=args.limit, use_llm=args.use_llm, llm_model=args.llm_model):
             f.write(json.dumps(pair, ensure_ascii=False) + "\n")
             count += 1
-            if count % 1000 == 0:
+            if count % 100 == 0 and args.use_llm:
+                print(f"  Labeled {count:,}/{args.limit:,} (LLM)...")
+            elif count % 1000 == 0:
                 print(f"  Generated {count:,}/{args.limit:,}...")
 
     print(f"\nDone. {count:,} pairs saved to {args.output}")
