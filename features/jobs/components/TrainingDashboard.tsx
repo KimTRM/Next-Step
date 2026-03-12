@@ -25,6 +25,15 @@ interface EvalMetrics {
   n_pairs?: number;
   split?: string;
   targets_met?: Record<string, boolean>;
+  deepseek_judge?: {
+    n_scored: number;
+    model: string;
+    error?: string;
+    model_vs_deepseek?: { pearson: number; rmse: number };
+    label_bias?: { mean: number; direction: string };
+    deepseek_mean_score?: number;
+    rule_label_mean_score?: number;
+  };
 }
 
 interface TrainingMetrics {
@@ -164,6 +173,8 @@ export function TrainingDashboard() {
   // Eval
   const [evalMetrics, setEvalMetrics] = useState<EvalMetrics | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [useDeepseekJudge, setUseDeepseekJudge] = useState(false);
+  const [deepseekJudgeSample, setDeepseekJudgeSample] = useState(50);
   const [deepseekAnalysis, setDeepseekAnalysis] = useState<{analysis: string; reasoning: string} | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
@@ -282,10 +293,13 @@ export function TrainingDashboard() {
   const handleEvaluate = async () => {
     setIsEvaluating(true);
     try {
-      const params = jsonlPath.trim()
+      const base = jsonlPath.trim()
         ? `?jsonl_path=${encodeURIComponent(jsonlPath)}&split=test`
         : `?split=test`;
-      const resp = await fetch(`${API_BASE}/evaluate${params}`, { method: "POST" });
+      const judgeParams = useDeepseekJudge
+        ? `&use_deepseek=true&deepseek_sample=${deepseekJudgeSample}&deepseek_model=deepseek-r1:7b`
+        : "";
+      const resp = await fetch(`${API_BASE}/evaluate${base}${judgeParams}`, { method: "POST" });
       const data = await resp.json();
       if (data.metrics) setEvalMetrics(data.metrics);
     } catch (e) {
@@ -546,13 +560,52 @@ export function TrainingDashboard() {
                   </div>
                 )}
 
+                {/* DeepSeek Judge toggle */}
+                {ollamaAvailable && (
+                  <div className="mb-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <span className="text-xs font-medium text-purple-300">DeepSeek Independent Judge</span>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          DeepSeek scores a sample of pairs independently — reveals if your training labels are biased.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setUseDeepseekJudge(v => !v)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${useDeepseekJudge ? "bg-purple-600" : "bg-gray-600"}`}
+                      >
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${useDeepseekJudge ? "translate-x-5" : "translate-x-1"}`} />
+                      </button>
+                    </div>
+                    {useDeepseekJudge && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-gray-400">Sample size:</span>
+                        {[25, 50, 100].map(n => (
+                          <button
+                            key={n}
+                            onClick={() => setDeepseekJudgeSample(n)}
+                            className={`px-2 py-0.5 text-xs rounded ${deepseekJudgeSample === n ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-400 hover:bg-gray-600"}`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        <span className="text-xs text-gray-500 ml-1">
+                          ~{Math.round(deepseekJudgeSample * 3 / 60)} min
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <button
                     onClick={handleEvaluate}
                     disabled={isEvaluating}
                     className="flex-1 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-colors"
                   >
-                    {isEvaluating ? "Evaluating..." : "Re-run Evaluation"}
+                    {isEvaluating
+                      ? useDeepseekJudge ? "Evaluating + Judging..." : "Evaluating..."
+                      : "Re-run Evaluation"}
                   </button>
                   {ollamaAvailable && (
                     <button
@@ -574,7 +627,46 @@ export function TrainingDashboard() {
                   )}
                 </div>
 
-                {/* DeepSeek Analysis */}
+                {/* DeepSeek Judge Results */}
+                {evalMetrics.deepseek_judge && !evalMetrics.deepseek_judge.error && (
+                  <div className="mt-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                    <div className="text-xs font-medium text-purple-300 mb-2 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                      DeepSeek Judge Results
+                      <span className="ml-auto text-gray-500 font-normal">{evalMetrics.deepseek_judge.n_scored} pairs scored</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="bg-gray-800/60 rounded p-2">
+                        <div className="text-xs text-gray-500 mb-0.5">Model vs DeepSeek Pearson</div>
+                        <div className={`text-sm font-bold font-mono ${(evalMetrics.deepseek_judge.model_vs_deepseek?.pearson ?? 0) >= 0.7 ? "text-green-400" : (evalMetrics.deepseek_judge.model_vs_deepseek?.pearson ?? 0) >= 0.5 ? "text-yellow-400" : "text-red-400"}`}>
+                          {((evalMetrics.deepseek_judge.model_vs_deepseek?.pearson ?? 0) * 100).toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-gray-600 mt-0.5">How well model agrees with DeepSeek</div>
+                      </div>
+                      <div className="bg-gray-800/60 rounded p-2">
+                        <div className="text-xs text-gray-500 mb-0.5">Model vs DeepSeek RMSE</div>
+                        <div className={`text-sm font-bold font-mono ${(evalMetrics.deepseek_judge.model_vs_deepseek?.rmse ?? 1) < 0.15 ? "text-green-400" : (evalMetrics.deepseek_judge.model_vs_deepseek?.rmse ?? 1) < 0.25 ? "text-yellow-400" : "text-red-400"}`}>
+                          {(evalMetrics.deepseek_judge.model_vs_deepseek?.rmse ?? 0).toFixed(4)}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-0.5">Average score error vs DeepSeek</div>
+                      </div>
+                    </div>
+                    <div className={`text-xs rounded px-2 py-1.5 ${
+                      evalMetrics.deepseek_judge.label_bias?.direction?.includes("well-calibrated")
+                        ? "bg-green-500/10 text-green-300"
+                        : "bg-yellow-500/10 text-yellow-300"
+                    }`}>
+                      <strong>Label bias:</strong> {evalMetrics.deepseek_judge.label_bias?.direction}
+                      {" "}(mean delta: {evalMetrics.deepseek_judge.label_bias?.mean > 0 ? "+" : ""}{evalMetrics.deepseek_judge.label_bias?.mean?.toFixed(4)})
+                    </div>
+                    <div className="flex gap-3 mt-2 text-xs text-gray-500">
+                      <span>DeepSeek avg: <span className="text-gray-300">{evalMetrics.deepseek_judge.deepseek_mean_score?.toFixed(3)}</span></span>
+                      <span>Rule-label avg: <span className="text-gray-300">{evalMetrics.deepseek_judge.rule_label_mean_score?.toFixed(3)}</span></span>
+                    </div>
+                  </div>
+                )}
+
+                {/* DeepSeek Text Analysis */}
                 {deepseekAnalysis && (
                   <div className="mt-3 bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -609,6 +701,24 @@ export function TrainingDashboard() {
               <div>
                 <p className="text-gray-400 text-sm mb-1">No evaluation data yet.</p>
                 <p className="text-gray-600 text-xs mb-4">Run evaluation to see how well the AI matches resumes to jobs.</p>
+                {ollamaAvailable && (
+                  <div className="mb-3 p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-medium text-purple-300">DeepSeek Independent Judge</span>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Scores a sample of pairs to detect label bias.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setUseDeepseekJudge(v => !v)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${useDeepseekJudge ? "bg-purple-600" : "bg-gray-600"}`}
+                      >
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${useDeepseekJudge ? "translate-x-5" : "translate-x-1"}`} />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <button
                   onClick={handleEvaluate}
                   disabled={isEvaluating}

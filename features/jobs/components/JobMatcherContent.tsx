@@ -234,6 +234,7 @@ export function JobMatcherContent() {
   const [jobCount, setJobCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeStatus, setAnalyzeStatus] = useState("");
+  const [analyzerUsed, setAnalyzerUsed] = useState<"gemini" | "deepseek" | "rule-based" | null>(null);
 
   // Results state
   const [showResults, setShowResults] = useState(false);
@@ -378,20 +379,31 @@ export function JobMatcherContent() {
     let analysisData: AIAnalysisData | null = null;
 
     setIsAnalyzing(true);
+    setAnalyzerUsed(null);
+
+    // Check which analyzers are available
+    let geminiAvailable = false;
+    let deepseekAvailable = false;
+    try {
+      const [geminiStatus, ollamaStatus] = await Promise.all([
+        fetch(`${API_BASE}/gemini-status`).then(r => r.json()).catch(() => ({ available: false })),
+        fetch(`${API_BASE}/pipeline/ollama-status`).then(r => r.json()).catch(() => ({ available: false })),
+      ]);
+      geminiAvailable = geminiStatus.available === true;
+      deepseekAvailable = ollamaStatus.available === true;
+    } catch { /* ignore */ }
 
     // If Detect Industry is selected, analyze resume first
     if (useDetection) {
-      setAnalyzeStatus("AI Analyzing Resume...");
+      const analyzerLabel = geminiAvailable ? "Gemini" : deepseekAvailable ? "DeepSeek" : "local";
+      setAnalyzeStatus(`Analyzing Resume with ${analyzerLabel}...`);
 
       try {
         let analyzeResponse: Response | null = null;
 
-        // If a PDF/DOCX file is uploaded, use Gemini file analysis
+        // If a PDF/DOCX file is uploaded, use file analysis endpoint
         if (uploadedFile) {
-          const fileExtension = uploadedFile.name
-            .split(".")
-            .pop()
-            ?.toLowerCase();
+          const fileExtension = uploadedFile.name.split(".").pop()?.toLowerCase();
           if (fileExtension === "pdf" || fileExtension === "docx") {
             const formData = new FormData();
             formData.append("file", uploadedFile);
@@ -404,75 +416,78 @@ export function JobMatcherContent() {
             });
 
             if (analyzeResponse.ok) {
-              analysisData = await analyzeResponse.json();
-              if (analysisData?.extracted_text) {
-                setResumeText(analysisData.extracted_text);
-              }
-              detectedIndustryValue =
-                analysisData?.detected_industry || "Technology";
+              const raw = await analyzeResponse.json();
+              analysisData = raw.data || raw;
+              if (analysisData?.extracted_text) setResumeText(analysisData.extracted_text);
+              detectedIndustryValue = analysisData?.detected_industry || "Technology";
               searchKeywords = analysisData?.search_keywords || [];
-
-              if (analysisData?.error) {
-                alert(
-                  `PDF Analysis Issue:\n\n${analysisData.error}\n\nPlease paste your resume text in the text area.`
-                );
-                analyzeResponse = null;
-              }
+              setAnalyzerUsed(raw.analyzer?.includes("deepseek") ? "deepseek" : geminiAvailable ? "gemini" : "rule-based");
+              if (analysisData?.error) { analyzeResponse = null; }
             }
           }
         }
 
-        // Fall back to text analysis if no file or text file
+        // Text analysis: Gemini first, then DeepSeek, then local
         if (!analyzeResponse || !analyzeResponse.ok) {
-          analyzeResponse = await fetch(`${API_BASE}/analyze-resume`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              resume_text: resumeText,
-              city: selectedCity,
-              fetch_fresh_jobs: true,
-            }),
-          });
+          if (geminiAvailable) {
+            analyzeResponse = await fetch(`${API_BASE}/analyze-resume`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_text: resumeText, city: selectedCity, fetch_fresh_jobs: true }),
+            });
+            if (analyzeResponse.ok) {
+              const raw = await analyzeResponse.json();
+              analysisData = raw.data || raw;
+              detectedIndustryValue = analysisData?.detected_industry || "Technology";
+              searchKeywords = analysisData?.search_keywords || [];
+              setAnalyzerUsed("gemini");
+            }
+          }
 
-          if (analyzeResponse.ok) {
-            analysisData = await analyzeResponse.json();
-            detectedIndustryValue =
-              analysisData?.detected_industry || "Technology";
-            searchKeywords = analysisData?.search_keywords || [];
+          if ((!analyzeResponse || !analyzeResponse.ok) && deepseekAvailable) {
+            setAnalyzeStatus("Analyzing Resume with DeepSeek...");
+            analyzeResponse = await fetch(`${API_BASE}/analyze-resume-deepseek`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_text: resumeText }),
+            });
+            if (analyzeResponse.ok) {
+              const raw = await analyzeResponse.json();
+              analysisData = raw.data || raw;
+              detectedIndustryValue = analysisData?.detected_industry || "Technology";
+              searchKeywords = analysisData?.search_keywords || [];
+              setAnalyzerUsed("deepseek");
+            }
           }
         }
 
-        if (!analyzeResponse?.ok) {
-          // Fallback to local detection
+        if (!analyzeResponse?.ok || !analysisData) {
           detectedIndustryValue = detectIndustryLocal(resumeText);
           const localSkills = extractSkills(resumeText);
           analysisData = {
             detected_industry: detectedIndustryValue,
             industry_confidence: 70,
             detected_skills: localSkills,
-            suggested_industries: [
-              { industry: detectedIndustryValue, confidence: 70 },
-            ],
+            suggested_industries: [{ industry: detectedIndustryValue, confidence: 70 }],
             search_keywords: localSkills.slice(0, 5),
             fresh_jobs_fetched: 0,
           };
           searchKeywords = analysisData.search_keywords || [];
+          setAnalyzerUsed("rule-based");
         }
       } catch {
-        // Fallback to local detection
         detectedIndustryValue = detectIndustryLocal(resumeText);
         const localSkills = extractSkills(resumeText);
         analysisData = {
           detected_industry: detectedIndustryValue,
           industry_confidence: 70,
           detected_skills: localSkills,
-          suggested_industries: [
-            { industry: detectedIndustryValue, confidence: 70 },
-          ],
+          suggested_industries: [{ industry: detectedIndustryValue, confidence: 70 }],
           search_keywords: localSkills.slice(0, 5),
           fresh_jobs_fetched: 0,
         };
         searchKeywords = analysisData.search_keywords || [];
+        setAnalyzerUsed("rule-based");
       }
     }
 
@@ -850,9 +865,15 @@ Previously worked at Tech Corp, StartupXYZ`}
               <div className="bg-gradient-to-br from-primary/5 to-background border rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-2 font-semibold mb-4">
                   <Brain className="w-5 h-5 text-primary" />
-                  <span>AI Industry Detection Results</span>
-                  <span className="ml-auto text-xs px-2 py-1 bg-primary text-primary-foreground rounded-full">
-                    Analyzed
+                  <span>AI Resume Analysis Results</span>
+                  <span className={`ml-auto text-xs px-2 py-1 rounded-full ${
+                    analyzerUsed === "deepseek"
+                      ? "bg-purple-600 text-white"
+                      : analyzerUsed === "gemini"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {analyzerUsed === "deepseek" ? "DeepSeek R1" : analyzerUsed === "gemini" ? "Gemini" : "Rule-based"}
                   </span>
                 </div>
 
@@ -883,12 +904,21 @@ Previously worked at Tech Corp, StartupXYZ`}
                     </div>
                   </div>
                   <div className="bg-card rounded-lg p-3 border col-span-2">
-                    <div className="text-xs text-muted-foreground mb-1">
-                      Search Keywords
+                    <div className="text-xs text-muted-foreground mb-2">
+                      Job Search Keywords
+                      {analyzerUsed === "deepseek" && (
+                        <span className="ml-1 text-purple-500">· extracted by DeepSeek</span>
+                      )}
                     </div>
-                    <div className="text-sm truncate">
-                      {(aiAnalysisData.search_keywords || []).join(", ") ||
-                        "No specific keywords"}
+                    <div className="flex flex-wrap gap-1">
+                      {(aiAnalysisData.search_keywords || []).map((kw, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-primary/15 text-primary text-xs rounded-full font-medium">
+                          {kw}
+                        </span>
+                      ))}
+                      {(!aiAnalysisData.search_keywords || aiAnalysisData.search_keywords.length === 0) && (
+                        <span className="text-muted-foreground text-xs">No keywords detected</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -896,18 +926,19 @@ Previously worked at Tech Corp, StartupXYZ`}
                 <div>
                   <div className="text-xs text-muted-foreground mb-2">
                     Detected Skills
+                    {analyzerUsed === "deepseek" && (
+                      <span className="ml-1 text-purple-500">· extracted by DeepSeek R1</span>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {(aiAnalysisData.detected_skills || [])
-                      .slice(0, 15)
-                      .map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-primary/10 text-primary text-xs rounded"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                    {(aiAnalysisData.detected_skills || []).map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-primary/10 text-primary text-xs rounded"
+                      >
+                        {skill}
+                      </span>
+                    ))}
                     {(!aiAnalysisData.detected_skills ||
                       aiAnalysisData.detected_skills.length === 0) && (
                       <span className="text-muted-foreground text-sm">

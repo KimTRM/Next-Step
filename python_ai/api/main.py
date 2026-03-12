@@ -17,7 +17,7 @@ from typing import List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
@@ -432,17 +432,124 @@ async def match_resume_upload(
 
 
 # ---------------------------------------------------------------------------
-# Resume AI analysis (Gemini)
+# Resume AI analysis (Gemini / DeepSeek fallback)
 # ---------------------------------------------------------------------------
+
+_INDUSTRY_LIST = [
+    "Technology", "Finance", "Healthcare", "Retail", "Manufacturing",
+    "Education", "Marketing", "Consulting", "BPO", "Engineering",
+    "Hospitality", "Legal", "Human Resources", "Administrative",
+    "Fine Arts & Design"
+]
+
+
+def _analyze_resume_with_deepseek(resume_text: str) -> dict:
+    """
+    Use DeepSeek-r1 (via Ollama) to extract skills, keywords, and industry
+    from resume text. Returns the same shape as GeminiResumeAnalyzer.
+    Falls back to rule-based parser if Ollama is unavailable.
+    """
+    import requests as _req
+    import json as _json
+
+    text_excerpt = resume_text[:3000]
+    prompt = f"""You are an expert Filipino HR recruiter and resume analyst.
+
+Analyze this resume and extract structured information.
+
+Resume text:
+\"\"\"
+{text_excerpt}
+\"\"\"
+
+Reply ONLY with valid JSON matching this exact structure (no extra text):
+{{
+  "detected_skills": ["skill1", "skill2"],
+  "detected_industry": "Technology",
+  "industry_confidence": 85,
+  "suggested_industries": [{{"industry": "Finance", "confidence": 60}}],
+  "experience_years": 3,
+  "education_level": "Bachelor",
+  "certifications": [],
+  "search_keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}}
+
+Rules:
+- detected_skills: up to 20 technical and soft skills, lowercase, no duplicates
+- detected_industry: must be exactly one of: {", ".join(_INDUSTRY_LIST)}
+- industry_confidence: 0-100
+- experience_years: total years of work experience as a number
+- search_keywords: 5 optimal job search keywords for this resume
+- Include PH credentials (PRC, TESDA, BAR, LET, CPA) in certifications if found"""
+
+    try:
+        resp = _req.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "deepseek-r1:7b",
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": 400},
+            },
+            timeout=60,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("response", "")
+        # Strip chain-of-thought
+        think_end = raw.find("</think>")
+        if think_end >= 0:
+            raw = raw[think_end + 8:]
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        if start >= 0 and end > start:
+            result = _json.loads(raw[start:end])
+            if result.get("detected_industry") not in _INDUSTRY_LIST:
+                result["detected_industry"] = "Technology"
+            result.setdefault("detected_skills", [])
+            result.setdefault("industry_confidence", 70)
+            result.setdefault("suggested_industries", [])
+            result.setdefault("experience_years", 0)
+            result.setdefault("certifications", [])
+            result.setdefault("search_keywords", [])
+            print(
+                f"[DeepSeek Resume] {result['detected_industry']} "
+                f"({result['industry_confidence']}%) | "
+                f"Skills: {len(result['detected_skills'])} | "
+                f"Keywords: {result['search_keywords']}",
+                flush=True,
+            )
+            return result
+    except Exception as e:
+        print(f"[DeepSeek Resume] Fallback to rule-based: {e}", flush=True)
+
+    parsed = resume_parser.parse_text(resume_text)
+    return parsed.to_dict()
+
 
 @app.post("/analyze-resume")
 async def analyze_resume_text(text: str):
     if gemini_analyzer and gemini_analyzer.is_available():
         result = await gemini_analyzer.analyze_resume_text(text)
     else:
-        parsed = resume_parser.parse_text(text)
-        result = parsed.to_dict()
+        import asyncio
+        result = await asyncio.get_event_loop().run_in_executor(
+            None, _analyze_resume_with_deepseek, text
+        )
     return {"success": True, "data": result}
+
+
+@app.post("/analyze-resume-deepseek")
+async def analyze_resume_deepseek(request: Request):
+    """Explicit DeepSeek-powered resume analysis endpoint."""
+    body = await request.json()
+    text = body.get("resume_text", "")
+    if not text:
+        raise HTTPException(400, "resume_text required")
+    import asyncio
+    result = await asyncio.get_event_loop().run_in_executor(
+        None, _analyze_resume_with_deepseek, text
+    )
+    return {"success": True, "data": result, "analyzer": "deepseek-r1:7b"}
 
 
 @app.post("/analyze-resume-file")
@@ -461,7 +568,12 @@ async def analyze_resume_file(file: UploadFile = File(...)):
             result = await gemini_analyzer.analyze_resume_file(tmp_path)
         else:
             parsed = resume_parser.parse(tmp_path)
-            result = parsed.to_dict()
+            extracted_text = getattr(parsed, "raw_text", "") or str(parsed.to_dict())
+            import asyncio
+            result = await asyncio.get_event_loop().run_in_executor(
+                None, _analyze_resume_with_deepseek, extracted_text
+            )
+            result["extracted_text"] = extracted_text
 
         os.unlink(tmp_path)
         return {"success": True, "data": result}
@@ -668,8 +780,11 @@ async def training_history():
 async def trigger_evaluation(
     jsonl_path: Optional[str] = Query(None),
     split: str = Query("test"),
+    use_deepseek: bool = Query(False, description="Use DeepSeek as independent judge"),
+    deepseek_sample: int = Query(100, description="Number of pairs to judge with DeepSeek"),
+    deepseek_model: str = Query("deepseek-r1:7b"),
 ):
-    """Run evaluation and return metrics."""
+    """Run evaluation and return metrics. Optionally uses DeepSeek as an independent judge."""
     cmd = [
         sys.executable,
         str(Path(__file__).parents[1] / "training" / "evaluate.py"),
@@ -678,13 +793,19 @@ async def trigger_evaluation(
     ]
     if jsonl_path:
         cmd += ["--jsonl", jsonl_path, "--no-db"]
+    if use_deepseek:
+        cmd += ["--use-deepseek", "--deepseek-sample", str(deepseek_sample),
+                "--deepseek-model", deepseek_model]
+
+    # Longer timeout when DeepSeek judge is running (~3s × sample size)
+    timeout = 300 + (deepseek_sample * 4 if use_deepseek else 0)
 
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=timeout,
             cwd=str(Path(__file__).parents[1]),
         )
         metrics_path = CHECKPOINT_DIR / "metrics.json"
