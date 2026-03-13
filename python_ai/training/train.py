@@ -34,6 +34,122 @@ except ImportError:
     _SCHEDULER_AVAILABLE = False
 
 
+# ---------------------------------------------------------------------------
+# DeepSeek per-epoch judge
+# ---------------------------------------------------------------------------
+
+def deepseek_epoch_judge(
+    model,
+    val_dataset,
+    sample_size: int,
+    ollama_model: str,
+    device: str,
+    epoch: int,
+) -> tuple[float, dict]:
+    """
+    Sample `sample_size` pairs from val_dataset, get the current model's
+    predictions AND DeepSeek's independent scores, then print both with
+    chain-of-thought thoughts. Returns (mean_bias_delta, {idx: ds_score}).
+    """
+    import random
+    import re
+    import requests as _req
+
+    n = len(val_dataset)
+    indices = random.sample(range(n), min(sample_size, n))
+
+    ds_scores: dict[int, float] = {}
+    pair_data: list[tuple[int, str, str, float, float]] = []  # (idx, resume, job, label, pred)
+
+    # --- Phase 1: collect model predictions on GPU ---
+    model.eval()
+    with torch.no_grad():
+        for idx in indices:
+            item = val_dataset[idx]
+            resume_text = item["resume_text"]
+            job_text = item["job_text"]
+            label = float(item["confidence"]) if isinstance(item["confidence"], (int, float)) else item["confidence"].item()
+            pred = model([resume_text], [job_text]).cpu().item()
+            pair_data.append((idx, resume_text, job_text, label, pred))
+
+    # --- Phase 2: offload training model from GPU so Ollama can use VRAM ---
+    model.to("cpu")
+    torch.cuda.empty_cache()
+    print(f"[DeepSeek Epoch {epoch}] Model offloaded to CPU — running judge on {len(pair_data)} pairs...", flush=True)
+
+    for i, (idx, resume_text, job_text, label, pred) in enumerate(pair_data):
+        prompt = (
+            f"Rate resume-job fit: 0.0=no fit, 0.5=partial, 1.0=perfect.\n"
+            f"Resume: {resume_text[:300]}\n"
+            f"Job: {job_text[:200]}\n"
+            f"Reply with ONE decimal number only."
+        )
+        ds_score = None
+        try:
+            resp = _req.post(
+                "http://localhost:11434/api/generate",
+                json={"model": ollama_model, "prompt": prompt, "stream": False,
+                      "options": {"temperature": 0.1, "num_predict": -1, "num_ctx": 1024}},
+                timeout=180,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            raw = data.get("response", "")
+            done_reason = data.get("done_reason", "unknown")
+            if not raw:
+                print(f"[DeepSeek Epoch Judge] pair {idx}: empty response (done_reason={done_reason})", flush=True)
+                continue
+            # Print chain-of-thought
+            think_start = raw.find("<think>")
+            think_end = raw.find("</think>")
+            if think_start >= 0 and think_end > think_start:
+                think_content = raw[think_start + 7:think_end].strip()
+                for chunk in [think_content[i:i+160] for i in range(0, len(think_content), 160)]:
+                    print(f"[DeepSeek Think] {chunk}", flush=True)
+                raw = raw[think_end + 8:].strip()
+            m = re.search(r"(?<!\d)(0\.\d+|1\.0+|0\.0+|1|0)(?!\d)", raw)
+            if m:
+                ds_score = min(1.0, max(0.0, float(m.group(1))))
+            else:
+                preview = raw.replace("\n", " ")[:120]
+                print(f"[DeepSeek Epoch Judge] pair {idx}: no score parsed (done={done_reason}) from: '{preview}'", flush=True)
+        except Exception as e:
+            print(f"[DeepSeek Epoch Judge] Error on pair {idx}: {e}", flush=True)
+
+        if ds_score is not None:
+            delta = ds_score - label
+            print(
+                f"[DeepSeek Epoch {epoch}] pair={len(ds_scores)+1}/{len(pair_data)} | "
+                f"model={pred:.3f} | deepseek={ds_score:.3f} | label={label:.3f} | delta={delta:+.3f}",
+                flush=True,
+            )
+            ds_scores[idx] = ds_score
+
+    # --- Phase 3: restore model to GPU ---
+    model.to(device)
+    torch.cuda.empty_cache()
+    print(f"[DeepSeek Epoch {epoch}] Model restored to {device}.", flush=True)
+
+    if not ds_scores:
+        print(f"[DeepSeek Epoch {epoch}] No scores returned — skipping bias correction", flush=True)
+        return 0.0, {}
+
+    # Compute mean bias: positive = DeepSeek thinks labels are too low, negative = too high
+    label_map = {idx: label for idx, _, _, label, _ in pair_data}
+    bias_deltas = [ds_scores[i] - label_map[i] for i in ds_scores]
+    mean_bias = sum(bias_deltas) / len(bias_deltas)
+    direction = (
+        "labels over-estimated (rule-based too generous)" if mean_bias < -0.05
+        else "labels under-estimated (rule-based too strict)" if mean_bias > 0.05
+        else "labels well-calibrated"
+    )
+    print(
+        f"[DeepSeek Epoch {epoch}] bias_delta={mean_bias:+.4f} | {direction}",
+        flush=True,
+    )
+    return mean_bias, ds_scores
+
+
 def train(
     epochs: int = 10,
     batch_size: int = 32,
@@ -47,8 +163,15 @@ def train(
     jsonl_path: str | None = None,
     run_id: str | None = None,
     checkpoint_name: str = "cross_encoder.pt",
+    use_deepseek_judge: bool = False,
+    deepseek_epoch_sample: int = 10,
+    deepseek_bias_alpha: float = 0.3,
+    deepseek_model: str = "deepseek-r1:7b",
 ) -> dict:
     """Train the cross-encoder and return final metrics."""
+    # Free any GPU memory held by other processes (e.g. Ollama) before allocating
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[Train] Device: {device}")
     print(f"[Train] Epochs: {epochs} | Batch: {batch_size} | Encoder LR: {encoder_lr}")
@@ -166,6 +289,23 @@ def train(
             "val_rmse": round(val_rmse, 6),
         })
 
+        # DeepSeek per-epoch judge + bias correction
+        if use_deepseek_judge:
+            try:
+                _, ds_scores = deepseek_epoch_judge(
+                    model=model,
+                    val_dataset=val_ds,
+                    sample_size=deepseek_epoch_sample,
+                    ollama_model=deepseek_model,
+                    device=device,
+                    epoch=epoch,
+                )
+                if ds_scores:
+                    # Apply soft label correction to training dataset for next epoch
+                    train_ds.apply_bias_correction(ds_scores, deepseek_bias_alpha)
+            except Exception as e:
+                print(f"[DeepSeek Epoch {epoch}] Judge failed (skipping): {e}", flush=True)
+
         # Early stopping
         if val_rmse < best_val_rmse:
             best_val_rmse = val_rmse
@@ -252,6 +392,15 @@ def main():
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--jsonl", default=None, help="Path to JSONL file (skip DB)")
     parser.add_argument("--no-db", action="store_true", help="Use JSONL only, skip DB")
+    # DeepSeek per-epoch judge
+    parser.add_argument("--use-deepseek-judge", action="store_true",
+                        help="Run DeepSeek as independent judge after each epoch and correct labels")
+    parser.add_argument("--deepseek-epoch-sample", type=int, default=10,
+                        help="Pairs to judge per epoch (default: 10, ~30s overhead)")
+    parser.add_argument("--deepseek-bias-alpha", type=float, default=0.3,
+                        help="Label correction strength 0.0–1.0 (default: 0.3)")
+    parser.add_argument("--deepseek-model", default="deepseek-r1:7b",
+                        help="Ollama model to use as judge (default: deepseek-r1:7b)")
     args = parser.parse_args()
 
     use_db = not args.no_db and args.jsonl is None
@@ -266,6 +415,10 @@ def main():
         max_length=args.max_length,
         use_db=use_db,
         jsonl_path=args.jsonl,
+        use_deepseek_judge=args.use_deepseek_judge,
+        deepseek_epoch_sample=args.deepseek_epoch_sample,
+        deepseek_bias_alpha=args.deepseek_bias_alpha,
+        deepseek_model=args.deepseek_model,
     )
 
     print("\n=== Training Complete ===")

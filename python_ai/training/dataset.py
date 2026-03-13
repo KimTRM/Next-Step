@@ -107,6 +107,21 @@ class JobMatchDataset(Dataset):
                     continue
         return pairs
 
+    def apply_bias_correction(self, ds_scores: dict, alpha: float) -> None:
+        """
+        Soft-correct confidence labels toward DeepSeek scores.
+        ds_scores: {dataset_index: deepseek_score (0-1)}
+        alpha: blend strength — 0.0 = no change, 1.0 = fully replace with DeepSeek score
+        """
+        corrected = 0
+        for idx, ds_score in ds_scores.items():
+            if 0 <= idx < len(self.pairs):
+                old = self.pairs[idx]["confidence"]
+                new = old + alpha * (ds_score - old)
+                self.pairs[idx]["confidence"] = round(min(1.0, max(0.0, new)), 4)
+                corrected += 1
+        print(f"[Dataset] Corrected {corrected} labels (alpha={alpha})", flush=True)
+
     def __len__(self) -> int:
         return len(self.pairs)
 

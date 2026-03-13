@@ -169,6 +169,9 @@ export function TrainingDashboard() {
   const [isPollingLogs, setIsPollingLogs] = useState(false);
   const [logSource, setLogSource] = useState<"train" | "pipeline">("train");
   const logPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [useDeepseekEpochJudge, setUseDeepseekEpochJudge] = useState(false);
+  const [deepseekEpochSample, setDeepseekEpochSample] = useState(10);
+  const [deepseekBiasAlpha, setDeepseekBiasAlpha] = useState(0.3);
 
   // Eval
   const [evalMetrics, setEvalMetrics] = useState<EvalMetrics | null>(null);
@@ -271,6 +274,11 @@ export function TrainingDashboard() {
         head_lr: parseFloat(headLr),
       };
       if (jsonlPath.trim()) payload.jsonl_path = jsonlPath.trim();
+      if (useDeepseekEpochJudge) {
+        payload.use_deepseek_judge = true;
+        payload.deepseek_epoch_sample = deepseekEpochSample;
+        payload.deepseek_bias_alpha = deepseekBiasAlpha;
+      }
 
       const resp = await fetch(`${API_BASE}/train`, {
         method: "POST",
@@ -906,6 +914,56 @@ export function TrainingDashboard() {
               />
             </div>
 
+            {/* DeepSeek Epoch Judge */}
+            <div className="mb-4 border border-purple-700/40 rounded-xl p-3 bg-purple-950/20">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <span className="text-sm font-medium text-purple-300">DeepSeek Epoch Judge</span>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Judges model output after each epoch and shifts training labels toward realistic scores
+                  </p>
+                </div>
+                <button
+                  onClick={() => setUseDeepseekEpochJudge(v => !v)}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${useDeepseekEpochJudge ? "bg-purple-600" : "bg-gray-700"}`}
+                >
+                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${useDeepseekEpochJudge ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              {useDeepseekEpochJudge && (
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <label className="text-xs text-gray-400 block mb-1">Pairs / epoch</label>
+                    <input
+                      type="number"
+                      value={deepseekEpochSample}
+                      min={1}
+                      max={50}
+                      onChange={e => setDeepseekEpochSample(parseInt(e.target.value) || 10)}
+                      className="w-full bg-gray-900 border border-purple-800/50 rounded-lg px-3 py-1.5 text-sm text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 block mb-1">
+                      Bias strength α <span className="text-gray-600">(0–1)</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={deepseekBiasAlpha}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      onChange={e => setDeepseekBiasAlpha(parseFloat(e.target.value) || 0.3)}
+                      className="w-full bg-gray-900 border border-purple-800/50 rounded-lg px-3 py-1.5 text-sm text-white"
+                    />
+                  </div>
+                  <div className="col-span-2 text-xs text-gray-500">
+                    ~{Math.round(epochs * deepseekEpochSample * 3)}s added to total training time
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleStartTraining}
               disabled={isTraining}
@@ -944,6 +1002,7 @@ export function TrainingDashboard() {
                       /error|traceback|failed/i.test(line) ? "text-red-400" :
                       /warning|warn/i.test(line) ? "text-yellow-400" :
                       /\[DeepSeek Think\]/i.test(line) ? "text-purple-400/70 italic pl-3" :
+                      /\[DeepSeek Epoch/i.test(line) ? "text-purple-300 font-medium" :
                       /\[deepseek\]/i.test(line) ? "text-purple-300" :
                       /epoch \d+/i.test(line) ? "text-cyan-300" :
                       /conf=0\.[89]\d|conf=1\.0/i.test(line) ? "text-green-300" :

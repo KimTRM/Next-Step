@@ -1,292 +1,239 @@
-# NextStep AI - Job Matching System
+# NextStep AI — Job Matching System (v2)
 
-An AI-powered job matching system that analyzes resumes and matches candidates to jobs based on skills, experience, and education with confidence scoring. Features **LinkedIn-first continuous training** that scrapes real job postings to learn skills.
+An AI-powered job matching system for the Philippine job market. Uses a **Siamese Bi-Encoder + Cross-Encoder** architecture trained on real job/resume pairs, with **DeepSeek R1** as an LLM judge for per-epoch bias correction during training.
+
+## Architecture
+
+```
+Resume Input
+     │
+     ▼
+[Bi-Encoder]  ←── sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+     │              Fast semantic retrieval — top-K candidates
+     ▼
+[Cross-Encoder] ←── same base model, fine-tuned on PH job pairs
+     │               Precise confidence scoring — sigmoid → [0.0, 1.0]
+     ▼
+Confidence Score + Verdict
+```
+
+### Per-Epoch DeepSeek Bias Correction
+
+During training, after each validation pass, DeepSeek R1 (via Ollama) acts as an independent judge on a sample of training pairs. Its scores are used to soft-correct labels in the training dataset:
+
+```
+new_label = old_label + alpha × (deepseek_score − old_label)
+```
+
+- `alpha = 0.3` (default) — 30% nudge toward DeepSeek's judgment per epoch
+- This gradually corrects rule-based label bias without fully overriding the original labels
+- VRAM is shared safely: training model is offloaded to CPU during judge calls, then restored to GPU
 
 ## Features
 
 - **Resume Parsing**: Extract skills, experience, education from PDF/DOCX/TXT
-- **Skill-Based Matching**: Semantic and exact skill matching
-- **Confidence Scoring**: Calibrated 0-100% employability scores
-- **LinkedIn-First Training**: Scrapes real LinkedIn jobs to learn current market skills
-- **Continuous Learning**: Improves accuracy through iterative batch training
-- **Industry Classification**: Categorize jobs and candidates by industry
-- **REST API**: Full FastAPI backend for integration
+- **Semantic Matching**: Bi-Encoder retrieval + Cross-Encoder reranking
+- **Confidence Scoring**: Calibrated 0–100% match scores
+- **LLM Resume Analysis**: Gemini → DeepSeek R1 → rule-based fallback chain
+- **Data Pipeline**: Scrape → normalize → LLM-label → train
+- **Per-Epoch DeepSeek Judge**: Bias correction using DeepSeek R1 during training
+- **Async Evaluation**: Non-blocking evaluation with live log streaming
+- **REST API**: Full FastAPI backend
 
 ## Quick Start
 
 ### 1. Install Dependencies
 
 ```bash
-pip install -r requirements.txt --break-system-packages
-
-# For NLP capabilities (optional but recommended)
-python -m spacy download en_core_web_sm
+cd python_ai
+pip install -r requirements.txt
 ```
 
-### 2. Configure LinkedIn API Keys (Recommended)
-
-Create a `.env` file with your Apify API keys for LinkedIn job scraping:
+### 2. Set Up Ollama (for DeepSeek features)
 
 ```bash
-# LinkedIn Training API Keys (5 keys with automatic fallback)
-LINKEDIN_TRAINING_API_KEY_1=apify_api_xxxxx
-LINKEDIN_TRAINING_API_KEY_2=apify_api_xxxxx
-LINKEDIN_TRAINING_API_KEY_3=apify_api_xxxxx
-LINKEDIN_TRAINING_API_KEY_4=apify_api_xxxxx
-LINKEDIN_TRAINING_API_KEY_5=apify_api_xxxxx
+# Install Ollama: https://ollama.com
+ollama pull deepseek-r1:7b
+```
 
-# Indeed API Key (separate from LinkedIn)
+### 3. Configure Environment
+
+Create a `.env` file in `python_ai/`:
+
+```env
+# Google Gemini (for resume analysis)
+GEMINI_API_KEY=your_gemini_api_key
+
+# Apify (for job scraping)
 APIFY_API_KEY=apify_api_xxxxx
+
+# PostgreSQL + pgvector
+DATABASE_URL=postgresql://user:pass@localhost:5432/nextstep
 ```
 
-Get API keys at: https://apify.com/
+### 4. Run the Data Pipeline
 
-### 3. Train the AI Model
-
-**LinkedIn-First Continuous Training (Recommended):**
-```bash
-# Start continuous training with LinkedIn job scraping
-python train_continuous.py
-
-# Custom batch size and interval
-python train_continuous.py --batch 10 --interval 5
-
-# Quiet mode (minimal output)
-python train_continuous.py --quiet
-```
-
-**Quick Training (No LinkedIn):**
-```bash
-# Train with synthetic data (quick start)
-python train_model.py --samples 1000
-
-# Train with more data for better accuracy
-python train_model.py --samples 5000
-```
-
-### 4. Start the API Server
+Populate training data from real job postings:
 
 ```bash
-cd api
-uvicorn main:app --reload --port 8000
+# From the Training Dashboard UI, or directly:
+python python_ai/pipeline/run_pipeline.py --stage all --limit 5000
 ```
 
-## LinkedIn-First Continuous Training
-
-The continuous training system scrapes real LinkedIn job postings to discover and learn current market skills.
-
-### Training Flow
-
-```
-1. [SCRAPE]   → Fetch 100 LinkedIn jobs per batch
-2. [EXTRACT]  → Extract skills from job descriptions
-3. [GENERATE] → Create resumes using real skills (50% LinkedIn + variations)
-4. [PARSE]    → Parse resumes with current model
-5. [COMPARE]  → Analyze accuracy vs previous batch
-6. [LEARN]    → Learn any missed skills
-7. [REPEAT]
-```
-
-### Features
-
-- **5 API Keys with Fallback**: Keys are prioritized 1→5 with automatic rotation on failure
-- **Real Skill Discovery**: Learns skills like "LangChain", "OpenAI", "Kubernetes" from actual jobs
-- **Batch Comparison**: Shows accuracy trends (📈 improving / 📉 declining / ➡️ stable)
-- **Graceful Shutdown**: Press Ctrl+C to save progress and exit cleanly
-
-### Example Output
-
-```
-============================================================
- NEXTSTEP AI - LINKEDIN-FIRST CONTINUOUS TRAINING
-============================================================
-
-🔗 LinkedIn Scraping: ENABLED
-   • 5 API keys available (priority 1→5)
-   • Will fetch real job postings each batch
-
-[Batch    1] Resumes:     5 | Accuracy:  73.6% | New Skills:  2
-    [LINKEDIN] Jobs scraped: 83 | Skills extracted: 4
-    [COMPARE] ➡️  Trend: STABLE
-    [LEARNED] Embeddings, Data
-
-[Batch    2] Resumes:    10 | Accuracy:  72.5% | New Skills:  3
-    [LINKEDIN] Jobs scraped: 84 | Skills extracted: 8
-    [COMPARE] ➡️  Trend: STABLE
-    [LEARNED] Security, DevOps, OpenAI
-```
-
-### Command Line Options
+### 5. Train the Model
 
 ```bash
-python train_continuous.py [OPTIONS]
+# Via API (recommended — streams logs to UI)
+POST /train
+{
+  "epochs": 10,
+  "batch_size": 16,
+  "encoder_lr": 2e-5,
+  "head_lr": 1e-4,
+  "use_deepseek_judge": true,
+  "deepseek_epoch_sample": 10,
+  "deepseek_bias_alpha": 0.3
+}
 
-Options:
-  --batch, -b    Number of resumes per batch (default: 10)
-  --interval, -i Seconds between batches (default: 3)
-  --quiet, -q    Minimal output mode
+# Or directly:
+python python_ai/training/train.py \
+  --epochs 10 --batch-size 16 \
+  --use-deepseek-judge --deepseek-epoch-sample 10 --deepseek-bias-alpha 0.3
+```
+
+### 6. Start the API Server
+
+```bash
+uvicorn python_ai.api.main:app --reload --port 8000
 ```
 
 ## Project Structure
 
 ```
-job-matcher/
-├── models/
-│   ├── resume_parser.py      # Resume parsing & skill extraction
-│   └── job_matcher.py        # Core AI matching algorithm
-├── data/
-│   └── data_generator.py     # Training data generation
-├── services/
-│   └── job_api_service.py    # Indeed job API integration
+python_ai/
 ├── api/
-│   └── main.py               # FastAPI backend
-├── frontend/
-│   └── JobMatcherApp.jsx     # React frontend
-├── trained_models/
-│   └── unified_training_knowledge.json  # Learned skills & patterns
-├── train_continuous.py       # LinkedIn-first continuous training
-├── train_model.py            # Basic training script
+│   └── main.py                  # FastAPI app — all endpoints
+├── models/
+│   ├── bi_encoder.py            # Bi-Encoder for fast retrieval
+│   ├── cross_encoder.py         # Cross-Encoder reranker (primary model)
+│   ├── resume_parser.py         # PDF/DOCX/TXT resume parsing
+│   ├── text_formatter.py        # Resume/job text normalization
+│   └── checkpoints/             # Saved model weights + logs
+│       ├── cross_encoder.pt
+│       ├── train.log
+│       ├── evaluate.log
+│       └── pipeline.log
+├── training/
+│   ├── train.py                 # Training loop + DeepSeek epoch judge
+│   ├── evaluate.py              # Evaluation metrics + DeepSeek judge
+│   └── dataset.py               # JobMatchDataset + bias correction
+├── pipeline/
+│   ├── spiders/                 # Job scrapers (Jobstreet, Kalibrr)
+│   ├── parsers/                 # Job/resume parsers
+│   ├── normalizers/             # Skill normalization
+│   └── labeling/
+│       ├── llm_labeler.py       # DeepSeek LLM labeling
+│       └── rule_labeler.py      # Rule-based fallback labeling
+├── services/
+│   ├── gemini_analyzer.py       # Gemini resume analysis
+│   └── linkedin_scraper.py      # LinkedIn job scraping
+├── database/
+│   └── db.py                    # PostgreSQL + pgvector
+├── config/
+│   └── settings.py
 └── requirements.txt
 ```
 
-## How the AI Works
-
-### Skill Embedding
-
-The system converts skills into vector representations using:
-- TF-IDF weighting for skill importance
-- Co-occurrence analysis for related skills
-- Semantic similarity via embeddings
-
-### LinkedIn Skill Discovery
-
-The continuous training system:
-1. Scrapes LinkedIn jobs using the `curious_coder/linkedin-jobs-scraper` Apify actor
-2. Extracts skills from `title` and `jobDescription` fields
-3. Uses regex patterns to identify skills (AWS, Python, Kubernetes, etc.)
-4. Incorporates 50% real LinkedIn skills into generated resumes
-5. Learns skills the parser misses for future recognition
-
-### Matching Algorithm
-
-The match score is calculated as:
-
-```
-score = (
-    0.30 × semantic_skill_similarity +
-    0.35 × exact_skill_overlap +
-    0.20 × experience_match +
-    0.10 × education_match +
-    0.05 × industry_match
-)
-```
-
-These weights are learned during training based on hire/no-hire outcomes.
-
-### Confidence Calibration
-
-Raw scores are converted to calibrated confidence percentages:
-- **75-100%**: Strong match - high likelihood of success
-- **50-74%**: Good fit - worth applying
-- **25-49%**: Partial match - some skill gaps
-- **0-24%**: Low match - significant gaps
-
 ## API Endpoints
+
+### Resume & Matching
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/parse-resume` | POST | Parse resume file (PDF/DOCX/TXT) |
-| `/match` | POST | Match skills to jobs |
-| `/match-resume` | POST | Upload resume and get matches in one step |
-| `/jobs` | GET | List available jobs |
-| `/industries` | GET | List industries |
-| `/cities` | GET | List cities with jobs |
-| `/feedback` | POST | Submit match feedback for learning |
-| `/train` | POST | Trigger model retraining |
-| `/model-info` | GET | Get model information |
+| `/analyze-resume` | POST | Analyze resume text (Gemini → DeepSeek → rule-based) |
+| `/analyze-resume-file` | POST | Analyze uploaded resume file |
+| `/analyze-resume-deepseek` | POST | Analyze with DeepSeek explicitly |
+| `/match` | POST | Match resume text to jobs |
+| `/match-resume` | POST | Upload resume and get matches |
+
+### Training
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/train` | POST | Start training (async subprocess) |
+| `/train/logs` | GET | Stream training log (last N lines) |
+| `/train/status` | GET | Latest training metrics |
+| `/train/history` | GET | Historical training runs |
+
+### Evaluation
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/evaluate` | POST | Launch evaluation (async) |
+| `/evaluate/logs` | GET | Stream evaluate.log |
+| `/evaluate/analyze` | GET | DeepSeek analysis of latest metrics |
+| `/evaluate/metrics` | GET | Latest saved metrics JSON |
+
+### Pipeline
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/pipeline/run` | POST | Run data pipeline stage |
+| `/pipeline/logs` | GET | Stream pipeline.log |
+| `/pipeline/status` | GET | Pipeline status |
+
+## Training Configuration
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `epochs` | 10 | Number of training epochs |
+| `batch_size` | 16 | Batch size (reduce if OOM) |
+| `encoder_lr` | 2e-5 | Learning rate for transformer encoder |
+| `head_lr` | 1e-4 | Learning rate for classification head |
+| `warmup_steps` | 500 | Linear warmup steps |
+| `patience` | 3 | Early stopping patience |
+| `use_deepseek_judge` | false | Enable per-epoch DeepSeek bias correction |
+| `deepseek_epoch_sample` | 10 | Pairs sampled per epoch for judging |
+| `deepseek_bias_alpha` | 0.3 | Bias correction strength (0.0–1.0) |
+| `deepseek_model` | `deepseek-r1:7b` | Ollama model name |
+
+### Bias Alpha Guide
+
+| Alpha | Effect |
+|-------|--------|
+| `0.1` | Very gentle — 10% nudge per epoch |
+| `0.3` | Balanced — default, gradual correction |
+| `0.5` | Aggressive — strong DeepSeek influence |
+| `1.0` | Full override — label replaced by DeepSeek score |
+
+## Evaluation Targets
+
+| Metric | Target |
+|--------|--------|
+| Pearson correlation | > 0.80 |
+| RMSE | < 0.12 |
+| NDCG@10 | > 0.75 |
+| Precision@5 | > 0.70 |
+
+Run evaluation:
+```bash
+python python_ai/training/evaluate.py \
+  --use-deepseek --deepseek-sample 50 --deepseek-model deepseek-r1:7b \
+  --log python_ai/models/checkpoints/evaluate.log
+```
+
+## GPU / VRAM Notes
+
+- Training uses CUDA automatically if available (`torch.cuda.is_available()`)
+- DeepSeek epoch judging is VRAM-safe: training model is moved to CPU before calling Ollama, then restored to GPU after
+- Recommended: 8 GB VRAM minimum (RTX 3060 / 4060 / 5060)
+- If OOM during training: reduce `batch_size` to 8 or 16
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `LINKEDIN_TRAINING_API_KEY_1-5` | Apify API keys for LinkedIn scraping (priority order) |
-| `APIFY_API_KEY` | Apify API key for Indeed job scraping |
-
-## Training with Your Data
-
-### Real Resume Data
-
-Create a directory structure:
-```
-your_data/
-├── resumes/
-│   ├── resume1.pdf
-│   ├── resume2.docx
-│   └── ...
-├── jobs.json
-└── feedback.json (optional)
-```
-
-`jobs.json` format:
-```json
-[
-  {
-    "id": "job_001",
-    "title": "Software Engineer",
-    "company": "Tech Corp",
-    "industry": "Technology",
-    "city": "San Francisco",
-    "required_skills": ["python", "javascript", "sql"],
-    "preferred_skills": ["aws", "docker"],
-    "min_experience": 3,
-    "max_experience": 8,
-    "education_required": "bachelors"
-  }
-]
-```
-
-`feedback.json` format (for supervised learning):
-```json
-[
-  {
-    "candidate_id": "resume1.pdf",
-    "job_id": "job_001",
-    "was_hired": true
-  }
-]
-```
-
-Then train:
-```bash
-python train_model.py --real-data ./your_data/
-```
-
-## Improving Accuracy
-
-1. **LinkedIn Scraping**: Enable API keys for real skill discovery
-2. **More Training Data**: More samples = better model
-3. **Real Feedback**: Use actual hire outcomes when available
-4. **Domain-Specific Skills**: Add industry-specific skill taxonomies
-5. **Continuous Training**: Run `train_continuous.py` regularly to learn new skills
-
-## Frontend Usage
-
-The React frontend (`JobMatcherApp.jsx`) provides:
-- Resume upload via drag-and-drop
-- City and industry selection
-- Visual skill matching results
-- Confidence score visualization
-- Expandable job details
-
-To use in your React app:
-```jsx
-import JobMatcherApp from './JobMatcherApp';
-
-function App() {
-  return <JobMatcherApp />;
-}
-```
-
-## License
-
-MIT License - Feel free to use and modify for your projects.
+| `GEMINI_API_KEY` | Google Gemini API key for resume analysis |
+| `APIFY_API_KEY` | Apify key for job scraping |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `BI_ENCODER_BASE` | Override base model (default: `paraphrase-multilingual-MiniLM-L12-v2`) |

@@ -101,6 +101,10 @@ class TrainingConfig(BaseModel):
     warmup_steps: int = 500
     patience: int = 3
     jsonl_path: Optional[str] = None
+    use_deepseek_judge: bool = False
+    deepseek_epoch_sample: int = 10
+    deepseek_bias_alpha: float = 0.3
+    deepseek_model: str = "deepseek-r1:7b"
 
 
 class FeedbackRequest(BaseModel):
@@ -678,6 +682,14 @@ async def trigger_training(config: TrainingConfig):
 
     if config.jsonl_path:
         cmd += ["--jsonl", config.jsonl_path, "--no-db"]
+
+    if config.use_deepseek_judge:
+        cmd += [
+            "--use-deepseek-judge",
+            "--deepseek-epoch-sample", str(config.deepseek_epoch_sample),
+            "--deepseek-bias-alpha", str(config.deepseek_bias_alpha),
+            "--deepseek-model", config.deepseek_model,
+        ]
 
     run_id = None
     if db_available:

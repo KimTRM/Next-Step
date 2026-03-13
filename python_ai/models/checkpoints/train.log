@@ -1,9 +1,9 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 [Train] Device: cuda
-[Train] Epochs: 10 | Batch: 16 | Encoder LR: 2e-05
+[Train] Epochs: 150 | Batch: 16 | Encoder LR: 2e-05
 [Dataset] Loaded 8025 pairs (split=train)
 [Dataset] Loaded 998 pairs (split=val)
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 2511.27it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5628.38it/s]
 [1mBertForSequenceClassification LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 Key                     | Status     | 
 ------------------------+------------+-
@@ -14,39 +14,519 @@ classifier.weight       | MISSING    |
 [3mNotes:
 - UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
 - MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
-[Epoch 1/10] train_loss=0.0251 | val_loss=0.0146 | val_rmse=0.1196
+[Epoch 1/150] train_loss=0.0261 | val_loss=0.0165 | val_rmse=0.1274
+[DeepSeek Epoch 1] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 1] pair=1/50 | model=0.735 | deepseek=0.500 | label=0.680 | delta=-0.180
+[DeepSeek Epoch 1] pair=2/50 | model=0.600 | deepseek=1.000 | label=0.488 | delta=+0.512
+[DeepSeek Epoch 1] pair=3/50 | model=0.673 | deepseek=0.900 | label=0.638 | delta=+0.262
+[DeepSeek Epoch 1] pair=4/50 | model=0.668 | deepseek=0.500 | label=0.519 | delta=-0.019
+[DeepSeek Epoch 1] pair=5/50 | model=0.563 | deepseek=0.800 | label=0.739 | delta=+0.061
+[DeepSeek Epoch 1] pair=6/50 | model=0.698 | deepseek=0.500 | label=0.652 | delta=-0.152
+[DeepSeek Epoch 1] pair=7/50 | model=0.677 | deepseek=0.900 | label=0.727 | delta=+0.173
+[DeepSeek Epoch 1] pair=8/50 | model=0.767 | deepseek=0.800 | label=0.686 | delta=+0.114
+[DeepSeek Epoch Judge] Error on pair 761: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 1] pair=9/50 | model=0.692 | deepseek=0.500 | label=0.508 | delta=-0.008
+[DeepSeek Epoch 1] pair=10/50 | model=0.810 | deepseek=0.800 | label=0.904 | delta=-0.104
+[DeepSeek Epoch 1] pair=11/50 | model=0.705 | deepseek=0.300 | label=0.392 | delta=-0.092
+[DeepSeek Epoch 1] pair=12/50 | model=0.764 | deepseek=0.500 | label=0.979 | delta=-0.479
+[DeepSeek Epoch 1] pair=13/50 | model=0.841 | deepseek=0.500 | label=0.955 | delta=-0.455
+[DeepSeek Epoch 1] pair=14/50 | model=0.798 | deepseek=1.000 | label=0.688 | delta=+0.312
+[DeepSeek Epoch 1] pair=15/50 | model=0.583 | deepseek=0.600 | label=0.479 | delta=+0.121
+[DeepSeek Epoch 1] pair=16/50 | model=0.825 | deepseek=1.000 | label=0.708 | delta=+0.292
+[DeepSeek Epoch 1] pair=17/50 | model=0.606 | deepseek=0.900 | label=0.524 | delta=+0.376
+[DeepSeek Epoch 1] pair=18/50 | model=0.591 | deepseek=0.700 | label=0.473 | delta=+0.227
+[DeepSeek Epoch 1] pair=19/50 | model=0.708 | deepseek=0.800 | label=0.630 | delta=+0.170
+[DeepSeek Epoch 1] pair=20/50 | model=0.804 | deepseek=0.500 | label=0.683 | delta=-0.183
+[DeepSeek Epoch 1] pair=21/50 | model=0.782 | deepseek=0.800 | label=0.813 | delta=-0.013
+[DeepSeek Epoch 1] pair=22/50 | model=0.743 | deepseek=0.800 | label=0.660 | delta=+0.140
+[DeepSeek Epoch 1] pair=23/50 | model=0.807 | deepseek=0.900 | label=0.749 | delta=+0.151
+[DeepSeek Epoch 1] pair=24/50 | model=0.782 | deepseek=0.500 | label=0.708 | delta=-0.208
+[DeepSeek Epoch 1] pair=25/50 | model=0.742 | deepseek=0.900 | label=0.655 | delta=+0.245
+[DeepSeek Epoch 1] pair=26/50 | model=0.876 | deepseek=0.900 | label=0.814 | delta=+0.086
+[DeepSeek Epoch Judge] Error on pair 627: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 1] pair=27/50 | model=0.708 | deepseek=0.400 | label=0.627 | delta=-0.227
+[DeepSeek Epoch 1] pair=28/50 | model=0.813 | deepseek=0.900 | label=0.786 | delta=+0.114
+[DeepSeek Epoch 1] pair=29/50 | model=0.748 | deepseek=0.500 | label=0.719 | delta=-0.219
+[DeepSeek Epoch 1] pair=30/50 | model=0.753 | deepseek=0.800 | label=0.789 | delta=+0.011
+[DeepSeek Epoch 1] pair=31/50 | model=0.771 | deepseek=0.900 | label=0.823 | delta=+0.077
+[DeepSeek Epoch 1] pair=32/50 | model=0.859 | deepseek=1.000 | label=0.700 | delta=+0.300
+[DeepSeek Epoch 1] pair=33/50 | model=0.781 | deepseek=0.800 | label=0.726 | delta=+0.074
+[DeepSeek Epoch 1] pair=34/50 | model=0.790 | deepseek=0.800 | label=0.713 | delta=+0.087
+[DeepSeek Epoch 1] pair=35/50 | model=0.686 | deepseek=0.900 | label=0.531 | delta=+0.369
+[DeepSeek Epoch 1] pair=36/50 | model=0.620 | deepseek=0.500 | label=0.572 | delta=-0.072
+[DeepSeek Epoch 1] pair=37/50 | model=0.725 | deepseek=0.900 | label=1.000 | delta=-0.100
+[DeepSeek Epoch 1] pair=38/50 | model=0.733 | deepseek=0.900 | label=0.604 | delta=+0.296
+[DeepSeek Epoch 1] pair=39/50 | model=0.857 | deepseek=0.600 | label=0.772 | delta=-0.172
+[DeepSeek Epoch 1] pair=40/50 | model=0.871 | deepseek=0.900 | label=0.824 | delta=+0.076
+[DeepSeek Epoch 1] pair=41/50 | model=0.821 | deepseek=0.500 | label=0.648 | delta=-0.148
+[DeepSeek Epoch 1] pair=42/50 | model=0.550 | deepseek=0.900 | label=0.664 | delta=+0.236
+[DeepSeek Epoch 1] pair=43/50 | model=0.885 | deepseek=0.900 | label=0.991 | delta=-0.091
+[DeepSeek Epoch 1] pair=44/50 | model=0.687 | deepseek=0.500 | label=0.539 | delta=-0.039
+[DeepSeek Epoch 1] pair=45/50 | model=0.720 | deepseek=0.500 | label=0.991 | delta=-0.491
+[DeepSeek Epoch 1] pair=46/50 | model=0.758 | deepseek=1.000 | label=0.689 | delta=+0.311
+[DeepSeek Epoch 1] pair=47/50 | model=0.548 | deepseek=0.000 | label=0.333 | delta=-0.333
+[DeepSeek Epoch 1] pair=48/50 | model=0.843 | deepseek=0.900 | label=0.804 | delta=+0.096
+[DeepSeek Epoch 1] Model restored to cuda.
+[DeepSeek Epoch 1] bias_delta=+0.0312 | labels well-calibrated
+[Dataset] Corrected 48 labels (alpha=0.6)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.1196)
-[Epoch 2/10] train_loss=0.0122 | val_loss=0.0092 | val_rmse=0.0956
+  Checkpoint saved (val_rmse=0.1274)
+[Epoch 2/150] train_loss=0.0113 | val_loss=0.0066 | val_rmse=0.0815
+[DeepSeek Epoch 2] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 2] pair=1/50 | model=0.797 | deepseek=0.800 | label=0.704 | delta=+0.096
+[DeepSeek Epoch 2] pair=2/50 | model=0.914 | deepseek=1.000 | label=0.968 | delta=+0.032
+[DeepSeek Epoch 2] pair=3/50 | model=0.789 | deepseek=0.900 | label=0.706 | delta=+0.194
+[DeepSeek Epoch 2] pair=4/50 | model=0.754 | deepseek=0.300 | label=0.760 | delta=-0.460
+[DeepSeek Epoch 2] pair=5/50 | model=0.657 | deepseek=1.000 | label=0.664 | delta=+0.336
+[DeepSeek Epoch 2] pair=6/50 | model=0.741 | deepseek=1.000 | label=0.821 | delta=+0.179
+[DeepSeek Epoch 2] pair=7/50 | model=0.329 | deepseek=0.500 | label=0.287 | delta=+0.213
+[DeepSeek Epoch 2] pair=8/50 | model=0.626 | deepseek=0.500 | label=0.554 | delta=-0.054
+[DeepSeek Epoch 2] pair=9/50 | model=0.725 | deepseek=0.900 | label=0.774 | delta=+0.126
+[DeepSeek Epoch 2] pair=10/50 | model=0.507 | deepseek=0.900 | label=0.444 | delta=+0.456
+[DeepSeek Epoch 2] pair=11/50 | model=0.882 | deepseek=0.850 | label=0.912 | delta=-0.062
+[DeepSeek Epoch 2] pair=12/50 | model=0.859 | deepseek=0.500 | label=0.772 | delta=-0.272
+[DeepSeek Epoch 2] pair=13/50 | model=0.760 | deepseek=1.000 | label=0.965 | delta=+0.035
+[DeepSeek Epoch 2] pair=14/50 | model=0.484 | deepseek=0.800 | label=0.503 | delta=+0.297
+[DeepSeek Epoch 2] pair=15/50 | model=0.513 | deepseek=0.500 | label=0.432 | delta=+0.068
+[DeepSeek Epoch 2] pair=16/50 | model=0.557 | deepseek=0.500 | label=0.505 | delta=-0.005
+[DeepSeek Epoch 2] pair=17/50 | model=0.534 | deepseek=0.700 | label=0.572 | delta=+0.128
+[DeepSeek Epoch 2] pair=18/50 | model=0.643 | deepseek=0.500 | label=0.676 | delta=-0.176
+[DeepSeek Epoch 2] pair=19/50 | model=0.697 | deepseek=0.800 | label=0.683 | delta=+0.117
+[DeepSeek Epoch 2] pair=20/50 | model=0.493 | deepseek=0.500 | label=0.482 | delta=+0.018
+[DeepSeek Epoch 2] pair=21/50 | model=0.811 | deepseek=1.000 | label=0.736 | delta=+0.264
+[DeepSeek Epoch 2] pair=22/50 | model=0.873 | deepseek=1.000 | label=0.746 | delta=+0.254
+[DeepSeek Epoch 2] pair=23/50 | model=0.911 | deepseek=1.000 | label=0.984 | delta=+0.016
+[DeepSeek Epoch 2] pair=24/50 | model=0.763 | deepseek=0.900 | label=0.754 | delta=+0.146
+[DeepSeek Epoch 2] pair=25/50 | model=0.565 | deepseek=0.500 | label=0.624 | delta=-0.124
+[DeepSeek Epoch 2] pair=26/50 | model=0.513 | deepseek=1.000 | label=0.498 | delta=+0.502
+[DeepSeek Epoch 2] pair=27/50 | model=0.893 | deepseek=1.000 | label=0.800 | delta=+0.200
+[DeepSeek Epoch 2] pair=28/50 | model=0.565 | deepseek=1.000 | label=0.726 | delta=+0.274
+[DeepSeek Epoch 2] pair=29/50 | model=0.643 | deepseek=0.400 | label=0.682 | delta=-0.282
+[DeepSeek Epoch 2] pair=30/50 | model=0.370 | deepseek=0.400 | label=0.428 | delta=-0.028
+[DeepSeek Epoch 2] pair=31/50 | model=0.766 | deepseek=0.700 | label=0.709 | delta=-0.009
+[DeepSeek Epoch 2] pair=32/50 | model=0.514 | deepseek=0.500 | label=0.520 | delta=-0.020
+[DeepSeek Epoch 2] pair=33/50 | model=0.297 | deepseek=0.000 | label=0.213 | delta=-0.213
+[DeepSeek Epoch 2] pair=34/50 | model=0.623 | deepseek=0.900 | label=0.580 | delta=+0.320
+[DeepSeek Epoch 2] pair=35/50 | model=0.710 | deepseek=0.900 | label=0.708 | delta=+0.192
+[DeepSeek Epoch 2] pair=36/50 | model=0.567 | deepseek=0.800 | label=0.721 | delta=+0.079
+[DeepSeek Epoch 2] pair=37/50 | model=0.827 | deepseek=0.900 | label=0.765 | delta=+0.135
+[DeepSeek Epoch Judge] Error on pair 855: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch Judge] Error on pair 758: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 2] pair=38/50 | model=0.822 | deepseek=0.500 | label=0.826 | delta=-0.326
+[DeepSeek Epoch 2] pair=39/50 | model=0.649 | deepseek=1.000 | label=0.531 | delta=+0.469
+[DeepSeek Epoch 2] pair=40/50 | model=0.801 | deepseek=0.500 | label=0.719 | delta=-0.219
+[DeepSeek Epoch 2] pair=41/50 | model=0.915 | deepseek=1.000 | label=0.790 | delta=+0.210
+[DeepSeek Epoch 2] pair=42/50 | model=0.884 | deepseek=0.900 | label=0.873 | delta=+0.027
+[DeepSeek Epoch 2] pair=43/50 | model=0.771 | deepseek=1.000 | label=0.807 | delta=+0.193
+[DeepSeek Epoch 2] pair=44/50 | model=0.854 | deepseek=0.800 | label=0.899 | delta=-0.099
+[DeepSeek Epoch 2] pair=45/50 | model=0.904 | deepseek=0.900 | label=1.000 | delta=-0.100
+[DeepSeek Epoch 2] pair=46/50 | model=0.511 | deepseek=0.500 | label=0.556 | delta=-0.056
+[DeepSeek Epoch 2] pair=47/50 | model=0.569 | deepseek=0.500 | label=0.508 | delta=-0.008
+[DeepSeek Epoch 2] pair=48/50 | model=0.387 | deepseek=0.600 | label=0.390 | delta=+0.210
+[DeepSeek Epoch 2] Model restored to cuda.
+[DeepSeek Epoch 2] bias_delta=+0.0682 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 48 labels (alpha=0.6)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0956)
-[Epoch 3/10] train_loss=0.0063 | val_loss=0.0041 | val_rmse=0.0642
+  Checkpoint saved (val_rmse=0.0815)
+[Epoch 3/150] train_loss=0.0062 | val_loss=0.0038 | val_rmse=0.0617
+[DeepSeek Epoch 3] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 3] pair=1/50 | model=0.512 | deepseek=0.800 | label=0.502 | delta=+0.298
+[DeepSeek Epoch 3] pair=2/50 | model=0.932 | deepseek=0.900 | label=0.874 | delta=+0.026
+[DeepSeek Epoch 3] pair=3/50 | model=0.934 | deepseek=0.900 | label=0.967 | delta=-0.067
+[DeepSeek Epoch 3] pair=4/50 | model=0.413 | deepseek=0.830 | label=0.392 | delta=+0.438
+[DeepSeek Epoch 3] pair=5/50 | model=0.872 | deepseek=0.800 | label=0.849 | delta=-0.049
+[DeepSeek Epoch 3] pair=6/50 | model=0.533 | deepseek=0.300 | label=0.525 | delta=-0.225
+[DeepSeek Epoch 3] pair=7/50 | model=0.624 | deepseek=0.700 | label=0.605 | delta=+0.095
+[DeepSeek Epoch 3] pair=8/50 | model=0.744 | deepseek=0.900 | label=0.786 | delta=+0.114
+[DeepSeek Epoch 3] pair=9/50 | model=0.286 | deepseek=0.000 | label=0.370 | delta=-0.370
+[DeepSeek Epoch 3] pair=10/50 | model=0.766 | deepseek=1.000 | label=0.795 | delta=+0.205
+[DeepSeek Epoch 3] pair=11/50 | model=0.608 | deepseek=0.800 | label=0.590 | delta=+0.210
+[DeepSeek Epoch 3] pair=12/50 | model=0.739 | deepseek=0.800 | label=0.749 | delta=+0.051
+[DeepSeek Epoch 3] pair=13/50 | model=0.927 | deepseek=0.900 | label=0.955 | delta=-0.055
+[DeepSeek Epoch 3] pair=14/50 | model=0.490 | deepseek=0.300 | label=0.540 | delta=-0.240
+[DeepSeek Epoch 3] pair=15/50 | model=0.884 | deepseek=0.950 | label=0.965 | delta=-0.015
+[DeepSeek Epoch 3] pair=16/50 | model=0.188 | deepseek=0.500 | label=0.333 | delta=+0.167
+[DeepSeek Epoch 3] pair=17/50 | model=0.838 | deepseek=1.000 | label=0.869 | delta=+0.131
+[DeepSeek Epoch 3] pair=18/50 | model=0.632 | deepseek=0.800 | label=0.576 | delta=+0.224
+[DeepSeek Epoch 3] pair=19/50 | model=0.948 | deepseek=1.000 | label=0.975 | delta=+0.025
+[DeepSeek Epoch 3] pair=20/50 | model=0.711 | deepseek=0.900 | label=0.676 | delta=+0.224
+[DeepSeek Epoch 3] pair=21/50 | model=0.425 | deepseek=0.500 | label=0.504 | delta=-0.004
+[DeepSeek Epoch 3] pair=22/50 | model=0.948 | deepseek=0.900 | label=1.000 | delta=-0.100
+[DeepSeek Epoch 3] pair=23/50 | model=0.653 | deepseek=0.500 | label=0.726 | delta=-0.226
+[DeepSeek Epoch 3] pair=24/50 | model=0.443 | deepseek=0.800 | label=0.506 | delta=+0.294
+[DeepSeek Epoch 3] pair=25/50 | model=0.596 | deepseek=0.900 | label=0.676 | delta=+0.224
+[DeepSeek Epoch 3] pair=26/50 | model=0.448 | deepseek=0.700 | label=0.614 | delta=+0.086
+[DeepSeek Epoch 3] pair=27/50 | model=0.943 | deepseek=1.000 | label=0.984 | delta=+0.016
+[DeepSeek Epoch 3] pair=28/50 | model=0.507 | deepseek=0.500 | label=0.580 | delta=-0.080
+[DeepSeek Epoch 3] pair=29/50 | model=0.824 | deepseek=0.800 | label=0.867 | delta=-0.067
+[DeepSeek Epoch 3] pair=30/50 | model=0.396 | deepseek=0.800 | label=0.402 | delta=+0.398
+[DeepSeek Epoch 3] pair=31/50 | model=0.692 | deepseek=0.900 | label=0.652 | delta=+0.248
+[DeepSeek Epoch 3] pair=32/50 | model=0.633 | deepseek=0.800 | label=0.581 | delta=+0.219
+[DeepSeek Epoch 3] pair=33/50 | model=0.833 | deepseek=0.800 | label=0.772 | delta=+0.028
+[DeepSeek Epoch 3] pair=34/50 | model=0.751 | deepseek=1.000 | label=0.775 | delta=+0.225
+[DeepSeek Epoch 3] pair=35/50 | model=0.609 | deepseek=0.900 | label=0.539 | delta=+0.361
+[DeepSeek Epoch 3] pair=36/50 | model=0.668 | deepseek=0.800 | label=0.617 | delta=+0.183
+[DeepSeek Epoch 3] pair=37/50 | model=0.859 | deepseek=0.900 | label=0.772 | delta=+0.128
+[DeepSeek Epoch 3] pair=38/50 | model=0.679 | deepseek=0.300 | label=0.725 | delta=-0.425
+[DeepSeek Epoch 3] pair=39/50 | model=0.315 | deepseek=0.600 | label=0.439 | delta=+0.161
+[DeepSeek Epoch 3] pair=40/50 | model=0.734 | deepseek=0.900 | label=0.749 | delta=+0.151
+[DeepSeek Epoch 3] pair=41/50 | model=0.762 | deepseek=0.800 | label=0.772 | delta=+0.028
+[DeepSeek Epoch 3] pair=42/50 | model=0.429 | deepseek=0.700 | label=0.441 | delta=+0.259
+[DeepSeek Epoch 3] pair=43/50 | model=0.721 | deepseek=0.900 | label=0.815 | delta=+0.085
+[DeepSeek Epoch 3] pair=44/50 | model=0.687 | deepseek=0.800 | label=0.745 | delta=+0.055
+[DeepSeek Epoch 3] pair=45/50 | model=0.841 | deepseek=0.900 | label=0.942 | delta=-0.042
+[DeepSeek Epoch 3] pair=46/50 | model=0.351 | deepseek=0.500 | label=0.412 | delta=+0.088
+[DeepSeek Epoch 3] pair=47/50 | model=0.937 | deepseek=1.000 | label=0.761 | delta=+0.239
+[DeepSeek Epoch 3] pair=48/50 | model=0.793 | deepseek=0.850 | label=0.729 | delta=+0.121
+[DeepSeek Epoch 3] pair=49/50 | model=0.910 | deepseek=0.900 | label=0.926 | delta=-0.026
+[DeepSeek Epoch 3] pair=50/50 | model=0.499 | deepseek=0.800 | label=0.496 | delta=+0.304
+[DeepSeek Epoch 3] Model restored to cuda.
+[DeepSeek Epoch 3] bias_delta=+0.0824 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 50 labels (alpha=0.6)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0642)
-[Epoch 4/10] train_loss=0.0041 | val_loss=0.0032 | val_rmse=0.0566
+  Checkpoint saved (val_rmse=0.0617)
+[Epoch 4/150] train_loss=0.0041 | val_loss=0.0029 | val_rmse=0.0540
+[DeepSeek Epoch 4] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 4] pair=1/50 | model=0.712 | deepseek=0.500 | label=0.630 | delta=-0.130
+[DeepSeek Epoch 4] pair=2/50 | model=0.867 | deepseek=0.800 | label=0.810 | delta=-0.010
+[DeepSeek Epoch 4] pair=3/50 | model=0.543 | deepseek=0.800 | label=0.534 | delta=+0.266
+[DeepSeek Epoch Judge] Error on pair 695: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 4] pair=4/50 | model=0.694 | deepseek=0.600 | label=0.682 | delta=-0.082
+[DeepSeek Epoch 4] pair=5/50 | model=0.757 | deepseek=0.900 | label=0.710 | delta=+0.190
+[DeepSeek Epoch 4] pair=6/50 | model=0.763 | deepseek=1.000 | label=0.710 | delta=+0.290
+[DeepSeek Epoch 4] pair=7/50 | model=0.691 | deepseek=0.800 | label=0.645 | delta=+0.155
+[DeepSeek Epoch 4] pair=8/50 | model=0.559 | deepseek=0.500 | label=0.500 | delta=+0.000
+[DeepSeek Epoch 4] pair=9/50 | model=0.684 | deepseek=0.500 | label=0.542 | delta=-0.042
+[DeepSeek Epoch 4] pair=10/50 | model=0.760 | deepseek=0.900 | label=0.751 | delta=+0.149
+[DeepSeek Epoch 4] pair=11/50 | model=0.700 | deepseek=0.800 | label=0.673 | delta=+0.127
+[DeepSeek Epoch 4] pair=12/50 | model=0.850 | deepseek=0.800 | label=0.802 | delta=-0.002
+[DeepSeek Epoch 4] pair=13/50 | model=0.700 | deepseek=0.500 | label=0.681 | delta=-0.181
+[DeepSeek Epoch 4] pair=14/50 | model=0.797 | deepseek=0.900 | label=0.777 | delta=+0.123
+[DeepSeek Epoch 4] pair=15/50 | model=0.528 | deepseek=0.800 | label=0.444 | delta=+0.356
+[DeepSeek Epoch 4] pair=16/50 | model=0.808 | deepseek=0.900 | label=0.805 | delta=+0.095
+[DeepSeek Epoch 4] pair=17/50 | model=0.737 | deepseek=0.800 | label=0.737 | delta=+0.063
+[DeepSeek Epoch 4] pair=18/50 | model=0.559 | deepseek=0.800 | label=0.636 | delta=+0.164
+[DeepSeek Epoch 4] pair=19/50 | model=0.839 | deepseek=0.900 | label=0.849 | delta=+0.051
+[DeepSeek Epoch 4] pair=20/50 | model=0.826 | deepseek=0.800 | label=0.813 | delta=-0.013
+[DeepSeek Epoch 4] pair=21/50 | model=0.841 | deepseek=0.500 | label=0.815 | delta=-0.315
+[DeepSeek Epoch 4] pair=22/50 | model=0.651 | deepseek=0.800 | label=0.705 | delta=+0.095
+[DeepSeek Epoch 4] pair=23/50 | model=0.627 | deepseek=0.850 | label=0.575 | delta=+0.275
+[DeepSeek Epoch 4] pair=24/50 | model=0.922 | deepseek=1.000 | label=0.913 | delta=+0.087
+[DeepSeek Epoch 4] pair=25/50 | model=0.732 | deepseek=0.900 | label=0.755 | delta=+0.145
+[DeepSeek Epoch 4] pair=26/50 | model=0.428 | deepseek=0.500 | label=0.390 | delta=+0.110
+[DeepSeek Epoch Judge] Error on pair 512: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 4] pair=27/50 | model=0.718 | deepseek=0.500 | label=0.750 | delta=-0.250
+[DeepSeek Epoch 4] pair=28/50 | model=0.555 | deepseek=0.800 | label=0.594 | delta=+0.206
+[DeepSeek Epoch Judge] pair 142: no score parsed (done=stop) from: 'The resume presents a strong candidate profile with relevant skills, certifications, and experience. However, it may ben'
+[DeepSeek Epoch 4] pair=29/50 | model=0.421 | deepseek=0.600 | label=0.351 | delta=+0.249
+[DeepSeek Epoch 4] pair=30/50 | model=0.681 | deepseek=0.800 | label=0.668 | delta=+0.132
+[DeepSeek Epoch 4] pair=31/50 | model=0.713 | deepseek=0.500 | label=0.651 | delta=-0.151
+[DeepSeek Epoch 4] pair=32/50 | model=0.685 | deepseek=0.000 | label=0.620 | delta=-0.620
+[DeepSeek Epoch 4] pair=33/50 | model=0.754 | deepseek=1.000 | label=0.790 | delta=+0.210
+[DeepSeek Epoch 4] pair=34/50 | model=0.728 | deepseek=0.800 | label=0.719 | delta=+0.081
+[DeepSeek Epoch 4] pair=35/50 | model=0.754 | deepseek=0.800 | label=0.700 | delta=+0.100
+[DeepSeek Epoch 4] pair=36/50 | model=0.825 | deepseek=0.900 | label=0.913 | delta=-0.013
+[DeepSeek Epoch 4] pair=37/50 | model=0.544 | deepseek=0.800 | label=0.524 | delta=+0.276
+[DeepSeek Epoch 4] pair=38/50 | model=0.648 | deepseek=0.500 | label=0.620 | delta=-0.120
+[DeepSeek Epoch 4] pair=39/50 | model=0.938 | deepseek=0.900 | label=0.914 | delta=-0.014
+[DeepSeek Epoch 4] pair=40/50 | model=0.606 | deepseek=0.950 | label=0.479 | delta=+0.471
+[DeepSeek Epoch 4] pair=41/50 | model=0.685 | deepseek=0.800 | label=0.704 | delta=+0.096
+[DeepSeek Epoch 4] pair=42/50 | model=0.859 | deepseek=1.000 | label=0.823 | delta=+0.177
+[DeepSeek Epoch 4] pair=43/50 | model=0.844 | deepseek=0.900 | label=0.933 | delta=-0.033
+[DeepSeek Epoch 4] pair=44/50 | model=0.877 | deepseek=0.800 | label=0.810 | delta=-0.010
+[DeepSeek Epoch 4] pair=45/50 | model=0.963 | deepseek=0.900 | label=0.973 | delta=-0.073
+[DeepSeek Epoch 4] pair=46/50 | model=0.541 | deepseek=0.300 | label=0.520 | delta=-0.220
+[DeepSeek Epoch 4] pair=47/50 | model=0.803 | deepseek=0.800 | label=0.816 | delta=-0.016
+[DeepSeek Epoch 4] Model restored to cuda.
+[DeepSeek Epoch 4] bias_delta=+0.0521 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 47 labels (alpha=0.6)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0566)
-[Epoch 5/10] train_loss=0.0030 | val_loss=0.0025 | val_rmse=0.0503
+  Checkpoint saved (val_rmse=0.0540)
+[Epoch 5/150] train_loss=0.0034 | val_loss=0.0033 | val_rmse=0.0568
+[DeepSeek Epoch 5] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 5] pair=1/50 | model=0.625 | deepseek=0.300 | label=0.481 | delta=-0.181
+[DeepSeek Epoch 5] pair=2/50 | model=0.855 | deepseek=0.500 | label=0.955 | delta=-0.455
+[DeepSeek Epoch 5] pair=3/50 | model=0.960 | deepseek=0.900 | label=0.991 | delta=-0.091
+[DeepSeek Epoch 5] pair=4/50 | model=0.732 | deepseek=0.900 | label=0.739 | delta=+0.161
+[DeepSeek Epoch 5] pair=5/50 | model=0.806 | deepseek=0.900 | label=0.796 | delta=+0.104
+[DeepSeek Epoch 5] pair=6/50 | model=0.905 | deepseek=1.000 | label=0.844 | delta=+0.156
+[DeepSeek Epoch 5] pair=7/50 | model=0.832 | deepseek=0.900 | label=0.783 | delta=+0.117
+[DeepSeek Epoch 5] pair=8/50 | model=0.963 | deepseek=1.000 | label=0.980 | delta=+0.020
+[DeepSeek Epoch 5] pair=9/50 | model=0.578 | deepseek=0.800 | label=0.520 | delta=+0.280
+[DeepSeek Epoch 5] pair=10/50 | model=0.275 | deepseek=0.500 | label=0.243 | delta=+0.257
+[DeepSeek Epoch 5] pair=11/50 | model=0.965 | deepseek=1.000 | label=0.924 | delta=+0.076
+[DeepSeek Epoch 5] pair=12/50 | model=0.843 | deepseek=1.000 | label=0.777 | delta=+0.223
+[DeepSeek Epoch 5] pair=13/50 | model=0.963 | deepseek=0.900 | label=0.996 | delta=-0.096
+[DeepSeek Epoch 5] pair=14/50 | model=0.534 | deepseek=0.500 | label=0.519 | delta=-0.019
+[DeepSeek Epoch 5] pair=15/50 | model=0.768 | deepseek=1.000 | label=0.732 | delta=+0.268
+[DeepSeek Epoch 5] pair=16/50 | model=0.750 | deepseek=0.900 | label=0.783 | delta=+0.117
+[DeepSeek Epoch Judge] Error on pair 710: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 5] pair=17/50 | model=0.767 | deepseek=0.800 | label=0.780 | delta=+0.020
+[DeepSeek Epoch 5] pair=18/50 | model=0.675 | deepseek=0.700 | label=0.652 | delta=+0.048
+[DeepSeek Epoch 5] pair=19/50 | model=0.691 | deepseek=0.900 | label=0.639 | delta=+0.261
+[DeepSeek Epoch 5] pair=20/50 | model=0.554 | deepseek=0.800 | label=0.535 | delta=+0.265
+[DeepSeek Epoch 5] pair=21/50 | model=0.760 | deepseek=0.800 | label=0.733 | delta=+0.067
+[DeepSeek Epoch 5] pair=22/50 | model=0.822 | deepseek=1.000 | label=0.798 | delta=+0.202
+[DeepSeek Epoch 5] pair=23/50 | model=0.866 | deepseek=0.900 | label=0.849 | delta=+0.051
+[DeepSeek Epoch 5] pair=24/50 | model=0.439 | deepseek=0.500 | label=0.408 | delta=+0.092
+[DeepSeek Epoch 5] pair=25/50 | model=0.696 | deepseek=0.900 | label=0.651 | delta=+0.249
+[DeepSeek Epoch 5] pair=26/50 | model=0.808 | deepseek=0.500 | label=0.867 | delta=-0.367
+[DeepSeek Epoch 5] pair=27/50 | model=0.637 | deepseek=0.500 | label=0.627 | delta=-0.127
+[DeepSeek Epoch 5] pair=28/50 | model=0.604 | deepseek=0.500 | label=0.593 | delta=-0.093
+[DeepSeek Epoch 5] pair=29/50 | model=0.625 | deepseek=0.800 | label=0.580 | delta=+0.220
+[DeepSeek Epoch Judge] Error on pair 746: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 5] pair=30/50 | model=0.580 | deepseek=0.700 | label=0.559 | delta=+0.141
+[DeepSeek Epoch 5] pair=31/50 | model=0.654 | deepseek=0.800 | label=0.740 | delta=+0.060
+[DeepSeek Epoch Judge] Error on pair 269: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 5] pair=32/50 | model=0.832 | deepseek=0.900 | label=0.813 | delta=+0.087
+[DeepSeek Epoch 5] pair=33/50 | model=0.864 | deepseek=0.900 | label=0.867 | delta=+0.033
+[DeepSeek Epoch 5] pair=34/50 | model=0.454 | deepseek=0.900 | label=0.336 | delta=+0.564
+[DeepSeek Epoch 5] pair=35/50 | model=0.501 | deepseek=0.700 | label=0.500 | delta=+0.200
+[DeepSeek Epoch 5] pair=36/50 | model=0.808 | deepseek=0.900 | label=0.702 | delta=+0.198
+[DeepSeek Epoch 5] pair=37/50 | model=0.789 | deepseek=1.000 | label=0.795 | delta=+0.205
+[DeepSeek Epoch 5] pair=38/50 | model=0.268 | deepseek=0.300 | label=0.256 | delta=+0.044
+[DeepSeek Epoch 5] pair=39/50 | model=0.745 | deepseek=1.000 | label=0.693 | delta=+0.307
+[DeepSeek Epoch 5] pair=40/50 | model=0.559 | deepseek=0.900 | label=0.567 | delta=+0.333
+[DeepSeek Epoch 5] pair=41/50 | model=0.651 | deepseek=1.000 | label=0.638 | delta=+0.362
+[DeepSeek Epoch 5] pair=42/50 | model=0.538 | deepseek=0.800 | label=0.455 | delta=+0.345
+[DeepSeek Epoch 5] pair=43/50 | model=0.583 | deepseek=0.500 | label=0.550 | delta=-0.050
+[DeepSeek Epoch 5] pair=44/50 | model=0.675 | deepseek=0.800 | label=0.701 | delta=+0.099
+[DeepSeek Epoch 5] pair=45/50 | model=0.761 | deepseek=0.900 | label=0.725 | delta=+0.175
+[DeepSeek Epoch 5] pair=46/50 | model=0.672 | deepseek=0.800 | label=0.697 | delta=+0.103
+[DeepSeek Epoch 5] pair=47/50 | model=0.758 | deepseek=0.900 | label=0.788 | delta=+0.112
+[DeepSeek Epoch 5] Model restored to cuda.
+[DeepSeek Epoch 5] bias_delta=+0.1094 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 47 labels (alpha=0.6)
+[Epoch 6/150] train_loss=0.0032 | val_loss=0.0024 | val_rmse=0.0493
+[DeepSeek Epoch 6] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 6] pair=1/50 | model=0.734 | deepseek=0.700 | label=0.780 | delta=-0.080
+[DeepSeek Epoch Judge] Error on pair 415: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 6] pair=2/50 | model=0.723 | deepseek=1.000 | label=0.664 | delta=+0.336
+[DeepSeek Epoch 6] pair=3/50 | model=0.677 | deepseek=0.500 | label=0.699 | delta=-0.199
+[DeepSeek Epoch 6] pair=4/50 | model=0.625 | deepseek=0.800 | label=0.599 | delta=+0.201
+[DeepSeek Epoch 6] pair=5/50 | model=0.735 | deepseek=1.000 | label=0.790 | delta=+0.210
+[DeepSeek Epoch 6] pair=6/50 | model=0.815 | deepseek=0.900 | label=0.955 | delta=-0.055
+[DeepSeek Epoch 6] pair=7/50 | model=0.617 | deepseek=0.800 | label=0.569 | delta=+0.231
+[DeepSeek Epoch 6] pair=8/50 | model=0.520 | deepseek=0.800 | label=0.518 | delta=+0.282
+[DeepSeek Epoch Judge] Error on pair 469: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 6] pair=9/50 | model=0.756 | deepseek=0.800 | label=0.717 | delta=+0.083
+[DeepSeek Epoch 6] pair=10/50 | model=0.620 | deepseek=0.800 | label=0.721 | delta=+0.079
+[DeepSeek Epoch 6] pair=11/50 | model=0.570 | deepseek=0.600 | label=0.535 | delta=+0.065
+[DeepSeek Epoch 6] pair=12/50 | model=0.690 | deepseek=0.800 | label=0.708 | delta=+0.092
+[DeepSeek Epoch 6] pair=13/50 | model=0.516 | deepseek=0.500 | label=0.465 | delta=+0.035
+[DeepSeek Epoch 6] pair=14/50 | model=0.708 | deepseek=1.000 | label=0.746 | delta=+0.254
+[DeepSeek Epoch 6] pair=15/50 | model=0.605 | deepseek=0.500 | label=0.636 | delta=-0.136
+[DeepSeek Epoch 6] pair=16/50 | model=0.959 | deepseek=1.000 | label=0.981 | delta=+0.019
+[DeepSeek Epoch 6] pair=17/50 | model=0.757 | deepseek=0.500 | label=0.771 | delta=-0.271
+[DeepSeek Epoch 6] pair=18/50 | model=0.802 | deepseek=0.800 | label=0.873 | delta=-0.073
+[DeepSeek Epoch 6] pair=19/50 | model=0.410 | deepseek=0.800 | label=0.410 | delta=+0.390
+[DeepSeek Epoch 6] pair=20/50 | model=0.509 | deepseek=0.900 | label=0.516 | delta=+0.384
+[DeepSeek Epoch 6] pair=21/50 | model=0.621 | deepseek=0.700 | label=0.709 | delta=-0.009
+[DeepSeek Epoch 6] pair=22/50 | model=0.698 | deepseek=0.800 | label=0.681 | delta=+0.119
+[DeepSeek Epoch 6] pair=23/50 | model=0.558 | deepseek=0.500 | label=0.554 | delta=-0.054
+[DeepSeek Epoch Judge] Error on pair 625: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 6] pair=24/50 | model=0.767 | deepseek=0.900 | label=0.712 | delta=+0.188
+[DeepSeek Epoch 6] pair=25/50 | model=0.846 | deepseek=0.900 | label=0.900 | delta=-0.000
+[DeepSeek Epoch 6] pair=26/50 | model=0.505 | deepseek=0.400 | label=0.481 | delta=-0.081
+[DeepSeek Epoch 6] pair=27/50 | model=0.506 | deepseek=0.800 | label=0.564 | delta=+0.236
+[DeepSeek Epoch 6] pair=28/50 | model=0.773 | deepseek=0.850 | label=0.797 | delta=+0.053
+[DeepSeek Epoch 6] pair=29/50 | model=0.788 | deepseek=0.900 | label=0.829 | delta=+0.071
+[DeepSeek Epoch 6] pair=30/50 | model=0.536 | deepseek=0.400 | label=0.572 | delta=-0.172
+[DeepSeek Epoch 6] pair=31/50 | model=0.722 | deepseek=0.800 | label=0.680 | delta=+0.120
+[DeepSeek Epoch 6] pair=32/50 | model=0.964 | deepseek=0.900 | label=0.975 | delta=-0.075
+[DeepSeek Epoch 6] pair=33/50 | model=0.834 | deepseek=0.900 | label=0.895 | delta=+0.005
+[DeepSeek Epoch 6] pair=34/50 | model=0.636 | deepseek=0.800 | label=0.501 | delta=+0.299
+[DeepSeek Epoch 6] pair=35/50 | model=0.630 | deepseek=0.800 | label=0.660 | delta=+0.140
+[DeepSeek Epoch 6] pair=36/50 | model=0.690 | deepseek=0.600 | label=0.666 | delta=-0.066
+[DeepSeek Epoch 6] pair=37/50 | model=0.381 | deepseek=0.500 | label=0.439 | delta=+0.061
+[DeepSeek Epoch 6] pair=38/50 | model=0.578 | deepseek=0.400 | label=0.588 | delta=-0.188
+[DeepSeek Epoch 6] pair=39/50 | model=0.956 | deepseek=1.000 | label=0.938 | delta=+0.062
+[DeepSeek Epoch 6] pair=40/50 | model=0.465 | deepseek=0.800 | label=0.508 | delta=+0.292
+[DeepSeek Epoch 6] pair=41/50 | model=0.945 | deepseek=1.000 | label=0.999 | delta=+0.001
+[DeepSeek Epoch 6] pair=42/50 | model=0.481 | deepseek=0.500 | label=0.514 | delta=-0.014
+[DeepSeek Epoch 6] pair=43/50 | model=0.423 | deepseek=0.600 | label=0.446 | delta=+0.154
+[DeepSeek Epoch 6] pair=44/50 | model=0.557 | deepseek=1.000 | label=0.521 | delta=+0.479
+[DeepSeek Epoch 6] pair=45/50 | model=0.531 | deepseek=0.800 | label=0.594 | delta=+0.206
+[DeepSeek Epoch 6] pair=46/50 | model=0.703 | deepseek=0.500 | label=0.791 | delta=-0.291
+[DeepSeek Epoch 6] pair=47/50 | model=0.642 | deepseek=0.500 | label=0.617 | delta=-0.117
+[DeepSeek Epoch 6] Model restored to cuda.
+[DeepSeek Epoch 6] bias_delta=+0.0694 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 47 labels (alpha=0.6)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0503)
-[Epoch 6/10] train_loss=0.0025 | val_loss=0.0023 | val_rmse=0.0484
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0484)
-[Epoch 7/10] train_loss=0.0022 | val_loss=0.0022 | val_rmse=0.0473
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0473)
-[Epoch 8/10] train_loss=0.0019 | val_loss=0.0021 | val_rmse=0.0463
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0463)
-[Epoch 9/10] train_loss=0.0018 | val_loss=0.0022 | val_rmse=0.0471
-[Epoch 10/10] train_loss=0.0017 | val_loss=0.0021 | val_rmse=0.0463
+  Checkpoint saved (val_rmse=0.0493)
+[Epoch 7/150] train_loss=0.0030 | val_loss=0.0028 | val_rmse=0.0533
+[DeepSeek Epoch 7] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 7] pair=1/50 | model=0.656 | deepseek=0.900 | label=0.717 | delta=+0.183
+[DeepSeek Epoch 7] pair=2/50 | model=0.503 | deepseek=0.900 | label=0.572 | delta=+0.328
+[DeepSeek Epoch 7] pair=3/50 | model=0.703 | deepseek=0.600 | label=0.674 | delta=-0.074
+[DeepSeek Epoch 7] pair=4/50 | model=0.680 | deepseek=0.800 | label=0.712 | delta=+0.088
+[DeepSeek Epoch 7] pair=5/50 | model=0.619 | deepseek=0.300 | label=0.682 | delta=-0.382
+[DeepSeek Epoch 7] pair=6/50 | model=0.771 | deepseek=0.500 | label=0.864 | delta=-0.364
+[DeepSeek Epoch 7] pair=7/50 | model=0.967 | deepseek=1.000 | label=0.985 | delta=+0.015
+[DeepSeek Epoch 7] pair=8/50 | model=0.746 | deepseek=0.800 | label=0.728 | delta=+0.072
+[DeepSeek Epoch 7] pair=9/50 | model=0.503 | deepseek=0.300 | label=0.572 | delta=-0.272
+[DeepSeek Epoch 7] pair=10/50 | model=0.788 | deepseek=0.800 | label=0.911 | delta=-0.111
+[DeepSeek Epoch 7] pair=11/50 | model=0.725 | deepseek=0.500 | label=0.711 | delta=-0.211
+[DeepSeek Epoch 7] pair=12/50 | model=0.850 | deepseek=0.900 | label=0.824 | delta=+0.076
+[DeepSeek Epoch 7] pair=13/50 | model=0.553 | deepseek=1.000 | label=0.640 | delta=+0.360
+[DeepSeek Epoch 7] pair=14/50 | model=0.884 | deepseek=0.800 | label=0.872 | delta=-0.072
+[DeepSeek Epoch 7] pair=15/50 | model=0.653 | deepseek=0.800 | label=0.635 | delta=+0.165
+[DeepSeek Epoch 7] pair=16/50 | model=0.499 | deepseek=0.600 | label=0.561 | delta=+0.039
+[DeepSeek Epoch 7] pair=17/50 | model=0.733 | deepseek=0.800 | label=0.808 | delta=-0.008
+[DeepSeek Epoch 7] pair=18/50 | model=0.715 | deepseek=0.900 | label=0.738 | delta=+0.162
+[DeepSeek Epoch 7] pair=19/50 | model=0.967 | deepseek=1.000 | label=1.000 | delta=+0.000
+[DeepSeek Epoch 7] pair=20/50 | model=0.412 | deepseek=1.000 | label=0.353 | delta=+0.647
+[DeepSeek Epoch 7] pair=21/50 | model=0.392 | deepseek=0.500 | label=0.420 | delta=+0.080
+[DeepSeek Epoch 7] pair=22/50 | model=0.716 | deepseek=0.800 | label=0.680 | delta=+0.120
+[DeepSeek Epoch 7] pair=23/50 | model=0.839 | deepseek=0.900 | label=0.869 | delta=+0.031
+[DeepSeek Epoch 7] pair=24/50 | model=0.671 | deepseek=0.500 | label=0.632 | delta=-0.132
+[DeepSeek Epoch Judge] Error on pair 444: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 7] pair=25/50 | model=0.455 | deepseek=0.700 | label=0.500 | delta=+0.200
+[DeepSeek Epoch 7] pair=26/50 | model=0.649 | deepseek=0.900 | label=0.652 | delta=+0.248
+[DeepSeek Epoch 7] pair=27/50 | model=0.665 | deepseek=0.800 | label=0.705 | delta=+0.095
+[DeepSeek Epoch Judge] Error on pair 663: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 7] pair=28/50 | model=0.201 | deepseek=0.500 | label=0.243 | delta=+0.257
+[DeepSeek Epoch 7] pair=29/50 | model=0.790 | deepseek=0.800 | label=0.828 | delta=-0.028
+[DeepSeek Epoch 7] pair=30/50 | model=0.928 | deepseek=1.000 | label=0.974 | delta=+0.026
+[DeepSeek Epoch 7] pair=31/50 | model=0.575 | deepseek=0.400 | label=0.562 | delta=-0.162
+[DeepSeek Epoch 7] pair=32/50 | model=0.649 | deepseek=1.000 | label=0.639 | delta=+0.361
+[DeepSeek Epoch 7] pair=33/50 | model=0.720 | deepseek=1.000 | label=0.815 | delta=+0.185
+[DeepSeek Epoch 7] pair=34/50 | model=0.506 | deepseek=0.500 | label=0.510 | delta=-0.010
+[DeepSeek Epoch 7] pair=35/50 | model=0.771 | deepseek=0.850 | label=0.777 | delta=+0.073
+[DeepSeek Epoch 7] pair=36/50 | model=0.384 | deepseek=0.800 | label=0.398 | delta=+0.402
+[DeepSeek Epoch 7] pair=37/50 | model=0.786 | deepseek=0.900 | label=0.799 | delta=+0.101
+[DeepSeek Epoch 7] pair=38/50 | model=0.902 | deepseek=0.900 | label=0.991 | delta=-0.091
+[DeepSeek Epoch 7] pair=39/50 | model=0.776 | deepseek=0.900 | label=0.726 | delta=+0.174
+[DeepSeek Epoch 7] pair=40/50 | model=0.291 | deepseek=0.500 | label=0.323 | delta=+0.177
+[DeepSeek Epoch 7] pair=41/50 | model=0.745 | deepseek=0.900 | label=0.798 | delta=+0.102
+[DeepSeek Epoch 7] pair=42/50 | model=0.717 | deepseek=0.900 | label=0.768 | delta=+0.132
+[DeepSeek Epoch 7] pair=43/50 | model=0.218 | deepseek=0.500 | label=0.337 | delta=+0.163
+[DeepSeek Epoch 7] pair=44/50 | model=0.623 | deepseek=0.300 | label=0.600 | delta=-0.300
+[DeepSeek Epoch 7] pair=45/50 | model=0.697 | deepseek=0.800 | label=0.721 | delta=+0.079
+[DeepSeek Epoch 7] pair=46/50 | model=0.962 | deepseek=0.500 | label=0.996 | delta=-0.496
+[DeepSeek Epoch 7] pair=47/50 | model=0.501 | deepseek=0.800 | label=0.446 | delta=+0.354
+[DeepSeek Epoch 7] pair=48/50 | model=0.367 | deepseek=0.300 | label=0.453 | delta=-0.153
+[DeepSeek Epoch 7] Model restored to cuda.
+[DeepSeek Epoch 7] bias_delta=+0.0548 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 48 labels (alpha=0.6)
+[Epoch 8/150] train_loss=0.0029 | val_loss=0.0027 | val_rmse=0.0515
+[DeepSeek Epoch 8] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 8] pair=1/50 | model=0.806 | deepseek=0.900 | label=0.839 | delta=+0.061
+[DeepSeek Epoch 8] pair=2/50 | model=0.731 | deepseek=0.500 | label=0.719 | delta=-0.219
+[DeepSeek Epoch 8] pair=3/50 | model=0.659 | deepseek=1.000 | label=0.684 | delta=+0.316
+[DeepSeek Epoch 8] pair=4/50 | model=0.960 | deepseek=1.000 | label=0.984 | delta=+0.016
+[DeepSeek Epoch 8] pair=5/50 | model=0.630 | deepseek=0.900 | label=0.635 | delta=+0.265
+[DeepSeek Epoch 8] pair=6/50 | model=0.505 | deepseek=0.500 | label=0.585 | delta=-0.085
+[DeepSeek Epoch 8] pair=7/50 | model=0.391 | deepseek=0.800 | label=0.336 | delta=+0.464
+[DeepSeek Epoch 8] pair=8/50 | model=0.608 | deepseek=0.900 | label=0.710 | delta=+0.190
+[DeepSeek Epoch 8] pair=9/50 | model=0.638 | deepseek=0.900 | label=0.612 | delta=+0.288
+[DeepSeek Epoch 8] pair=10/50 | model=0.864 | deepseek=0.900 | label=0.871 | delta=+0.029
+[DeepSeek Epoch 8] pair=11/50 | model=0.832 | deepseek=0.900 | label=0.816 | delta=+0.084
+[DeepSeek Epoch 8] pair=12/50 | model=0.710 | deepseek=0.800 | label=0.680 | delta=+0.120
+[DeepSeek Epoch 8] pair=13/50 | model=0.541 | deepseek=0.400 | label=0.575 | delta=-0.175
+[DeepSeek Epoch 8] pair=14/50 | model=0.964 | deepseek=0.850 | label=1.000 | delta=-0.150
+[DeepSeek Epoch 8] pair=15/50 | model=0.857 | deepseek=0.500 | label=0.856 | delta=-0.356
+[DeepSeek Epoch 8] pair=16/50 | model=0.524 | deepseek=0.900 | label=0.568 | delta=+0.332
+[DeepSeek Epoch 8] pair=17/50 | model=0.510 | deepseek=0.500 | label=0.520 | delta=-0.020
+[DeepSeek Epoch 8] pair=18/50 | model=0.694 | deepseek=0.900 | label=0.698 | delta=+0.202
+[DeepSeek Epoch 8] pair=19/50 | model=0.885 | deepseek=0.900 | label=0.873 | delta=+0.027
+[DeepSeek Epoch 8] pair=20/50 | model=0.819 | deepseek=0.500 | label=0.799 | delta=-0.299
+[DeepSeek Epoch 8] pair=21/50 | model=0.512 | deepseek=0.500 | label=0.489 | delta=+0.011
+[DeepSeek Epoch 8] pair=22/50 | model=0.454 | deepseek=0.500 | label=0.489 | delta=+0.011
+[DeepSeek Epoch 8] pair=23/50 | model=0.502 | deepseek=0.800 | label=0.510 | delta=+0.290
+[DeepSeek Epoch 8] pair=24/50 | model=0.819 | deepseek=0.900 | label=0.802 | delta=+0.098
+[DeepSeek Epoch 8] pair=25/50 | model=0.740 | deepseek=0.900 | label=0.711 | delta=+0.189
+[DeepSeek Epoch Judge] Error on pair 928: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 8] pair=26/50 | model=0.854 | deepseek=1.000 | label=0.761 | delta=+0.239
+[DeepSeek Epoch 8] pair=27/50 | model=0.399 | deepseek=0.700 | label=0.366 | delta=+0.334
+[DeepSeek Epoch 8] pair=28/50 | model=0.795 | deepseek=0.900 | label=0.738 | delta=+0.162
+[DeepSeek Epoch 8] pair=29/50 | model=0.372 | deepseek=0.500 | label=0.332 | delta=+0.168
+[DeepSeek Epoch 8] pair=30/50 | model=0.966 | deepseek=0.900 | label=0.963 | delta=-0.063
+[DeepSeek Epoch 8] pair=31/50 | model=0.841 | deepseek=0.900 | label=0.783 | delta=+0.117
+[DeepSeek Epoch 8] pair=32/50 | model=0.731 | deepseek=0.800 | label=0.739 | delta=+0.061
+[DeepSeek Epoch 8] pair=33/50 | model=0.640 | deepseek=0.500 | label=0.760 | delta=-0.260
+[DeepSeek Epoch 8] pair=34/50 | model=0.781 | deepseek=0.500 | label=0.729 | delta=-0.229
+[DeepSeek Epoch 8] pair=35/50 | model=0.963 | deepseek=0.900 | label=0.962 | delta=-0.062
+[DeepSeek Epoch 8] pair=36/50 | model=0.697 | deepseek=0.800 | label=0.739 | delta=+0.061
+[DeepSeek Epoch 8] pair=37/50 | model=0.821 | deepseek=0.500 | label=0.860 | delta=-0.360
+[DeepSeek Epoch 8] pair=38/50 | model=0.951 | deepseek=0.500 | label=0.892 | delta=-0.392
+[DeepSeek Epoch 8] pair=39/50 | model=0.653 | deepseek=0.700 | label=0.682 | delta=+0.018
+[DeepSeek Epoch 8] pair=40/50 | model=0.600 | deepseek=0.500 | label=0.627 | delta=-0.127
+[DeepSeek Epoch 8] pair=41/50 | model=0.430 | deepseek=0.900 | label=0.395 | delta=+0.505
+[DeepSeek Epoch 8] pair=42/50 | model=0.573 | deepseek=0.500 | label=0.642 | delta=-0.142
+[DeepSeek Epoch Judge] Error on pair 201: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 8] pair=43/50 | model=0.760 | deepseek=0.800 | label=0.794 | delta=+0.006
+[DeepSeek Epoch 8] pair=44/50 | model=0.392 | deepseek=0.300 | label=0.431 | delta=-0.131
+[DeepSeek Epoch Judge] Error on pair 450: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 8] pair=45/50 | model=0.717 | deepseek=0.600 | label=0.721 | delta=-0.121
+[DeepSeek Epoch 8] pair=46/50 | model=0.662 | deepseek=0.900 | label=0.682 | delta=+0.218
+[DeepSeek Epoch 8] pair=47/50 | model=0.661 | deepseek=0.900 | label=0.676 | delta=+0.224
+[DeepSeek Epoch 8] Model restored to cuda.
+[DeepSeek Epoch 8] bias_delta=+0.0408 | labels well-calibrated
+[Dataset] Corrected 47 labels (alpha=0.6)
+[Epoch 9/150] train_loss=0.0029 | val_loss=0.0026 | val_rmse=0.0510
+[DeepSeek Epoch 9] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 9] pair=1/50 | model=0.528 | deepseek=0.900 | label=0.559 | delta=+0.341
+[DeepSeek Epoch 9] pair=2/50 | model=0.593 | deepseek=0.500 | label=0.616 | delta=-0.116
+[DeepSeek Epoch 9] pair=3/50 | model=0.963 | deepseek=1.000 | label=0.945 | delta=+0.055
+[DeepSeek Epoch 9] pair=4/50 | model=0.758 | deepseek=0.900 | label=0.855 | delta=+0.045
+[DeepSeek Epoch Judge] Error on pair 975: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 9] pair=5/50 | model=0.434 | deepseek=0.800 | label=0.302 | delta=+0.498
+[DeepSeek Epoch 9] pair=6/50 | model=0.838 | deepseek=1.000 | label=0.844 | delta=+0.156
+[DeepSeek Epoch 9] pair=7/50 | model=0.834 | deepseek=0.500 | label=0.835 | delta=-0.335
+[DeepSeek Epoch 9] pair=8/50 | model=0.705 | deepseek=0.800 | label=0.750 | delta=+0.050
+[DeepSeek Epoch 9] pair=9/50 | model=0.778 | deepseek=0.800 | label=0.860 | delta=-0.060
+[DeepSeek Epoch 9] pair=10/50 | model=0.767 | deepseek=0.900 | label=0.817 | delta=+0.083
+[DeepSeek Epoch 9] pair=11/50 | model=0.633 | deepseek=0.800 | label=0.650 | delta=+0.150
+[DeepSeek Epoch 9] pair=12/50 | model=0.621 | deepseek=0.900 | label=0.639 | delta=+0.261
+[DeepSeek Epoch 9] pair=13/50 | model=0.761 | deepseek=0.800 | label=0.867 | delta=-0.067
+[DeepSeek Epoch 9] pair=14/50 | model=0.845 | deepseek=1.000 | label=0.809 | delta=+0.191
+[DeepSeek Epoch 9] pair=15/50 | model=0.741 | deepseek=0.800 | label=0.798 | delta=+0.002
+[DeepSeek Epoch 9] pair=16/50 | model=0.510 | deepseek=0.400 | label=0.527 | delta=-0.127
+[DeepSeek Epoch 9] pair=17/50 | model=0.580 | deepseek=0.800 | label=0.677 | delta=+0.123
+[DeepSeek Epoch 9] pair=18/50 | model=0.961 | deepseek=0.800 | label=0.997 | delta=-0.197
+[DeepSeek Epoch 9] pair=19/50 | model=0.360 | deepseek=0.500 | label=0.356 | delta=+0.144
+[DeepSeek Epoch 9] pair=20/50 | model=0.708 | deepseek=0.800 | label=0.781 | delta=+0.019
+[DeepSeek Epoch 9] pair=21/50 | model=0.406 | deepseek=0.500 | label=0.407 | delta=+0.093
+[DeepSeek Epoch 9] pair=22/50 | model=0.536 | deepseek=0.500 | label=0.482 | delta=+0.018
+[DeepSeek Epoch 9] pair=23/50 | model=0.592 | deepseek=0.900 | label=0.604 | delta=+0.296
+[DeepSeek Epoch 9] pair=24/50 | model=0.365 | deepseek=0.300 | label=0.369 | delta=-0.069
+[DeepSeek Epoch 9] pair=25/50 | model=0.660 | deepseek=0.900 | label=0.678 | delta=+0.222
+[DeepSeek Epoch 9] pair=26/50 | model=0.824 | deepseek=0.900 | label=0.873 | delta=+0.027
+[DeepSeek Epoch 9] pair=27/50 | model=0.970 | deepseek=1.000 | label=0.980 | delta=+0.020
+[DeepSeek Epoch 9] pair=28/50 | model=0.866 | deepseek=0.800 | label=0.794 | delta=+0.006
+[DeepSeek Epoch 9] pair=29/50 | model=0.731 | deepseek=0.500 | label=0.749 | delta=-0.249
+[DeepSeek Epoch 9] pair=30/50 | model=0.495 | deepseek=0.500 | label=0.525 | delta=-0.025
+[DeepSeek Epoch 9] pair=31/50 | model=0.753 | deepseek=0.800 | label=0.736 | delta=+0.064
+[DeepSeek Epoch 9] pair=32/50 | model=0.547 | deepseek=0.800 | label=0.592 | delta=+0.208
+[DeepSeek Epoch 9] pair=33/50 | model=0.599 | deepseek=1.000 | label=0.683 | delta=+0.317
+[DeepSeek Epoch 9] pair=34/50 | model=0.948 | deepseek=1.000 | label=1.000 | delta=+0.000
+[DeepSeek Epoch 9] pair=35/50 | model=0.766 | deepseek=0.900 | label=0.798 | delta=+0.102
+[DeepSeek Epoch 9] pair=36/50 | model=0.816 | deepseek=1.000 | label=0.871 | delta=+0.129
+[DeepSeek Epoch 9] pair=37/50 | model=0.394 | deepseek=0.500 | label=0.312 | delta=+0.188
+[DeepSeek Epoch 9] pair=38/50 | model=0.505 | deepseek=0.900 | label=0.498 | delta=+0.402
+[DeepSeek Epoch 9] pair=39/50 | model=0.867 | deepseek=0.900 | label=0.850 | delta=+0.050
+[DeepSeek Epoch 9] pair=40/50 | model=0.966 | deepseek=1.000 | label=0.938 | delta=+0.062
+[DeepSeek Epoch 9] pair=41/50 | model=0.772 | deepseek=0.900 | label=0.766 | delta=+0.134
+[DeepSeek Epoch Judge] Error on pair 233: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=180)
+[DeepSeek Epoch 9] pair=42/50 | model=0.448 | deepseek=0.900 | label=0.431 | delta=+0.469
+[DeepSeek Epoch 9] pair=43/50 | model=0.642 | deepseek=0.500 | label=0.646 | delta=-0.146
+[DeepSeek Epoch 9] pair=44/50 | model=0.590 | deepseek=0.950 | label=0.622 | delta=+0.328
+[DeepSeek Epoch 9] pair=45/50 | model=0.401 | deepseek=0.500 | label=0.354 | delta=+0.146
+[DeepSeek Epoch 9] pair=46/50 | model=0.805 | deepseek=0.900 | label=0.911 | delta=-0.011
+[DeepSeek Epoch 9] pair=47/50 | model=0.561 | deepseek=0.900 | label=0.554 | delta=+0.346
+[DeepSeek Epoch 9] pair=48/50 | model=0.577 | deepseek=0.800 | label=0.652 | delta=+0.148
+[DeepSeek Epoch 9] Model restored to cuda.
+[DeepSeek Epoch 9] bias_delta=+0.0936 | labels under-estimated (rule-based too strict)
+[Dataset] Corrected 48 labels (alpha=0.6)
+[Train] Early stopping at epoch 9
 
 === Training Complete ===
 {
-  "train_loss": 0.001726,
-  "val_loss": 0.002146,
-  "val_rmse": 0.04629108498687453,
-  "epochs_trained": 10,
+  "train_loss": 0.002874,
+  "val_loss": 0.002606,
+  "val_rmse": 0.04928731375943162,
+  "epochs_trained": 9,
   "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt"
 }
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\training_metrics.json

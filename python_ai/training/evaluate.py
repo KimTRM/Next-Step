@@ -127,7 +127,7 @@ Reply with ONLY a single decimal number between 0.0 and 1.0. No explanation."""
                 "stream": False,
                 "options": {"temperature": 0.1, "num_predict": 80},
             },
-            timeout=30,
+            timeout=120,
         )
         resp.raise_for_status()
         raw = resp.json().get("response", "")
