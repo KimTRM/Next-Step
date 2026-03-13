@@ -1,63 +1,57 @@
 {
-  "train_loss": 0.002874,
-  "val_loss": 0.002606,
-  "val_rmse": 0.04928731375943162,
-  "epochs_trained": 9,
+  "train_loss": 0.002217,
+  "val_loss": 0.00225,
+  "val_rmse": 0.047450868367697914,
+  "epochs_trained": 8,
   "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt",
   "history": [
     {
       "epoch": 1,
-      "train_loss": 0.026141,
-      "val_loss": 0.016537,
-      "val_rmse": 0.127422
+      "train_loss": 0.024291,
+      "val_loss": 0.013584,
+      "val_rmse": 0.116007
     },
     {
       "epoch": 2,
       "train_loss": 0.011314,
-      "val_loss": 0.006641,
-      "val_rmse": 0.081484
+      "val_loss": 0.007127,
+      "val_rmse": 0.084623
     },
     {
       "epoch": 3,
-      "train_loss": 0.006185,
-      "val_loss": 0.003795,
-      "val_rmse": 0.06171
+      "train_loss": 0.005668,
+      "val_loss": 0.004028,
+      "val_rmse": 0.063475
     },
     {
       "epoch": 4,
-      "train_loss": 0.004139,
-      "val_loss": 0.002927,
-      "val_rmse": 0.053991
+      "train_loss": 0.003875,
+      "val_loss": 0.00319,
+      "val_rmse": 0.056531
     },
     {
       "epoch": 5,
-      "train_loss": 0.003411,
-      "val_loss": 0.003271,
-      "val_rmse": 0.056768
+      "train_loss": 0.003036,
+      "val_loss": 0.003123,
+      "val_rmse": 0.056004
     },
     {
       "epoch": 6,
-      "train_loss": 0.003204,
-      "val_loss": 0.002444,
-      "val_rmse": 0.049287
+      "train_loss": 0.002621,
+      "val_loss": 0.002758,
+      "val_rmse": 0.052518
     },
     {
       "epoch": 7,
-      "train_loss": 0.002988,
-      "val_loss": 0.002834,
-      "val_rmse": 0.053264
+      "train_loss": 0.002327,
+      "val_loss": 0.002291,
+      "val_rmse": 0.047838
     },
     {
       "epoch": 8,
-      "train_loss": 0.002874,
-      "val_loss": 0.002665,
-      "val_rmse": 0.051525
-    },
-    {
-      "epoch": 9,
-      "train_loss": 0.002874,
-      "val_loss": 0.002606,
-      "val_rmse": 0.051008
+      "train_loss": 0.002217,
+      "val_loss": 0.00225,
+      "val_rmse": 0.047451
     }
   ]
 }

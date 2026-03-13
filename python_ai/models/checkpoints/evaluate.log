@@ -1,16 +1,16 @@
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 3537.55it/s]
-[CrossEncoder] Loaded from C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster do[CrossEncoder] Loaded from C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
 [Dataset] Loaded 977 pairs (split=test)
 [Evaluate] Evaluated 977 pairs
 
 === Evaluation Metrics ===
   Pairs evaluated : 977
-  Pearson         : 0.9636  (target: >0.80) OK
-  RMSE            : 0.0481  (target: <0.12) OK
-  NDCG@10         : 0.9863  (target: >0.75) OK
+  Pearson         : 0.7579  (target: >0.80) FAIL
+  RMSE            : 0.1173  (target: <0.12) OK
+  NDCG@10         : 0.9322  (target: >0.75) OK
   Precision@5     : 1.0000  (target: >0.70) OK
 
-  Targets met: 4/4
+  Targets met: 3/4
 
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\metrics.json
-sk.[0m
+al arch.
+- MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m

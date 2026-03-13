@@ -103,12 +103,29 @@ def _deepseek_score_pair(resume_text: str, job_text: str, model: str) -> Optiona
     resume_snippet = resume_text[:600]
     job_snippet = job_text[:400]
 
-    prompt = f"""You are an expert Philippine HR recruiter.
+    prompt = f"""You are a strict Philippine HR recruiter doing competitive candidate screening.
+The PH job market is competitive. Assume 100 candidates apply. Score reflects competitive rank.
 
-Rate how well this candidate fits this job on a scale from 0.0 to 1.0.
-- 0.0 = completely unsuitable
-- 0.5 = partial match, some relevant skills
-- 1.0 = perfect match
+SCORING RUBRIC:
+0.0-0.2 = No match: wrong field, near-zero relevant skills — not shortlisted
+0.2-0.4 = Weak: missing most required skills or major experience gap — bottom half
+0.4-0.6 = Partial: ~half required skills, some gaps — average applicant
+0.6-0.8 = Good: most required skills, experience roughly met — TOP 10 shortlist
+0.8-0.9 = Strong: 80%+ skill match AND experience met — TOP 5 most relevant
+0.9-1.0 = RESERVED: near-perfect, matches ALL top 5 critical requirements
+
+RANKING BIAS:
+- 0.7+ = this candidate earns a TOP 10 ranking among 100 applicants
+- 0.85+ = this candidate matches the TOP 5 most critical job requirements
+- Below 0.5 = candidate would NOT be shortlisted in a competitive pool
+
+DEDUCTION RULES:
+- Each missing top-5 required skill: -0.08 (max -0.30)
+- Experience below minimum: -0.05/year short
+- Wrong industry: -0.20 and cap at 0.50
+- No relevant experience: cap at 0.40
+
+ANTI-INFLATION: Do NOT round up. Scores >= 0.80 require TOP-10-quality evidence.
 
 Candidate resume (excerpt):
 {resume_snippet}
@@ -125,7 +142,7 @@ Reply with ONLY a single decimal number between 0.0 and 1.0. No explanation."""
                 "model": model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 80},
+                "options": {"temperature": 0.1, "num_predict": -1, "num_ctx": 1536},
             },
             timeout=120,
         )
