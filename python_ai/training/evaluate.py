@@ -100,40 +100,26 @@ def _deepseek_score_pair(resume_text: str, job_text: str, model: str) -> Optiona
     import re
     import requests as _req
 
-    resume_snippet = resume_text[:600]
-    job_snippet = job_text[:400]
+    resume_snippet = resume_text[:400]
+    job_snippet = job_text[:250]
 
-    prompt = f"""You are a strict Philippine HR recruiter doing competitive candidate screening.
-The PH job market is competitive. Assume 100 candidates apply. Score reflects competitive rank.
+    prompt = f"""/no_think
+PH job screening. DEFAULT score = 0.50. Bias toward lower scores — most candidates are average.
 
-SCORING RUBRIC:
-0.0-0.2 = No match: wrong field, near-zero relevant skills — not shortlisted
-0.2-0.4 = Weak: missing most required skills or major experience gap — bottom half
-0.4-0.6 = Partial: ~half required skills, some gaps — average applicant
-0.6-0.8 = Good: most required skills, experience roughly met — TOP 10 shortlist
-0.8-0.9 = Strong: 80%+ skill match AND experience met — TOP 5 most relevant
-0.9-1.0 = RESERVED: near-perfect, matches ALL top 5 critical requirements
+Score guide:
+0.0-0.3 = wrong field or near-zero relevant skills
+0.3-0.5 = weak/partial — missing key required skills or major experience gap
+0.5-0.65 = average — some relevant skills, partial experience match
+0.65-0.80 = good — most required skills explicitly present + experience roughly met
+0.80+ = RESERVED: explicit full skill match + experience met. Do not round up.
 
-RANKING BIAS:
-- 0.7+ = this candidate earns a TOP 10 ranking among 100 applicants
-- 0.85+ = this candidate matches the TOP 5 most critical job requirements
-- Below 0.5 = candidate would NOT be shortlisted in a competitive pool
+RULE: Only exceed 0.65 if you can identify 3+ required skills by name in the resume.
+When uncertain, score LOWER. Assume resume excerpt is incomplete.
 
-DEDUCTION RULES:
-- Each missing top-5 required skill: -0.08 (max -0.30)
-- Experience below minimum: -0.05/year short
-- Wrong industry: -0.20 and cap at 0.50
-- No relevant experience: cap at 0.40
+Resume: {resume_snippet}
+Job: {job_snippet}
 
-ANTI-INFLATION: Do NOT round up. Scores >= 0.80 require TOP-10-quality evidence.
-
-Candidate resume (excerpt):
-{resume_snippet}
-
-Job description (excerpt):
-{job_snippet}
-
-Reply with ONLY a single decimal number between 0.0 and 1.0. No explanation."""
+Reply with ONLY a decimal number (e.g. 0.50). No explanation."""
 
     try:
         resp = _req.post(
@@ -209,8 +195,13 @@ def run_deepseek_judge(
     label_biases = [ds - lb for ds, lb in zip(deepseek_scores, sampled_labels)]
     mean_bias = sum(label_biases) / len(label_biases)
 
+    n = len(deepseek_scores)
+    ds_ndcg = ndcg_at_k(sampled_preds, deepseek_scores, k=min(10, n))
+    ds_p5_t60 = precision_at_k(sampled_preds, deepseek_scores, k=min(5, n), threshold=0.6)
+    ds_p5_t50 = precision_at_k(sampled_preds, deepseek_scores, k=min(5, n), threshold=0.5)
+
     result = {
-        "n_scored": len(deepseek_scores),
+        "n_scored": n,
         "model": deepseek_model,
         "model_vs_deepseek": {
             "pearson": round(pearson_correlation(sampled_preds, deepseek_scores), 4),
@@ -222,8 +213,14 @@ def run_deepseek_judge(
                          else "deepseek scores LOWER than rule-based" if mean_bias < -0.05
                          else "labels are well-calibrated",
         },
-        "deepseek_mean_score": round(sum(deepseek_scores) / len(deepseek_scores), 4),
-        "rule_label_mean_score": round(sum(sampled_labels) / len(sampled_labels), 4),
+        "deepseek_mean_score": round(sum(deepseek_scores) / n, 4),
+        "rule_label_mean_score": round(sum(sampled_labels) / n, 4),
+        "deepseek_ranking": {
+            "ndcg_at_10": round(ds_ndcg, 4),
+            "precision_at_5": round(ds_p5_t60, 4),
+            "precision_at_5_t50": round(ds_p5_t50, 4),
+            "note": "Computed using DeepSeek scores as ground truth — not rule labels",
+        },
     }
 
     print(
@@ -232,7 +229,10 @@ def run_deepseek_judge(
         f"  Model vs DeepSeek  — Pearson: {result['model_vs_deepseek']['pearson']:.4f} | "
         f"RMSE: {result['model_vs_deepseek']['rmse']:.4f}\n"
         f"  Label bias: {result['label_bias']['direction']} "
-        f"(mean delta={mean_bias:+.4f})\n",
+        f"(mean delta={mean_bias:+.4f})\n"
+        f"  DeepSeek NDCG@10   : {ds_ndcg:.4f}  (realistic early target: >0.55)\n"
+        f"  DeepSeek P@5 (>=0.6): {ds_p5_t60:.4f}  (realistic early target: >0.40)\n"
+        f"  DeepSeek P@5 (>=0.5): {ds_p5_t50:.4f}\n",
         flush=True,
     )
     return result
@@ -361,6 +361,13 @@ def _print_metrics(m: dict):
             print(f"  Label bias         : {dj['label_bias']['direction']}")
             print(f"  DeepSeek mean score: {dj['deepseek_mean_score']:.4f}")
             print(f"  Rule label mean    : {dj['rule_label_mean_score']:.4f}")
+            if "deepseek_ranking" in dj:
+                dr = dj["deepseek_ranking"]
+                print(f"\n=== DeepSeek Ranking Metrics (ground truth = DeepSeek scores) ===")
+                print(f"  NDCG@10            : {dr['ndcg_at_10']:.4f}  (realistic early target: >0.55)")
+                print(f"  Precision@5 (>=0.6): {dr['precision_at_5']:.4f}  (realistic early target: >0.40)")
+                print(f"  Precision@5 (>=0.5): {dr['precision_at_5_t50']:.4f}")
+                print(f"  [{dr['note']}]")
 
 
 def main():

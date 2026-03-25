@@ -1,9 +1,8 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 [Train] Device: cuda
-[Train] Epochs: 8 | Batch: 16 | Encoder LR: 2e-05
+[Train] Epochs: 10 | Batch: 16 | Encoder LR: 2e-05
 [Dataset] Loaded 8025 pairs (split=train)
 [Dataset] Loaded 998 pairs (split=val)
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5448.32it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5374.44it/s]
 [1mBertForSequenceClassification LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 Key                     | Status     | 
 ------------------------+------------+-
@@ -14,469 +13,581 @@ classifier.weight       | MISSING    |
 [3mNotes:
 - UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
 - MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
-[Epoch 1/8] train_loss=0.0243 | val_loss=0.0136 | val_rmse=0.1160
+[Epoch 1/10] train_loss=0.0268 | val_loss=0.0152 | val_rmse=0.1227
 [DeepSeek Epoch 1] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 1] pair=1/50 | model=0.550 | deepseek=0.770 | label=0.629 | delta=+0.141
-[DeepSeek Epoch Judge] pair 906: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 989: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 659: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 984: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 235: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 477: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=2/50 | model=0.609 | deepseek=0.900 | label=0.524 | delta=+0.376
-[DeepSeek Epoch Judge] pair 609: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 784: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 432: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=3/50 | model=0.790 | deepseek=0.920 | label=0.842 | delta=+0.078
-[DeepSeek Epoch Judge] pair 257: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 2: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 758: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 313: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 954: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=4/50 | model=0.761 | deepseek=0.850 | label=0.976 | delta=-0.126
-[DeepSeek Epoch Judge] pair 862: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=5/50 | model=0.874 | deepseek=0.850 | label=0.799 | delta=+0.051
-[DeepSeek Epoch Judge] pair 460: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=6/50 | model=0.643 | deepseek=0.850 | label=0.867 | delta=-0.017
-[DeepSeek Epoch Judge] pair 944: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 601: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 234: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 690: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 996: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 185: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=7/50 | model=0.669 | deepseek=0.500 | label=0.682 | delta=-0.182
-[DeepSeek Epoch 1] pair=8/50 | model=0.774 | deepseek=0.920 | label=0.799 | delta=+0.121
-[DeepSeek Epoch 1] pair=9/50 | model=0.830 | deepseek=0.880 | label=0.864 | delta=+0.016
-[DeepSeek Epoch 1] pair=10/50 | model=0.548 | deepseek=0.800 | label=0.554 | delta=+0.246
-[DeepSeek Epoch 1] pair=11/50 | model=0.610 | deepseek=0.680 | label=0.592 | delta=+0.088
-[DeepSeek Epoch Judge] pair 928: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 567: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 78: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=12/50 | model=0.818 | deepseek=0.920 | label=0.922 | delta=-0.002
-[DeepSeek Epoch Judge] pair 602: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 933: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 819: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=13/50 | model=0.835 | deepseek=0.920 | label=0.712 | delta=+0.208
-[DeepSeek Epoch 1] pair=14/50 | model=0.871 | deepseek=1.000 | label=0.754 | delta=+0.246
-[DeepSeek Epoch 1] pair=15/50 | model=0.640 | deepseek=0.950 | label=0.521 | delta=+0.429
-[DeepSeek Epoch Judge] pair 13: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 585: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=16/50 | model=0.519 | deepseek=0.840 | label=0.594 | delta=+0.246
-[DeepSeek Epoch Judge] pair 148: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 208: empty response (done_reason=length)
-[DeepSeek Epoch 1] pair=17/50 | model=0.660 | deepseek=0.850 | label=0.554 | delta=+0.296
-[DeepSeek Epoch 1] pair=18/50 | model=0.593 | deepseek=0.900 | label=0.736 | delta=+0.164
-[DeepSeek Epoch 1] Model restored to cuda.
-[DeepSeek Epoch 1] bias_delta=+0.1323 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 18 labels (alpha=0.4)
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.1160)
-[Epoch 2/8] train_loss=0.0113 | val_loss=0.0071 | val_rmse=0.0846
-[DeepSeek Epoch 2] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 2] pair=1/50 | model=0.917 | deepseek=0.920 | label=0.824 | delta=+0.096
-[DeepSeek Epoch Judge] pair 134: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 416: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 168: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 567: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=2/50 | model=0.922 | deepseek=0.850 | label=0.968 | delta=-0.118
-[DeepSeek Epoch Judge] pair 983: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 953: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=3/50 | model=0.880 | deepseek=0.950 | label=0.966 | delta=-0.016
-[DeepSeek Epoch 2] pair=4/50 | model=0.864 | deepseek=0.920 | label=0.869 | delta=+0.051
-[DeepSeek Epoch Judge] pair 22: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=5/50 | model=0.919 | deepseek=0.920 | label=0.929 | delta=-0.009
-[DeepSeek Epoch Judge] pair 120: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 141: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 643: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=6/50 | model=0.897 | deepseek=0.850 | label=0.788 | delta=+0.062
-[DeepSeek Epoch 2] pair=7/50 | model=0.786 | deepseek=0.920 | label=0.786 | delta=+0.134
-[DeepSeek Epoch Judge] pair 422: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=8/50 | model=0.807 | deepseek=0.850 | label=0.648 | delta=+0.202
-[DeepSeek Epoch Judge] pair 826: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=9/50 | model=0.320 | deepseek=0.800 | label=0.416 | delta=+0.384
-[DeepSeek Epoch 2] pair=10/50 | model=0.582 | deepseek=0.800 | label=0.506 | delta=+0.294
-[DeepSeek Epoch Judge] pair 762: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 933: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 428: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 48: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=11/50 | model=0.473 | deepseek=0.920 | label=0.453 | delta=+0.467
-[DeepSeek Epoch Judge] pair 375: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=12/50 | model=0.739 | deepseek=0.200 | label=0.725 | delta=-0.525
-[DeepSeek Epoch Judge] pair 236: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 320: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=13/50 | model=0.660 | deepseek=0.950 | label=0.593 | delta=+0.357
-[DeepSeek Epoch Judge] pair 545: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=14/50 | model=0.892 | deepseek=0.950 | label=0.845 | delta=+0.105
-[DeepSeek Epoch Judge] pair 627: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 853: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 350: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 563: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 96: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 904: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 806: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=15/50 | model=0.654 | deepseek=0.850 | label=0.667 | delta=+0.183
-[DeepSeek Epoch 2] pair=16/50 | model=0.347 | deepseek=0.680 | label=0.408 | delta=+0.272
-[DeepSeek Epoch Judge] pair 520: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=17/50 | model=0.628 | deepseek=0.500 | label=0.599 | delta=-0.099
-[DeepSeek Epoch Judge] pair 333: empty response (done_reason=length)
-[DeepSeek Epoch 2] pair=18/50 | model=0.676 | deepseek=0.890 | label=0.827 | delta=+0.063
-[DeepSeek Epoch 2] pair=19/50 | model=0.923 | deepseek=0.850 | label=0.746 | delta=+0.104
-[DeepSeek Epoch 2] pair=20/50 | model=0.877 | deepseek=0.700 | label=0.879 | delta=-0.179
-[DeepSeek Epoch Judge] pair 855: empty response (done_reason=length)
-[DeepSeek Epoch 2] Model restored to cuda.
-[DeepSeek Epoch 2] bias_delta=+0.0914 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 20 labels (alpha=0.4)
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0846)
-[Epoch 3/8] train_loss=0.0057 | val_loss=0.0040 | val_rmse=0.0635
-[DeepSeek Epoch 3] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch Judge] pair 825: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 207: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=1/50 | model=0.632 | deepseek=0.850 | label=0.698 | delta=+0.152
-[DeepSeek Epoch 3] pair=2/50 | model=0.654 | deepseek=0.900 | label=0.580 | delta=+0.320
-[DeepSeek Epoch Judge] pair 48: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=3/50 | model=0.763 | deepseek=0.950 | label=0.777 | delta=+0.173
-[DeepSeek Epoch 3] pair=4/50 | model=0.820 | deepseek=0.690 | label=0.816 | delta=-0.126
-[DeepSeek Epoch Judge] pair 962: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 377: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 338: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=5/50 | model=0.946 | deepseek=0.850 | label=0.969 | delta=-0.119
-[DeepSeek Epoch 3] pair=6/50 | model=0.779 | deepseek=0.850 | label=0.786 | delta=+0.064
-[DeepSeek Epoch Judge] pair 602: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 0: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=7/50 | model=0.787 | deepseek=0.520 | label=0.855 | delta=-0.335
-[DeepSeek Epoch 3] pair=8/50 | model=0.766 | deepseek=0.800 | label=0.828 | delta=-0.028
-[DeepSeek Epoch 3] pair=9/50 | model=0.859 | deepseek=0.920 | label=0.785 | delta=+0.135
-[DeepSeek Epoch 3] pair=10/50 | model=0.763 | deepseek=0.500 | label=0.693 | delta=-0.193
-[DeepSeek Epoch 3] pair=11/50 | model=0.799 | deepseek=0.700 | label=0.771 | delta=-0.071
-[DeepSeek Epoch Judge] pair 375: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=12/50 | model=0.394 | deepseek=0.000 | label=0.383 | delta=-0.383
-[DeepSeek Epoch Judge] pair 237: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 300: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 63: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 598: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 855: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 617: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 288: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=13/50 | model=0.788 | deepseek=0.950 | label=0.656 | delta=+0.294
-[DeepSeek Epoch 3] pair=14/50 | model=0.782 | deepseek=0.920 | label=0.712 | delta=+0.208
-[DeepSeek Epoch 3] pair=15/50 | model=0.823 | deepseek=0.850 | label=0.872 | delta=-0.022
-[DeepSeek Epoch 3] pair=16/50 | model=0.753 | deepseek=0.920 | label=0.726 | delta=+0.194
-[DeepSeek Epoch Judge] pair 373: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=17/50 | model=0.592 | deepseek=0.840 | label=0.562 | delta=+0.278
-[DeepSeek Epoch Judge] pair 518: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 85: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 616: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 772: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 778: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=18/50 | model=0.737 | deepseek=0.900 | label=0.684 | delta=+0.216
-[DeepSeek Epoch Judge] pair 148: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 336: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 200: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 828: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 685: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=19/50 | model=0.853 | deepseek=0.900 | label=0.857 | delta=+0.043
-[DeepSeek Epoch Judge] pair 168: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 695: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 634: empty response (done_reason=length)
-[DeepSeek Epoch 3] pair=20/50 | model=0.951 | deepseek=0.850 | label=0.991 | delta=-0.141
-[DeepSeek Epoch 3] Model restored to cuda.
-[DeepSeek Epoch 3] bias_delta=+0.0330 | labels well-calibrated
-[Dataset] Corrected 20 labels (alpha=0.4)
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0635)
-[Epoch 4/8] train_loss=0.0039 | val_loss=0.0032 | val_rmse=0.0565
-[DeepSeek Epoch 4] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 4] pair=1/50 | model=0.718 | deepseek=0.920 | label=0.784 | delta=+0.136
-[DeepSeek Epoch Judge] pair 55: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=2/50 | model=0.569 | deepseek=0.920 | label=0.626 | delta=+0.294
-[DeepSeek Epoch Judge] pair 441: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 625: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 122: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 174: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 427: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 49: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 303: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 63: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=3/50 | model=0.768 | deepseek=0.730 | label=0.822 | delta=-0.092
-[DeepSeek Epoch Judge] pair 824: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 780: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=4/50 | model=0.599 | deepseek=0.800 | label=0.588 | delta=+0.212
-[DeepSeek Epoch Judge] pair 181: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 460: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=5/50 | model=0.937 | deepseek=0.900 | label=1.000 | delta=-0.100
-[DeepSeek Epoch Judge] pair 102: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=6/50 | model=0.945 | deepseek=0.900 | label=0.965 | delta=-0.065
-[DeepSeek Epoch Judge] pair 629: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=7/50 | model=0.591 | deepseek=0.760 | label=0.554 | delta=+0.206
-[DeepSeek Epoch Judge] pair 405: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 804: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=8/50 | model=0.800 | deepseek=0.900 | label=0.801 | delta=+0.099
-[DeepSeek Epoch 4] pair=9/50 | model=0.764 | deepseek=0.850 | label=0.788 | delta=+0.062
-[DeepSeek Epoch 4] pair=10/50 | model=0.851 | deepseek=0.850 | label=0.833 | delta=+0.017
-[DeepSeek Epoch 4] pair=11/50 | model=0.872 | deepseek=0.780 | label=0.877 | delta=-0.097
-[DeepSeek Epoch Judge] pair 73: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 882: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=12/50 | model=0.682 | deepseek=0.850 | label=0.686 | delta=+0.164
-[DeepSeek Epoch Judge] pair 725: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=13/50 | model=0.554 | deepseek=0.720 | label=0.590 | delta=+0.130
-[DeepSeek Epoch 4] pair=14/50 | model=0.711 | deepseek=0.870 | label=0.674 | delta=+0.196
-[DeepSeek Epoch Judge] pair 192: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=15/50 | model=0.963 | deepseek=0.950 | label=1.000 | delta=-0.050
-[DeepSeek Epoch Judge] pair 155: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 818: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 492: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 132: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=16/50 | model=0.962 | deepseek=1.000 | label=0.984 | delta=+0.016
-[DeepSeek Epoch Judge] pair 637: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=17/50 | model=0.692 | deepseek=0.850 | label=0.639 | delta=+0.211
-[DeepSeek Epoch 4] pair=18/50 | model=0.695 | deepseek=0.900 | label=0.725 | delta=+0.175
-[DeepSeek Epoch Judge] pair 410: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=19/50 | model=0.743 | deepseek=0.850 | label=0.656 | delta=+0.194
-[DeepSeek Epoch 4] pair=20/50 | model=0.652 | deepseek=0.850 | label=0.761 | delta=+0.089
-[DeepSeek Epoch Judge] pair 888: empty response (done_reason=length)
-[DeepSeek Epoch 4] pair=21/50 | model=0.331 | deepseek=0.110 | label=0.330 | delta=-0.220
-[DeepSeek Epoch Judge] pair 36: empty response (done_reason=length)
-[DeepSeek Epoch 4] Model restored to cuda.
-[DeepSeek Epoch 4] bias_delta=+0.0750 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 21 labels (alpha=0.4)
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0565)
-[Epoch 5/8] train_loss=0.0030 | val_loss=0.0031 | val_rmse=0.0560
-[DeepSeek Epoch 5] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 5] pair=1/50 | model=0.557 | deepseek=0.920 | label=0.575 | delta=+0.345
-[DeepSeek Epoch 5] pair=2/50 | model=0.950 | deepseek=0.950 | label=1.000 | delta=-0.050
-[DeepSeek Epoch Judge] pair 489: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=3/50 | model=0.742 | deepseek=0.840 | label=0.767 | delta=+0.073
-[DeepSeek Epoch 5] pair=4/50 | model=0.855 | deepseek=0.850 | label=0.888 | delta=-0.038
-[DeepSeek Epoch Judge] pair 593: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=5/50 | model=0.761 | deepseek=0.900 | label=0.798 | delta=+0.102
-[DeepSeek Epoch Judge] pair 803: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=6/50 | model=0.941 | deepseek=0.850 | label=0.913 | delta=-0.063
-[DeepSeek Epoch Judge] pair 778: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=7/50 | model=0.669 | deepseek=0.760 | label=0.645 | delta=+0.115
-[DeepSeek Epoch Judge] pair 821: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 147: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 929: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 161: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 565: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=8/50 | model=0.912 | deepseek=0.950 | label=0.845 | delta=+0.105
-[DeepSeek Epoch Judge] pair 954: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=9/50 | model=0.962 | deepseek=0.950 | label=0.975 | delta=-0.025
-[DeepSeek Epoch 5] pair=10/50 | model=0.962 | deepseek=0.850 | label=0.952 | delta=-0.102
-[DeepSeek Epoch Judge] pair 881: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 908: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 646: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=11/50 | model=0.747 | deepseek=0.520 | label=0.740 | delta=-0.220
-[DeepSeek Epoch 5] pair=12/50 | model=0.851 | deepseek=0.950 | label=0.853 | delta=+0.097
-[DeepSeek Epoch Judge] pair 358: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=13/50 | model=0.751 | deepseek=0.850 | label=0.766 | delta=+0.084
-[DeepSeek Epoch Judge] pair 384: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=14/50 | model=0.546 | deepseek=0.840 | label=0.543 | delta=+0.297
-[DeepSeek Epoch Judge] pair 904: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 286: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 66: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=15/50 | model=0.711 | deepseek=0.850 | label=0.770 | delta=+0.080
-[DeepSeek Epoch 5] pair=16/50 | model=0.712 | deepseek=0.920 | label=0.713 | delta=+0.207
-[DeepSeek Epoch Judge] pair 281: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 433: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 897: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 296: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 937: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 354: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 368: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 895: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 2: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=17/50 | model=0.827 | deepseek=1.000 | label=0.860 | delta=+0.140
-[DeepSeek Epoch Judge] pair 211: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 33: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 685: empty response (done_reason=length)
-[DeepSeek Epoch 5] pair=18/50 | model=0.726 | deepseek=0.500 | label=0.826 | delta=-0.326
-[DeepSeek Epoch 5] pair=19/50 | model=0.955 | deepseek=0.850 | label=1.000 | delta=-0.150
-[DeepSeek Epoch Judge] pair 714: empty response (done_reason=length)
-[DeepSeek Epoch 5] Model restored to cuda.
-[DeepSeek Epoch 5] bias_delta=+0.0353 | labels well-calibrated
-[Dataset] Corrected 19 labels (alpha=0.4)
-[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0560)
-[Epoch 6/8] train_loss=0.0026 | val_loss=0.0028 | val_rmse=0.0525
-[DeepSeek Epoch 6] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch Judge] pair 660: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 822: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 448: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 423: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 238: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 170: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=1/50 | model=0.668 | deepseek=0.850 | label=0.648 | delta=+0.202
-[DeepSeek Epoch Judge] pair 783: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 11: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=2/50 | model=0.906 | deepseek=0.880 | label=0.990 | delta=-0.110
-[DeepSeek Epoch Judge] pair 461: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=3/50 | model=0.391 | deepseek=0.500 | label=0.408 | delta=+0.092
-[DeepSeek Epoch 6] pair=4/50 | model=0.848 | deepseek=0.850 | label=0.833 | delta=+0.017
-[DeepSeek Epoch 6] pair=5/50 | model=0.951 | deepseek=1.000 | label=0.999 | delta=+0.001
-[DeepSeek Epoch Judge] pair 805: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=6/50 | model=0.718 | deepseek=0.900 | label=0.781 | delta=+0.119
-[DeepSeek Epoch Judge] pair 297: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 962: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 774: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 98: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=7/50 | model=0.369 | deepseek=0.120 | label=0.375 | delta=-0.255
-[DeepSeek Epoch 6] pair=8/50 | model=0.511 | deepseek=0.920 | label=0.527 | delta=+0.393
-[DeepSeek Epoch 6] pair=9/50 | model=0.353 | deepseek=0.840 | label=0.428 | delta=+0.412
-[DeepSeek Epoch 6] pair=10/50 | model=0.783 | deepseek=0.950 | label=0.796 | delta=+0.154
-[DeepSeek Epoch 6] pair=11/50 | model=0.593 | deepseek=0.500 | label=0.612 | delta=-0.112
-[DeepSeek Epoch Judge] pair 955: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=12/50 | model=0.701 | deepseek=0.950 | label=0.622 | delta=+0.328
-[DeepSeek Epoch Judge] pair 69: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 41: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 749: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 199: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 922: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 757: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=13/50 | model=0.348 | deepseek=0.500 | label=0.315 | delta=+0.185
-[DeepSeek Epoch 6] pair=14/50 | model=0.646 | deepseek=0.750 | label=0.594 | delta=+0.156
-[DeepSeek Epoch Judge] pair 688: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 416: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=15/50 | model=0.646 | deepseek=0.840 | label=0.701 | delta=+0.139
-[DeepSeek Epoch Judge] pair 310: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 175: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 707: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=16/50 | model=0.754 | deepseek=0.950 | label=0.711 | delta=+0.239
-[DeepSeek Epoch Judge] pair 846: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 335: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 87: empty response (done_reason=length)
+[DeepSeek Epoch 1] pair=1/50 | model=0.640 | deepseek=0.700 | label=0.514 | delta=+0.186
+[DeepSeek Epoch 1] pair=2/50 | model=0.677 | deepseek=0.550 | label=0.621 | delta=-0.071
+[DeepSeek Epoch 1] pair=3/50 | model=0.617 | deepseek=0.500 | label=0.498 | delta=+0.002
+[DeepSeek Epoch 1] pair=4/50 | model=0.684 | deepseek=0.750 | label=0.699 | delta=+0.051
+[DeepSeek Epoch 1] pair=5/50 | model=0.609 | deepseek=0.800 | label=0.762 | delta=+0.038
+[DeepSeek Epoch 1] pair=6/50 | model=0.721 | deepseek=0.550 | label=0.635 | delta=-0.085
+[DeepSeek Epoch 1] pair=7/50 | model=0.500 | deepseek=0.400 | label=0.520 | delta=-0.120
+[DeepSeek Epoch 1] pair=8/50 | model=0.648 | deepseek=0.500 | label=0.528 | delta=-0.028
+[DeepSeek Epoch 1] pair=9/50 | model=0.700 | deepseek=0.500 | label=0.524 | delta=-0.024
+[DeepSeek Epoch 1] pair=10/50 | model=0.673 | deepseek=0.650 | label=0.682 | delta=-0.032
+[DeepSeek Epoch 1] pair=11/50 | model=0.575 | deepseek=0.500 | label=0.578 | delta=-0.078
+[DeepSeek Epoch 1] pair=12/50 | model=0.730 | deepseek=0.750 | label=0.766 | delta=-0.016
+[DeepSeek Epoch Judge] pair 9: empty response (done_reason=length)
+[DeepSeek Epoch 1] pair=13/50 | model=0.575 | deepseek=0.650 | label=0.683 | delta=-0.033
+[DeepSeek Epoch 1] pair=14/50 | model=0.784 | deepseek=0.500 | label=0.798 | delta=-0.298
+[DeepSeek Epoch 1] pair=15/50 | model=0.695 | deepseek=0.500 | label=0.913 | delta=-0.413
+[DeepSeek Epoch 1] pair=16/50 | model=0.506 | deepseek=0.500 | label=0.586 | delta=-0.086
+[DeepSeek Epoch 1] pair=17/50 | model=0.663 | deepseek=0.500 | label=0.622 | delta=-0.122
+[DeepSeek Epoch 1] pair=18/50 | model=0.768 | deepseek=0.800 | label=0.810 | delta=-0.010
 [DeepSeek Epoch Judge] pair 741: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=17/50 | model=0.839 | deepseek=0.850 | label=0.821 | delta=+0.029
-[DeepSeek Epoch 6] pair=18/50 | model=0.819 | deepseek=0.850 | label=0.836 | delta=+0.014
-[DeepSeek Epoch Judge] pair 760: empty response (done_reason=length)
-[DeepSeek Epoch 6] pair=19/50 | model=0.496 | deepseek=0.680 | label=0.520 | delta=+0.160
+[DeepSeek Epoch 1] pair=19/50 | model=0.618 | deepseek=0.500 | label=0.519 | delta=-0.019
+[DeepSeek Epoch Judge] pair 681: empty response (done_reason=length)
+[DeepSeek Epoch 1] pair=20/50 | model=0.545 | deepseek=0.500 | label=0.564 | delta=-0.064
+[DeepSeek Epoch 1] pair=21/50 | model=0.615 | deepseek=0.550 | label=0.593 | delta=-0.043
+[DeepSeek Epoch 1] pair=22/50 | model=0.805 | deepseek=0.800 | label=0.853 | delta=-0.053
+[DeepSeek Epoch 1] pair=23/50 | model=0.732 | deepseek=0.700 | label=0.719 | delta=-0.019
+[DeepSeek Epoch 1] pair=24/50 | model=0.731 | deepseek=0.500 | label=0.733 | delta=-0.233
+[DeepSeek Epoch 1] pair=25/50 | model=0.347 | deepseek=0.500 | label=0.330 | delta=+0.170
+[DeepSeek Epoch 1] pair=26/50 | model=0.797 | deepseek=0.500 | label=0.727 | delta=-0.227
+[DeepSeek Epoch 1] pair=27/50 | model=0.811 | deepseek=0.500 | label=0.955 | delta=-0.455
+[DeepSeek Epoch 1] pair=28/50 | model=0.574 | deepseek=0.700 | label=0.783 | delta=-0.083
+[DeepSeek Epoch 1] pair=29/50 | model=0.571 | deepseek=0.500 | label=0.651 | delta=-0.151
+[DeepSeek Epoch 1] pair=30/50 | model=0.774 | deepseek=0.500 | label=0.688 | delta=-0.188
+[DeepSeek Epoch 1] pair=31/50 | model=0.762 | deepseek=0.000 | label=0.864 | delta=-0.864
+[DeepSeek Epoch 1] pair=32/50 | model=0.856 | deepseek=0.500 | label=0.776 | delta=-0.276
+[DeepSeek Epoch 1] pair=33/50 | model=0.531 | deepseek=0.500 | label=0.583 | delta=-0.083
+[DeepSeek Epoch 1] pair=34/50 | model=0.562 | deepseek=0.500 | label=0.658 | delta=-0.158
+[DeepSeek Epoch Judge] pair 152: empty response (done_reason=length)
+[DeepSeek Epoch 1] pair=35/50 | model=0.561 | deepseek=0.550 | label=0.515 | delta=+0.035
+[DeepSeek Epoch 1] pair=36/50 | model=0.515 | deepseek=0.500 | label=0.512 | delta=-0.012
+[DeepSeek Epoch 1] pair=37/50 | model=0.559 | deepseek=0.750 | label=0.493 | delta=+0.257
+[DeepSeek Epoch 1] pair=38/50 | model=0.676 | deepseek=0.500 | label=0.784 | delta=-0.284
+[DeepSeek Epoch 1] pair=39/50 | model=0.741 | deepseek=0.550 | label=0.583 | delta=-0.033
+[DeepSeek Epoch 1] pair=40/50 | model=0.647 | deepseek=0.500 | label=0.446 | delta=+0.054
+[DeepSeek Epoch 1] pair=41/50 | model=0.349 | deepseek=0.500 | label=0.408 | delta=+0.092
+[DeepSeek Epoch 1] pair=42/50 | model=0.639 | deepseek=0.500 | label=0.661 | delta=-0.161
+[DeepSeek Epoch 1] pair=43/50 | model=0.680 | deepseek=0.750 | label=0.668 | delta=+0.082
+[DeepSeek Epoch 1] pair=44/50 | model=0.736 | deepseek=0.550 | label=0.676 | delta=-0.126
+[DeepSeek Epoch 1] pair=45/50 | model=0.840 | deepseek=0.700 | label=0.941 | delta=-0.241
+[DeepSeek Epoch 1] pair=46/50 | model=0.501 | deepseek=0.500 | label=0.669 | delta=-0.169
+[DeepSeek Epoch 1] Model restored to cuda.
+[DeepSeek Epoch 1] bias_delta=-0.0955 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 46 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.1227)
+[Epoch 2/10] train_loss=0.0127 | val_loss=0.0083 | val_rmse=0.0908
+[DeepSeek Epoch 2] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 2] pair=1/50 | model=0.717 | deepseek=0.550 | label=0.646 | delta=-0.096
+[DeepSeek Epoch 2] pair=2/50 | model=0.578 | deepseek=0.500 | label=0.553 | delta=-0.053
+[DeepSeek Epoch 2] pair=3/50 | model=0.802 | deepseek=0.650 | label=0.790 | delta=-0.140
+[DeepSeek Epoch 2] pair=4/50 | model=0.763 | deepseek=0.700 | label=0.766 | delta=-0.066
+[DeepSeek Epoch 2] pair=5/50 | model=0.887 | deepseek=0.800 | label=1.000 | delta=-0.200
+[DeepSeek Epoch 2] pair=6/50 | model=0.322 | deepseek=0.300 | label=0.332 | delta=-0.032
+[DeepSeek Epoch 2] pair=7/50 | model=0.876 | deepseek=0.500 | label=0.848 | delta=-0.348
+[DeepSeek Epoch 2] pair=8/50 | model=0.588 | deepseek=0.300 | label=0.461 | delta=-0.161
+[DeepSeek Epoch Judge] pair 455: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=9/50 | model=0.817 | deepseek=0.700 | label=0.751 | delta=-0.051
+[DeepSeek Epoch 2] pair=10/50 | model=0.661 | deepseek=0.750 | label=0.819 | delta=-0.069
+[DeepSeek Epoch 2] pair=11/50 | model=0.690 | deepseek=0.500 | label=0.562 | delta=-0.062
+[DeepSeek Epoch 2] pair=12/50 | model=0.584 | deepseek=0.500 | label=0.498 | delta=+0.002
+[DeepSeek Epoch Judge] pair 652: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=13/50 | model=0.604 | deepseek=0.500 | label=0.564 | delta=-0.064
+[DeepSeek Epoch 2] pair=14/50 | model=0.657 | deepseek=0.500 | label=0.610 | delta=-0.110
+[DeepSeek Epoch 2] pair=15/50 | model=0.601 | deepseek=0.500 | label=0.479 | delta=+0.021
+[DeepSeek Epoch Judge] pair 583: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=16/50 | model=0.657 | deepseek=0.500 | label=0.542 | delta=-0.042
+[DeepSeek Epoch 2] pair=17/50 | model=0.670 | deepseek=0.500 | label=0.521 | delta=-0.021
+[DeepSeek Epoch 2] pair=18/50 | model=0.700 | deepseek=0.550 | label=0.841 | delta=-0.291
+[DeepSeek Epoch 2] pair=19/50 | model=0.795 | deepseek=0.500 | label=0.778 | delta=-0.278
+[DeepSeek Epoch 2] pair=20/50 | model=0.520 | deepseek=0.500 | label=0.503 | delta=-0.003
+[DeepSeek Epoch 2] pair=21/50 | model=0.608 | deepseek=0.500 | label=0.627 | delta=-0.127
+[DeepSeek Epoch 2] pair=22/50 | model=0.890 | deepseek=0.550 | label=0.804 | delta=-0.254
+[DeepSeek Epoch Judge] pair 57: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=23/50 | model=0.730 | deepseek=0.500 | label=0.666 | delta=-0.166
+[DeepSeek Epoch 2] pair=24/50 | model=0.329 | deepseek=0.400 | label=0.380 | delta=+0.020
+[DeepSeek Epoch 2] pair=25/50 | model=0.287 | deepseek=0.500 | label=0.227 | delta=+0.273
+[DeepSeek Epoch 2] pair=26/50 | model=0.829 | deepseek=0.500 | label=0.783 | delta=-0.283
+[DeepSeek Epoch 2] pair=27/50 | model=0.816 | deepseek=0.500 | label=0.788 | delta=-0.288
+[DeepSeek Epoch 2] pair=28/50 | model=0.692 | deepseek=0.800 | label=0.996 | delta=-0.196
+[DeepSeek Epoch 2] pair=29/50 | model=0.462 | deepseek=0.500 | label=0.540 | delta=-0.040
+[DeepSeek Epoch 2] pair=30/50 | model=0.613 | deepseek=0.400 | label=0.703 | delta=-0.303
+[DeepSeek Epoch 2] pair=31/50 | model=0.535 | deepseek=0.500 | label=0.525 | delta=-0.025
+[DeepSeek Epoch 2] pair=32/50 | model=0.899 | deepseek=0.500 | label=0.790 | delta=-0.290
+[DeepSeek Epoch 2] pair=33/50 | model=0.698 | deepseek=0.500 | label=0.654 | delta=-0.154
+[DeepSeek Epoch 2] pair=34/50 | model=0.587 | deepseek=0.500 | label=0.561 | delta=-0.061
+[DeepSeek Epoch 2] pair=35/50 | model=0.547 | deepseek=0.500 | label=0.726 | delta=-0.226
+[DeepSeek Epoch 2] pair=36/50 | model=0.283 | deepseek=0.500 | label=0.213 | delta=+0.287
+[DeepSeek Epoch Judge] pair 30: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=37/50 | model=0.834 | deepseek=0.500 | label=0.735 | delta=-0.235
+[DeepSeek Epoch 2] pair=38/50 | model=0.595 | deepseek=0.500 | label=0.651 | delta=-0.151
+[DeepSeek Epoch 2] pair=39/50 | model=0.498 | deepseek=0.500 | label=0.508 | delta=-0.008
+[DeepSeek Epoch 2] pair=40/50 | model=0.609 | deepseek=0.500 | label=0.725 | delta=-0.225
+[DeepSeek Epoch 2] pair=41/50 | model=0.506 | deepseek=0.500 | label=0.466 | delta=+0.034
+[DeepSeek Epoch 2] pair=42/50 | model=0.911 | deepseek=0.800 | label=0.886 | delta=-0.086
+[DeepSeek Epoch Judge] pair 570: empty response (done_reason=length)
+[DeepSeek Epoch 2] pair=43/50 | model=0.865 | deepseek=0.500 | label=0.786 | delta=-0.286
+[DeepSeek Epoch 2] pair=44/50 | model=0.620 | deepseek=0.500 | label=0.710 | delta=-0.210
+[DeepSeek Epoch 2] Model restored to cuda.
+[DeepSeek Epoch 2] bias_delta=-0.1151 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 44 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0908)
+[Epoch 3/10] train_loss=0.0068 | val_loss=0.0047 | val_rmse=0.0681
+[DeepSeek Epoch 3] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 3] pair=1/50 | model=0.831 | deepseek=0.500 | label=0.770 | delta=-0.270
+[DeepSeek Epoch 3] pair=2/50 | model=0.628 | deepseek=0.500 | label=0.609 | delta=-0.109
+[DeepSeek Epoch 3] pair=3/50 | model=0.873 | deepseek=0.550 | label=0.955 | delta=-0.405
+[DeepSeek Epoch 3] pair=4/50 | model=0.517 | deepseek=0.500 | label=0.481 | delta=+0.019
+[DeepSeek Epoch 3] pair=5/50 | model=0.816 | deepseek=0.700 | label=0.747 | delta=-0.047
+[DeepSeek Epoch 3] pair=6/50 | model=0.778 | deepseek=0.500 | label=0.728 | delta=-0.228
+[DeepSeek Epoch 3] pair=7/50 | model=0.713 | deepseek=0.500 | label=0.611 | delta=-0.111
+[DeepSeek Epoch 3] pair=8/50 | model=0.818 | deepseek=0.800 | label=0.740 | delta=+0.060
+[DeepSeek Epoch 3] pair=9/50 | model=0.790 | deepseek=0.500 | label=0.830 | delta=-0.330
+[DeepSeek Epoch 3] pair=10/50 | model=0.762 | deepseek=0.750 | label=0.680 | delta=+0.070
+[DeepSeek Epoch 3] pair=11/50 | model=0.619 | deepseek=0.750 | label=0.476 | delta=+0.274
+[DeepSeek Epoch 3] pair=12/50 | model=0.881 | deepseek=0.700 | label=0.801 | delta=-0.101
+[DeepSeek Epoch 3] pair=13/50 | model=0.775 | deepseek=0.400 | label=0.727 | delta=-0.327
+[DeepSeek Epoch 3] pair=14/50 | model=0.657 | deepseek=0.700 | label=0.514 | delta=+0.186
+[DeepSeek Epoch 3] pair=15/50 | model=0.444 | deepseek=0.650 | label=0.540 | delta=+0.110
+[DeepSeek Epoch 3] pair=16/50 | model=0.778 | deepseek=0.500 | label=0.764 | delta=-0.264
+[DeepSeek Epoch 3] pair=17/50 | model=0.810 | deepseek=0.500 | label=0.729 | delta=-0.229
+[DeepSeek Epoch Judge] pair 325: empty response (done_reason=length)
+[DeepSeek Epoch 3] pair=18/50 | model=0.548 | deepseek=0.500 | label=0.592 | delta=-0.092
+[DeepSeek Epoch Judge] pair 736: empty response (done_reason=length)
+[DeepSeek Epoch 3] pair=19/50 | model=0.521 | deepseek=0.550 | label=0.518 | delta=+0.032
+[DeepSeek Epoch 3] pair=20/50 | model=0.511 | deepseek=0.500 | label=0.481 | delta=+0.019
+[DeepSeek Epoch 3] pair=21/50 | model=0.552 | deepseek=0.550 | label=0.578 | delta=-0.028
+[DeepSeek Epoch 3] pair=22/50 | model=0.755 | deepseek=0.500 | label=0.741 | delta=-0.241
+[DeepSeek Epoch 3] pair=23/50 | model=0.696 | deepseek=0.550 | label=0.651 | delta=-0.101
+[DeepSeek Epoch 3] pair=24/50 | model=0.694 | deepseek=0.700 | label=0.655 | delta=+0.045
+[DeepSeek Epoch 3] pair=25/50 | model=0.627 | deepseek=0.500 | label=0.612 | delta=-0.112
+[DeepSeek Epoch 3] pair=26/50 | model=0.557 | deepseek=0.500 | label=0.642 | delta=-0.142
+[DeepSeek Epoch 3] pair=27/50 | model=0.932 | deepseek=0.500 | label=1.000 | delta=-0.500
+[DeepSeek Epoch 3] pair=28/50 | model=0.654 | deepseek=0.500 | label=0.627 | delta=-0.127
+[DeepSeek Epoch 3] pair=29/50 | model=0.875 | deepseek=0.500 | label=0.926 | delta=-0.426
+[DeepSeek Epoch 3] pair=30/50 | model=0.575 | deepseek=0.500 | label=0.501 | delta=-0.001
+[DeepSeek Epoch 3] pair=31/50 | model=0.796 | deepseek=0.550 | label=0.783 | delta=-0.233
+[DeepSeek Epoch 3] pair=32/50 | model=0.848 | deepseek=0.500 | label=0.727 | delta=-0.227
+[DeepSeek Epoch 3] pair=33/50 | model=0.925 | deepseek=0.500 | label=0.858 | delta=-0.358
+[DeepSeek Epoch 3] pair=34/50 | model=0.897 | deepseek=0.500 | label=0.776 | delta=-0.276
+[DeepSeek Epoch 3] pair=35/50 | model=0.622 | deepseek=0.500 | label=0.581 | delta=-0.081
+[DeepSeek Epoch 3] pair=36/50 | model=0.656 | deepseek=0.500 | label=0.542 | delta=-0.042
+[DeepSeek Epoch 3] pair=37/50 | model=0.408 | deepseek=0.500 | label=0.269 | delta=+0.231
+[DeepSeek Epoch 3] pair=38/50 | model=0.897 | deepseek=0.750 | label=0.913 | delta=-0.163
+[DeepSeek Epoch 3] pair=39/50 | model=0.657 | deepseek=0.500 | label=0.565 | delta=-0.065
+[DeepSeek Epoch 3] pair=40/50 | model=0.774 | deepseek=0.500 | label=0.755 | delta=-0.255
+[DeepSeek Epoch Judge] pair 364: empty response (done_reason=length)
+[DeepSeek Epoch 3] pair=41/50 | model=0.788 | deepseek=0.500 | label=0.839 | delta=-0.339
+[DeepSeek Epoch 3] pair=42/50 | model=0.516 | deepseek=0.500 | label=0.380 | delta=+0.120
+[DeepSeek Epoch 3] pair=43/50 | model=0.662 | deepseek=0.500 | label=0.652 | delta=-0.152
+[DeepSeek Epoch Judge] pair 238: empty response (done_reason=length)
+[DeepSeek Epoch 3] pair=44/50 | model=0.661 | deepseek=0.500 | label=0.643 | delta=-0.143
+[DeepSeek Epoch 3] pair=45/50 | model=0.934 | deepseek=0.650 | label=0.970 | delta=-0.320
+[DeepSeek Epoch 3] pair=46/50 | model=0.601 | deepseek=0.500 | label=0.628 | delta=-0.128
+[DeepSeek Epoch 3] Model restored to cuda.
+[DeepSeek Epoch 3] bias_delta=-0.1263 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 46 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0681)
+[Epoch 4/10] train_loss=0.0041 | val_loss=0.0031 | val_rmse=0.0553
+[DeepSeek Epoch 4] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 4] pair=1/50 | model=0.671 | deepseek=0.500 | label=0.727 | delta=-0.227
+[DeepSeek Epoch 4] pair=2/50 | model=0.660 | deepseek=0.500 | label=0.669 | delta=-0.169
+[DeepSeek Epoch 4] pair=3/50 | model=0.626 | deepseek=0.550 | label=0.658 | delta=-0.108
+[DeepSeek Epoch 4] pair=4/50 | model=0.640 | deepseek=0.500 | label=0.617 | delta=-0.117
+[DeepSeek Epoch 4] pair=5/50 | model=0.725 | deepseek=0.750 | label=0.738 | delta=+0.012
+[DeepSeek Epoch 4] pair=6/50 | model=0.520 | deepseek=0.500 | label=0.516 | delta=-0.016
+[DeepSeek Epoch 4] pair=7/50 | model=0.246 | deepseek=0.400 | label=0.256 | delta=+0.144
+[DeepSeek Epoch 4] pair=8/50 | model=0.929 | deepseek=0.650 | label=0.997 | delta=-0.347
+[DeepSeek Epoch 4] pair=9/50 | model=0.801 | deepseek=0.500 | label=0.896 | delta=-0.396
+[DeepSeek Epoch 4] pair=10/50 | model=0.719 | deepseek=0.500 | label=0.718 | delta=-0.218
+[DeepSeek Epoch 4] pair=11/50 | model=0.500 | deepseek=0.550 | label=0.444 | delta=+0.106
+[DeepSeek Epoch 4] pair=12/50 | model=0.827 | deepseek=0.500 | label=0.823 | delta=-0.323
+[DeepSeek Epoch 4] pair=13/50 | model=0.636 | deepseek=0.700 | label=0.738 | delta=-0.038
+[DeepSeek Epoch 4] pair=14/50 | model=0.687 | deepseek=0.550 | label=0.760 | delta=-0.210
+[DeepSeek Epoch 4] pair=15/50 | model=0.853 | deepseek=0.700 | label=0.942 | delta=-0.242
+[DeepSeek Epoch 4] pair=16/50 | model=0.662 | deepseek=0.650 | label=0.691 | delta=-0.041
+[DeepSeek Epoch 4] pair=17/50 | model=0.843 | deepseek=0.750 | label=0.719 | delta=+0.031
+[DeepSeek Epoch 4] pair=18/50 | model=0.740 | deepseek=0.300 | label=0.727 | delta=-0.427
+[DeepSeek Epoch 4] pair=19/50 | model=0.578 | deepseek=0.500 | label=0.527 | delta=-0.027
+[DeepSeek Epoch 4] pair=20/50 | model=0.395 | deepseek=0.500 | label=0.306 | delta=+0.194
+[DeepSeek Epoch 4] pair=21/50 | model=0.521 | deepseek=0.500 | label=0.520 | delta=-0.020
+[DeepSeek Epoch 4] pair=22/50 | model=0.934 | deepseek=0.800 | label=0.929 | delta=-0.129
+[DeepSeek Epoch 4] pair=23/50 | model=0.520 | deepseek=0.500 | label=0.594 | delta=-0.094
+[DeepSeek Epoch 4] pair=24/50 | model=0.451 | deepseek=0.550 | label=0.431 | delta=+0.119
+[DeepSeek Epoch 4] pair=25/50 | model=0.444 | deepseek=0.500 | label=0.407 | delta=+0.093
+[DeepSeek Epoch 4] pair=26/50 | model=0.866 | deepseek=0.500 | label=0.863 | delta=-0.363
+[DeepSeek Epoch 4] pair=27/50 | model=0.585 | deepseek=0.700 | label=0.683 | delta=+0.017
+[DeepSeek Epoch 4] pair=28/50 | model=0.430 | deepseek=0.550 | label=0.357 | delta=+0.193
+[DeepSeek Epoch 4] pair=29/50 | model=0.638 | deepseek=0.500 | label=0.652 | delta=-0.152
+[DeepSeek Epoch 4] pair=30/50 | model=0.638 | deepseek=0.500 | label=0.613 | delta=-0.113
+[DeepSeek Epoch 4] pair=31/50 | model=0.703 | deepseek=0.500 | label=0.754 | delta=-0.254
+[DeepSeek Epoch 4] pair=32/50 | model=0.921 | deepseek=0.700 | label=0.874 | delta=-0.174
+[DeepSeek Epoch 4] pair=33/50 | model=0.751 | deepseek=0.550 | label=0.751 | delta=-0.201
+[DeepSeek Epoch 4] pair=34/50 | model=0.949 | deepseek=0.750 | label=0.975 | delta=-0.225
+[DeepSeek Epoch 4] pair=35/50 | model=0.762 | deepseek=0.750 | label=0.739 | delta=+0.011
+[DeepSeek Epoch 4] pair=36/50 | model=0.740 | deepseek=0.700 | label=0.732 | delta=-0.032
+[DeepSeek Epoch Judge] pair 596: empty response (done_reason=length)
+[DeepSeek Epoch Judge] pair 13: empty response (done_reason=length)
+[DeepSeek Epoch 4] pair=37/50 | model=0.524 | deepseek=0.700 | label=0.440 | delta=+0.260
+[DeepSeek Epoch 4] pair=38/50 | model=0.615 | deepseek=0.500 | label=0.534 | delta=-0.034
+[DeepSeek Epoch 4] pair=39/50 | model=0.498 | deepseek=0.500 | label=0.435 | delta=+0.065
+[DeepSeek Epoch 4] pair=40/50 | model=0.506 | deepseek=0.500 | label=0.614 | delta=-0.114
+[DeepSeek Epoch 4] pair=41/50 | model=0.863 | deepseek=0.750 | label=0.816 | delta=-0.066
+[DeepSeek Epoch 4] pair=42/50 | model=0.817 | deepseek=0.800 | label=0.895 | delta=-0.095
+[DeepSeek Epoch 4] pair=43/50 | model=0.501 | deepseek=0.550 | label=0.533 | delta=+0.017
+[DeepSeek Epoch 4] pair=44/50 | model=0.892 | deepseek=0.750 | label=0.858 | delta=-0.108
+[DeepSeek Epoch 4] pair=45/50 | model=0.703 | deepseek=0.700 | label=0.669 | delta=+0.031
+[DeepSeek Epoch 4] pair=46/50 | model=0.494 | deepseek=0.700 | label=0.481 | delta=+0.219
+[DeepSeek Epoch 4] pair=47/50 | model=0.417 | deepseek=0.400 | label=0.350 | delta=+0.050
+[DeepSeek Epoch 4] pair=48/50 | model=0.766 | deepseek=0.700 | label=0.790 | delta=-0.090
+[DeepSeek Epoch 4] Model restored to cuda.
+[DeepSeek Epoch 4] bias_delta=-0.0752 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 48 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0553)
+[Epoch 5/10] train_loss=0.0032 | val_loss=0.0026 | val_rmse=0.0505
+[DeepSeek Epoch 5] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 5] pair=1/50 | model=0.657 | deepseek=0.500 | label=0.626 | delta=-0.126
+[DeepSeek Epoch 5] pair=2/50 | model=0.488 | deepseek=0.500 | label=0.444 | delta=+0.056
+[DeepSeek Epoch 5] pair=3/50 | model=0.640 | deepseek=0.650 | label=0.535 | delta=+0.115
+[DeepSeek Epoch 5] pair=4/50 | model=0.665 | deepseek=0.500 | label=0.712 | delta=-0.212
+[DeepSeek Epoch 5] pair=5/50 | model=0.936 | deepseek=0.750 | label=0.900 | delta=-0.150
+[DeepSeek Epoch 5] pair=6/50 | model=0.639 | deepseek=0.500 | label=0.613 | delta=-0.113
+[DeepSeek Epoch 5] pair=7/50 | model=0.782 | deepseek=0.550 | label=0.835 | delta=-0.285
+[DeepSeek Epoch 5] pair=8/50 | model=0.701 | deepseek=0.550 | label=0.668 | delta=-0.118
+[DeepSeek Epoch 5] pair=9/50 | model=0.863 | deepseek=0.800 | label=0.821 | delta=-0.021
+[DeepSeek Epoch 5] pair=10/50 | model=0.720 | deepseek=0.550 | label=0.678 | delta=-0.128
+[DeepSeek Epoch 5] pair=11/50 | model=0.568 | deepseek=0.500 | label=0.479 | delta=+0.021
+[DeepSeek Epoch 5] pair=12/50 | model=0.552 | deepseek=0.550 | label=0.636 | delta=-0.086
+[DeepSeek Epoch 5] pair=13/50 | model=0.966 | deepseek=0.550 | label=1.000 | delta=-0.450
+[DeepSeek Epoch 5] pair=14/50 | model=0.918 | deepseek=0.700 | label=0.892 | delta=-0.192
+[DeepSeek Epoch 5] pair=15/50 | model=0.718 | deepseek=0.500 | label=0.623 | delta=-0.123
+[DeepSeek Epoch 5] pair=16/50 | model=0.547 | deepseek=0.500 | label=0.515 | delta=-0.015
+[DeepSeek Epoch 5] pair=17/50 | model=0.796 | deepseek=0.400 | label=0.712 | delta=-0.312
+[DeepSeek Epoch Judge] pair 197: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=18/50 | model=0.553 | deepseek=0.500 | label=0.528 | delta=-0.028
+[DeepSeek Epoch 5] pair=19/50 | model=0.686 | deepseek=0.500 | label=0.672 | delta=-0.172
+[DeepSeek Epoch 5] pair=20/50 | model=0.755 | deepseek=0.750 | label=0.739 | delta=+0.011
+[DeepSeek Epoch 5] pair=21/50 | model=0.436 | deepseek=0.500 | label=0.473 | delta=+0.027
+[DeepSeek Epoch 5] pair=22/50 | model=0.769 | deepseek=0.750 | label=0.751 | delta=-0.001
+[DeepSeek Epoch Judge] pair 852: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=23/50 | model=0.669 | deepseek=0.750 | label=0.645 | delta=+0.105
+[DeepSeek Epoch 5] pair=24/50 | model=0.607 | deepseek=0.500 | label=0.555 | delta=-0.055
+[DeepSeek Epoch Judge] pair 628: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=25/50 | model=0.877 | deepseek=0.800 | label=0.858 | delta=-0.058
+[DeepSeek Epoch 5] pair=26/50 | model=0.829 | deepseek=0.650 | label=0.867 | delta=-0.217
+[DeepSeek Epoch 5] pair=27/50 | model=0.876 | deepseek=0.500 | label=0.850 | delta=-0.350
+[DeepSeek Epoch 5] pair=28/50 | model=0.752 | deepseek=0.750 | label=0.711 | delta=+0.039
+[DeepSeek Epoch 5] pair=29/50 | model=0.501 | deepseek=0.500 | label=0.475 | delta=+0.025
+[DeepSeek Epoch 5] pair=30/50 | model=0.587 | deepseek=0.500 | label=0.553 | delta=-0.053
+[DeepSeek Epoch 5] pair=31/50 | model=0.595 | deepseek=0.500 | label=0.624 | delta=-0.124
+[DeepSeek Epoch 5] pair=32/50 | model=0.738 | deepseek=0.700 | label=0.719 | delta=-0.019
+[DeepSeek Epoch Judge] pair 277: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=33/50 | model=0.821 | deepseek=0.400 | label=0.816 | delta=-0.416
+[DeepSeek Epoch 5] pair=34/50 | model=0.476 | deepseek=0.500 | label=0.460 | delta=+0.040
+[DeepSeek Epoch 5] pair=35/50 | model=0.757 | deepseek=0.500 | label=0.735 | delta=-0.235
+[DeepSeek Epoch 5] pair=36/50 | model=0.745 | deepseek=0.500 | label=0.784 | delta=-0.284
+[DeepSeek Epoch 5] pair=37/50 | model=0.436 | deepseek=0.650 | label=0.400 | delta=+0.250
+[DeepSeek Epoch Judge] pair 85: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=38/50 | model=0.809 | deepseek=0.500 | label=0.774 | delta=-0.274
+[DeepSeek Epoch 5] pair=39/50 | model=0.628 | deepseek=0.700 | label=0.639 | delta=+0.061
+[DeepSeek Epoch Judge] pair 695: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=40/50 | model=0.773 | deepseek=0.500 | label=0.823 | delta=-0.323
+[DeepSeek Epoch 5] pair=41/50 | model=0.305 | deepseek=0.500 | label=0.337 | delta=+0.163
+[DeepSeek Epoch Judge] pair 548: empty response (done_reason=length)
+[DeepSeek Epoch 5] pair=42/50 | model=0.517 | deepseek=0.500 | label=0.502 | delta=-0.002
+[DeepSeek Epoch 5] pair=43/50 | model=0.694 | deepseek=0.700 | label=0.643 | delta=+0.057
+[DeepSeek Epoch 5] Model restored to cuda.
+[DeepSeek Epoch 5] bias_delta=-0.0923 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 43 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0505)
+[Epoch 6/10] train_loss=0.0028 | val_loss=0.0024 | val_rmse=0.0484
+[DeepSeek Epoch 6] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 6] pair=1/50 | model=0.539 | deepseek=0.700 | label=0.507 | delta=+0.193
+[DeepSeek Epoch 6] pair=2/50 | model=0.649 | deepseek=0.700 | label=0.683 | delta=+0.017
+[DeepSeek Epoch 6] pair=3/50 | model=0.840 | deepseek=0.750 | label=0.840 | delta=-0.090
+[DeepSeek Epoch 6] pair=4/50 | model=0.707 | deepseek=0.750 | label=0.694 | delta=+0.056
+[DeepSeek Epoch 6] pair=5/50 | model=0.250 | deepseek=0.500 | label=0.248 | delta=+0.252
+[DeepSeek Epoch Judge] pair 986: empty response (done_reason=length)
+[DeepSeek Epoch 6] pair=6/50 | model=0.706 | deepseek=0.500 | label=0.682 | delta=-0.182
+[DeepSeek Epoch 6] pair=7/50 | model=0.774 | deepseek=0.550 | label=0.815 | delta=-0.265
+[DeepSeek Epoch 6] pair=8/50 | model=0.719 | deepseek=0.400 | label=0.739 | delta=-0.339
+[DeepSeek Epoch 6] pair=9/50 | model=0.441 | deepseek=0.350 | label=0.466 | delta=-0.116
+[DeepSeek Epoch 6] pair=10/50 | model=0.579 | deepseek=0.500 | label=0.524 | delta=-0.024
+[DeepSeek Epoch 6] pair=11/50 | model=0.499 | deepseek=0.300 | label=0.506 | delta=-0.206
+[DeepSeek Epoch 6] pair=12/50 | model=0.667 | deepseek=0.500 | label=0.729 | delta=-0.229
+[DeepSeek Epoch 6] pair=13/50 | model=0.536 | deepseek=0.500 | label=0.567 | delta=-0.067
+[DeepSeek Epoch 6] pair=14/50 | model=0.765 | deepseek=0.700 | label=0.790 | delta=-0.090
+[DeepSeek Epoch 6] pair=15/50 | model=0.663 | deepseek=0.500 | label=0.684 | delta=-0.184
+[DeepSeek Epoch 6] pair=16/50 | model=0.793 | deepseek=0.750 | label=0.821 | delta=-0.071
+[DeepSeek Epoch Judge] pair 553: empty response (done_reason=length)
+[DeepSeek Epoch 6] pair=17/50 | model=0.684 | deepseek=0.500 | label=0.652 | delta=-0.152
+[DeepSeek Epoch 6] pair=18/50 | model=0.750 | deepseek=0.550 | label=0.784 | delta=-0.234
+[DeepSeek Epoch 6] pair=19/50 | model=0.788 | deepseek=0.700 | label=0.830 | delta=-0.130
+[DeepSeek Epoch 6] pair=20/50 | model=0.905 | deepseek=0.700 | label=0.892 | delta=-0.192
+[DeepSeek Epoch 6] pair=21/50 | model=0.586 | deepseek=0.650 | label=0.506 | delta=+0.144
+[DeepSeek Epoch 6] pair=22/50 | model=0.872 | deepseek=0.500 | label=0.761 | delta=-0.261
+[DeepSeek Epoch 6] pair=23/50 | model=0.666 | deepseek=0.700 | label=0.645 | delta=+0.055
+[DeepSeek Epoch 6] pair=24/50 | model=0.519 | deepseek=0.500 | label=0.481 | delta=+0.019
+[DeepSeek Epoch 6] pair=25/50 | model=0.818 | deepseek=0.800 | label=0.852 | delta=-0.052
+[DeepSeek Epoch 6] pair=26/50 | model=0.732 | deepseek=0.800 | label=0.783 | delta=+0.017
+[DeepSeek Epoch 6] pair=27/50 | model=0.367 | deepseek=0.450 | label=0.330 | delta=+0.120
+[DeepSeek Epoch 6] pair=28/50 | model=0.623 | deepseek=0.500 | label=0.652 | delta=-0.152
+[DeepSeek Epoch 6] pair=29/50 | model=0.603 | deepseek=0.500 | label=0.550 | delta=-0.050
+[DeepSeek Epoch 6] pair=30/50 | model=0.679 | deepseek=0.500 | label=0.682 | delta=-0.182
+[DeepSeek Epoch 6] pair=31/50 | model=0.616 | deepseek=0.500 | label=0.693 | delta=-0.193
+[DeepSeek Epoch 6] pair=32/50 | model=0.777 | deepseek=0.500 | label=0.775 | delta=-0.275
+[DeepSeek Epoch 6] pair=33/50 | model=0.723 | deepseek=0.500 | label=0.702 | delta=-0.202
+[DeepSeek Epoch 6] pair=34/50 | model=0.519 | deepseek=0.500 | label=0.481 | delta=+0.019
+[DeepSeek Epoch 6] pair=35/50 | model=0.622 | deepseek=0.500 | label=0.610 | delta=-0.110
+[DeepSeek Epoch 6] pair=36/50 | model=0.792 | deepseek=0.500 | label=0.911 | delta=-0.411
+[DeepSeek Epoch 6] pair=37/50 | model=0.678 | deepseek=0.500 | label=0.576 | delta=-0.076
+[DeepSeek Epoch 6] pair=38/50 | model=0.698 | deepseek=0.500 | label=0.683 | delta=-0.183
+[DeepSeek Epoch 6] pair=39/50 | model=0.421 | deepseek=0.550 | label=0.487 | delta=+0.063
+[DeepSeek Epoch 6] pair=40/50 | model=0.439 | deepseek=0.500 | label=0.515 | delta=-0.015
+[DeepSeek Epoch 6] pair=41/50 | model=0.780 | deepseek=0.500 | label=0.791 | delta=-0.291
+[DeepSeek Epoch 6] pair=42/50 | model=0.788 | deepseek=0.500 | label=0.914 | delta=-0.414
+[DeepSeek Epoch 6] pair=43/50 | model=0.827 | deepseek=0.700 | label=0.860 | delta=-0.160
+[DeepSeek Epoch 6] pair=44/50 | model=0.769 | deepseek=0.500 | label=0.761 | delta=-0.261
+[DeepSeek Epoch 6] pair=45/50 | model=0.862 | deepseek=0.500 | label=0.946 | delta=-0.446
+[DeepSeek Epoch 6] pair=46/50 | model=0.619 | deepseek=0.500 | label=0.613 | delta=-0.113
+[DeepSeek Epoch 6] pair=47/50 | model=0.647 | deepseek=0.500 | label=0.714 | delta=-0.214
+[DeepSeek Epoch 6] pair=48/50 | model=0.751 | deepseek=0.500 | label=0.740 | delta=-0.240
 [DeepSeek Epoch 6] Model restored to cuda.
-[DeepSeek Epoch 6] bias_delta=+0.1140 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 19 labels (alpha=0.4)
+[DeepSeek Epoch 6] bias_delta=-0.1233 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 48 labels (alpha=0.5)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0525)
-[Epoch 7/8] train_loss=0.0023 | val_loss=0.0023 | val_rmse=0.0478
+  Checkpoint saved (val_rmse=0.0484)
+[Epoch 7/10] train_loss=0.0025 | val_loss=0.0022 | val_rmse=0.0468
 [DeepSeek Epoch 7] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 7] pair=1/50 | model=0.885 | deepseek=0.950 | label=0.790 | delta=+0.160
-[DeepSeek Epoch 7] pair=2/50 | model=0.942 | deepseek=0.850 | label=0.929 | delta=-0.079
-[DeepSeek Epoch 7] pair=3/50 | model=0.574 | deepseek=0.840 | label=0.554 | delta=+0.286
-[DeepSeek Epoch Judge] pair 172: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 911: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=4/50 | model=0.420 | deepseek=0.000 | label=0.435 | delta=-0.435
-[DeepSeek Epoch 7] pair=5/50 | model=0.659 | deepseek=0.900 | label=0.635 | delta=+0.265
-[DeepSeek Epoch 7] pair=6/50 | model=0.970 | deepseek=0.900 | label=0.916 | delta=-0.016
-[DeepSeek Epoch Judge] pair 465: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=7/50 | model=0.873 | deepseek=0.900 | label=0.895 | delta=+0.005
-[DeepSeek Epoch Judge] pair 244: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=8/50 | model=0.831 | deepseek=0.950 | label=0.872 | delta=+0.078
-[DeepSeek Epoch Judge] pair 462: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 452: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 161: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 558: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 383: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 170: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=9/50 | model=0.427 | deepseek=0.460 | label=0.455 | delta=+0.005
-[DeepSeek Epoch 7] pair=10/50 | model=0.548 | deepseek=0.850 | label=0.491 | delta=+0.359
-[DeepSeek Epoch Judge] pair 530: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 332: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 758: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=11/50 | model=0.961 | deepseek=0.850 | label=0.942 | delta=-0.092
-[DeepSeek Epoch 7] pair=12/50 | model=0.784 | deepseek=0.840 | label=0.798 | delta=+0.042
-[DeepSeek Epoch 7] pair=13/50 | model=0.800 | deepseek=0.920 | label=0.867 | delta=+0.053
-[DeepSeek Epoch 7] pair=14/50 | model=0.510 | deepseek=0.850 | label=0.538 | delta=+0.312
-[DeepSeek Epoch Judge] pair 620: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=15/50 | model=0.852 | deepseek=0.920 | label=0.870 | delta=+0.050
-[DeepSeek Epoch Judge] pair 728: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=16/50 | model=0.600 | deepseek=0.840 | label=0.666 | delta=+0.174
-[DeepSeek Epoch Judge] pair 604: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 376: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 621: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=17/50 | model=0.693 | deepseek=0.850 | label=0.650 | delta=+0.200
-[DeepSeek Epoch 7] pair=18/50 | model=0.698 | deepseek=0.850 | label=0.687 | delta=+0.163
-[DeepSeek Epoch Judge] pair 143: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=19/50 | model=0.835 | deepseek=0.900 | label=0.905 | delta=-0.005
-[DeepSeek Epoch 7] pair=20/50 | model=0.973 | deepseek=0.950 | label=0.941 | delta=+0.009
-[DeepSeek Epoch 7] pair=21/50 | model=0.899 | deepseek=1.000 | label=0.864 | delta=+0.136
-[DeepSeek Epoch Judge] pair 916: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 597: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 995: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 556: empty response (done_reason=length)
-[DeepSeek Epoch 7] pair=22/50 | model=0.672 | deepseek=0.970 | label=0.740 | delta=+0.230
-[DeepSeek Epoch 7] pair=23/50 | model=0.422 | deepseek=0.100 | label=0.446 | delta=-0.346
-[DeepSeek Epoch 7] pair=24/50 | model=0.820 | deepseek=0.800 | label=0.779 | delta=+0.021
-[DeepSeek Epoch 7] pair=25/50 | model=0.800 | deepseek=0.900 | label=0.801 | delta=+0.099
-[DeepSeek Epoch 7] pair=26/50 | model=0.971 | deepseek=0.850 | label=0.984 | delta=-0.134
-[DeepSeek Epoch Judge] pair 450: empty response (done_reason=length)
+[DeepSeek Epoch 7] pair=1/50 | model=0.661 | deepseek=0.750 | label=0.632 | delta=+0.118
+[DeepSeek Epoch 7] pair=2/50 | model=0.797 | deepseek=0.700 | label=0.774 | delta=-0.074
+[DeepSeek Epoch 7] pair=3/50 | model=0.733 | deepseek=0.500 | label=0.742 | delta=-0.242
+[DeepSeek Epoch 7] pair=4/50 | model=0.757 | deepseek=0.550 | label=0.805 | delta=-0.255
+[DeepSeek Epoch 7] pair=5/50 | model=0.828 | deepseek=0.500 | label=0.852 | delta=-0.352
+[DeepSeek Epoch 7] pair=6/50 | model=0.925 | deepseek=0.750 | label=0.924 | delta=-0.174
+[DeepSeek Epoch 7] pair=7/50 | model=0.754 | deepseek=0.500 | label=0.717 | delta=-0.217
+[DeepSeek Epoch 7] pair=8/50 | model=0.544 | deepseek=0.500 | label=0.471 | delta=+0.029
+[DeepSeek Epoch 7] pair=9/50 | model=0.775 | deepseek=0.650 | label=0.765 | delta=-0.115
+[DeepSeek Epoch 7] pair=10/50 | model=0.285 | deepseek=0.500 | label=0.323 | delta=+0.177
+[DeepSeek Epoch 7] pair=11/50 | model=0.881 | deepseek=0.500 | label=0.877 | delta=-0.377
+[DeepSeek Epoch 7] pair=12/50 | model=0.512 | deepseek=0.500 | label=0.527 | delta=-0.027
+[DeepSeek Epoch 7] pair=13/50 | model=0.674 | deepseek=0.500 | label=0.611 | delta=-0.111
+[DeepSeek Epoch 7] pair=14/50 | model=0.537 | deepseek=0.500 | label=0.600 | delta=-0.100
+[DeepSeek Epoch 7] pair=15/50 | model=0.231 | deepseek=0.500 | label=0.287 | delta=+0.213
+[DeepSeek Epoch 7] pair=16/50 | model=0.525 | deepseek=0.500 | label=0.489 | delta=+0.011
+[DeepSeek Epoch 7] pair=17/50 | model=0.837 | deepseek=0.500 | label=0.836 | delta=-0.336
+[DeepSeek Epoch 7] pair=18/50 | model=0.734 | deepseek=0.700 | label=0.727 | delta=-0.027
+[DeepSeek Epoch 7] pair=19/50 | model=0.660 | deepseek=0.500 | label=0.714 | delta=-0.214
+[DeepSeek Epoch 7] pair=20/50 | model=0.612 | deepseek=0.550 | label=0.641 | delta=-0.091
+[DeepSeek Epoch 7] pair=21/50 | model=0.816 | deepseek=0.750 | label=0.828 | delta=-0.078
+[DeepSeek Epoch Judge] pair 574: empty response (done_reason=length)
+[DeepSeek Epoch 7] pair=22/50 | model=0.504 | deepseek=0.500 | label=0.504 | delta=-0.004
+[DeepSeek Epoch 7] pair=23/50 | model=0.571 | deepseek=0.550 | label=0.537 | delta=+0.013
+[DeepSeek Epoch 7] pair=24/50 | model=0.746 | deepseek=0.500 | label=0.712 | delta=-0.212
+[DeepSeek Epoch 7] pair=25/50 | model=0.702 | deepseek=0.500 | label=0.725 | delta=-0.225
+[DeepSeek Epoch 7] pair=26/50 | model=0.951 | deepseek=0.550 | label=0.922 | delta=-0.372
+[DeepSeek Epoch 7] pair=27/50 | model=0.648 | deepseek=0.500 | label=0.594 | delta=-0.094
+[DeepSeek Epoch 7] pair=28/50 | model=0.962 | deepseek=0.700 | label=0.986 | delta=-0.286
+[DeepSeek Epoch 7] pair=29/50 | model=0.592 | deepseek=0.500 | label=0.580 | delta=-0.080
+[DeepSeek Epoch 7] pair=30/50 | model=0.582 | deepseek=0.500 | label=0.528 | delta=-0.028
+[DeepSeek Epoch Judge] pair 105: empty response (done_reason=length)
+[DeepSeek Epoch 7] pair=31/50 | model=0.701 | deepseek=0.500 | label=0.698 | delta=-0.198
+[DeepSeek Epoch 7] pair=32/50 | model=0.610 | deepseek=0.500 | label=0.569 | delta=-0.069
+[DeepSeek Epoch Judge] pair 719: empty response (done_reason=length)
+[DeepSeek Epoch 7] pair=33/50 | model=0.407 | deepseek=0.500 | label=0.336 | delta=+0.164
+[DeepSeek Epoch 7] pair=34/50 | model=0.432 | deepseek=0.500 | label=0.428 | delta=+0.072
+[DeepSeek Epoch 7] pair=35/50 | model=0.531 | deepseek=0.500 | label=0.536 | delta=-0.036
+[DeepSeek Epoch 7] pair=36/50 | model=0.808 | deepseek=0.550 | label=0.777 | delta=-0.227
+[DeepSeek Epoch 7] pair=37/50 | model=0.721 | deepseek=0.500 | label=0.706 | delta=-0.206
+[DeepSeek Epoch 7] pair=38/50 | model=0.787 | deepseek=0.700 | label=0.794 | delta=-0.094
+[DeepSeek Epoch Judge] pair 879: empty response (done_reason=length)
+[DeepSeek Epoch 7] pair=39/50 | model=0.402 | deepseek=0.300 | label=0.407 | delta=-0.107
+[DeepSeek Epoch 7] pair=40/50 | model=0.574 | deepseek=0.500 | label=0.518 | delta=-0.018
+[DeepSeek Epoch 7] pair=41/50 | model=0.806 | deepseek=0.550 | label=0.829 | delta=-0.279
+[DeepSeek Epoch 7] pair=42/50 | model=0.868 | deepseek=0.550 | label=0.824 | delta=-0.274
+[DeepSeek Epoch 7] pair=43/50 | model=0.789 | deepseek=0.500 | label=0.774 | delta=-0.274
+[DeepSeek Epoch 7] pair=44/50 | model=0.430 | deepseek=0.500 | label=0.431 | delta=+0.069
+[DeepSeek Epoch 7] pair=45/50 | model=0.708 | deepseek=0.500 | label=0.807 | delta=-0.307
+[DeepSeek Epoch 7] pair=46/50 | model=0.481 | deepseek=0.750 | label=0.476 | delta=+0.274
 [DeepSeek Epoch 7] Model restored to cuda.
-[DeepSeek Epoch 7] bias_delta=+0.0592 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 26 labels (alpha=0.4)
+[DeepSeek Epoch 7] bias_delta=-0.1096 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 46 labels (alpha=0.5)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0478)
-[Epoch 8/8] train_loss=0.0022 | val_loss=0.0023 | val_rmse=0.0475
+  Checkpoint saved (val_rmse=0.0468)
+[Epoch 8/10] train_loss=0.0024 | val_loss=0.0020 | val_rmse=0.0450
 [DeepSeek Epoch 8] Model offloaded to CPU — running judge on 50 pairs...
-[DeepSeek Epoch 8] pair=1/50 | model=0.836 | deepseek=0.920 | label=0.853 | delta=+0.067
-[DeepSeek Epoch Judge] pair 819: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=2/50 | model=0.754 | deepseek=0.920 | label=0.783 | delta=+0.137
-[DeepSeek Epoch Judge] pair 817: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 631: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=3/50 | model=0.973 | deepseek=0.950 | label=0.984 | delta=-0.034
-[DeepSeek Epoch 8] pair=4/50 | model=0.969 | deepseek=0.500 | label=0.981 | delta=-0.481
-[DeepSeek Epoch Judge] pair 189: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 448: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 732: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=5/50 | model=0.651 | deepseek=0.700 | label=0.611 | delta=+0.089
-[DeepSeek Epoch Judge] pair 884: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=6/50 | model=0.960 | deepseek=0.580 | label=0.997 | delta=-0.417
-[DeepSeek Epoch Judge] pair 175: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=7/50 | model=0.772 | deepseek=1.000 | label=0.754 | delta=+0.246
-[DeepSeek Epoch Judge] pair 276: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 214: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=8/50 | model=0.732 | deepseek=0.850 | label=0.710 | delta=+0.140
-[DeepSeek Epoch Judge] pair 188: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 509: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 359: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=9/50 | model=0.805 | deepseek=0.850 | label=0.783 | delta=+0.067
-[DeepSeek Epoch Judge] pair 361: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 761: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=10/50 | model=0.706 | deepseek=0.850 | label=0.705 | delta=+0.145
-[DeepSeek Epoch Judge] pair 444: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 420: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 458: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 536: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 972: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 27: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=11/50 | model=0.668 | deepseek=0.850 | label=0.603 | delta=+0.247
-[DeepSeek Epoch Judge] pair 222: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=12/50 | model=0.669 | deepseek=0.900 | label=0.682 | delta=+0.218
-[DeepSeek Epoch Judge] pair 91: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=13/50 | model=0.367 | deepseek=0.640 | label=0.343 | delta=+0.297
-[DeepSeek Epoch Judge] pair 445: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 535: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 132: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=14/50 | model=0.937 | deepseek=0.950 | label=0.885 | delta=+0.065
-[DeepSeek Epoch Judge] pair 302: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=15/50 | model=0.741 | deepseek=0.850 | label=0.738 | delta=+0.112
-[DeepSeek Epoch Judge] pair 782: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=16/50 | model=0.875 | deepseek=0.900 | label=0.809 | delta=+0.091
-[DeepSeek Epoch Judge] pair 776: empty response (done_reason=length)
-[DeepSeek Epoch 8] pair=17/50 | model=0.969 | deepseek=0.850 | label=0.995 | delta=-0.145
-[DeepSeek Epoch 8] pair=18/50 | model=0.546 | deepseek=0.920 | label=0.590 | delta=+0.330
-[DeepSeek Epoch Judge] pair 705: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 467: empty response (done_reason=length)
-[DeepSeek Epoch Judge] pair 365: empty response (done_reason=length)
+[DeepSeek Epoch Judge] pair 627: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=1/50 | model=0.812 | deepseek=0.750 | label=0.867 | delta=-0.117
+[DeepSeek Epoch 8] pair=2/50 | model=0.549 | deepseek=0.550 | label=0.646 | delta=-0.096
+[DeepSeek Epoch 8] pair=3/50 | model=0.614 | deepseek=0.400 | label=0.666 | delta=-0.266
+[DeepSeek Epoch 8] pair=4/50 | model=0.651 | deepseek=0.550 | label=0.660 | delta=-0.110
+[DeepSeek Epoch 8] pair=5/50 | model=0.565 | deepseek=0.500 | label=0.648 | delta=-0.148
+[DeepSeek Epoch 8] pair=6/50 | model=0.670 | deepseek=0.700 | label=0.666 | delta=+0.034
+[DeepSeek Epoch 8] pair=7/50 | model=0.720 | deepseek=0.750 | label=0.693 | delta=+0.057
+[DeepSeek Epoch Judge] pair 950: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=8/50 | model=0.723 | deepseek=0.500 | label=0.664 | delta=-0.164
+[DeepSeek Epoch 8] pair=9/50 | model=0.754 | deepseek=0.500 | label=0.759 | delta=-0.259
+[DeepSeek Epoch 8] pair=10/50 | model=0.810 | deepseek=0.400 | label=0.779 | delta=-0.379
+[DeepSeek Epoch 8] pair=11/50 | model=0.563 | deepseek=0.500 | label=0.636 | delta=-0.136
+[DeepSeek Epoch Judge] pair 223: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=12/50 | model=0.743 | deepseek=0.700 | label=0.751 | delta=-0.051
+[DeepSeek Epoch 8] pair=13/50 | model=0.968 | deepseek=0.750 | label=1.000 | delta=-0.250
+[DeepSeek Epoch 8] pair=14/50 | model=0.679 | deepseek=0.500 | label=0.613 | delta=-0.113
+[DeepSeek Epoch 8] pair=15/50 | model=0.966 | deepseek=0.750 | label=0.969 | delta=-0.219
+[DeepSeek Epoch 8] pair=16/50 | model=0.642 | deepseek=0.500 | label=0.761 | delta=-0.261
+[DeepSeek Epoch 8] pair=17/50 | model=0.660 | deepseek=0.500 | label=0.743 | delta=-0.243
+[DeepSeek Epoch Judge] pair 595: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=18/50 | model=0.670 | deepseek=0.500 | label=0.705 | delta=-0.205
+[DeepSeek Epoch Judge] pair 795: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=19/50 | model=0.629 | deepseek=0.500 | label=0.594 | delta=-0.094
+[DeepSeek Epoch 8] pair=20/50 | model=0.697 | deepseek=0.700 | label=0.630 | delta=+0.070
+[DeepSeek Epoch 8] pair=21/50 | model=0.754 | deepseek=0.500 | label=0.761 | delta=-0.261
+[DeepSeek Epoch 8] pair=22/50 | model=0.587 | deepseek=0.500 | label=0.642 | delta=-0.142
+[DeepSeek Epoch 8] pair=23/50 | model=0.502 | deepseek=0.500 | label=0.444 | delta=+0.056
+[DeepSeek Epoch 8] pair=24/50 | model=0.968 | deepseek=0.500 | label=1.000 | delta=-0.500
+[DeepSeek Epoch Judge] pair 956: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=25/50 | model=0.427 | deepseek=0.500 | label=0.446 | delta=+0.054
+[DeepSeek Epoch 8] pair=26/50 | model=0.902 | deepseek=0.500 | label=0.804 | delta=-0.304
+[DeepSeek Epoch 8] pair=27/50 | model=0.557 | deepseek=0.650 | label=0.572 | delta=+0.078
+[DeepSeek Epoch Judge] pair 777: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=28/50 | model=0.814 | deepseek=0.500 | label=0.804 | delta=-0.304
+[DeepSeek Epoch 8] pair=29/50 | model=0.668 | deepseek=0.500 | label=0.655 | delta=-0.155
+[DeepSeek Epoch 8] pair=30/50 | model=0.651 | deepseek=0.500 | label=0.651 | delta=-0.151
+[DeepSeek Epoch 8] pair=31/50 | model=0.522 | deepseek=0.500 | label=0.524 | delta=-0.024
+[DeepSeek Epoch 8] pair=32/50 | model=0.835 | deepseek=0.500 | label=0.856 | delta=-0.356
+[DeepSeek Epoch 8] pair=33/50 | model=0.800 | deepseek=0.500 | label=0.828 | delta=-0.328
+[DeepSeek Epoch 8] pair=34/50 | model=0.683 | deepseek=0.500 | label=0.576 | delta=-0.076
+[DeepSeek Epoch Judge] pair 731: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=35/50 | model=0.478 | deepseek=0.500 | label=0.500 | delta=+0.000
+[DeepSeek Epoch 8] pair=36/50 | model=0.812 | deepseek=0.700 | label=0.736 | delta=-0.036
+[DeepSeek Epoch 8] pair=37/50 | model=0.781 | deepseek=0.500 | label=0.791 | delta=-0.291
+[DeepSeek Epoch 8] pair=38/50 | model=0.804 | deepseek=0.550 | label=0.841 | delta=-0.291
+[DeepSeek Epoch 8] pair=39/50 | model=0.570 | deepseek=0.500 | label=0.592 | delta=-0.092
+[DeepSeek Epoch Judge] pair 965: empty response (done_reason=length)
+[DeepSeek Epoch 8] pair=40/50 | model=0.776 | deepseek=0.500 | label=0.729 | delta=-0.229
+[DeepSeek Epoch 8] pair=41/50 | model=0.609 | deepseek=0.500 | label=0.575 | delta=-0.075
 [DeepSeek Epoch 8] Model restored to cuda.
-[DeepSeek Epoch 8] bias_delta=+0.0652 | labels under-estimated (rule-based too strict)
-[Dataset] Corrected 18 labels (alpha=0.4)
+[DeepSeek Epoch 8] bias_delta=-0.1556 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 41 labels (alpha=0.5)
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0475)
+  Checkpoint saved (val_rmse=0.0450)
+[Epoch 9/10] train_loss=0.0023 | val_loss=0.0021 | val_rmse=0.0452
+[DeepSeek Epoch 9] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 9] pair=1/50 | model=0.832 | deepseek=0.550 | label=0.810 | delta=-0.260
+[DeepSeek Epoch 9] pair=2/50 | model=0.751 | deepseek=0.500 | label=0.712 | delta=-0.212
+[DeepSeek Epoch 9] pair=3/50 | model=0.807 | deepseek=0.500 | label=0.855 | delta=-0.355
+[DeepSeek Epoch 9] pair=4/50 | model=0.559 | deepseek=0.500 | label=0.502 | delta=-0.002
+[DeepSeek Epoch 9] pair=5/50 | model=0.609 | deepseek=0.500 | label=0.587 | delta=-0.087
+[DeepSeek Epoch 9] pair=6/50 | model=0.559 | deepseek=0.500 | label=0.512 | delta=-0.012
+[DeepSeek Epoch 9] pair=7/50 | model=0.655 | deepseek=0.500 | label=0.644 | delta=-0.144
+[DeepSeek Epoch 9] pair=8/50 | model=0.555 | deepseek=0.500 | label=0.567 | delta=-0.067
+[DeepSeek Epoch 9] pair=9/50 | model=0.966 | deepseek=0.750 | label=0.959 | delta=-0.209
+[DeepSeek Epoch 9] pair=10/50 | model=0.774 | deepseek=0.500 | label=0.775 | delta=-0.275
+[DeepSeek Epoch 9] pair=11/50 | model=0.737 | deepseek=0.500 | label=0.716 | delta=-0.216
+[DeepSeek Epoch Judge] pair 425: empty response (done_reason=length)
+[DeepSeek Epoch 9] pair=12/50 | model=0.741 | deepseek=0.550 | label=0.761 | delta=-0.211
+[DeepSeek Epoch 9] pair=13/50 | model=0.710 | deepseek=0.500 | label=0.743 | delta=-0.243
+[DeepSeek Epoch 9] pair=14/50 | model=0.852 | deepseek=0.550 | label=0.873 | delta=-0.323
+[DeepSeek Epoch 9] pair=15/50 | model=0.802 | deepseek=0.500 | label=0.873 | delta=-0.373
+[DeepSeek Epoch 9] pair=16/50 | model=0.833 | deepseek=0.500 | label=0.804 | delta=-0.304
+[DeepSeek Epoch 9] pair=17/50 | model=0.569 | deepseek=0.500 | label=0.577 | delta=-0.077
+[DeepSeek Epoch 9] pair=18/50 | model=0.550 | deepseek=0.550 | label=0.539 | delta=+0.011
+[DeepSeek Epoch 9] pair=19/50 | model=0.576 | deepseek=0.500 | label=0.534 | delta=-0.034
+[DeepSeek Epoch 9] pair=20/50 | model=0.719 | deepseek=0.500 | label=0.750 | delta=-0.250
+[DeepSeek Epoch 9] pair=21/50 | model=0.675 | deepseek=0.500 | label=0.684 | delta=-0.184
+[DeepSeek Epoch 9] pair=22/50 | model=0.667 | deepseek=0.500 | label=0.651 | delta=-0.151
+[DeepSeek Epoch 9] pair=23/50 | model=0.853 | deepseek=0.750 | label=0.932 | delta=-0.182
+[DeepSeek Epoch 9] pair=24/50 | model=0.530 | deepseek=0.500 | label=0.503 | delta=-0.003
+[DeepSeek Epoch 9] pair=25/50 | model=0.518 | deepseek=0.500 | label=0.508 | delta=-0.008
+[DeepSeek Epoch 9] pair=26/50 | model=0.694 | deepseek=0.500 | label=0.725 | delta=-0.225
+[DeepSeek Epoch 9] pair=27/50 | model=0.940 | deepseek=0.500 | label=0.922 | delta=-0.422
+[DeepSeek Epoch 9] pair=28/50 | model=0.967 | deepseek=0.700 | label=0.941 | delta=-0.241
+[DeepSeek Epoch 9] pair=29/50 | model=0.805 | deepseek=0.500 | label=0.830 | delta=-0.330
+[DeepSeek Epoch 9] pair=30/50 | model=0.565 | deepseek=0.500 | label=0.553 | delta=-0.053
+[DeepSeek Epoch 9] pair=31/50 | model=0.964 | deepseek=0.500 | label=0.981 | delta=-0.481
+[DeepSeek Epoch Judge] pair 864: empty response (done_reason=length)
+[DeepSeek Epoch 9] pair=32/50 | model=0.966 | deepseek=0.750 | label=1.000 | delta=-0.250
+[DeepSeek Epoch 9] pair=33/50 | model=0.358 | deepseek=0.500 | label=0.334 | delta=+0.166
+[DeepSeek Epoch 9] pair=34/50 | model=0.644 | deepseek=0.500 | label=0.710 | delta=-0.210
+[DeepSeek Epoch 9] pair=35/50 | model=0.548 | deepseek=0.500 | label=0.507 | delta=-0.007
+[DeepSeek Epoch 9] pair=36/50 | model=0.486 | deepseek=0.500 | label=0.519 | delta=-0.019
+[DeepSeek Epoch 9] pair=37/50 | model=0.960 | deepseek=0.750 | label=0.996 | delta=-0.246
+[DeepSeek Epoch 9] pair=38/50 | model=0.415 | deepseek=0.550 | label=0.382 | delta=+0.168
+[DeepSeek Epoch 9] pair=39/50 | model=0.584 | deepseek=0.550 | label=0.642 | delta=-0.092
+[DeepSeek Epoch 9] pair=40/50 | model=0.552 | deepseek=0.500 | label=0.491 | delta=+0.009
+[DeepSeek Epoch 9] pair=41/50 | model=0.542 | deepseek=0.500 | label=0.502 | delta=-0.002
+[DeepSeek Epoch 9] pair=42/50 | model=0.405 | deepseek=0.300 | label=0.408 | delta=-0.108
+[DeepSeek Epoch Judge] pair 819: empty response (done_reason=length)
+[DeepSeek Epoch Judge] pair 855: empty response (done_reason=length)
+[DeepSeek Epoch 9] pair=43/50 | model=0.493 | deepseek=0.500 | label=0.446 | delta=+0.054
+[DeepSeek Epoch 9] pair=44/50 | model=0.429 | deepseek=0.550 | label=0.450 | delta=+0.100
+[DeepSeek Epoch 9] pair=45/50 | model=0.465 | deepseek=0.550 | label=0.561 | delta=-0.011
+[DeepSeek Epoch Judge] pair 240: empty response (done_reason=length)
+[DeepSeek Epoch 9] Model restored to cuda.
+[DeepSeek Epoch 9] bias_delta=-0.1416 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 45 labels (alpha=0.5)
+[Epoch 10/10] train_loss=0.0022 | val_loss=0.0020 | val_rmse=0.0443
+[DeepSeek Epoch 10] Model offloaded to CPU — running judge on 50 pairs...
+[DeepSeek Epoch 10] pair=1/50 | model=0.739 | deepseek=0.700 | label=0.585 | delta=+0.115
+[DeepSeek Epoch 10] pair=2/50 | model=0.612 | deepseek=0.800 | label=0.524 | delta=+0.276
+[DeepSeek Epoch 10] pair=3/50 | model=0.765 | deepseek=0.800 | label=0.717 | delta=+0.083
+[DeepSeek Epoch 10] pair=4/50 | model=0.756 | deepseek=0.800 | label=0.755 | delta=+0.045
+[DeepSeek Epoch 10] pair=5/50 | model=0.675 | deepseek=0.700 | label=0.697 | delta=+0.003
+[DeepSeek Epoch 10] pair=6/50 | model=0.764 | deepseek=0.550 | label=0.786 | delta=-0.236
+[DeepSeek Epoch 10] pair=7/50 | model=0.685 | deepseek=0.700 | label=0.652 | delta=+0.048
+[DeepSeek Epoch 10] pair=8/50 | model=0.971 | deepseek=0.500 | label=0.984 | delta=-0.484
+[DeepSeek Epoch 10] pair=9/50 | model=0.278 | deepseek=0.500 | label=0.332 | delta=+0.168
+[DeepSeek Epoch 10] pair=10/50 | model=0.806 | deepseek=0.550 | label=0.853 | delta=-0.303
+[DeepSeek Epoch 10] pair=11/50 | model=0.556 | deepseek=0.550 | label=0.571 | delta=-0.021
+[DeepSeek Epoch 10] pair=12/50 | model=0.881 | deepseek=0.700 | label=0.849 | delta=-0.149
+[DeepSeek Epoch 10] pair=13/50 | model=0.648 | deepseek=0.500 | label=0.647 | delta=-0.147
+[DeepSeek Epoch 10] pair=14/50 | model=0.678 | deepseek=0.550 | label=0.666 | delta=-0.116
+[DeepSeek Epoch 10] pair=15/50 | model=0.611 | deepseek=0.550 | label=0.575 | delta=-0.025
+[DeepSeek Epoch 10] pair=16/50 | model=0.710 | deepseek=0.500 | label=0.693 | delta=-0.193
+[DeepSeek Epoch 10] pair=17/50 | model=0.532 | deepseek=0.500 | label=0.488 | delta=+0.012
+[DeepSeek Epoch 10] pair=18/50 | model=0.450 | deepseek=0.300 | label=0.435 | delta=-0.135
+[DeepSeek Epoch Judge] pair 277: empty response (done_reason=length)
+[DeepSeek Epoch 10] pair=19/50 | model=0.927 | deepseek=0.800 | label=0.953 | delta=-0.153
+[DeepSeek Epoch 10] pair=20/50 | model=0.583 | deepseek=0.500 | label=0.621 | delta=-0.121
+[DeepSeek Epoch 10] pair=21/50 | model=0.814 | deepseek=0.500 | label=0.836 | delta=-0.336
+[DeepSeek Epoch 10] pair=22/50 | model=0.756 | deepseek=0.550 | label=0.768 | delta=-0.218
+[DeepSeek Epoch 10] pair=23/50 | model=0.615 | deepseek=0.500 | label=0.597 | delta=-0.097
+[DeepSeek Epoch 10] pair=24/50 | model=0.618 | deepseek=0.700 | label=0.618 | delta=+0.082
+[DeepSeek Epoch 10] pair=25/50 | model=0.374 | deepseek=0.500 | label=0.332 | delta=+0.168
+[DeepSeek Epoch 10] pair=26/50 | model=0.613 | deepseek=0.500 | label=0.609 | delta=-0.109
+[DeepSeek Epoch 10] pair=27/50 | model=0.971 | deepseek=0.750 | label=0.980 | delta=-0.230
+[DeepSeek Epoch 10] pair=28/50 | model=0.537 | deepseek=0.500 | label=0.640 | delta=-0.140
+[DeepSeek Epoch 10] pair=29/50 | model=0.761 | deepseek=0.500 | label=0.749 | delta=-0.249
+[DeepSeek Epoch 10] pair=30/50 | model=0.828 | deepseek=0.700 | label=0.830 | delta=-0.130
+[DeepSeek Epoch 10] pair=31/50 | model=0.327 | deepseek=0.300 | label=0.464 | delta=-0.164
+[DeepSeek Epoch 10] pair=32/50 | model=0.474 | deepseek=0.500 | label=0.561 | delta=-0.061
+[DeepSeek Epoch 10] pair=33/50 | model=0.425 | deepseek=0.500 | label=0.390 | delta=+0.110
+[DeepSeek Epoch 10] pair=34/50 | model=0.379 | deepseek=0.500 | label=0.428 | delta=+0.072
+[DeepSeek Epoch 10] pair=35/50 | model=0.958 | deepseek=0.750 | label=0.861 | delta=-0.111
+[DeepSeek Epoch Judge] pair 867: empty response (done_reason=length)
+[DeepSeek Epoch 10] pair=36/50 | model=0.617 | deepseek=0.400 | label=0.598 | delta=-0.198
+[DeepSeek Epoch Judge] pair 712: empty response (done_reason=length)
+[DeepSeek Epoch 10] pair=37/50 | model=0.740 | deepseek=0.600 | label=0.653 | delta=-0.053
+[DeepSeek Epoch 10] pair=38/50 | model=0.571 | deepseek=0.500 | label=0.650 | delta=-0.150
+[DeepSeek Epoch 10] pair=39/50 | model=0.402 | deepseek=0.560 | label=0.498 | delta=+0.062
+[DeepSeek Epoch 10] pair=40/50 | model=0.966 | deepseek=0.500 | label=0.940 | delta=-0.440
+[DeepSeek Epoch 10] pair=41/50 | model=0.598 | deepseek=0.700 | label=0.575 | delta=+0.125
+[DeepSeek Epoch 10] pair=42/50 | model=0.645 | deepseek=0.500 | label=0.683 | delta=-0.183
+[DeepSeek Epoch 10] pair=43/50 | model=0.544 | deepseek=0.500 | label=0.578 | delta=-0.078
+[DeepSeek Epoch 10] pair=44/50 | model=0.631 | deepseek=0.500 | label=0.630 | delta=-0.130
+[DeepSeek Epoch 10] pair=45/50 | model=0.626 | deepseek=0.500 | label=0.539 | delta=-0.039
+[DeepSeek Epoch 10] pair=46/50 | model=0.879 | deepseek=0.500 | label=0.850 | delta=-0.350
+[DeepSeek Epoch 10] pair=47/50 | model=0.574 | deepseek=0.500 | label=0.524 | delta=-0.024
+[DeepSeek Epoch 10] Model restored to cuda.
+[DeepSeek Epoch 10] bias_delta=-0.0895 | labels over-estimated (rule-based too generous)
+[Dataset] Corrected 47 labels (alpha=0.5)
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0443)
 
 === Training Complete ===
 {
-  "train_loss": 0.002217,
-  "val_loss": 0.00225,
-  "val_rmse": 0.047450868367697914,
-  "epochs_trained": 8,
+  "train_loss": 0.002233,
+  "val_loss": 0.001974,
+  "val_rmse": 0.04428423208917437,
+  "epochs_trained": 10,
   "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt"
 }
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\training_metrics.json

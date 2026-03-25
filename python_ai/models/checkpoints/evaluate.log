@@ -4,13 +4,13 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 
 === Evaluation Metrics ===
   Pairs evaluated : 977
-  Pearson         : 0.7579  (target: >0.80) FAIL
-  RMSE            : 0.1173  (target: <0.12) OK
-  NDCG@10         : 0.9322  (target: >0.75) OK
+  Pearson         : 0.9695  (target: >0.80) OK
+  RMSE            : 0.0438  (target: <0.12) OK
+  NDCG@10         : 0.9902  (target: >0.75) OK
   Precision@5     : 1.0000  (target: >0.70) OK
 
-  Targets met: 3/4
+  Targets met: 4/4
 
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\metrics.json
-al arch.
+ical arch.
 - MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m

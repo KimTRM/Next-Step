@@ -31,42 +31,32 @@ def _is_ollama_available() -> bool:
 
 
 def _build_prompt(resume: dict, job: dict) -> str:
-    return f"""You are a strict Filipino HR expert. Assume 100 candidates apply — score reflects competitive rank.
+    return f"""/no_think
+PH job screening. DEFAULT confidence = 0.50. Score conservatively.
 
-SCORING RUBRIC:
-0.0-0.2 = No match (wrong field, <20% skill overlap) — not shortlisted
-0.2-0.4 = Weak (missing most required skills or major experience gap) — bottom half
-0.4-0.6 = Partial (~50% skills, some gaps) — average applicant
-0.6-0.8 = Good (most required skills + experience roughly met) — TOP 10 shortlist
-0.8-0.9 = Strong (80%+ skills + experience met, minor gaps) — TOP 5 most relevant
-0.9-1.0 = RESERVED: matches ALL top 5 critical requirements, near-perfect fit
+Score guide:
+0.0-0.3 = wrong field / no relevant skills
+0.3-0.5 = weak — missing most required skills or major experience gap
+0.5-0.65 = average — partial skill overlap, basic fit
+0.65-0.80 = good — most required skills present + experience roughly met
+0.80+ = RESERVED: near-complete skill match + experience met
 
-RANKING BIAS:
-- 0.7+ = earns a TOP 10 ranking among 100 applicants
-- 0.85+ = matches the TOP 5 most critical job requirements
-- Below 0.5 = would NOT be shortlisted in a competitive pool
-
-DEDUCTIONS: missing top-5 required skill -0.08 each (max -0.30) | experience gap -0.05/yr | wrong industry -0.20
-RULE: scores >= 0.80 require TOP-10-quality evidence. When uncertain, score LOWER.
-
-PH credentials (PRC, TESDA, BAR, STCW) count as strong positives for relevant roles.
+RULE: Only exceed 0.65 if 3+ required skills are explicitly in the resume. When uncertain, score LOWER.
+PH credentials (PRC, TESDA, BAR, STCW) count as positives for relevant roles only.
 
 Resume:
-- Skills: {", ".join(resume.get("skills", [])[:20])}
+- Skills: {", ".join(resume.get("skills", [])[:15])}
 - Experience: {resume.get("experience_yrs", 0)} years
 - Education: {resume.get("education", {}).get("degree", "Not specified")}
 - Certifications: {", ".join(resume.get("certifications", []))}
-- Industry: {resume.get("industry", "Not specified")}
 
 Job:
 - Title: {job.get("title", "")}
-- Required Skills (top 5 most critical first): {", ".join(job.get("required_skills", [])[:5])}
-- All Required Skills: {", ".join(job.get("required_skills", [])[:20])}
+- Required Skills (top 5): {", ".join(job.get("required_skills", [])[:5])}
 - Min Experience: {job.get("min_experience", 0)} years
-- Industry: {job.get("industry", "")}
 
 Respond ONLY with valid JSON:
-{{"confidence": 0.0, "reasoning": "brief explanation: top-5 skill matches/gaps + ranking justification"}}"""
+{{"confidence": 0.50, "reasoning": "brief: which required skills match or are missing"}}"""
 
 
 def label_pair_with_llm(

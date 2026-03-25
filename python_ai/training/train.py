@@ -79,34 +79,26 @@ def deepseek_epoch_judge(
 
     for i, (idx, resume_text, job_text, label, pred) in enumerate(pair_data):
         prompt = (
-            f"Philippine HR screening — score candidate-job fit STRICTLY.\n\n"
-            f"SCORING RUBRIC (0.0-1.0):\n"
-            f"0.0-0.2 = wrong field or near-zero skill overlap\n"
-            f"0.2-0.4 = weak: missing most required skills or large experience gap\n"
-            f"0.4-0.6 = partial: ~half skills, some gaps\n"
-            f"0.6-0.8 = good: most skills present, experience roughly met\n"
-            f"0.8-0.9 = strong: 80%+ skill match + experience met (TOP 10 candidate)\n"
-            f"0.9-1.0 = RESERVED: near-perfect fit, top 5 most relevant candidate only\n\n"
-            f"RANKING BIAS:\n"
-            f"- Imagine 100 candidates apply. Score reflects competitive rank.\n"
-            f"- 0.7+ means this candidate would make the TOP 10 shortlist\n"
-            f"- 0.85+ means this candidate matches the TOP 5 most critical requirements\n"
-            f"- Below 0.5 means this candidate would NOT be shortlisted\n\n"
-            f"STRICT RULES:\n"
-            f"- Check the top 5 required skills — each missing one deducts 0.08 (max -0.30)\n"
-            f"- Experience below minimum deducts 0.05 per year short\n"
-            f"- Wrong industry/domain: cap at 0.50\n"
-            f"- Scores >=0.8 require top-10-quality evidence. When uncertain, score LOWER.\n\n"
-            f"Resume: {resume_text[:300]}\n"
-            f"Job: {job_text[:200]}\n\n"
-            f"Think briefly, then reply with ONE decimal number only (e.g. 0.45)."
+            f"/no_think\n"
+            f"PH job screening. DEFAULT score = 0.50.\n"
+            f"Only go ABOVE 0.65 if you can name 3+ required skills explicitly in the resume.\n"
+            f"Only go BELOW 0.35 if there is zero field relevance.\n\n"
+            f"Score guide:\n"
+            f"0.0-0.3 = wrong field or no relevant skills\n"
+            f"0.3-0.5 = partial/weak — some skills but major gaps\n"
+            f"0.5-0.65 = average — basic fit, nothing exceptional\n"
+            f"0.65-0.80 = good — most required skills explicitly present\n"
+            f"0.80+ = strong — reserved for explicit full skill+experience match\n\n"
+            f"Resume: {resume_text[:150]}\n"
+            f"Job: {job_text[:100]}\n\n"
+            f"Reply with ONE number only (e.g. 0.50)."
         )
         ds_score = None
         try:
             resp = _req.post(
                 "http://localhost:11434/api/generate",
                 json={"model": ollama_model, "prompt": prompt, "stream": False,
-                      "options": {"temperature": 0.1, "num_predict": 600, "num_ctx": 2048}},
+                      "options": {"temperature": 0.1, "num_predict": 800, "num_ctx": 2048}},
                 timeout=180,
             )
             resp.raise_for_status()
