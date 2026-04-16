@@ -52,3 +52,5 @@ __pycache__/
 *.pth
 *.ckpt
 *.bin
+
+/python_ai/datasets

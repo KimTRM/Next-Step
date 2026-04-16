@@ -102,9 +102,13 @@ class TrainingConfig(BaseModel):
     patience: int = 3
     jsonl_path: Optional[str] = None
     use_deepseek_judge: bool = False
-    deepseek_epoch_sample: int = 10
-    deepseek_bias_alpha: float = 0.3
+    deepseek_epoch_sample: int = 30
+    deepseek_bias_alpha: float = 0.25
     deepseek_model: str = "deepseek-r1:7b"
+    # Fresh training options
+    fresh: bool = False
+    confidence_ceiling: float = 0.75
+    baseline_confidence: float = 0.60
 
 
 class FeedbackRequest(BaseModel):
@@ -691,6 +695,13 @@ async def trigger_training(config: TrainingConfig):
             "--deepseek-model", config.deepseek_model,
         ]
 
+    if config.fresh:
+        cmd += [
+            "--fresh",
+            "--confidence-ceiling", str(config.confidence_ceiling),
+            "--baseline-confidence", str(config.baseline_confidence),
+        ]
+
     run_id = None
     if db_available:
         try:
@@ -782,6 +793,62 @@ async def training_history():
         return {"history": []}
     from database.db import get_training_history
     return {"history": get_training_history(limit=10)}
+
+
+@app.post("/build-dataset")
+async def build_dataset(
+    use_ollama: bool = Query(True, description="Use Ollama ensemble to label unlabeled pairs"),
+    ollama_limit: int = Query(2000, description="Max pairs to label with Ollama per dataset"),
+):
+    """
+    Build unified training dataset from all CSV/JSONL sources under python_ai/datasets/.
+    Runs dataset_builder.py as a background subprocess. Logs to build_dataset.log.
+    """
+    log_path = CHECKPOINT_DIR / "build_dataset.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cmd = [
+        sys.executable,
+        str(Path(__file__).parents[1] / "training" / "dataset_builder.py"),
+        "--ollama-limit", str(ollama_limit),
+    ]
+    if not use_ollama:
+        cmd.append("--no-ollama")
+
+    try:
+        log_file = open(log_path, "w", encoding="utf-8", buffering=1)
+        proc = subprocess.Popen(
+            cmd,
+            stdout=log_file,
+            stderr=log_file,
+            cwd=str(Path(__file__).parents[1]),
+            text=True,
+        )
+        return {
+            "success": True,
+            "message": "Dataset builder started",
+            "pid": proc.pid,
+            "log": str(log_path),
+            "use_ollama": use_ollama,
+            "ollama_limit": ollama_limit,
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Failed to start dataset builder: {e}")
+
+
+@app.get("/build-dataset/logs")
+async def get_build_dataset_logs(tail: int = Query(200)):
+    """Return the last N lines of the dataset builder log."""
+    log_path = CHECKPOINT_DIR / "build_dataset.log"
+    if not log_path.exists():
+        return {"lines": [], "exists": False, "size": 0}
+    with open(log_path, encoding="utf-8", errors="replace") as f:
+        lines = f.readlines()
+    return {
+        "lines": [l.rstrip() for l in lines[-tail:]],
+        "exists": True,
+        "size": len(lines),
+    }
 
 
 # ---------------------------------------------------------------------------

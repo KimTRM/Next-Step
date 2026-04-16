@@ -96,12 +96,23 @@ class JobMatchDataset(Dataset):
                     item = json.loads(line.strip())
                     if item.get("split") != split:
                         continue
-                    resume = item.get("resume", {})
-                    job = item.get("job", {})
+
+                    # Support both new flat format (resume_text/job_text directly)
+                    # and old nested format (resume/job dicts)
+                    if "resume_text" in item and "job_text" in item:
+                        resume_text = item["resume_text"]
+                        job_text = item["job_text"]
+                    else:
+                        resume = item.get("resume", {})
+                        job = item.get("job", {})
+                        resume_text = format_resume(resume)
+                        job_text = format_job(job)
+
                     pairs.append({
-                        "resume_text": format_resume(resume),
-                        "job_text": format_job(job),
+                        "resume_text": resume_text,
+                        "job_text": job_text,
                         "confidence": float(item.get("confidence", 0.5)),
+                        "source": item.get("source", "unknown"),
                     })
                 except (json.JSONDecodeError, KeyError):
                     continue

@@ -34,6 +34,8 @@ BASE_MODEL = os.getenv(
 MAX_LENGTH = 512
 CHECKPOINT_DIR = Path(__file__).parent / "checkpoints"
 
+import math as _math
+
 
 class PHJobCrossEncoder(nn.Module):
     """
@@ -55,6 +57,31 @@ class PHJobCrossEncoder(nn.Module):
             base_model, num_labels=1
         ).to(self.device)
         self.sigmoid = nn.Sigmoid()
+        # Temperature for post-training calibration (1.0 = no scaling)
+        self.temperature: float = 1.0
+
+    def init_baseline_bias(self, baseline: float = 0.60) -> None:
+        """
+        Initialize classifier head bias so the untrained model predicts ~baseline
+        for any input. This prevents the model from being overconfident before it
+        has seen any real training data.
+
+        baseline=0.60 → logit ≈ 0.405, sigmoid(0.405) ≈ 0.60
+
+        Call this immediately after instantiation when training from scratch (--fresh).
+        """
+        logit = _math.log(baseline / (1.0 - baseline))
+        classifier = getattr(self.model, "classifier", None)
+        if classifier is not None and hasattr(classifier, "bias") and classifier.bias is not None:
+            nn.init.constant_(classifier.bias, logit)
+            print(f"[CrossEncoder] Baseline bias initialized: {baseline:.2f} (logit={logit:.4f})")
+        else:
+            # Some architectures use a different attribute name
+            for name, module in self.model.named_modules():
+                if "classifier" in name.lower() and hasattr(module, "bias") and module.bias is not None:
+                    nn.init.constant_(module.bias, logit)
+                    print(f"[CrossEncoder] Baseline bias initialized via {name}: {baseline:.2f}")
+                    break
 
     def forward(
         self,
@@ -74,6 +101,9 @@ class PHJobCrossEncoder(nn.Module):
             return_tensors="pt",
         ).to(self.device)
         logits = self.model(**encoded).logits.squeeze(-1)
+        # Apply temperature scaling if calibrated (T > 0)
+        if self.temperature != 1.0:
+            logits = logits / max(self.temperature, 0.05)
         return self.sigmoid(logits)
 
     def score(self, resume_text: str, job_text: str) -> float:
@@ -109,6 +139,7 @@ class PHJobCrossEncoder(nn.Module):
         torch.save({
             "model_state": self.model.state_dict(),
             "base_model": BASE_MODEL,
+            "temperature": self.temperature,
         }, path)
         print(f"[CrossEncoder] Saved to {path}")
 
@@ -119,9 +150,13 @@ class PHJobCrossEncoder(nn.Module):
         base_model: str = BASE_MODEL,
     ) -> "PHJobCrossEncoder":
         instance = cls(base_model=base_model)
-        checkpoint = torch.load(path, map_location=instance.device)
+        checkpoint = torch.load(path, map_location=instance.device, weights_only=False)
         instance.model.load_state_dict(checkpoint["model_state"])
-        print(f"[CrossEncoder] Loaded from {path}")
+        instance.temperature = float(checkpoint.get("temperature", 1.0))
+        if instance.temperature != 1.0:
+            print(f"[CrossEncoder] Loaded from {path} (T={instance.temperature:.4f})")
+        else:
+            print(f"[CrossEncoder] Loaded from {path}")
         return instance
 
     @property

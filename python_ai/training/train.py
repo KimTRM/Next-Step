@@ -6,6 +6,15 @@ Scheduler: Linear warmup
 Early stopping: on val RMSE
 
 Usage:
+    # Fresh training from scratch on new datasets:
+    python python_ai/training/train.py \
+        --fresh \
+        --no-db \
+        --jsonl python_ai/data/labeled/unified_training_pairs.jsonl \
+        --epochs 15 --batch-size 16 --confidence-ceiling 0.75 \
+        --use-deepseek-judge --deepseek-epoch-sample 30
+
+    # Resume from existing checkpoint:
     python python_ai/training/train.py \
         --epochs 10 --batch-size 32 --jsonl python_ai/data/labeled/synthetic_pairs.jsonl
 """
@@ -159,6 +168,22 @@ def deepseek_epoch_judge(
     return mean_bias, ds_scores
 
 
+def _wipe_checkpoints(checkpoint_dir: Path) -> None:
+    """Delete all checkpoint and metrics files to start fresh."""
+    files_to_wipe = [
+        "cross_encoder.pt",
+        "bi_encoder.pt",
+        "metrics.json",
+        "training_metrics.json",
+    ]
+    for fname in files_to_wipe:
+        fpath = checkpoint_dir / fname
+        if fpath.exists():
+            fpath.unlink()
+            print(f"[Train] Wiped: {fpath}")
+    print("[Train] Checkpoints cleared. Starting from pretrained base weights.")
+
+
 def train(
     epochs: int = 10,
     batch_size: int = 32,
@@ -173,9 +198,12 @@ def train(
     run_id: str | None = None,
     checkpoint_name: str = "cross_encoder.pt",
     use_deepseek_judge: bool = False,
-    deepseek_epoch_sample: int = 10,
-    deepseek_bias_alpha: float = 0.3,
+    deepseek_epoch_sample: int = 30,
+    deepseek_bias_alpha: float = 0.25,
     deepseek_model: str = "deepseek-r1:7b",
+    fresh: bool = False,
+    confidence_ceiling: float = 0.75,
+    baseline_confidence: float = 0.60,
 ) -> dict:
     """Train the cross-encoder and return final metrics."""
     # Free any GPU memory held by other processes (e.g. Ollama) before allocating
@@ -184,6 +212,14 @@ def train(
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[Train] Device: {device}")
     print(f"[Train] Epochs: {epochs} | Batch: {batch_size} | Encoder LR: {encoder_lr}")
+    if fresh:
+        print(f"[Train] --fresh: wiping previous checkpoints and initializing baseline bias={baseline_confidence}")
+
+    checkpoint_path = CHECKPOINT_DIR / checkpoint_name
+
+    # Wipe existing checkpoints for fresh start
+    if fresh:
+        _wipe_checkpoints(CHECKPOINT_DIR)
 
     # Load datasets
     train_ds = JobMatchDataset(
@@ -195,11 +231,26 @@ def train(
         use_db=use_db, jsonl_path=jsonl_path
     )
 
+    # Clamp training labels to confidence ceiling
+    if confidence_ceiling < 1.0:
+        clamped = 0
+        for pair in train_ds.pairs:
+            if pair["confidence"] > confidence_ceiling:
+                pair["confidence"] = confidence_ceiling
+                clamped += 1
+        if clamped:
+            print(f"[Train] Clamped {clamped} training labels to ceiling={confidence_ceiling}")
+
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
 
-    # Initialize model
+    # Initialize model (always from pretrained base when --fresh)
     model = PHJobCrossEncoder(device=device)
+
+    # Initialize baseline bias for fresh training
+    if fresh:
+        model.init_baseline_bias(baseline=baseline_confidence)
+
     model.train()
 
     # Layer-wise learning rates
@@ -237,7 +288,6 @@ def train(
     best_val_rmse = float("inf")
     patience_count = 0
     history = []
-    checkpoint_path = CHECKPOINT_DIR / checkpoint_name
 
     for epoch in range(1, epochs + 1):
         # --- Training ---
@@ -327,12 +377,28 @@ def train(
                 print(f"[Train] Early stopping at epoch {epoch}")
                 break
 
+    # Post-training temperature scaling calibration
+    calibration_temperature = 1.0
+    if checkpoint_path.exists() and len(val_ds) > 0:
+        try:
+            print("\n[Train] Running post-training temperature scaling calibration...", flush=True)
+            from training.calibration import fit_temperature, save_temperature_to_checkpoint
+            # Reload best checkpoint for calibration
+            best_model = PHJobCrossEncoder.load(checkpoint_path)
+            calibration_temperature = fit_temperature(best_model, val_loader, device=device)
+            save_temperature_to_checkpoint(checkpoint_path, calibration_temperature)
+            print(f"[Train] Calibration complete. T={calibration_temperature:.4f}", flush=True)
+        except Exception as e:
+            print(f"[Train] Calibration failed (skipping): {e}", flush=True)
+
     metrics = {
         "train_loss": history[-1]["train_loss"] if history else None,
         "val_loss": history[-1]["val_loss"] if history else None,
         "val_rmse": best_val_rmse,
         "epochs_trained": len(history),
         "checkpoint": str(checkpoint_path),
+        "temperature": calibration_temperature,
+        "confidence_ceiling": confidence_ceiling,
         "history": history,
     }
 
@@ -404,12 +470,19 @@ def main():
     # DeepSeek per-epoch judge
     parser.add_argument("--use-deepseek-judge", action="store_true",
                         help="Run DeepSeek as independent judge after each epoch and correct labels")
-    parser.add_argument("--deepseek-epoch-sample", type=int, default=10,
-                        help="Pairs to judge per epoch (default: 10, ~30s overhead)")
-    parser.add_argument("--deepseek-bias-alpha", type=float, default=0.3,
-                        help="Label correction strength 0.0–1.0 (default: 0.3)")
+    parser.add_argument("--deepseek-epoch-sample", type=int, default=30,
+                        help="Pairs to judge per epoch (default: 30)")
+    parser.add_argument("--deepseek-bias-alpha", type=float, default=0.25,
+                        help="Label correction strength 0.0–1.0 (default: 0.25)")
     parser.add_argument("--deepseek-model", default="deepseek-r1:7b",
                         help="Ollama model to use as judge (default: deepseek-r1:7b)")
+    # Fresh training
+    parser.add_argument("--fresh", action="store_true",
+                        help="Wipe existing checkpoints and train from scratch with baseline bias")
+    parser.add_argument("--confidence-ceiling", type=float, default=0.75,
+                        help="Clamp training labels above this value (default: 0.75)")
+    parser.add_argument("--baseline-confidence", type=float, default=0.60,
+                        help="Initial model prediction baseline for --fresh (default: 0.60)")
     args = parser.parse_args()
 
     use_db = not args.no_db and args.jsonl is None
@@ -428,6 +501,9 @@ def main():
         deepseek_epoch_sample=args.deepseek_epoch_sample,
         deepseek_bias_alpha=args.deepseek_bias_alpha,
         deepseek_model=args.deepseek_model,
+        fresh=args.fresh,
+        confidence_ceiling=args.confidence_ceiling,
+        baseline_confidence=args.baseline_confidence,
     )
 
     print("\n=== Training Complete ===")

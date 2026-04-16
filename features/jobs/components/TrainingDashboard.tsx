@@ -22,6 +22,8 @@ interface EvalMetrics {
   rmse?: number;
   ndcg_at_10?: number;
   precision_at_5?: number;
+  ece?: number;
+  pred_stats?: { min: number; mean: number; max: number };
   n_pairs?: number;
   split?: string;
   targets_met?: Record<string, boolean>;
@@ -170,8 +172,19 @@ export function TrainingDashboard() {
   const [logSource, setLogSource] = useState<"train" | "pipeline">("train");
   const logPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [useDeepseekEpochJudge, setUseDeepseekEpochJudge] = useState(false);
-  const [deepseekEpochSample, setDeepseekEpochSample] = useState(10);
-  const [deepseekBiasAlpha, setDeepseekBiasAlpha] = useState(0.3);
+  const [deepseekEpochSample, setDeepseekEpochSample] = useState(30);
+  const [deepseekBiasAlpha, setDeepseekBiasAlpha] = useState(0.25);
+  // Fresh training
+  const [freshTraining, setFreshTraining] = useState(false);
+  const [confidenceCeiling, setConfidenceCeiling] = useState(0.75);
+  const [baselineConfidence, setBaselineConfidence] = useState(0.60);
+  // Dataset builder
+  const [isBuildingDataset, setIsBuildingDataset] = useState(false);
+  const [buildDatasetLog, setBuildDatasetLog] = useState<string[]>([]);
+  const [buildUseOllama, setBuildUseOllama] = useState(true);
+  const [buildOllamaLimit, setBuildOllamaLimit] = useState(2000);
+  const buildLogRef = useRef<HTMLDivElement>(null);
+  const buildLogPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Eval
   const [evalMetrics, setEvalMetrics] = useState<EvalMetrics | null>(null);
@@ -208,6 +221,9 @@ export function TrainingDashboard() {
   useEffect(() => {
     if (evalLogRef.current) evalLogRef.current.scrollTop = evalLogRef.current.scrollHeight;
   }, [evalLog]);
+  useEffect(() => {
+    if (buildLogRef.current) buildLogRef.current.scrollTop = buildLogRef.current.scrollHeight;
+  }, [buildDatasetLog]);
 
   const loadAll = useCallback(async () => {
     await Promise.allSettled([
@@ -229,6 +245,7 @@ export function TrainingDashboard() {
       clearInterval(interval);
       stopLogPolling();
       stopEvalPolling();
+      if (buildLogPollRef.current) clearInterval(buildLogPollRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadAll]);
@@ -273,11 +290,19 @@ export function TrainingDashboard() {
         encoder_lr: parseFloat(encoderLr),
         head_lr: parseFloat(headLr),
       };
-      if (jsonlPath.trim()) payload.jsonl_path = jsonlPath.trim();
+      // Default JSONL to unified dataset path when fresh training
+      const resolvedJsonl = jsonlPath.trim() ||
+        (freshTraining ? "python_ai/data/labeled/unified_training_pairs.jsonl" : "");
+      if (resolvedJsonl) payload.jsonl_path = resolvedJsonl;
       if (useDeepseekEpochJudge) {
         payload.use_deepseek_judge = true;
         payload.deepseek_epoch_sample = deepseekEpochSample;
         payload.deepseek_bias_alpha = deepseekBiasAlpha;
+      }
+      if (freshTraining) {
+        payload.fresh = true;
+        payload.confidence_ceiling = confidenceCeiling;
+        payload.baseline_confidence = baselineConfidence;
       }
 
       const resp = await fetch(`${API_BASE}/train`, {
@@ -419,6 +444,53 @@ export function TrainingDashboard() {
       setPipelineError(msg);
       setPipelineLog(prev => [...prev, `[ERROR] ${msg}`]);
       setIsPipelineRunning(false);
+    }
+  };
+
+  const handleBuildDataset = async () => {
+    setIsBuildingDataset(true);
+    setBuildDatasetLog([`[${new Date().toLocaleTimeString()}] Starting dataset builder...`]);
+    if (buildLogPollRef.current) clearInterval(buildLogPollRef.current);
+
+    try {
+      const params = new URLSearchParams({
+        use_ollama: String(buildUseOllama && ollamaAvailable),
+        ollama_limit: String(buildOllamaLimit),
+      });
+      const resp = await fetch(`${API_BASE}/build-dataset?${params}`, { method: "POST" });
+      const data = await resp.json();
+      setBuildDatasetLog(prev => [
+        ...prev,
+        `[${new Date().toLocaleTimeString()}] Builder launched (PID: ${data.pid})`,
+        `--- live log below ---`,
+      ]);
+
+      let lastSize = 0;
+      let staleCount = 0;
+      buildLogPollRef.current = setInterval(async () => {
+        try {
+          const r = await fetch(`${API_BASE}/build-dataset/logs?tail=300`);
+          const d = await r.json();
+          if (d.exists) {
+            if (d.size !== lastSize) {
+              lastSize = d.size;
+              staleCount = 0;
+              setBuildDatasetLog(d.lines);
+            } else {
+              staleCount++;
+              if (staleCount > 30 && d.size > 3) {
+                clearInterval(buildLogPollRef.current!);
+                buildLogPollRef.current = null;
+                setIsBuildingDataset(false);
+                setBuildDatasetLog(prev => [...prev, `--- Build complete ---`]);
+              }
+            }
+          }
+        } catch { /* ignore */ }
+      }, 2000);
+    } catch (e) {
+      setBuildDatasetLog(prev => [...prev, `[ERROR] ${e}`]);
+      setIsBuildingDataset(false);
     }
   };
 
@@ -594,6 +666,35 @@ export function TrainingDashboard() {
                       Of the top 5 jobs shown to a user, how many are genuinely good matches. <strong className="text-gray-300">100% means every single top-5 recommendation is relevant.</strong>
                     </p>
                   </div>
+
+                  {/* ECE + Confidence Range */}
+                  <div className="bg-gray-900/60 rounded-lg p-3 border border-gray-700/50">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <div className="text-sm font-medium text-white">Calibration Quality</div>
+                        <div className="text-xs text-gray-500">ECE (lower is better)</div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-bold font-mono ${metricColor(evalMetrics.ece, 0.10, false)}`}>
+                          {fmt(evalMetrics.ece)}
+                        </div>
+                        <div className="text-xs text-gray-500">target &lt;0.10</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed mb-2">
+                      Expected Calibration Error — how well confidence scores reflect reality. A model with ECE=0.05 means its 70%-confident predictions are correct ~70% of the time.
+                    </p>
+                    {evalMetrics.pred_stats && (
+                      <div className="flex items-center gap-3 text-xs font-mono">
+                        <span className="text-gray-500">Confidence range:</span>
+                        <span className="text-orange-300">{(evalMetrics.pred_stats.min * 100).toFixed(1)}%</span>
+                        <span className="text-gray-600">→</span>
+                        <span className="text-yellow-300">{(evalMetrics.pred_stats.mean * 100).toFixed(1)}% avg</span>
+                        <span className="text-gray-600">→</span>
+                        <span className="text-green-300">{(evalMetrics.pred_stats.max * 100).toFixed(1)}%</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {evalMetrics.targets_met && (
@@ -739,7 +840,7 @@ export function TrainingDashboard() {
                         : "bg-yellow-500/10 text-yellow-300"
                     }`}>
                       <strong>Label bias:</strong> {evalMetrics.deepseek_judge.label_bias?.direction}
-                      {" "}(mean delta: {evalMetrics.deepseek_judge.label_bias?.mean > 0 ? "+" : ""}{evalMetrics.deepseek_judge.label_bias?.mean?.toFixed(4)})
+                      {" "}(mean delta: {(evalMetrics.deepseek_judge.label_bias?.mean ?? 0) > 0 ? "+" : ""}{evalMetrics.deepseek_judge.label_bias?.mean?.toFixed(4)})
                     </div>
                     <div className="flex gap-3 mt-2 text-xs text-gray-500">
                       <span>DeepSeek avg: <span className="text-gray-300">{evalMetrics.deepseek_judge.deepseek_mean_score?.toFixed(3)}</span></span>
@@ -964,12 +1065,73 @@ export function TrainingDashboard() {
               )}
             </div>
 
+            {/* Fresh Training */}
+            <div className="mb-4 border border-orange-700/40 rounded-xl p-3 bg-orange-950/20">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <span className="text-sm font-medium text-orange-300">Fresh Training</span>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Wipes existing checkpoint, resets model to ~60% baseline, trains from scratch on real datasets
+                  </p>
+                </div>
+                <button
+                  onClick={() => setFreshTraining(v => !v)}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${freshTraining ? "bg-orange-600" : "bg-gray-700"}`}
+                >
+                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${freshTraining ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              {freshTraining && (
+                <div className="space-y-3 mt-2">
+                  <div className="p-2 bg-orange-900/30 border border-orange-600/30 rounded-lg text-xs text-orange-200">
+                    This will <strong>permanently delete</strong> the current checkpoint and start over. The model will predict ~{(baselineConfidence * 100).toFixed(0)}% by default until trained.
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        Baseline Confidence <span className="text-orange-400">(start)</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={baselineConfidence}
+                        min={0.40}
+                        max={0.70}
+                        step={0.05}
+                        onChange={e => setBaselineConfidence(parseFloat(e.target.value) || 0.60)}
+                        className="w-full bg-gray-900 border border-orange-700/50 rounded-lg px-3 py-1.5 text-sm font-mono text-white"
+                      />
+                      <p className="text-xs text-gray-600 mt-0.5">Untrained model default</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 block mb-1">
+                        Confidence Ceiling <span className="text-orange-400">(label cap)</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={confidenceCeiling}
+                        min={0.50}
+                        max={0.90}
+                        step={0.05}
+                        onChange={e => setConfidenceCeiling(parseFloat(e.target.value) || 0.75)}
+                        className="w-full bg-gray-900 border border-orange-700/50 rounded-lg px-3 py-1.5 text-sm font-mono text-white"
+                      />
+                      <p className="text-xs text-gray-600 mt-0.5">Max training label (earn higher via judge)</p>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 bg-gray-900/60 rounded p-2 font-mono">
+                    Dataset: python_ai/data/labeled/unified_training_pairs.jsonl
+                    <span className="text-orange-400/60 ml-1">(auto-selected)</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleStartTraining}
               disabled={isTraining}
-              className="w-full py-2.5 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-500 disabled:opacity-50 transition-colors"
+              className={`w-full py-2.5 text-sm font-medium rounded-lg disabled:opacity-50 transition-colors ${freshTraining ? "bg-orange-600 hover:bg-orange-500" : "bg-green-600 hover:bg-green-500"}`}
             >
-              {isTraining ? "Starting..." : "Start Training"}
+              {isTraining ? "Starting..." : freshTraining ? "Start Fresh Training" : "Start Training"}
             </button>
 
             {/* Log output */}
@@ -1028,6 +1190,92 @@ export function TrainingDashboard() {
 
         {/* === RIGHT COLUMN === */}
         <div className="flex flex-col gap-6">
+
+          {/* Build Dataset */}
+          <SectionCard title="Build Dataset">
+            <p className="text-xs text-gray-500 mb-3">
+              Processes all CSV/JSONL files from <span className="font-mono text-gray-400">python_ai/datasets/</span>,
+              runs Ollama ensemble labeling, and writes the unified training JSONL.
+              Run this before Fresh Training.
+            </p>
+
+            <div className={`mb-3 p-3 rounded-lg border ${ollamaAvailable ? "border-purple-500/30 bg-purple-500/5" : "border-gray-700/50 bg-gray-900/30"}`}>
+              <div className="flex items-center justify-between mb-1">
+                <div>
+                  <div className="text-xs font-medium text-white flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${ollamaAvailable ? "bg-purple-400" : "bg-gray-600"}`} />
+                    Ollama Ensemble Labeling
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {ollamaAvailable
+                      ? `${deepseekModels.slice(0,2).join(", ") || "models"} will score unlabeled pairs`
+                      : "Ollama not running — using rule-based labels"}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setBuildUseOllama(v => !v)}
+                  disabled={!ollamaAvailable}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${buildUseOllama && ollamaAvailable ? "bg-purple-600" : "bg-gray-700"} disabled:opacity-40`}
+                >
+                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${buildUseOllama && ollamaAvailable ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              {buildUseOllama && ollamaAvailable && (
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs text-gray-400 shrink-0">Ollama pairs limit:</span>
+                  <input
+                    type="number"
+                    value={buildOllamaLimit}
+                    min={100}
+                    max={10000}
+                    step={100}
+                    onChange={e => setBuildOllamaLimit(parseInt(e.target.value) || 2000)}
+                    className="w-24 bg-gray-900 border border-purple-500/40 rounded px-2 py-0.5 text-xs text-white font-mono"
+                  />
+                  <span className="text-xs text-gray-500">~{Math.round(buildOllamaLimit * 3 / 60)} min</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleBuildDataset}
+              disabled={isBuildingDataset}
+              className="w-full py-2 text-sm rounded-lg bg-teal-600 hover:bg-teal-500 disabled:opacity-50 transition-colors"
+            >
+              {isBuildingDataset
+                ? <span className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
+                    Building dataset...
+                  </span>
+                : "Build Unified Dataset"}
+            </button>
+
+            {buildDatasetLog.length > 0 && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 font-mono">
+                    builder log {isBuildingDataset && <span className="animate-pulse text-teal-400">● live</span>}
+                  </span>
+                  <button onClick={() => setBuildDatasetLog([])} className="text-xs text-gray-600 hover:text-gray-400">clear</button>
+                </div>
+                <div
+                  ref={buildLogRef}
+                  className="bg-gray-950 border border-gray-800 rounded-lg p-2 h-40 overflow-y-auto font-mono text-xs space-y-0.5"
+                >
+                  {buildDatasetLog.map((line, i) => (
+                    <div key={i} className={
+                      /error|traceback|failed/i.test(line) ? "text-red-400" :
+                      /warning|warn/i.test(line) ? "text-yellow-400" :
+                      /complete|saved|written/i.test(line) ? "text-green-400" :
+                      /\[Ensemble\]/i.test(line) ? "text-purple-300" :
+                      /\[Builder\]/i.test(line) ? "text-teal-300" :
+                      "text-gray-300"
+                    }>{line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SectionCard>
 
           {/* Data Pipeline */}
           <SectionCard title="Data Pipeline">

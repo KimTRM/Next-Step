@@ -91,6 +91,41 @@ def precision_at_k(preds: List[float], targets: List[float],
     return n_relevant / k
 
 
+def expected_calibration_error(
+    preds: List[float],
+    targets: List[float],
+    n_bins: int = 10,
+) -> float:
+    """
+    Expected Calibration Error (ECE). Lower is better. Target < 0.10.
+
+    Measures how well a model's confidence correlates with actual correctness.
+    A model with ECE=0.05 means its 70% confident predictions are right ~70% of the time.
+    """
+    if not preds:
+        return 0.0
+    bin_size = 1.0 / n_bins
+    bins: Dict[int, Dict] = {i: {"count": 0, "sum_conf": 0.0, "sum_target": 0.0}
+                              for i in range(n_bins)}
+
+    for pred, target in zip(preds, targets):
+        bin_idx = min(int(pred / bin_size), n_bins - 1)
+        bins[bin_idx]["count"] += 1
+        bins[bin_idx]["sum_conf"] += pred
+        bins[bin_idx]["sum_target"] += target
+
+    n = len(preds)
+    ece = 0.0
+    for b in bins.values():
+        if b["count"] == 0:
+            continue
+        avg_conf = b["sum_conf"] / b["count"]
+        avg_acc = b["sum_target"] / b["count"]
+        ece += (b["count"] / n) * abs(avg_conf - avg_acc)
+
+    return round(ece, 4)
+
+
 # ---------------------------------------------------------------------------
 # DeepSeek judge
 # ---------------------------------------------------------------------------
@@ -302,6 +337,11 @@ def evaluate(
 
     print(f"[Evaluate] Evaluated {len(all_preds)} pairs")
 
+    ece = expected_calibration_error(all_preds, all_targets)
+    pred_max = max(all_preds) if all_preds else 0.0
+    pred_mean = sum(all_preds) / len(all_preds) if all_preds else 0.0
+    pred_min = min(all_preds) if all_preds else 0.0
+
     metrics: Dict = {
         "split": split,
         "n_pairs": len(all_preds),
@@ -311,6 +351,12 @@ def evaluate(
         "precision_at_5": round(precision_at_k(
             all_preds, all_targets, k=k_precision, threshold=relevance_threshold
         ), 4),
+        "ece": ece,
+        "pred_stats": {
+            "min": round(pred_min, 4),
+            "mean": round(pred_mean, 4),
+            "max": round(pred_max, 4),
+        },
         "checkpoint": checkpoint_path,
     }
 
@@ -319,6 +365,7 @@ def evaluate(
         "rmse_lt_012": metrics["rmse"] < 0.12,
         "ndcg10_gt_075": metrics["ndcg_at_10"] > 0.75,
         "p5_gt_070": metrics["precision_at_5"] > 0.70,
+        "ece_lt_010": ece < 0.10,
     }
 
     # Optional DeepSeek judge
@@ -349,8 +396,12 @@ def _print_metrics(m: dict):
     print(f"  RMSE            : {m['rmse']:.4f}  (target: <0.12) {ok if m['targets_met']['rmse_lt_012'] else fail}")
     print(f"  NDCG@10         : {m['ndcg_at_10']:.4f}  (target: >0.75) {ok if m['targets_met']['ndcg10_gt_075'] else fail}")
     print(f"  Precision@5     : {m['precision_at_5']:.4f}  (target: >0.70) {ok if m['targets_met']['p5_gt_070'] else fail}")
+    print(f"  ECE             : {m['ece']:.4f}  (target: <0.10) {ok if m['targets_met']['ece_lt_010'] else fail}")
+    if "pred_stats" in m:
+        ps = m["pred_stats"]
+        print(f"  Pred range      : [{ps['min']:.4f}, {ps['mean']:.4f}, {ps['max']:.4f}]  (min, mean, max)")
     targets_met = sum(m["targets_met"].values())
-    print(f"\n  Targets met: {targets_met}/4")
+    print(f"\n  Targets met: {targets_met}/5")
 
     if "deepseek_judge" in m:
         dj = m["deepseek_judge"]
