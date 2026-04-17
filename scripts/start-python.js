@@ -2,7 +2,21 @@ const { spawn, spawnSync } = require('child_process');
 const path = require('path');
 
 // Try several Python executables for cross-platform compatibility
-const candidates = ['python', 'py', 'python3'];
+// Includes common Windows user-install paths as fallbacks
+const candidates = [
+  'python',
+  'py',
+  'python3',
+  process.env.LOCALAPPDATA
+    ? require('path').join(process.env.LOCALAPPDATA, 'Programs', 'Python', 'Python312', 'python.exe')
+    : null,
+  process.env.LOCALAPPDATA
+    ? require('path').join(process.env.LOCALAPPDATA, 'Programs', 'Python', 'Python311', 'python.exe')
+    : null,
+  process.env.LOCALAPPDATA
+    ? require('path').join(process.env.LOCALAPPDATA, 'Programs', 'Python', 'Python314', 'python.exe')
+    : null,
+].filter(Boolean);
 const uvicornArgs = ['-m', 'uvicorn', 'api.main:app', '--reload', '--port', '8000'];
 const requirementsPath = path.join(__dirname, '..', 'python_ai', 'requirements.txt');
 

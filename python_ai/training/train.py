@@ -204,6 +204,7 @@ def train(
     fresh: bool = False,
     confidence_ceiling: float = 0.75,
     baseline_confidence: float = 0.60,
+    embed_aux_weight: float = 0.10,
 ) -> dict:
     """Train the cross-encoder and return final metrics."""
     # Free any GPU memory held by other processes (e.g. Ollama) before allocating
@@ -284,6 +285,26 @@ def train(
         )
 
     criterion = nn.MSELoss()
+    import torch.nn.functional as F
+
+    # Pre-compute bi-encoder cosine similarity targets for embedding auxiliary loss.
+    # These are index-aligned with train_ds.pairs and used as soft regularization targets.
+    embed_aux_targets: dict[int, float] = {}
+    if embed_aux_weight > 0 and len(train_ds) > 0:
+        try:
+            print(f"[Train] Pre-computing sentence embeddings for auxiliary loss (weight={embed_aux_weight})...", flush=True)
+            sys.path.insert(0, str(Path(__file__).parents[1]))
+            from pipeline.labeling.embed_labeler import precompute_embeddings
+            resume_texts_all = [p["resume_text"] for p in train_ds.pairs]
+            job_texts_all = [p["job_text"] for p in train_ds.pairs]
+            _, _, aux_cosine_targets = precompute_embeddings(
+                resume_texts_all, job_texts_all, device=device
+            )
+            embed_aux_targets = {i: float(v) for i, v in enumerate(aux_cosine_targets.tolist())}
+            print(f"[Train] Embedding auxiliary targets ready for {len(embed_aux_targets)} pairs.", flush=True)
+        except Exception as e:
+            print(f"[Train] Embedding pre-computation skipped: {e}", flush=True)
+            embed_aux_weight = 0.0  # disable aux loss if pre-computation failed
 
     best_val_rmse = float("inf")
     patience_count = 0
@@ -320,6 +341,17 @@ def train(
                 preds = model(resume_texts, job_texts)
 
             loss = criterion(preds, targets)
+
+            # Embedding auxiliary loss: encourage predictions to align with
+            # bi-encoder cosine similarity (knowledge distillation signal).
+            if embed_aux_weight > 0.0 and "idx" in batch and embed_aux_targets:
+                aux_t = torch.tensor(
+                    [embed_aux_targets.get(int(i), float(targets[j].item()))
+                     for j, i in enumerate(batch["idx"])],
+                    dtype=torch.float32, device=device,
+                )
+                loss = loss + embed_aux_weight * F.mse_loss(preds, aux_t)
+
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -483,6 +515,9 @@ def main():
                         help="Clamp training labels above this value (default: 0.75)")
     parser.add_argument("--baseline-confidence", type=float, default=0.60,
                         help="Initial model prediction baseline for --fresh (default: 0.60)")
+    # Embedding auxiliary loss
+    parser.add_argument("--embed-aux-weight", type=float, default=0.10,
+                        help="Weight for bi-encoder cosine similarity auxiliary loss (default: 0.10, 0=disable)")
     args = parser.parse_args()
 
     use_db = not args.no_db and args.jsonl is None
@@ -504,6 +539,7 @@ def main():
         fresh=args.fresh,
         confidence_ceiling=args.confidence_ceiling,
         baseline_confidence=args.baseline_confidence,
+        embed_aux_weight=args.embed_aux_weight,
     )
 
     print("\n=== Training Complete ===")

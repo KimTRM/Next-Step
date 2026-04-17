@@ -181,8 +181,9 @@ export function TrainingDashboard() {
   // Dataset builder
   const [isBuildingDataset, setIsBuildingDataset] = useState(false);
   const [buildDatasetLog, setBuildDatasetLog] = useState<string[]>([]);
-  const [buildUseOllama, setBuildUseOllama] = useState(true);
+  const [buildLabelMode, setBuildLabelMode] = useState<"embed" | "ollama" | "rules">("embed");
   const [buildOllamaLimit, setBuildOllamaLimit] = useState(2000);
+  const [embedAuxWeight, setEmbedAuxWeight] = useState(0.10);
   const buildLogRef = useRef<HTMLDivElement>(null);
   const buildLogPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -304,6 +305,7 @@ export function TrainingDashboard() {
         payload.confidence_ceiling = confidenceCeiling;
         payload.baseline_confidence = baselineConfidence;
       }
+      payload.embed_aux_weight = embedAuxWeight;
 
       const resp = await fetch(`${API_BASE}/train`, {
         method: "POST",
@@ -454,7 +456,8 @@ export function TrainingDashboard() {
 
     try {
       const params = new URLSearchParams({
-        use_ollama: String(buildUseOllama && ollamaAvailable),
+        use_embed: String(buildLabelMode === "embed"),
+        use_ollama: String(buildLabelMode === "ollama" && ollamaAvailable),
         ollama_limit: String(buildOllamaLimit),
       });
       const resp = await fetch(`${API_BASE}/build-dataset?${params}`, { method: "POST" });
@@ -1124,6 +1127,27 @@ export function TrainingDashboard() {
                   </div>
                 </div>
               )}
+
+              {/* Embedding auxiliary loss — always visible */}
+              <div className="mt-3 p-3 rounded-lg border border-teal-700/30 bg-teal-900/10">
+                <label className="text-xs font-medium text-teal-300 block mb-1">
+                  Embed Auxiliary Loss Weight
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={embedAuxWeight}
+                    min={0}
+                    max={0.5}
+                    step={0.05}
+                    onChange={e => setEmbedAuxWeight(parseFloat(e.target.value) ?? 0.10)}
+                    className="w-24 bg-gray-900 border border-teal-700/50 rounded-lg px-3 py-1.5 text-sm font-mono text-white"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Adds bi-encoder cosine similarity as soft regularizer. 0 = disabled.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <button
@@ -1195,40 +1219,49 @@ export function TrainingDashboard() {
           <SectionCard title="Build Dataset">
             <p className="text-xs text-gray-500 mb-3">
               Processes all CSV/JSONL files from <span className="font-mono text-gray-400">python_ai/datasets/</span>,
-              runs Ollama ensemble labeling, and writes the unified training JSONL.
+              labels unlabeled pairs, and writes the unified training JSONL.
               Run this before Fresh Training.
             </p>
 
-            <div className={`mb-3 p-3 rounded-lg border ${ollamaAvailable ? "border-purple-500/30 bg-purple-500/5" : "border-gray-700/50 bg-gray-900/30"}`}>
-              <div className="flex items-center justify-between mb-1">
-                <div>
-                  <div className="text-xs font-medium text-white flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${ollamaAvailable ? "bg-purple-400" : "bg-gray-600"}`} />
-                    Ollama Ensemble Labeling
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {ollamaAvailable
-                      ? `${deepseekModels.slice(0,2).join(", ") || "models"} will score unlabeled pairs`
-                      : "Ollama not running — using rule-based labels"}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setBuildUseOllama(v => !v)}
-                  disabled={!ollamaAvailable}
-                  className={`relative w-10 h-5 rounded-full transition-colors ${buildUseOllama && ollamaAvailable ? "bg-purple-600" : "bg-gray-700"} disabled:opacity-40`}
-                >
-                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${buildUseOllama && ollamaAvailable ? "translate-x-5" : "translate-x-0.5"}`} />
-                </button>
+            {/* Labeling mode selector */}
+            <div className="mb-3 p-3 rounded-lg border border-gray-700/50 bg-gray-900/30">
+              <div className="text-xs font-medium text-gray-300 mb-2">Labeling Mode</div>
+              <div className="flex gap-1">
+                {(["embed", "ollama", "rules"] as const).map(mode => {
+                  const labels = { embed: "Embed (fast)", ollama: "Ollama (LLM)", rules: "Rules only" };
+                  const colors = {
+                    embed: "bg-teal-600 text-white",
+                    ollama: "bg-purple-600 text-white",
+                    rules: "bg-gray-600 text-white",
+                  };
+                  const disabled = mode === "ollama" && !ollamaAvailable;
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setBuildLabelMode(mode)}
+                      disabled={disabled}
+                      className={`flex-1 py-1 text-xs rounded transition-colors disabled:opacity-40
+                        ${buildLabelMode === mode ? colors[mode] : "bg-gray-800 text-gray-400 hover:bg-gray-700"}`}
+                    >
+                      {labels[mode]}
+                    </button>
+                  );
+                })}
               </div>
-              {buildUseOllama && ollamaAvailable && (
+              <div className="text-xs text-gray-500 mt-1.5">
+                {buildLabelMode === "embed" && "GPU-batched cosine similarity via sentence-transformers. ~40K pairs in <2 min."}
+                {buildLabelMode === "ollama" && (ollamaAvailable
+                  ? `LLM ensemble (${deepseekModels.slice(0,2).join(", ") || "models"}). Slow but richest signal.`
+                  : "Ollama not running.")}
+                {buildLabelMode === "rules" && "Fast rule/heuristic labels. No GPU or LLM needed."}
+              </div>
+              {buildLabelMode === "ollama" && ollamaAvailable && (
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-gray-400 shrink-0">Ollama pairs limit:</span>
+                  <span className="text-xs text-gray-400 shrink-0">Pairs limit:</span>
                   <input
                     type="number"
                     value={buildOllamaLimit}
-                    min={100}
-                    max={10000}
-                    step={100}
+                    min={100} max={10000} step={100}
                     onChange={e => setBuildOllamaLimit(parseInt(e.target.value) || 2000)}
                     className="w-24 bg-gray-900 border border-purple-500/40 rounded px-2 py-0.5 text-xs text-white font-mono"
                   />

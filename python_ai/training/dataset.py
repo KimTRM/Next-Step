@@ -157,10 +157,12 @@ class JobMatchDataset(Dataset):
                 "confidence": confidence,
                 "resume_text": resume_text,
                 "job_text": job_text,
+                "idx": torch.tensor(idx, dtype=torch.long),
             }
         else:
             return {
                 "resume_text": resume_text,
                 "job_text": job_text,
                 "confidence": confidence,
+                "idx": torch.tensor(idx, dtype=torch.long),
             }

@@ -109,6 +109,8 @@ class TrainingConfig(BaseModel):
     fresh: bool = False
     confidence_ceiling: float = 0.75
     baseline_confidence: float = 0.60
+    # Embedding auxiliary loss (bi-encoder cosine similarity regularization)
+    embed_aux_weight: float = 0.10
 
 
 class FeedbackRequest(BaseModel):
@@ -702,6 +704,8 @@ async def trigger_training(config: TrainingConfig):
             "--baseline-confidence", str(config.baseline_confidence),
         ]
 
+    cmd += ["--embed-aux-weight", str(config.embed_aux_weight)]
+
     run_id = None
     if db_available:
         try:
@@ -796,12 +800,15 @@ async def training_history():
 
 
 @app.post("/build-dataset")
-async def build_dataset(
-    use_ollama: bool = Query(True, description="Use Ollama ensemble to label unlabeled pairs"),
+async def build_dataset_endpoint(
+    use_embed: bool = Query(True, description="Use sentence-transformer embeddings to label pairs (fast, no API key)"),
+    use_ollama: bool = Query(False, description="Use Ollama LLM ensemble instead of embeddings (slow)"),
     ollama_limit: int = Query(2000, description="Max pairs to label with Ollama per dataset"),
 ):
     """
     Build unified training dataset from all CSV/JSONL sources under python_ai/datasets/.
+
+    Labeling priority: embed_labeler (default, GPU-batched) > ollama_ensemble > rule-based.
     Runs dataset_builder.py as a background subprocess. Logs to build_dataset.log.
     """
     log_path = CHECKPOINT_DIR / "build_dataset.log"
@@ -812,8 +819,10 @@ async def build_dataset(
         str(Path(__file__).parents[1] / "training" / "dataset_builder.py"),
         "--ollama-limit", str(ollama_limit),
     ]
-    if not use_ollama:
-        cmd.append("--no-ollama")
+    if use_ollama:
+        cmd.append("--use-ollama")
+    elif not use_embed:
+        cmd.append("--no-embed")
 
     try:
         log_file = open(log_path, "w", encoding="utf-8", buffering=1)
@@ -829,7 +838,7 @@ async def build_dataset(
             "message": "Dataset builder started",
             "pid": proc.pid,
             "log": str(log_path),
-            "use_ollama": use_ollama,
+            "labeling_mode": "ollama" if use_ollama else ("embed" if use_embed else "rules"),
             "ollama_limit": ollama_limit,
         }
     except Exception as e:

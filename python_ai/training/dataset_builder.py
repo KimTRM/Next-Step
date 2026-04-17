@@ -16,8 +16,16 @@ bias correction — that is how >75% confidence is "earned" via training.
 
 Usage:
     python python_ai/training/dataset_builder.py
-    python python_ai/training/dataset_builder.py --no-ollama  # skip Ollama, use defaults
-    python python_ai/training/dataset_builder.py --ollama-limit 500  # limit Ollama-labeled pairs
+        # Default: use local sentence-transformer embeddings (fast, GPU-batched)
+
+    python python_ai/training/dataset_builder.py --use-ollama
+        # Use Ollama LLM ensemble (slow but richer signal, needs Ollama running)
+
+    python python_ai/training/dataset_builder.py --no-embed --no-ollama
+        # Skip all ML labeling, use rule-based defaults only
+
+    python python_ai/training/dataset_builder.py --hf-api --hf-token hf_xxx
+        # Use HuggingFace Inference API embeddings (requires token, rate-limited)
 """
 from __future__ import annotations
 
@@ -176,13 +184,60 @@ def _ats_job_text(tier: str) -> str:
 # Source 2: job_applicant_dataset.csv (needs Ollama ensemble labeling)
 # ---------------------------------------------------------------------------
 
+def _embed_label_pairs(pairs: List[Tuple[str, str]]) -> Optional[List[dict]]:
+    """Try embed_labeler; return None on failure."""
+    try:
+        sys.path.insert(0, str(Path(__file__).parents[1]))
+        from pipeline.labeling.embed_labeler import embed_label_batch
+        return embed_label_batch(pairs, log_interval=500)
+    except Exception as e:
+        print(f"[Builder] embed_labeler failed: {e}", file=sys.stderr)
+        return None
+
+
+def _ollama_label_pairs(
+    pairs: List[Tuple[str, str]],
+    models: Optional[List[str]] = None,
+) -> Optional[List[dict]]:
+    """Try ollama_ensemble; return None on failure."""
+    try:
+        sys.path.insert(0, str(Path(__file__).parents[1]))
+        from pipeline.labeling.ollama_ensemble import (
+            ensemble_label_batch, get_available_models
+        )
+        avail = models or get_available_models()
+        if not avail:
+            return None
+        return ensemble_label_batch(pairs, models=avail, log_interval=100)
+    except Exception as e:
+        print(f"[Builder] ollama_ensemble failed: {e}", file=sys.stderr)
+        return None
+
+
+def _length_default_labels(rows: List[Tuple[str, str]], source: str) -> Iterator[Dict]:
+    """Fallback: length-heuristic confidence for unmatched rows."""
+    for i, (resume, job_desc) in enumerate(rows):
+        length_factor = min(len(resume) / 2000.0, 1.0)
+        conf = round(0.35 + length_factor * 0.15, 4)
+        split = assign_split(i, max(len(rows), 1))
+        yield {
+            "resume_text": resume[:1500],
+            "job_text": job_desc[:800],
+            "confidence": conf,
+            "split": split,
+            "source": source,
+        }
+
+
 def load_job_applicant_dataset(
-    use_ollama: bool = True,
+    use_embed: bool = True,
+    use_ollama: bool = False,
     ollama_limit: int = 2000,
 ) -> Iterator[Dict]:
     """
-    Load job_applicant_dataset.csv. Uses Ollama ensemble to generate confidence labels.
-    If Ollama unavailable, assigns rule-based defaults.
+    Load job_applicant_dataset.csv. Labels via embed_labeler (default) or Ollama.
+
+    Priority: embed_labeler > ollama_ensemble > length-heuristic fallback.
     """
     import csv
 
@@ -200,62 +255,40 @@ def load_job_applicant_dataset(
             if resume and job_desc:
                 rows.append((resume, job_desc))
 
-    # Shuffle and limit for Ollama
     random.shuffle(rows)
     total = len(rows)
     print(f"[Builder] job_applicant_dataset.csv: {total} pairs found")
 
-    if use_ollama:
-        # Label with Ollama ensemble for subset, then assign defaults for rest
+    labels = None
+
+    if use_embed:
+        print(f"[Builder] Running embed_labeler on {total} pairs (GPU-batched)...")
+        pairs_trunc = [(r[:800], j[:600]) for r, j in rows]
+        labels = _embed_label_pairs(pairs_trunc)
+        source_tag = "job_applicant_embed"
+
+    if labels is None and use_ollama:
         ollama_rows = rows[:ollama_limit]
-        rest_rows = rows[ollama_limit:]
-
         print(f"[Builder] Running Ollama ensemble on {len(ollama_rows)} pairs...")
-        try:
-            sys.path.insert(0, str(Path(__file__).parents[1]))
-            from pipeline.labeling.ollama_ensemble import (
-                ensemble_label_batch, get_available_models
-            )
-            models = get_available_models()
-            if models:
-                pairs = [(r[:800], j[:600]) for r, j in ollama_rows]
-                labels = ensemble_label_batch(pairs, models=models, log_interval=100)
-                for i, ((resume, job_desc), label) in enumerate(zip(ollama_rows, labels)):
-                    split = assign_split(i, len(ollama_rows))
-                    yield {
-                        "resume_text": resume[:1500],
-                        "job_text": job_desc[:800],
-                        "confidence": label["confidence"],
-                        "split": split,
-                        "source": "job_applicant_ollama",
-                    }
-            else:
-                print("[Builder] No Ollama models available — using defaults for all pairs")
-                rest_rows = rows  # Fall back all rows to defaults
-                ollama_rows = []
-        except Exception as e:
-            print(f"[Builder] Ollama ensemble failed: {e}. Using defaults.", file=sys.stderr)
-            rest_rows = rows
-            ollama_rows = []
+        pairs_trunc = [(r[:800], j[:600]) for r, j in ollama_rows]
+        labels = _ollama_label_pairs(pairs_trunc)
+        if labels is not None:
+            rows = ollama_rows  # only labelled rows
+        source_tag = "job_applicant_ollama"
+
+    if labels is not None:
+        for i, ((resume, job_desc), label) in enumerate(zip(rows, labels)):
+            yield {
+                "resume_text": resume[:1500],
+                "job_text": job_desc[:800],
+                "confidence": label["confidence"],
+                "split": assign_split(i, len(rows)),
+                "source": source_tag,
+            }
+        print(f"[Builder] job_applicant_dataset.csv: {len(labels)} labeled via {source_tag}")
     else:
-        rest_rows = rows
-        ollama_rows = []
-
-    # Remaining rows get a conservative default label derived from text length heuristic
-    for i, (resume, job_desc) in enumerate(rest_rows):
-        # Minimal heuristic: longer resume = slightly higher chance of matching something
-        length_factor = min(len(resume) / 2000.0, 1.0)
-        conf = round(0.35 + length_factor * 0.15, 4)   # [0.35, 0.50]
-        split = assign_split(i, max(len(rest_rows), 1))
-        yield {
-            "resume_text": resume[:1500],
-            "job_text": job_desc[:800],
-            "confidence": conf,
-            "split": split,
-            "source": "job_applicant_default",
-        }
-
-    print(f"[Builder] job_applicant_dataset.csv: {len(ollama_rows)} Ollama + {len(rest_rows)} default")
+        print(f"[Builder] job_applicant_dataset.csv: using length-heuristic fallback")
+        yield from _length_default_labels(rows, "job_applicant_default")
 
 
 # ---------------------------------------------------------------------------
@@ -333,12 +366,13 @@ def load_ai_resume_screening() -> Iterator[Dict]:
 # ---------------------------------------------------------------------------
 
 def load_resume_dataset1(
-    use_ollama: bool = True,
+    use_embed: bool = True,
+    use_ollama: bool = False,
     ollama_limit: int = 1000,
 ) -> Iterator[Dict]:
     """
     Load Resume Dataset 1 JSONL. Pairs each resume with a templated job description
-    derived from the resume's most recent job title. Uses Ollama ensemble for labels.
+    derived from the resume's most recent job title. Labels via embed_labeler (default).
     """
     jsonl_path = next(_DATASET1_DIR.glob("*.jsonl"), None) if _DATASET1_DIR.exists() else None
     if not jsonl_path:
@@ -367,54 +401,60 @@ def load_resume_dataset1(
         if resume_text and job_text:
             pairs.append((resume_text, job_text, rec))
 
-    # Ollama subset
-    if use_ollama and pairs:
+    labels = None
+    labeled_pairs = pairs
+    source_tag = "dataset1_embed"
+
+    if use_embed and pairs:
+        print(f"[Builder] Running embed_labeler on {len(pairs)} Resume Dataset 1 pairs...")
+        text_pairs = [(r[:800], j[:600]) for r, j, _ in pairs]
+        labels = _embed_label_pairs(text_pairs)
+
+    if labels is None and use_ollama and pairs:
         ollama_pairs = pairs[:ollama_limit]
-        rest_pairs = pairs[ollama_limit:]
-
         print(f"[Builder] Running Ollama ensemble on {len(ollama_pairs)} Resume Dataset 1 pairs...")
-        try:
-            sys.path.insert(0, str(Path(__file__).parents[1]))
-            from pipeline.labeling.ollama_ensemble import (
-                ensemble_label_batch, get_available_models
-            )
-            models = get_available_models()
-            if models:
-                text_pairs = [(r[:800], j[:600]) for r, j, _ in ollama_pairs]
-                labels = ensemble_label_batch(text_pairs, models=models, log_interval=100)
-                for i, ((resume, job, _rec), label) in enumerate(zip(ollama_pairs, labels)):
-                    split = assign_split(i, len(ollama_pairs))
-                    yield {
-                        "resume_text": resume[:1500],
-                        "job_text": job[:800],
-                        "confidence": label["confidence"],
-                        "split": split,
-                        "source": "dataset1_ollama",
-                    }
-            else:
-                rest_pairs = pairs  # All fall back to rule-based
-                ollama_pairs = []
-        except Exception as e:
-            print(f"[Builder] Ollama failed for dataset1: {e}", file=sys.stderr)
-            rest_pairs = pairs
-            ollama_pairs = []
+        text_pairs = [(r[:800], j[:600]) for r, j, _ in ollama_pairs]
+        labels = _ollama_label_pairs(text_pairs)
+        if labels is not None:
+            labeled_pairs = ollama_pairs
+        source_tag = "dataset1_ollama"
+
+    if labels is not None:
+        for i, ((resume, job, _rec), label) in enumerate(zip(labeled_pairs, labels)):
+            yield {
+                "resume_text": resume[:1500],
+                "job_text": job[:800],
+                "confidence": label["confidence"],
+                "split": assign_split(i, len(labeled_pairs)),
+                "source": source_tag,
+            }
+        print(f"[Builder] Resume Dataset 1: {len(labels)} labeled via {source_tag}")
     else:
-        rest_pairs = pairs
-        ollama_pairs = []
+        # Fallback: rule-based scoring from structured fields
+        print(f"[Builder] Resume Dataset 1: using rule-based fallback")
+        for i, (resume, job, rec) in enumerate(pairs):
+            conf = _rule_score_from_structured(rec)
+            yield {
+                "resume_text": resume[:1500],
+                "job_text": job[:800],
+                "confidence": conf,
+                "split": assign_split(i, max(len(pairs), 1)),
+                "source": "dataset1_rule",
+            }
+        print(f"[Builder] Resume Dataset 1: {len(pairs)} rule-based")
 
-    # Rest: simple rule-based based on skills overlap
-    for i, (resume, job, rec) in enumerate(rest_pairs):
-        conf = _rule_score_from_structured(rec)
-        split = assign_split(i, max(len(rest_pairs), 1))
-        yield {
-            "resume_text": resume[:1500],
-            "job_text": job[:800],
-            "confidence": conf,
-            "split": split,
-            "source": "dataset1_rule",
-        }
 
-    print(f"[Builder] Resume Dataset 1: {len(ollama_pairs)} Ollama + {len(rest_pairs)} rule-based")
+def _str_item(item) -> str:
+    """Safely convert a skill/tech item that may be a str or dict to a string."""
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        return item.get("name") or item.get("value") or str(next(iter(item.values()), ""))
+    return str(item)
+
+
+def _join_items(items: list, limit: int) -> str:
+    return ", ".join(_str_item(x) for x in items[:limit] if _str_item(x))
 
 
 def _format_structured_resume(rec: dict) -> str:
@@ -431,7 +471,7 @@ def _format_structured_resume(rec: dict) -> str:
     for category in ["programming_languages", "frameworks", "databases", "cloud"]:
         all_skills.extend(skills_section.get("technical", {}).get(category, []))
     if all_skills:
-        parts.append(f"Technical skills: {', '.join(all_skills[:15])}.")
+        parts.append(f"Technical skills: {_join_items(all_skills, 15)}.")
 
     # Experience
     experiences = rec.get("experience", [])
@@ -443,7 +483,7 @@ def _format_structured_resume(rec: dict) -> str:
             parts.append(f"Experience: {title} at {company} ({duration}).".strip())
         techs = exp.get("technical_environment", {}).get("technologies", [])
         if techs:
-            parts.append(f"Technologies used: {', '.join(techs[:8])}.")
+            parts.append(f"Technologies used: {_join_items(techs, 8)}.")
 
     # Education
     edu_list = rec.get("education", [])
@@ -479,7 +519,7 @@ def _make_job_from_title(title: str, rec: dict) -> str:
     for category in ["programming_languages", "frameworks", "databases"]:
         tech_skills.extend(skills_section.get("technical", {}).get(category, []))
 
-    skill_str = ", ".join(tech_skills[:6]) if tech_skills else "relevant technical skills"
+    skill_str = _join_items(tech_skills, 6) if tech_skills else "relevant technical skills"
     experiences = rec.get("experience", [])
     exp_yrs = len(experiences) * 2  # rough estimate
 
@@ -553,7 +593,8 @@ def _parse_duration_years(duration_str: str) -> float:
 # ---------------------------------------------------------------------------
 
 def build_dataset(
-    use_ollama: bool = True,
+    use_embed: bool = True,
+    use_ollama: bool = False,
     ollama_limit: int = 2000,
     output_path: Optional[Path] = None,
     seed: int = 42,
@@ -561,22 +602,26 @@ def build_dataset(
     """
     Build unified training JSONL from all dataset sources.
 
+    Label priority for unlabeled pairs: embed_labeler > ollama_ensemble > rule-based.
+
     Returns summary dict with split counts.
     """
     random.seed(seed)
     output_path = output_path or OUTPUT_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    labeler_mode = "embed (sentence-transformers)" if use_embed else ("ollama" if use_ollama else "rule-based")
     print(f"[Builder] Output: {output_path}")
-    print(f"[Builder] Ollama labeling: {'enabled' if use_ollama else 'disabled'}")
-    print(f"[Builder] Ollama limit per dataset: {ollama_limit}")
+    print(f"[Builder] Labeling mode: {labeler_mode}")
+    if use_ollama:
+        print(f"[Builder] Ollama limit per dataset: {ollama_limit}")
     print()
 
     sources = [
         ("ATS dataset (train+val)", load_ats_dataset()),
-        ("Job Applicant dataset", load_job_applicant_dataset(use_ollama, ollama_limit)),
+        ("Job Applicant dataset", load_job_applicant_dataset(use_embed, use_ollama, ollama_limit)),
         ("AI Resume Screening", load_ai_resume_screening()),
-        ("Resume Dataset 1", load_resume_dataset1(use_ollama, ollama_limit // 2)),
+        ("Resume Dataset 1", load_resume_dataset1(use_embed, use_ollama, ollama_limit // 2)),
     ]
 
     counts = {"train": 0, "val": 0, "test": 0, "total": 0}
@@ -612,10 +657,18 @@ def build_dataset(
 
 def main():
     parser = argparse.ArgumentParser(description="Build unified training dataset")
-    parser.add_argument(
-        "--no-ollama", action="store_true",
-        help="Disable Ollama ensemble labeling (use defaults/rules only)"
+
+    # Labeling mode flags (mutually exclusive priorities)
+    label_group = parser.add_mutually_exclusive_group()
+    label_group.add_argument(
+        "--no-embed", action="store_true",
+        help="Disable embed_labeler (fall through to Ollama or rules)"
     )
+    label_group.add_argument(
+        "--use-ollama", action="store_true",
+        help="Use Ollama LLM ensemble instead of embed_labeler (slow)"
+    )
+
     parser.add_argument(
         "--ollama-limit", type=int, default=2000,
         help="Max pairs to label with Ollama per dataset (default: 2000)"
@@ -627,8 +680,12 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
+    use_embed = not args.no_embed and not args.use_ollama
+    use_ollama = args.use_ollama
+
     result = build_dataset(
-        use_ollama=not args.no_ollama,
+        use_embed=use_embed,
+        use_ollama=use_ollama,
         ollama_limit=args.ollama_limit,
         output_path=Path(args.output),
         seed=args.seed,

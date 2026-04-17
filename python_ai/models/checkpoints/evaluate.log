@@ -8,9 +8,10 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
   RMSE            : 0.0438  (target: <0.12) OK
   NDCG@10         : 0.9902  (target: >0.75) OK
   Precision@5     : 1.0000  (target: >0.70) OK
+  ECE             : 0.0027  (target: <0.10) OK
+  Pred range      : [0.1022, 0.6856, 0.9746]  (min, mean, max)
 
-  Targets met: 4/4
+  Targets met: 5/5
 
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\metrics.json
-ical arch.
-- MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
+ining on your downstream task.[0m

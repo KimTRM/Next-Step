@@ -1,0 +1,74 @@
+[Builder] Output: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
+[Builder] Labeling mode: embed (sentence-transformers)
+
+
+[Builder] Processing: ATS dataset (train+val)
+[Builder] ATS train.csv: 5099 loaded, 0 skipped
+[Builder] ATS validation.csv: 1275 loaded, 0 skipped
+[Builder] ATS dataset (train+val): 6374 records written
+
+[Builder] Processing: Job Applicant dataset
+[Builder] job_applicant_dataset.csv: 10000 pairs found
+[Builder] Running embed_labeler on 10000 pairs (GPU-batched)...
+[EmbedLabeler] Loading model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 on cuda
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 4419.78it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+[EmbedLabeler] Encoding 10000 resumes...
+[EmbedLabeler] Encoding 10000 job descriptions...
+[EmbedLabeler] Computing cosine similarities...
+[EmbedLabeler] 500/10000 labeled (last conf=0.536)
+[EmbedLabeler] 1000/10000 labeled (last conf=0.436)
+[EmbedLabeler] 1500/10000 labeled (last conf=0.511)
+[EmbedLabeler] 2000/10000 labeled (last conf=0.384)
+[EmbedLabeler] 2500/10000 labeled (last conf=0.497)
+[EmbedLabeler] 3000/10000 labeled (last conf=0.423)
+[EmbedLabeler] 3500/10000 labeled (last conf=0.346)
+[EmbedLabeler] 4000/10000 labeled (last conf=0.425)
+[EmbedLabeler] 4500/10000 labeled (last conf=0.462)
+[EmbedLabeler] 5000/10000 labeled (last conf=0.374)
+[EmbedLabeler] 5500/10000 labeled (last conf=0.473)
+[EmbedLabeler] 6000/10000 labeled (last conf=0.482)
+[EmbedLabeler] 6500/10000 labeled (last conf=0.469)
+[EmbedLabeler] 7000/10000 labeled (last conf=0.494)
+[EmbedLabeler] 7500/10000 labeled (last conf=0.352)
+[EmbedLabeler] 8000/10000 labeled (last conf=0.500)
+[EmbedLabeler] 8500/10000 labeled (last conf=0.469)
+[EmbedLabeler] 9000/10000 labeled (last conf=0.480)
+[EmbedLabeler] 9500/10000 labeled (last conf=0.410)
+[EmbedLabeler] 10000/10000 labeled (last conf=0.469)
+[EmbedLabeler] Done. conf range: [0.255, 0.589] mean=0.443
+[Builder] ERROR in Resume Dataset 1: sequence item 0: expected str instance, dict found
+[Builder] job_applicant_dataset.csv: 10000 labeled via job_applicant_embed
+[Builder] Job Applicant dataset: 10000 records written
+
+[Builder] Processing: AI Resume Screening
+[Builder] ai_resume_screening.csv: 30000 loaded, 0 skipped
+[Builder] AI Resume Screening: 30000 records written
+
+[Builder] Processing: Resume Dataset 1
+[Builder] Resume Dataset 1: 4817 records found
+[Builder] Resume Dataset 1: 0 records written
+
+==================================================
+[Builder] COMPLETE: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
+[Builder] Split counts: train=33099, val=7275, test=6000
+[Builder] Total: 46374
+[Builder] Sources:
+  ai_screening                            : 30000
+  ats                                     : 6374
+  job_applicant_embed                     : 10000
+==================================================
+
+Dataset ready: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
+Exception ignored in: <function ResourceTracker.__del__ at 0x000002300EDBCD60>
+Traceback (most recent call last):
+  File "C:\Users\David Laureles\AppData\Local\Programs\Python\Python312\Lib\site-packages\multiprocess\resource_tracker.py", line 80, in __del__
+  File "C:\Users\David Laureles\AppData\Local\Programs\Python\Python312\Lib\site-packages\multiprocess\resource_tracker.py", line 89, in _stop
+  File "C:\Users\David Laureles\AppData\Local\Programs\Python\Python312\Lib\site-packages\multiprocess\resource_tracker.py", line 102, in _stop_locked
+AttributeError: '_thread.RLock' object has no attribute '_recursion_count'
