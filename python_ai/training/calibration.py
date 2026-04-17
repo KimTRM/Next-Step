@@ -6,9 +6,9 @@ It fits a scalar T on the validation set that divides the raw logits:
 
     calibrated_score = sigmoid(logit / T)
 
-T > 1.0 → spreads predictions (reduces overconfidence)
-T < 1.0 → sharpens predictions (rarely needed at start of training)
-T = 1.0 → no change
+T > 1.0 -> spreads predictions (reduces overconfidence)
+T < 1.0 -> sharpens predictions (rarely needed at start of training)
+T = 1.0 -> no change
 
 Also computes Expected Calibration Error (ECE) to measure how well
 confidence correlates with actual accuracy.
@@ -187,11 +187,11 @@ def fit_temperature(
     T = float(temperature.clamp(min=0.05, max=10.0).item())
     print(f"[Calibration] Fitted temperature T = {T:.4f}", flush=True)
     if T > 1.0:
-        print(f"[Calibration] T > 1 → model was overconfident, spreading predictions", flush=True)
+        print(f"[Calibration] T > 1 -> model was overconfident, spreading predictions", flush=True)
     elif T < 1.0:
-        print(f"[Calibration] T < 1 → model was underconfident, sharpening predictions", flush=True)
+        print(f"[Calibration] T < 1 -> model was underconfident, sharpening predictions", flush=True)
     else:
-        print(f"[Calibration] T ≈ 1 → model already well-calibrated", flush=True)
+        print(f"[Calibration] T ~= 1 -> model already well-calibrated", flush=True)
 
     # Report ECE before and after
     sigmoid = torch.sigmoid
@@ -226,7 +226,7 @@ def calibrate_checkpoint(
     batch_size: int = 32,
 ) -> float:
     """
-    Full calibration pipeline: load model → collect val logits → fit T → save.
+    Full calibration pipeline: load model -> collect val logits -> fit T -> save.
     Returns fitted temperature.
     """
     device = "cuda" if torch.cuda.is_available() else "cpu"

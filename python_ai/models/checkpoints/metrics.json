@@ -1,22 +1,22 @@
 {
   "split": "test",
   "n_pairs": 977,
-  "pearson": 0.9695,
-  "rmse": 0.0438,
-  "ndcg_at_10": 0.9902,
-  "precision_at_5": 1.0,
-  "ece": 0.0027,
+  "pearson": 0.2279,
+  "rmse": 0.3489,
+  "ndcg_at_10": 0.7093,
+  "precision_at_5": 0.4,
+  "ece": 0.2988,
   "pred_stats": {
-    "min": 0.1022,
-    "mean": 0.6856,
-    "max": 0.9746
+    "min": 0.2033,
+    "mean": 0.387,
+    "max": 0.5679
   },
   "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt",
   "targets_met": {
-    "pearson_gt_080": true,
-    "rmse_lt_012": true,
-    "ndcg10_gt_075": true,
-    "p5_gt_070": true,
-    "ece_lt_010": true
+    "pearson_gt_080": false,
+    "rmse_lt_012": false,
+    "ndcg10_gt_075": false,
+    "p5_gt_070": false,
+    "ece_lt_010": false
   }
 }

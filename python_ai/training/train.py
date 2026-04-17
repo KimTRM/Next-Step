@@ -186,12 +186,12 @@ def _wipe_checkpoints(checkpoint_dir: Path) -> None:
 
 def train(
     epochs: int = 10,
-    batch_size: int = 32,
+    batch_size: int = 16,
     encoder_lr: float = 2e-5,
     head_lr: float = 1e-4,
     weight_decay: float = 0.01,
     warmup_steps: int = 500,
-    max_length: int = 256,
+    max_length: int = 128,
     patience: int = 3,
     use_db: bool = True,
     jsonl_path: str | None = None,
@@ -217,6 +217,29 @@ def train(
         print(f"[Train] --fresh: wiping previous checkpoints and initializing baseline bias={baseline_confidence}")
 
     checkpoint_path = CHECKPOINT_DIR / checkpoint_name
+
+    # Resolve relative jsonl_path against the repo root so it works regardless
+    # of the working directory the script is launched from.
+    if jsonl_path:
+        p = Path(jsonl_path)
+        if not p.is_absolute():
+            repo_root = Path(__file__).parents[2]
+            candidate = repo_root / p
+            if candidate.exists():
+                jsonl_path = str(candidate)
+            elif not p.exists():
+                # last resort: relative to python_ai/
+                python_ai_dir = Path(__file__).parents[1]
+                jsonl_path = str(python_ai_dir / p)
+        print(f"[Train] JSONL path resolved: {jsonl_path}")
+
+    # Default JSONL for fresh training when none specified
+    if fresh and not jsonl_path:
+        default_jsonl = Path(__file__).parents[2] / "python_ai" / "data" / "labeled" / "unified_training_pairs.jsonl"
+        if default_jsonl.exists():
+            jsonl_path = str(default_jsonl)
+            use_db = False
+            print(f"[Train] --fresh: auto-selected default JSONL: {jsonl_path}")
 
     # Wipe existing checkpoints for fresh start
     if fresh:
@@ -254,25 +277,40 @@ def train(
 
     model.train()
 
-    # Layer-wise learning rates
+    # Freeze word embeddings: vocab_size(119K) × hidden(384) = ~183 MB — the
+    # largest single parameter. Its Adam state (exp_avg_sq + sqrt temp) needs
+    # ~368 MB contiguous VRAM, which fails on fragmented 8 GB cards.
+    # MiniLM's multilingual vocab needs no task-specific fine-tuning.
+    frozen_emb = 0
+    for name, param in model.model.named_parameters():
+        if "word_embeddings" in name or "position_embeddings" in name or "token_type_embeddings" in name:
+            param.requires_grad = False
+            frozen_emb += param.numel()
+    if frozen_emb:
+        print(f"[Train] Frozen embedding params: {frozen_emb:,} (saves ~{frozen_emb*8//1024//1024} MB optimizer states)", flush=True)
+
+    # Layer-wise learning rates (only trainable params)
     head_param_ids = {
         id(p) for n, p in model.model.named_parameters()
         if "classifier" in n or "pooler" in n
     }
     encoder_params = [
         p for p in model.model.base_model.parameters()
-        if id(p) not in head_param_ids
+        if id(p) not in head_param_ids and p.requires_grad
     ]
     head_params = [
         p for n, p in model.model.named_parameters()
         if "classifier" in n or "pooler" in n
     ]
+    # foreach=False: avoids allocating all momentum buffers as one contiguous
+    # block (the default _foreach path fails on fragmented VRAM on 8 GB cards).
     optimizer = torch.optim.AdamW(
         [
             {"params": encoder_params, "lr": encoder_lr},
             {"params": head_params, "lr": head_lr},
         ],
         weight_decay=weight_decay,
+        foreach=False,
     )
 
     total_steps = len(train_loader) * epochs
@@ -288,23 +326,34 @@ def train(
     import torch.nn.functional as F
 
     # Pre-compute bi-encoder cosine similarity targets for embedding auxiliary loss.
-    # These are index-aligned with train_ds.pairs and used as soft regularization targets.
+    # Run on CPU so the GPU stays free for the cross-encoder training model.
     embed_aux_targets: dict[int, float] = {}
     if embed_aux_weight > 0 and len(train_ds) > 0:
         try:
-            print(f"[Train] Pre-computing sentence embeddings for auxiliary loss (weight={embed_aux_weight})...", flush=True)
+            print(f"[Train] Pre-computing sentence embeddings on CPU for auxiliary loss (weight={embed_aux_weight})...", flush=True)
             sys.path.insert(0, str(Path(__file__).parents[1]))
             from pipeline.labeling.embed_labeler import precompute_embeddings
             resume_texts_all = [p["resume_text"] for p in train_ds.pairs]
             job_texts_all = [p["job_text"] for p in train_ds.pairs]
+            # Force CPU: the SentenceTransformer model must be freed before the
+            # cross-encoder loads onto the GPU, otherwise OOM on ~8GB cards.
             _, _, aux_cosine_targets = precompute_embeddings(
-                resume_texts_all, job_texts_all, device=device
+                resume_texts_all, job_texts_all, device="cpu"
             )
             embed_aux_targets = {i: float(v) for i, v in enumerate(aux_cosine_targets.tolist())}
+            # Explicitly free any lingering CPU/GPU tensors from the encoder
+            del resume_texts_all, job_texts_all, aux_cosine_targets
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             print(f"[Train] Embedding auxiliary targets ready for {len(embed_aux_targets)} pairs.", flush=True)
         except Exception as e:
             print(f"[Train] Embedding pre-computation skipped: {e}", flush=True)
             embed_aux_weight = 0.0  # disable aux loss if pre-computation failed
+
+    # Mixed precision: halves activation + gradient memory on CUDA.
+    # Optimizer states remain fp32 (PyTorch handles this via GradScaler).
+    use_amp = device == "cuda"
+    scaler = torch.amp.GradScaler("cuda") if use_amp else None
 
     best_val_rmse = float("inf")
     patience_count = 0
@@ -317,45 +366,51 @@ def train(
         n_batches = 0
 
         for batch in train_loader:
-            if "input_ids" in batch:
-                # Tokenized mode
-                input_ids = batch["input_ids"].to(device)
-                attention_mask = batch["attention_mask"].to(device)
-                targets = batch["confidence"].to(device)
-
-                # Squeeze out any extra dim from tokenizer (e.g. [B,1,L] -> [B,L])
-                if input_ids.dim() == 3:
-                    input_ids = input_ids.squeeze(1)
-                    attention_mask = attention_mask.squeeze(1)
-
-                outputs = model.model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                ).logits.squeeze(-1)
-                preds = model.sigmoid(outputs)
-            else:
-                # Text mode fallback
-                resume_texts = batch["resume_text"]
-                job_texts = batch["job_text"]
-                targets = batch["confidence"].to(device)
-                preds = model(resume_texts, job_texts)
-
-            loss = criterion(preds, targets)
-
-            # Embedding auxiliary loss: encourage predictions to align with
-            # bi-encoder cosine similarity (knowledge distillation signal).
-            if embed_aux_weight > 0.0 and "idx" in batch and embed_aux_targets:
-                aux_t = torch.tensor(
-                    [embed_aux_targets.get(int(i), float(targets[j].item()))
-                     for j, i in enumerate(batch["idx"])],
-                    dtype=torch.float32, device=device,
-                )
-                loss = loss + embed_aux_weight * F.mse_loss(preds, aux_t)
-
             optimizer.zero_grad()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-            optimizer.step()
+
+            with torch.amp.autocast("cuda", enabled=use_amp):
+                if "input_ids" in batch:
+                    input_ids = batch["input_ids"].to(device)
+                    attention_mask = batch["attention_mask"].to(device)
+                    targets = batch["confidence"].to(device)
+
+                    if input_ids.dim() == 3:
+                        input_ids = input_ids.squeeze(1)
+                        attention_mask = attention_mask.squeeze(1)
+
+                    outputs = model.model(
+                        input_ids=input_ids,
+                        attention_mask=attention_mask,
+                    ).logits.squeeze(-1)
+                    preds = model.sigmoid(outputs)
+                else:
+                    resume_texts = batch["resume_text"]
+                    job_texts = batch["job_text"]
+                    targets = batch["confidence"].to(device)
+                    preds = model(resume_texts, job_texts)
+
+                loss = criterion(preds, targets)
+
+                # Embedding auxiliary loss (cosine similarity regularization).
+                if embed_aux_weight > 0.0 and "idx" in batch and embed_aux_targets:
+                    aux_t = torch.tensor(
+                        [embed_aux_targets.get(int(i), float(targets[j].item()))
+                         for j, i in enumerate(batch["idx"])],
+                        dtype=torch.float32, device=device,
+                    )
+                    loss = loss + embed_aux_weight * F.mse_loss(preds, aux_t)
+
+            if scaler:
+                scaler.scale(loss).backward()
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                optimizer.step()
+
             if scheduler:
                 scheduler.step()
 
@@ -496,7 +551,7 @@ def main():
     parser.add_argument("--head-lr", type=float, default=1e-4)
     parser.add_argument("--warmup-steps", type=int, default=500)
     parser.add_argument("--patience", type=int, default=3)
-    parser.add_argument("--max-length", type=int, default=256)
+    parser.add_argument("--max-length", type=int, default=128)
     parser.add_argument("--jsonl", default=None, help="Path to JSONL file (skip DB)")
     parser.add_argument("--no-db", action="store_true", help="Use JSONL only, skip DB")
     # DeepSeek per-epoch judge

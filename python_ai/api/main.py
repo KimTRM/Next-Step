@@ -95,7 +95,7 @@ class BulkMatchRequest(BaseModel):
 
 class TrainingConfig(BaseModel):
     epochs: int = 10
-    batch_size: int = 32
+    batch_size: int = 16
     encoder_lr: float = 2e-5
     head_lr: float = 1e-4
     warmup_steps: int = 500
