@@ -11,7 +11,8 @@
 [Builder] job_applicant_dataset.csv: 10000 pairs found
 [Builder] Running embed_labeler on 10000 pairs (GPU-batched)...
 [EmbedLabeler] Loading model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 on cuda
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 4419.78it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 8290.04it/s]
 [1mBertModel LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 Key                     | Status     |  | 
 ------------------------+------------+--+-
@@ -43,7 +44,6 @@ embeddings.position_ids | UNEXPECTED |  |
 [EmbedLabeler] 9500/10000 labeled (last conf=0.410)
 [EmbedLabeler] 10000/10000 labeled (last conf=0.469)
 [EmbedLabeler] Done. conf range: [0.255, 0.589] mean=0.443
-[Builder] ERROR in Resume Dataset 1: sequence item 0: expected str instance, dict found
 [Builder] job_applicant_dataset.csv: 10000 labeled via job_applicant_embed
 [Builder] Job Applicant dataset: 10000 records written
 
@@ -53,20 +53,45 @@ embeddings.position_ids | UNEXPECTED |  |
 
 [Builder] Processing: Resume Dataset 1
 [Builder] Resume Dataset 1: 4817 records found
-[Builder] Resume Dataset 1: 0 records written
+[Builder] Running embed_labeler on 4817 Resume Dataset 1 pairs...
+[EmbedLabeler] Loading model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 on cuda
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 6720.50it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+[EmbedLabeler] Encoding 4817 resumes...
+[EmbedLabeler] Encoding 4817 job descriptions...
+[EmbedLabeler] Computing cosine similarities...
+[EmbedLabeler] 500/4817 labeled (last conf=0.582)
+[EmbedLabeler] 1000/4817 labeled (last conf=0.549)
+[EmbedLabeler] 1500/4817 labeled (last conf=0.543)
+[EmbedLabeler] 2000/4817 labeled (last conf=0.515)
+[EmbedLabeler] 2500/4817 labeled (last conf=0.567)
+[EmbedLabeler] 3000/4817 labeled (last conf=0.542)
+[EmbedLabeler] 3500/4817 labeled (last conf=0.523)
+[EmbedLabeler] 4000/4817 labeled (last conf=0.604)
+[EmbedLabeler] 4500/4817 labeled (last conf=0.592)
+[EmbedLabeler] Done. conf range: [0.177, 0.661] mean=0.526
+[Builder] Resume Dataset 1: 4817 labeled via dataset1_embed
+[Builder] Resume Dataset 1: 4817 records written
 
 ==================================================
 [Builder] COMPLETE: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
-[Builder] Split counts: train=33099, val=7275, test=6000
-[Builder] Total: 46374
+[Builder] Split counts: train=36471, val=7998, test=6722
+[Builder] Total: 51191
 [Builder] Sources:
   ai_screening                            : 30000
   ats                                     : 6374
+  dataset1_embed                          : 4817
   job_applicant_embed                     : 10000
 ==================================================
 
 Dataset ready: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
-Exception ignored in: <function ResourceTracker.__del__ at 0x000002300EDBCD60>
+Exception ignored in: <function ResourceTracker.__del__ at 0x000001792D641300>
 Traceback (most recent call last):
   File "C:\Users\David Laureles\AppData\Local\Programs\Python\Python312\Lib\site-packages\multiprocess\resource_tracker.py", line 80, in __del__
   File "C:\Users\David Laureles\AppData\Local\Programs\Python\Python312\Lib\site-packages\multiprocess\resource_tracker.py", line 89, in _stop
