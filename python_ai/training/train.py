@@ -207,12 +207,14 @@ def train(
     embed_aux_weight: float = 0.10,
 ) -> dict:
     """Train the cross-encoder and return final metrics."""
-    # Free any GPU memory held by other processes (e.g. Ollama) before allocating
+    # Vector embedding auxiliary loss is standard — enforce minimum weight.
+    embed_aux_weight = max(0.05, embed_aux_weight)
+
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[Train] Device: {device}")
-    print(f"[Train] Epochs: {epochs} | Batch: {batch_size} | Encoder LR: {encoder_lr}")
+    print(f"[Train] Epochs: {epochs} | Batch: {batch_size} | Encoder LR: {encoder_lr} | embed_aux={embed_aux_weight}")
     if fresh:
         print(f"[Train] --fresh: wiping previous checkpoints and initializing baseline bias={baseline_confidence}")
 
@@ -572,7 +574,7 @@ def main():
                         help="Initial model prediction baseline for --fresh (default: 0.60)")
     # Embedding auxiliary loss
     parser.add_argument("--embed-aux-weight", type=float, default=0.10,
-                        help="Weight for bi-encoder cosine similarity auxiliary loss (default: 0.10, 0=disable)")
+                        help="Weight for vector embedding auxiliary loss (default: 0.10, minimum 0.05)")
     args = parser.parse_args()
 
     use_db = not args.no_db and args.jsonl is None

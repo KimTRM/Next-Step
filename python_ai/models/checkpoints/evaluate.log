@@ -1,17 +1,17 @@
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5357.54it/s]
-[CrossEncoder] Loaded from C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster do[CrossEncoder] Loaded from C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
 [Dataset] Loaded 977 pairs (split=test)
 [Evaluate] Evaluated 977 pairs
 
 === Evaluation Metrics ===
   Pairs evaluated : 977
-  Pearson         : 0.2279  (target: >0.80) FAIL
-  RMSE            : 0.3489  (target: <0.12) FAIL
-  NDCG@10         : 0.7093  (target: >0.75) FAIL
-  Precision@5     : 0.4000  (target: >0.70) FAIL
-  ECE             : 0.2988  (target: <0.10) FAIL
-  Pred range      : [0.2033, 0.3870, 0.5679]  (min, mean, max)
+  Pearson         : 0.9050  (target: >0.80) OK
+  RMSE            : 0.0969  (target: <0.12) OK
+  NDCG@10         : 0.9534  (target: >0.75) OK
+  Precision@5     : 1.0000  (target: >0.70) OK
+  ECE             : 0.0479  (target: <0.10) OK
+  Pred range      : [0.1685, 0.6465, 0.7567]  (min, mean, max)
 
-  Targets met: 0/5
+  Targets met: 5/5
 
 Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\metrics.json
+ining on your downstream task.[0m

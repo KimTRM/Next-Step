@@ -1128,23 +1128,27 @@ export function TrainingDashboard() {
                 </div>
               )}
 
-              {/* Embedding auxiliary loss — always visible */}
-              <div className="mt-3 p-3 rounded-lg border border-teal-700/30 bg-teal-900/10">
-                <label className="text-xs font-medium text-teal-300 block mb-1">
-                  Embed Auxiliary Loss Weight
-                </label>
+              {/* Embedding auxiliary loss — always active */}
+              <div className="mt-3 p-3 rounded-lg border border-teal-600/40 bg-teal-900/15">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                  <label className="text-xs font-medium text-teal-300">
+                    Vector Embedding Loss Weight
+                  </label>
+                  <span className="text-xs text-teal-500 ml-auto">always active</span>
+                </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     value={embedAuxWeight}
-                    min={0}
+                    min={0.05}
                     max={0.5}
                     step={0.05}
-                    onChange={e => setEmbedAuxWeight(parseFloat(e.target.value) ?? 0.10)}
-                    className="w-24 bg-gray-900 border border-teal-700/50 rounded-lg px-3 py-1.5 text-sm font-mono text-white"
+                    onChange={e => setEmbedAuxWeight(Math.max(0.05, parseFloat(e.target.value) || 0.10))}
+                    className="w-24 bg-gray-900 border border-teal-600/50 rounded-lg px-3 py-1.5 text-sm font-mono text-white"
                   />
                   <p className="text-xs text-gray-500">
-                    Adds bi-encoder cosine similarity as soft regularizer. 0 = disabled.
+                    Bi-encoder cosine similarity regularizer. Pre-computed once on CPU before training.
                   </p>
                 </div>
               </div>

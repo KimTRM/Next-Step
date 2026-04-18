@@ -1,12 +1,10 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 [Train] Device: cuda
-[Train] Epochs: 1 | Batch: 16 | Encoder LR: 2e-05
-[Train] --fresh: wiping previous checkpoints and initializing baseline bias=0.4
-[Train] JSONL path resolved: C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\data\labeled\unified_training_pairs.jsonl
-[Train] Checkpoints cleared. Starting from pretrained base weights.
-[Dataset] Loaded 36471 pairs (split=train)
-[Dataset] Loaded 7998 pairs (split=val)
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5450.46it/s]
+[Train] Epochs: 20 | Batch: 16 | Encoder LR: 2e-05 | embed_aux=0.1
+[Dataset] Loaded 8025 pairs (split=train)
+[Dataset] Loaded 998 pairs (split=val)
+[Train] Clamped 3014 training labels to ceiling=0.75
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5524.15it/s]
 [1mBertForSequenceClassification LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 Key                     | Status     | 
 ------------------------+------------+-
@@ -17,37 +15,33 @@ classifier.weight       | MISSING    |
 [3mNotes:
 - UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
 - MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
-[CrossEncoder] Baseline bias initialized: 0.40 (logit=-0.4055)
 [Train] Frozen embedding params: 96,211,584 (saves ~734 MB optimizer states)
-[Epoch 1/1] train_loss=0.0062 | val_loss=0.0039 | val_rmse=0.0626
+[Train] Pre-computing sentence embeddings on CPU for auxiliary loss (weight=0.1)...
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 5159.87it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+[Train] Embedding auxiliary targets ready for 8025 pairs.
+[Epoch 1/20] train_loss=0.0148 | val_loss=0.0173 | val_rmse=0.1312
 [CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-  Checkpoint saved (val_rmse=0.0626)
+  Checkpoint saved (val_rmse=0.1312)
+[Epoch 2/20] train_loss=0.0072 | val_loss=0.0123 | val_rmse=0.1113
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.1113)
+[Epoch 3/20] train_loss=0.0045 | val_loss=0.0103 | val_rmse=0.1014
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.1014)
+[Epoch 4/20] train_loss=0.0037 | val_loss=0.0108 | val_rmse=0.1040
+[Epoch 5/20] train_loss=0.0033 | val_loss=0.0086 | val_rmse=0.0929
+[CrossEncoder] Saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
+  Checkpoint saved (val_rmse=0.0929)
+[Epoch 6/20] train_loss=0.0029 | val_loss=0.0090 | val_rmse=0.0952
+[Epoch 7/20] train_loss=0.0028 | val_loss=0.0089 | val_rmse=0.0947
+[Epoch 8/20] train_loss=0.0027 | val_loss=0.0092 | val_rmse=0.0961
+[Train] Early stopping at epoch 8
 
 [Train] Running post-training temperature scaling calibration...
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|##########| 199/199 [00:00<00:00, 3027.14it/s]
-[1mBertForSequenceClassification LOAD REPORT[0m from: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-Key                     | Status     | 
-------------------------+------------+-
-embeddings.position_ids | UNEXPECTED | 
-classifier.bias         | MISSING    | 
-classifier.weight       | MISSING    | 
-
-[3mNotes:
-- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-- MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
-[CrossEncoder] Loaded from C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\cross_encoder.pt
-[Calibration] Collecting logits from validation set...
-[Calibration] Fitted temperature T = 1.0015
-[Train] Calibration failed (skipping): 'charmap' codec can't encode character '\u2192' in position 20: character maps to <undefined>
-
-=== Training Complete ===
-{
-  "train_loss": 0.006155,
-  "val_loss": 0.003919,
-  "val_rmse": 0.06260872546525906,
-  "epochs_trained": 1,
-  "checkpoint": "C:\\Users\\David Laureles\\Documents\\GitHub\\Next-Step\\python_ai\\models\\checkpoints\\cross_encoder.pt",
-  "temperature": 1.0,
-  "confidence_ceiling": 0.75
-}
-Metrics saved to C:\Users\David Laureles\Documents\GitHub\Next-Step\python_ai\models\checkpoints\training_metrics.json
