@@ -50,7 +50,8 @@ export function Header() {
               alt="NextStep"
               width={120}
               height={40}
-              className="h-10 w-auto"
+              className="h-10"
+              style={{ width: 'auto' }}
             />
           </Link>
 
@@ -61,15 +62,15 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={`relative transition-colors duration-200 ${isActive(item.href)
-                    ? "text-primary font-semibold"
-                    : "text-foreground hover:text-primary"
+                  ? "text-primary font-semibold"
+                  : "text-foreground hover:text-primary"
                   }`}
               >
                 {item.label}
                 <span
                   className={`${isActive(item.href)
-                      ? "opacity-100 scale-x-100"
-                      : "opacity-0 scale-x-0"
+                    ? "opacity-100 scale-x-100"
+                    : "opacity-0 scale-x-0"
                     } absolute -bottom-2 left-0 h-0.5 w-full bg-primary rounded-full transition-all duration-300 origin-left`}
                 />
               </Link>
@@ -160,8 +161,8 @@ export function Header() {
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`transition-colors py-2 text-left ${isActive(item.href)
-                      ? "text-primary font-semibold"
-                      : "text-foreground hover:text-primary"
+                    ? "text-primary font-semibold"
+                    : "text-foreground hover:text-primary"
                     }`}
                 >
                   {item.label}

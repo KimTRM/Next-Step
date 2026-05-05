@@ -12,7 +12,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center mb-4">
-              <Image src="/logo.png" alt="NextStep" width={120} height={40} className="h-10 w-auto" />
+              <Image src="/logo.png" alt="NextStep" width={120} height={40} className="h-10" style={{ width: 'auto' }} />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Helping you take your next step in life. Empowering youth through job discovery and mentorship.
