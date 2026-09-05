@@ -13,7 +13,7 @@
         "convex:dev": "npx convex dev",
         "convex:deploy": "npx convex deploy",
         "convex:dashboard": "npx convex dashboard",
-        "seed": "npx convex run seed:seedAll"
+        "seed": "npx convex run utils/seed:seedAll"
     },
     "dependencies": {
         "@clerk/nextjs": "^6.36.7",

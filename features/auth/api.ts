@@ -134,18 +134,24 @@ export function useLoginForm() {
                     const redirectUrl =
                         searchParams.get("redirect_url") || "/dashboard";
 
-                    // Set the session active and navigate
-                    // Using beforeEmit ensures navigation happens after session is fully established
+                    // Set the session active first
                     await setActive({
                         session: result.createdSessionId,
-                        beforeEmit: async () => {
-                            console.log(
-                                "[Login] Session established. Navigating to:",
-                                redirectUrl,
-                            );
-                            router.replace(redirectUrl);
-                        },
                     });
+
+                    console.log("[Login] Session activated successfully");
+
+                    // Small delay to ensure cookies are fully propagated
+                    // This prevents race condition where middleware runs before cookies are set
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+
+                    console.log(
+                        "[Login] Navigating to:",
+                        redirectUrl,
+                    );
+
+                    // Navigate after session is fully established
+                    router.replace(redirectUrl);
 
                     // Keep loginInProgressRef true to prevent any further attempts
                     // Don't reset isLoading - we're navigating away
@@ -355,18 +361,23 @@ export function useLoginForm() {
                     const redirectUrl =
                         searchParams.get("redirect_url") || "/dashboard";
 
-                    // Set the session active and navigate
-                    // Using beforeEmit ensures navigation happens after session is fully established
+                    // Set the session active first
                     await setActive({
                         session: result.createdSessionId,
-                        beforeEmit: async () => {
-                            console.log(
-                                "[Login] Session established. Navigating to:",
-                                redirectUrl,
-                            );
-                            router.replace(redirectUrl);
-                        },
                     });
+
+                    console.log("[Login] Session activated successfully");
+
+                    // Small delay to ensure cookies are fully propagated
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+
+                    console.log(
+                        "[Login] Navigating to:",
+                        redirectUrl,
+                    );
+
+                    // Navigate after session is fully established
+                    router.replace(redirectUrl);
 
                     return { success: true, error: null };
                 } else {
@@ -615,13 +626,12 @@ export function useSignUpForm(
                     );
                     await setActive({
                         session: signUp.createdSessionId,
-                        beforeEmit: async () => {
-                            console.log(
-                                "[SignUp] Session activated. Navigating to /onboarding...",
-                            );
-                            router.replace("/onboarding");
-                        },
                     });
+                    console.log("[SignUp] Session activated successfully");
+                    // Small delay to ensure cookies are fully propagated
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    console.log("[SignUp] Navigating to /onboarding...");
+                    router.replace("/onboarding");
                     return { success: true, error: null };
                 } catch (sessionError) {
                     setIsLoading(false);
@@ -656,13 +666,12 @@ export function useSignUpForm(
                         );
                         await setActive({
                             session: signUp.createdSessionId,
-                            beforeEmit: async () => {
-                                console.log(
-                                    "[SignUp] Session activated. Navigating to /onboarding...",
-                                );
-                                router.replace("/onboarding");
-                            },
                         });
+                        console.log("[SignUp] Session activated successfully");
+                        // Small delay to ensure cookies are fully propagated
+                        await new Promise((resolve) => setTimeout(resolve, 100));
+                        console.log("[SignUp] Navigating to /onboarding...");
+                        router.replace("/onboarding");
                         return { success: true, error: null };
                     } catch (sessionError) {
                         setIsLoading(false);
@@ -763,18 +772,22 @@ export function useSignUpForm(
                         }
                     }
 
-                    // Activate session and navigate using Next.js router
-                    // Using beforeEmit ensures navigation happens after session is fully established
+                    // Activate session first
                     console.log("[SignUp] Activating session...");
                     await setActive({
                         session: result.createdSessionId,
-                        beforeEmit: async () => {
-                            console.log(
-                                "[SignUp] Session established. Navigating to /onboarding...",
-                            );
-                            router.replace("/onboarding");
-                        },
                     });
+
+                    console.log("[SignUp] Session activated successfully");
+
+                    // Small delay to ensure cookies are fully propagated
+                    // This prevents race condition where middleware runs before cookies are set
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+
+                    console.log("[SignUp] Navigating to /onboarding...");
+
+                    // Navigate after session is fully established
+                    router.replace("/onboarding");
 
                     return { success: true, error: null };
                 } else {

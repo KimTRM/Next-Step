@@ -32,18 +32,39 @@ This document describes the authentication system implemented in the NextStep pl
 
 ## Environment Variables
 
-Add these to your `.env.local`:
+### Local Development (`.env.local`)
 
 ```env
+# Convex (from dashboard.convex.dev)
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+CONVEX_DEPLOYMENT=dev:your-deployment-name
+
 # Clerk (from dashboard.clerk.com)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 CLERK_WEBHOOK_SECRET=whsec_...
-
-# Convex (from dashboard.convex.dev)
-NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-CONVEX_DEPLOY_KEY=...
 ```
+
+### Production (Vercel Environment Variables)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_CONVEX_URL` | Yes | Convex deployment URL |
+| `CONVEX_DEPLOYMENT` | Yes | Convex deployment identifier |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key (`pk_live_*` for production) |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key (`sk_live_*` for production) |
+| `CLERK_WEBHOOK_SECRET` | Yes | Clerk webhook signing secret |
+
+### Optional Redirect URLs
+
+```env
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/auth
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/onboarding
+```
+
+> **Note**: See `.env.example` for a complete template with all variables.
 
 ## Auth Feature Exports
 
@@ -279,54 +300,73 @@ const {
 
 ## Route Protection
 
-### Protected Routes
+The middleware is defined in `proxy.ts` and handles all route protection.
 
-Defined in `proxy.ts`:
+### Public Routes (No Auth Required)
 
 ```typescript
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/onboarding(.*)",
-  "/applications(.*)",
-  "/jobs(.*)",
-  "/mentors(.*)",
-  "/messages(.*)",
-  "/profile(.*)",
+const isPublicRoute = createRouteMatcher([
+  "/",           // Home page
+  "/jobs(.*)",   // Job listings (public browsing)
+  "/mentors(.*)",// Mentor listings (public browsing)
+  "/api(.*)",    // API routes (webhooks, etc.)
+  "/welcome",    // Welcome page
 ]);
 ```
 
-### Auth Routes
+### Auth Routes (Redirect If Authenticated)
 
-Authenticated users are redirected away from:
+Authenticated users are automatically redirected to `/dashboard`:
 
 ```typescript
 const isAuthRoute = createRouteMatcher([
-  "/auth(.*)",
-  "/login(.*)",
-  "/sign-up(.*)",
+  "/auth(.*)",       // Login page
+  "/login(.*)",      // Legacy login
+  "/sign-up(.*)",    // Sign-up page
+  "/sso-callback(.*)", // OAuth callback
 ]);
 ```
+
+### Protected Routes (Auth Required)
+
+All routes not matching public or auth patterns require authentication:
+- `/dashboard(.*)`
+- `/onboarding(.*)`
+- `/applications(.*)`
+- `/messages(.*)`
+- `/profile(.*)`
+- Any other route not explicitly public
+
+### Session Establishment Grace Period
+
+The middleware includes a **cookie-based grace period** to handle the race condition after login/signup:
+
+```typescript
+// If user has Clerk cookies but session isn't validated yet,
+// allow the request through - client-side will handle auth
+const hasClerkCookie = req.cookies.has("__client_uat") || req.cookies.has("__session");
+if (hasClerkCookie) {
+  return NextResponse.next();
+}
+```
+
+This prevents redirect loops during the brief window after authentication when cookies are set but the session hasn't fully propagated.
 
 ### Adding New Protected Routes
 
-1. Add the route pattern to `proxy.ts`:
+1. Routes under `app/(platform)/` are automatically protected
+2. For public routes, add to `isPublicRoute` in `proxy.ts`:
 
 ```typescript
-const isProtectedRoute = createRouteMatcher([
+const isPublicRoute = createRouteMatcher([
   // ... existing routes
-  "/new-protected-route(.*)",
+  "/new-public-route(.*)",
 ]);
 ```
 
-2. Create the page under `app/(platform)/`:
-
-```
-app/(platform)/new-protected-route/page.tsx
-```
-
-The `(platform)` route group automatically wraps content with `OnboardingGuard`.
-
 ## Clerk Webhook Setup
+
+Webhooks sync user data from Clerk to Convex. The webhook handler is implemented in Convex.
 
 ### 1. Create Webhook in Clerk Dashboard
 
@@ -334,20 +374,33 @@ The `(platform)` route group automatically wraps content with `OnboardingGuard`.
 2. Select your application
 3. Navigate to **Webhooks**
 4. Click **Add Endpoint**
-5. Set URL to: `https://your-domain.com/api/webhooks/clerk`
+5. Set URL to: `https://<your-convex-deployment>.convex.site/clerk-webhook`
+   - Example: `https://hidden-skunk-152.convex.site/clerk-webhook`
 6. Select events:
    - `user.created`
    - `user.updated`
    - `user.deleted`
-7. Copy the **Signing Secret** to `CLERK_WEBHOOK_SECRET`
+7. Copy the **Signing Secret** (starts with `whsec_`)
 
-### 2. Webhook Handler
+### 2. Configure Convex Environment
 
-Located at `app/api/webhooks/clerk/route.ts`. Handles:
+Set the webhook secret in Convex:
 
-- `user.created`: Creates user in Convex
-- `user.updated`: Updates user in Convex
-- `user.deleted`: Deletes user from Convex
+```bash
+npx convex env set CLERK_WEBHOOK_SECRET whsec_your-secret-here
+```
+
+### 3. Webhook Handler
+
+Located at `convex/http.ts`. Handles:
+
+- `user.created`: Creates user in Convex via `upsertUserInternal`
+- `user.updated`: Updates user in Convex via `upsertUserInternal`
+- `user.deleted`: Deletes user from Convex via `deleteUserInternal`
+
+### 4. Fallback: AuthSyncProvider
+
+If webhooks fail, `AuthSyncProvider` in `app/providers.tsx` acts as a fallback to sync users client-side.
 
 ## Auth Flow
 
@@ -387,6 +440,74 @@ Located at `app/api/webhooks/clerk/route.ts`. Handles:
 5. Redirect based on mode:
    - Login: /dashboard
    - Sign Up: /onboarding
+```
+
+## Session Hydration Flow
+
+Understanding how sessions are established is critical for debugging auth issues.
+
+### The Session Establishment Process
+
+```
+1. User completes authentication (login/signup/OAuth)
+2. Clerk's setActive() is called with the new session ID
+3. Clerk sets session cookies (__session, __client_uat)
+4. 100ms delay ensures cookies are fully propagated
+5. router.replace() navigates to the target page
+6. Middleware checks cookies and allows request through
+7. Client-side Clerk hooks hydrate with the session
+```
+
+### Why the 100ms Delay?
+
+After `setActive()` completes, the session cookies are set, but there's a brief window where:
+- The browser has the cookies
+- But the middleware hasn't seen them yet
+
+The 100ms delay ensures cookies are fully propagated before navigation.
+
+### The Cookie-Based Grace Period
+
+The middleware includes a grace period check:
+
+```typescript
+if (!userId) {
+  // Check if session cookies exist (session being established)
+  const hasClerkCookie = req.cookies.has("__client_uat") || req.cookies.has("__session");
+  if (hasClerkCookie) {
+    // Allow request - client will verify auth
+    return NextResponse.next();
+  }
+  // No cookies = truly unauthenticated, redirect to login
+  return NextResponse.redirect(loginUrl);
+}
+```
+
+This prevents the "redirect to login after successful auth" issue.
+
+### Code Pattern for Session Activation
+
+**Correct pattern (used in this codebase):**
+
+```typescript
+// 1. Activate the session
+await setActive({ session: result.createdSessionId });
+
+// 2. Wait for cookie propagation
+await new Promise((resolve) => setTimeout(resolve, 100));
+
+// 3. Navigate to destination
+router.replace("/dashboard");
+```
+
+**Incorrect pattern (causes race conditions):**
+
+```typescript
+// DON'T DO THIS - navigation happens before cookies propagate
+await setActive({
+  session: result.createdSessionId,
+  beforeEmit: () => router.replace("/dashboard"), // Too early!
+});
 ```
 
 ## Convex User Schema
@@ -510,8 +631,18 @@ await convex.mutation(api.users.index.updateUser, {
 | File | Description |
 |------|-------------|
 | `proxy.ts` | Clerk middleware for route protection |
-| `app/api/webhooks/clerk/route.ts` | Clerk webhook handler |
+| `convex/http.ts` | Clerk webhook handler (Convex HTTP action) |
+| `convex/auth.ts` | Convex auth utilities |
 | `app/providers.tsx` | Clerk + Convex + AuthSync providers |
+
+### Documentation Files
+
+| File | Description |
+|------|-------------|
+| `docs/AUTH-INTEGRATION.md` | This file - auth system documentation |
+| `docs/CLERK-CONVEX-SETUP.md` | Step-by-step setup guide |
+| `docs/DEPLOYMENT-CHECKLIST.md` | Production deployment checklist |
+| `.env.example` | Environment variables template |
 
 ## Error Handling
 
@@ -540,8 +671,14 @@ Error boundaries are set up at multiple levels:
 ### "User not found" errors
 
 1. Check webhook is configured correctly in Clerk dashboard
-2. Verify `CLERK_WEBHOOK_SECRET` is set in environment
-3. Check Convex logs for webhook errors
+2. Verify `CLERK_WEBHOOK_SECRET` is set in Convex environment:
+   ```bash
+   npx convex env list
+   ```
+3. Check Convex logs for webhook errors:
+   ```bash
+   npx convex logs
+   ```
 4. AuthSyncProvider should create user as fallback
 
 ### OAuth not working
@@ -549,21 +686,82 @@ Error boundaries are set up at multiple levels:
 1. Verify OAuth providers are enabled in Clerk dashboard
 2. Check redirect URLs are configured correctly
 3. Verify `sso-callback` page exists at `/app/(auth)/sso-callback/page.tsx`
+4. Ensure your domain is in Clerk's "Domains" list
 
 ### Infinite redirect loops
 
 1. Check `OnboardingGuard` excludes `/onboarding` path (it does by default)
 2. Verify `proxy.ts` route matchers are correct
 3. Check for circular redirects in auth flow
+4. Clear browser cookies and try again
 
 ### Session not persisting
 
 1. Ensure `ClerkProvider` wraps app in `providers.tsx`
 2. Check `ConvexProviderWithClerk` is configured with `useAuth`
 3. Verify environment variables are set correctly
+4. Check browser cookies for `__session` and `__client_uat`
 
 ### Onboarding not saving
 
 1. Check Convex logs for mutation errors
 2. Verify user exists in Convex (webhook or AuthSyncProvider)
 3. Check network tab for failed requests
+
+### Production-Specific Issues
+
+#### Signup works but doesn't auto-login
+
+**Symptoms:** User signs up, verifies email, but is redirected to login instead of onboarding.
+
+**Causes & Solutions:**
+1. **Missing cookie delay**: Ensure 100ms delay after `setActive()` before navigation
+2. **Middleware race condition**: Verify middleware has cookie-based grace period
+3. **Domain mismatch**: Check Clerk domain matches your Vercel deployment
+
+#### Email/password login fails but OAuth works
+
+**Symptoms:** Google OAuth works fine, but email/password returns errors.
+
+**Causes & Solutions:**
+1. **Email verification required**: Check Clerk settings for email verification
+2. **Password requirements**: Ensure password meets Clerk's requirements
+3. **2FA enabled**: User might have 2FA enabled, check for `needs_second_factor` status
+
+#### Session lost after page reload
+
+**Symptoms:** User is logged in, but refreshing the page logs them out.
+
+**Causes & Solutions:**
+1. **Cookie domain mismatch**: Verify Clerk domain in dashboard matches deployment
+2. **HTTPS required**: Clerk cookies require HTTPS in production
+3. **Third-party cookie blocking**: Check browser settings
+
+#### "Invalid API key" in production
+
+**Symptoms:** Auth fails with API key errors in production only.
+
+**Causes & Solutions:**
+1. **Wrong key type**: Use `pk_live_*` and `sk_live_*` for production
+2. **Key not set**: Verify all environment variables are set in Vercel
+3. **Key copied incorrectly**: Check for whitespace or truncation
+
+### Debug Tools
+
+**Browser Console:**
+```javascript
+// Check Clerk session
+window.Clerk.session
+// Check cookies
+document.cookie
+```
+
+**Convex Logs:**
+```bash
+npx convex logs --follow
+```
+
+**Check Environment:**
+```bash
+npx convex env list
+```

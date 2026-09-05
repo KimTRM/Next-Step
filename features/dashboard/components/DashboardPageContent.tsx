@@ -73,9 +73,9 @@ function DashboardContent({ searchParams }: { searchParams: Promise<{ welcome?: 
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
                     Welcome back, {isLoading ? <Skeleton className="h-6 w-24 inline-block" /> : currentUser?.name?.split(" ")[0] || 'User'}
                 </h1>
-                <p className="text-gray-600 mt-2 text-sm sm:text-base">
+                <span className="text-gray-600 mt-2 text-sm sm:text-base block">
                     {isLoading ? <Skeleton className="h-4 w-48 inline-block" /> : "Here's what's happening with your NextStep journey"}
-                </p>
+                </span>
             </div>
 
             {/* Stats Grid */}

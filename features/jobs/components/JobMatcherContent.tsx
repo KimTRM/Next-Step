@@ -273,6 +273,9 @@ export function JobMatcherContent() {
   async function checkAPI() {
     try {
       const response = await fetch(`${API_BASE}/health`);
+
+      console.log("API Health Check Response:", response);
+
       if (response.ok) {
         const data = await response.json();
         setApiStatus("ready");
@@ -564,8 +567,8 @@ export function JobMatcherContent() {
   const avgConfidence =
     matches.length > 0
       ? Math.round(
-          matches.reduce((a, b) => a + b.confidence, 0) / matches.length
-        )
+        matches.reduce((a, b) => a + b.confidence, 0) / matches.length
+      )
       : 0;
   const strongMatches = matches.filter((m) => m.confidence >= 75).length;
 
@@ -910,10 +913,10 @@ Previously worked at Tech Corp, StartupXYZ`}
                       ))}
                     {(!aiAnalysisData.detected_skills ||
                       aiAnalysisData.detected_skills.length === 0) && (
-                      <span className="text-muted-foreground text-sm">
-                        No specific skills detected
-                      </span>
-                    )}
+                        <span className="text-muted-foreground text-sm">
+                          No specific skills detected
+                        </span>
+                      )}
                   </div>
                 </div>
 

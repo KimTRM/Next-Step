@@ -6,7 +6,7 @@
  * No forms, no data collection - just a welcome message
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
@@ -29,8 +29,18 @@ export default function WelcomePageContent() {
     // Mutation to update onboarding status
     const setOnboardingStatus = useMutation(api.users.index.setOnboardingStatus);
 
-    const handleGetStarted = async () => {
+    const handleGetStarted = useCallback(async () => {
         if (isStarting) return;
+
+        // Don't proceed if not authenticated
+        if (!isLoaded || !userId) {
+            // If auth is loaded but no user, redirect to auth
+            if (isLoaded && !userId) {
+                router.push("/auth");
+            }
+            // Otherwise, auth is still loading - button should be disabled
+            return;
+        }
 
         setIsStarting(true);
         try {
@@ -43,13 +53,16 @@ export default function WelcomePageContent() {
             console.error("Failed to start onboarding:", error);
             setIsStarting(false);
         }
-    };
+    }, [isStarting, isLoaded, userId, setOnboardingStatus, router]);
 
     // Get user's first name for greeting
     const firstName = user?.name?.split(" ")[0] || "there";
 
+    // Button is disabled while auth is loading or action is in progress
+    const isButtonDisabled = !isLoaded || isStarting;
+
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-gradient-to-br from-green-600 via-green-700 to-green-800">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-linear-to-br from-green-600 via-green-700 to-green-800">
             {/* Left Side - Welcome Message */}
             <div className="relative w-full lg:w-1/2 flex flex-col items-center justify-center gap-6 px-6 py-12 sm:px-8 lg:px-12">
                 <div className="max-w-lg text-center lg:text-left">
@@ -68,7 +81,7 @@ export default function WelcomePageContent() {
 
                     <Button
                         onClick={handleGetStarted}
-                        disabled={isStarting}
+                        disabled={isButtonDisabled}
                         size="lg"
                         className="w-full sm:w-auto bg-white text-green-700 hover:bg-green-50 font-semibold text-lg px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     >
@@ -76,6 +89,11 @@ export default function WelcomePageContent() {
                             <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                                 Starting...
+                            </>
+                        ) : !isLoaded ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Loading...
                             </>
                         ) : (
                             <>
@@ -96,6 +114,9 @@ export default function WelcomePageContent() {
                         alt="NextStep Logo"
                         width={320}
                         height={320}
+                        loading="eager"
+                        priority
+                        style={{ width: 'auto' }}
                     />
                     <div className="mt-8 text-center">
                         <p className="text-white/80 text-xl font-medium">

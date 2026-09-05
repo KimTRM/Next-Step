@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
     "/jobs(.*)",
     "/mentors(.*)",
     "/api(.*)",
+    "/welcome",
 ]);
 
 // Auth routes - redirect authenticated users away from these
@@ -70,7 +71,19 @@ export default clerkMiddleware(async (auth, req) => {
 
     // All other routes require authentication
     if (!userId) {
-        // Preserve the intended destination for redirect after login
+        // Check if session is being established (cookies exist but not yet validated)
+        // This handles race condition after sign-up/sign-in where cookies are set
+        // but the session hasn't been fully validated by middleware yet
+        const hasClerkCookie =
+            req.cookies.has("__client_uat") || req.cookies.has("__session");
+
+        if (hasClerkCookie) {
+            // Session cookie exists - allow request, client-side will handle auth
+            // This prevents redirect loops during session establishment
+            return NextResponse.next();
+        }
+
+        // No session at all, redirect to auth
         const loginUrl = new URL("/auth", req.url);
         loginUrl.searchParams.set("redirect_url", pathname);
         return NextResponse.redirect(loginUrl);
